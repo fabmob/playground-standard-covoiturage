@@ -7,6 +7,8 @@ import (
 	"net/url"
 )
 
+//go:generate oapi-codegen -package client -o ./client/client.go -generate "types,client" --old-config-style stdcov_openapi.yaml
+
 func main() {
 	urlStrPtr := flag.String("url", "", "Base url of the API under test")
 
