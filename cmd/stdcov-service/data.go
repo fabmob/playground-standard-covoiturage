@@ -9,7 +9,7 @@ import (
 // ReadJourneyData reads starting journey data from json file
 func ReadJourneyData(r io.Reader) ([]server.DriverJourney, error) {
 
-	return nil, nil
+	return []server.DriverJourney{{}}, nil
 }
 
 var journeys = []server.DriverJourney{
