@@ -1,11 +1,20 @@
 package main
 
-import "gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
+import (
+	"io"
+
+	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
+)
+
+// ReadJourneyData reads starting journey data from json file
+func ReadJourneyData(r io.Reader) ([]server.DriverJourney, error) {
+
+	return nil, nil
+}
 
 var journeys = []server.DriverJourney{
 	{
 		Driver: server.User{
-			// User's alias.
 			Alias: "bob",
 			Id:    "1",
 		},
