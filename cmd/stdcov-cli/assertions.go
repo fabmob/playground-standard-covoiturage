@@ -140,7 +140,7 @@ func (a *DefaultAssertionAccu) Run(assertions ...Assertion) {
 		a.storedAssertionResults = append(
 			a.storedAssertionResults,
 			NewAssertionResult(err, a.endpoint.path, a.endpoint.method,
-				assertion.Describe(), nil),
+				assertion.Describe()),
 		)
 		_, critic := assertion.(CriticAssertion)
 		fatal := (critic && err != nil)
