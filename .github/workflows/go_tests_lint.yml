@@ -12,7 +12,6 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
 
     - name: Setup go 1.19
       uses: actions/setup-go@v3
@@ -24,6 +23,8 @@ jobs:
     needs: setup
 
     steps:
+    - uses: actions/checkout@v3
+
     - name: build
       run: go build ./...
 
@@ -50,11 +51,6 @@ jobs:
     needs: setup
     steps:
       - uses: actions/checkout@v3
-
-      - name: Setup go 1.19
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
 
       - name: format
         run: test -z "$(gofmt -l ./)"
