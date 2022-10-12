@@ -5,4 +5,6 @@ specification](https://github.com/fabmob/standard-covoiturage):
 - A test server with fake in-memory data to play with the standard API.
 - A client that runs a test suite against a server implementation.
 
+The tool is currently being developped. More about the aimed functional scope 
+[here (fr)](./docs/proposition_fonctionelle.pdf).
 
