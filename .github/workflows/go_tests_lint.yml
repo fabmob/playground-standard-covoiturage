@@ -1,0 +1,75 @@
+# CI : test, build, lint
+
+name: Code quality
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup go 1.19
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.19
+
+    - name: build
+      run: go build ./...
+
+    - name: test
+      run: go test -v -coverprofile=go-coverage.out -json ./... | tee go-test-report.json
+
+    - name: Archive test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: code-test-report
+        path: go-test-report.json
+        retention-days: 1
+
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v3
+      with:
+        name: code-coverage-report
+        path: go-coverage.out
+        retention-days: 1
+
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup go 1.19
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: format
+        run: test -z "$(gofmt -l ./)"
+
+      - name: vet
+        run: go vet -json ./... | tee go-vet-report.json
+
+      - name: Archive vet results
+        uses: actions/upload-artifact@v3
+        with:
+          name: go-vet-report
+          path: go-vet-report.json
+          retention-days: 1
+
+      - name: golint
+        run: |
+          go install golang.org/x/lint/golint@v0.0.0-20210508222113-6edffad5e616
+          golint -set_exit_status ./...
+
+      - name: staticcheck
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@2022.1
+          staticcheck ./...
+
