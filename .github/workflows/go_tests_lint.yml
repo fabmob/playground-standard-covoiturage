@@ -73,21 +73,15 @@ jobs:
           go install honnef.co/go/tools/cmd/staticcheck@2022.1
           staticcheck ./...
 
-  run-server:
+  test-server:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: build
+      - name: build server
         run: go build ./cmd/stdcov-service/
       - name: run server
         run: ./stdcov-service &
-
-  test-server:
-    runs-on: ubuntu-latest
-    needs: run-server
-    steps:
-      - uses: actions/checkout@v3
-      - name: build
+      - name: build cli
         run: go build ./cmd/stdcov-cli/
-      - name: run server
+      - name: test server
         run: ./stdcov-cli --verbose --url http://localhost:1323
