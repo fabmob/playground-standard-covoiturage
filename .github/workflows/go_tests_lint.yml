@@ -52,3 +52,14 @@ jobs:
 
       - name: format
         run: test -z "$(gofmt -l ./)"
+
+      - name: vet
+        run: go vet -json ./... | tee go-vet-report.json
+
+      - name: Archive vet results
+        uses: actions/upload-artifact@v3
+        with:
+          name: go-vet-report
+          path: go-vet-report.json
+          retention-days: 1
+
