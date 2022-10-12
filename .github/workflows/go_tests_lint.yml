@@ -68,3 +68,8 @@ jobs:
           go install golang.org/x/lint/golint@v0.0.0-20210508222113-6edffad5e616
           golint -set_exit_status ./...
 
+      - name: staticcheck
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@2022.1
+          staticcheck ./...
+
