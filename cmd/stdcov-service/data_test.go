@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
 )
 
@@ -49,5 +50,8 @@ func TestReadJourneyData(t *testing.T) {
 		t.Logf("Expected length of data: %d", len(expected))
 		t.Logf("Got length of data: %d", len(got))
 		t.Error()
+	}
+	if !cmp.Equal(got, expected) {
+		t.Error("Parsing journey data does not produce expected output")
 	}
 }
