@@ -1,6 +1,8 @@
 
 - Test that the right assertions are called with fake `Asserter`
 - Factorize assertions_test.go thanks to new `Assertion` interface
+- Check that URL option is not empty (or set default to server)
+- assertDriverJourneysFormat should not modify the response object in-place
 
 
 

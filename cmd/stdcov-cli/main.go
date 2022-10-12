@@ -8,7 +8,7 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
 )
 
-//go:generate oapi-codegen -package client -o ./client/client.go -generate "types,client" --old-config-style stdcov_openapi.yaml
+//go:generate oapi-codegen -package client -o ./client/client.go -generate "types,client" --old-config-style ../../stdcov_openapi.yaml
 
 func main() {
 	os.Exit(run())

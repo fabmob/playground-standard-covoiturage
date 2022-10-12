@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/pkg/errors"
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
@@ -56,13 +57,13 @@ func (ar AssertionResult) String() string {
 	}
 
 	resStr := fmt.Sprintf(
-		"%7s %-20s  %-20s",
+		"%7s %-35s  %-35s",
 		symbol,
 		ar.endpoint,
 		ar.assertionDescription,
 	)
 	if err != nil {
-		resStr += fmt.Sprintf("  %s", err)
+		resStr += fmt.Sprintf("\n%5s %s", "", err)
 	}
 	return resStr
 }
@@ -144,10 +145,10 @@ func AssertStatusCodeOK(a AssertionAccumulator, resp *http.Response) {
 	AssertStatusCode(a, resp, http.StatusOK)
 }
 
-// AssertHeader checks if a given key is present in header, with associated
+// AssertHeaderContains checks if a given key is present in header, with associated
 // value
-func AssertHeader(a AssertionAccumulator, resp *http.Response, key, value string) {
-	assertion := assertHeader{resp, key, value}
+func AssertHeaderContains(a AssertionAccumulator, resp *http.Response, key, value string) {
+	assertion := assertHeaderContains{resp, key, value}
 	a.Run(assertion)
 }
 
@@ -197,15 +198,15 @@ func (a assertStatusCode) Describe() string {
 
 /////////////////////////////////////////////////////////////
 
-type assertHeader struct {
+type assertHeaderContains struct {
 	resp       *http.Response
 	key, value string
 }
 
-func (a assertHeader) Execute() error {
+func (a assertHeaderContains) Execute() error {
 	if val, ok := a.resp.Header[a.key]; !ok {
 		return errors.Errorf("expected header %s, which is missing", a.key)
-	} else if len(val[0]) < 1 || val[0] != a.value {
+	} else if len(val[0]) < 1 || !strings.Contains(val[0], a.value) {
 		return errors.Errorf(
 			"expected value %s for header %s, got %s",
 			a.value,
@@ -217,7 +218,7 @@ func (a assertHeader) Execute() error {
 	}
 }
 
-func (a assertHeader) Describe() string {
+func (a assertHeaderContains) Describe() string {
 	return "assertheader " + a.key + ":" + a.value
 }
 

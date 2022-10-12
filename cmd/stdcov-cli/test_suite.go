@@ -75,7 +75,7 @@ func testGetDriverJourneys(Client APIClient, a AssertionAccumulator) {
 		return
 	}
 
-	AssertHeader(a, response, "Content-Type", "json")
+	AssertHeaderContains(a, response, "Content-Type", "application/json")
 	AssertDriverJourneysFormat(a, response)
 }
 
