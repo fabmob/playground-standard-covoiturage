@@ -98,7 +98,10 @@ func TestExpectStatusCode(t *testing.T) {
 func TestExpectHeaders(t *testing.T) {
 
 	headerContentTypeJSON := http.Header{
-		"Content-Type": {"json"},
+		"Content-Type": {"application/json"},
+	}
+	headerContentTypeJSONWithCharset := http.Header{
+		"Content-Type": {"application/json; charset=UTF-8"},
 	}
 	headerContentTypeForm := http.Header{
 		"Content-Type": {"multipart/form-data"},
@@ -115,28 +118,35 @@ func TestExpectHeaders(t *testing.T) {
 			"No Content-Type header",
 			make(http.Header),
 			"Content-Type",
-			"json",
+			"application/json",
 			false,
 		},
 		{
 			"json Content-Type header",
 			headerContentTypeJSON,
 			"Content-Type",
-			"json",
+			"application/json",
+			true,
+		},
+		{
+			"json Content-Type header with charset",
+			headerContentTypeJSONWithCharset,
+			"Content-Type",
+			"application/json",
 			true,
 		},
 		{
 			"json Content-Type header",
 			headerContentTypeJSON,
 			"Server",
-			"json",
+			"application/json",
 			false,
 		},
 		{
 			"wrong Content-Type header",
 			headerContentTypeForm,
 			"Content-Type",
-			"json",
+			"application/json",
 			false,
 		},
 	}
@@ -144,7 +154,7 @@ func TestExpectHeaders(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			r := mockResponse(http.StatusOK, "", tc.header)
-			assertion := assertHeader{r, tc.testKey, tc.testValue}
+			assertion := assertHeaderContains{r, tc.testKey, tc.testValue}
 			assertionError := runAssertion(t, assertion)
 			if (assertionError == nil) != tc.expectNilError {
 				t.Logf("Headers: %v", tc.header)
@@ -166,7 +176,7 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 	emptyDriverJourneysBody := marshalDriverJourneys([]client.DriverJourney{})
 	singleDriverJourneyBody := marshalDriverJourneys([]client.DriverJourney{{}})
 
-	jsonContentTypeHeader := http.Header{"Content-Type": []string{"json"}}
+	jsonContentTypeHeader := http.Header{"Content-Type": []string{"application/json"}}
 	testCases := []struct {
 		name           string
 		body           string
