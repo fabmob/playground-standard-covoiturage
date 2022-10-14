@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"io"
 
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
@@ -8,8 +10,17 @@ import (
 
 // ReadJourneyData reads starting journey data from json file
 func ReadJourneyData(r io.Reader) ([]server.DriverJourney, error) {
+	var journeyData []server.DriverJourney
+	bytes, readErr := io.ReadAll(r)
+	if readErr != nil {
+		return nil, readErr
+	}
 
-	return []server.DriverJourney{{}}, nil
+	err := json.Unmarshal(bytes, &journeyData)
+	if journeyData == nil {
+		return nil, errors.New("no journey data to parse")
+	}
+	return journeyData, err
 }
 
 var journeys = []server.DriverJourney{
