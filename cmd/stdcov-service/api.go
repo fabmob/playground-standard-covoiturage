@@ -45,8 +45,9 @@ func (*StdCovServerImpl) GetDriverJourneys(
 	ctx echo.Context,
 	params server.GetDriverJourneysParams,
 ) error {
-	// Implement me
-	return ctx.JSON(http.StatusOK, []server.DriverJourney{})
+	defaultDataFile := "./data/defaultJourneyData.json"
+	v, _ := ReadJourneyDataFromFile(defaultDataFile)
+	return ctx.JSON(http.StatusOK, v)
 }
 
 // GetDriverRegularTrips searches for matching regular driver trip.

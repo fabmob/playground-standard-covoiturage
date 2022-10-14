@@ -4,9 +4,18 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"os"
 
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
 )
+
+func ReadJourneyDataFromFile(path string) ([]server.DriverJourney, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	return ReadJourneyData(f)
+}
 
 // ReadJourneyData reads starting journey data from json file
 func ReadJourneyData(r io.Reader) ([]server.DriverJourney, error) {
