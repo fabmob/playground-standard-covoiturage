@@ -176,7 +176,22 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 	emptyDriverJourneysBody := marshalDriverJourneys([]client.DriverJourney{})
 	singleDriverJourneyBody := marshalDriverJourneys([]client.DriverJourney{{}})
 
+	missingProp := `[
+  {
+    "duration": 0,
+    "operator": "",
+    "passengerDropLat": 0,
+    "passengerDropLng": 0,
+    "passengerPickupDate": 0,
+    "passengerPickupLat": 0,
+    "passengerPickupLng": 0,
+    "type": ""
+  }
+]
+`
+
 	jsonContentTypeHeader := http.Header{"Content-Type": []string{"application/json"}}
+
 	testCases := []struct {
 		name           string
 		body           string
@@ -205,6 +220,11 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 			"Other content type",
 			"Hello, world!",
 			http.Header{"Content-Type": []string{"text/plain"}},
+			false,
+		},
+		{
+			"required \"driver\" property is missing", missingProp,
+			jsonContentTypeHeader,
 			false,
 		},
 	}
