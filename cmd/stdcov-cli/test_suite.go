@@ -75,20 +75,12 @@ func testGetDriverJourneys(Client APIClient, a AssertionAccumulator) {
 	// Get response
 	response, clientErr := Client.GetDriverJourneys(context.Background(), params)
 
-	assertions := []struct {
-		assertion Assertion
-		fatal     bool
-	}{
-		{assertAPICallSuccess{clientErr}, true},
-		{assertStatusCode{response, http.StatusOK}, false},
-		{assertHeaderContains{response, "Content-Type", "application/json"}, false},
-		{assertDriverJourneysFormat{request, response}, false},
-	}
-
-	for _, step := range assertions {
-		a.Run(step.assertion)
-		if a.LastAssertionHasError() && step.fatal {
-			return
-		}
-	}
+	a.Run(
+		AssertionCollection{
+			{assertAPICallSuccess{clientErr}, true},
+			{assertStatusCode{response, http.StatusOK}, false},
+			{assertHeaderContains{response, "Content-Type", "application/json"}, false},
+			{assertDriverJourneysFormat{request, response}, false},
+		},
+	)
 }
