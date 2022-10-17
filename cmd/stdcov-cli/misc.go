@@ -10,3 +10,9 @@ type Endpoint struct {
 func (e Endpoint) String() string {
 	return e.method + " " + e.path
 }
+
+func panicIfError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}

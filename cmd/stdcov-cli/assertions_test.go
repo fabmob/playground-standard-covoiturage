@@ -174,7 +174,8 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 	}
 
 	emptyDriverJourneysBody := marshalDriverJourneys([]client.DriverJourney{})
-	singleDriverJourneyBody := marshalDriverJourneys([]client.DriverJourney{{}})
+	singleDriverJourneyBody :=
+		marshalDriverJourneys([]client.DriverJourney{{Type: "DYNAMIC"}})
 
 	missingProp := `[
   {
@@ -231,11 +232,18 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			r := mockResponse(http.StatusOK, tc.body, tc.header)
-			assertion := assertDriverJourneysFormat{r}
+			request, err := http.NewRequest(
+				http.MethodGet,
+				"/driver_journeys?departureLat=0&departureLng=0&arrivalLat=0&arrivalLng=0&departureDate=1666014179&timeDelta=900&departureRadius=1&arrivalRadius=1",
+				strings.NewReader(""),
+			)
+			panicIfError(err)
+			response := mockResponse(http.StatusOK, tc.body, tc.header)
+			assertion := assertDriverJourneysFormat{request, response}
 			assertionError := runAssertion(t, assertion)
 			if (assertionError == nil) != tc.expectNilError {
-				t.Errorf("Wrong format response body should not be validated")
+				t.Errorf("Wrong format response body should not be validated: %s",
+					assertionError)
 			}
 		})
 	}

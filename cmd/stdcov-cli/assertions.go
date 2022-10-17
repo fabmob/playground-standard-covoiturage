@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
 )
 
 // An Assertion is a unit test that can be executed and that can describe
@@ -154,8 +153,8 @@ func AssertHeaderContains(a AssertionAccumulator, resp *http.Response, key, valu
 
 // AssertDriverJourneysFormat checks if the response data of
 // /driver_journeys call has the expected format
-func AssertDriverJourneysFormat(a AssertionAccumulator, response *http.Response) {
-	assertion := assertDriverJourneysFormat{response}
+func AssertDriverJourneysFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := assertDriverJourneysFormat{request, response}
 	a.Run(assertion)
 }
 
@@ -225,12 +224,12 @@ func (a assertHeaderContains) Describe() string {
 /////////////////////////////////////////////////////////////
 
 type assertDriverJourneysFormat struct {
+	request  *http.Request
 	response *http.Response
 }
 
 func (a assertDriverJourneysFormat) Execute() error {
-	a.response.Header["Content-Type"] = []string{"json"}
-	_, err := client.ParseGetDriverJourneysResponse(a.response)
+	err := ValidateResponse(a.request, a.response)
 	return err
 }
 

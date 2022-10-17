@@ -4,6 +4,8 @@
 - Check that URL option is not empty (or set default to server)
 - assertDriverJourneysFormat should not modify the response object in-place
 
+Server:
+- Validate request with OapiRequestValidator middleware
 
 
 Vocabulary :

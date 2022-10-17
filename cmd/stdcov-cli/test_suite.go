@@ -65,24 +65,36 @@ func testGetStatus(Client APIClient, a AssertionAccumulator) {
 }
 
 func testGetDriverJourneys(Client APIClient, a AssertionAccumulator) {
-	response, err := getDriverJourneysResponse(Client)
+	params := &client.GetDriverJourneysParams{}
+	response, err := getDriverJourneysResponse(Client, params)
 	AssertAPICallSuccess(a, err)
 	if a.LastAssertionHasError() {
 		return
 	}
-	AssertStatusCodeOK(a, response)
+	request, err := getDriverJourneysRequest(Client, params)
+	AssertAPICallSuccess(a, err)
 	if a.LastAssertionHasError() {
 		return
 	}
 
+	AssertStatusCodeOK(a, response)
+	if a.LastAssertionHasError() {
+		return
+	}
 	AssertHeaderContains(a, response, "Content-Type", "application/json")
-	AssertDriverJourneysFormat(a, response)
+	AssertDriverJourneysFormat(a, request, response)
 }
 
 /////////////////////////////////////////////////////////////
 
-func getDriverJourneysResponse(Client APIClient) (*http.Response, error) {
-	params := &client.GetDriverJourneysParams{}
+func getDriverJourneysResponse(Client APIClient, params *client.GetDriverJourneysParams) (*http.Response, error) {
 	response, err := Client.GetDriverJourneys(context.Background(), params)
 	return response, err
+}
+
+func getDriverJourneysRequest(Client APIClient, params *client.GetDriverJourneysParams) (*http.Request, error) {
+
+	req, err := client.NewGetDriverJourneysRequest(Client.Server, params)
+	return req, err
+
 }
