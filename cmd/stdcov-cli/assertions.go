@@ -16,15 +16,6 @@ type Assertion interface {
 	Describe() string
 }
 
-// An AssertionCollection is an ordered list of assertions
-type AssertionCollection []struct {
-	assertion Assertion
-	// fatal indicates how to behave if an assertion fails:
-	// - true: execute next assertion
-	// - false: stop
-	fatal bool
-}
-
 // An AssertionResult stores data and metadata about the result of a single assertion
 type AssertionResult struct {
 	// Error, if any
@@ -77,6 +68,15 @@ func (ar AssertionResult) String() string {
 }
 
 /////////////////////////////////////////////////////////////
+
+// An AssertionCollection is an ordered list of assertions
+type AssertionCollection []struct {
+	assertion Assertion
+	// fatal indicates how to behave if an assertion fails:
+	// - true: execute next assertion
+	// - false: stop
+	fatal bool
+}
 
 // An AssertionAccumulator can run assertions, store and retrieve the
 // corresponding AssertionResults
