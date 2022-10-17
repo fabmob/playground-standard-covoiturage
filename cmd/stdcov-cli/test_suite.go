@@ -65,13 +65,15 @@ func testGetStatus(Client APIClient, a AssertionAccumulator) {
 }
 
 func testGetDriverJourneys(Client APIClient, a AssertionAccumulator) {
+	// Test query parameters
 	params := &client.GetDriverJourneysParams{}
-	response, err := Client.GetDriverJourneys(context.Background(), params)
-	AssertAPICallSuccess(a, err)
-	if a.LastAssertionHasError() {
-		return
-	}
+
+	// Request
 	request, err := client.NewGetDriverJourneysRequest(Client.Server, params)
+	AssertAPICallSuccess(a, err)
+
+	// Get response
+	response, err := Client.GetDriverJourneys(context.Background(), params)
 	AssertAPICallSuccess(a, err)
 	if a.LastAssertionHasError() {
 		return
