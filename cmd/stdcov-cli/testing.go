@@ -65,3 +65,13 @@ func mockResponse(
 func mockStatusResponse(statusCode int) *http.Response {
 	return mockResponse(statusCode, "", nil)
 }
+
+type NoOpAssertion struct{}
+
+func (NoOpAssertion) Execute() error {
+	return nil
+}
+
+func (NoOpAssertion) Describe() string {
+	return "No assertion"
+}

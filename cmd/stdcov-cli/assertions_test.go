@@ -278,6 +278,40 @@ func shouldHaveSingleAssertionResult(t *testing.T, a *DefaultAssertionAccu) {
 	}
 }
 
+func TestDefaultAssertionAccu_Run(t *testing.T) {
+	assertions := AssertionCollection{
+		NoOpAssertion{},
+		NoOpAssertion{},
+	}
+
+	a := NewDefaultAsserter()
+	a.Run(assertions)
+	if len(a.storedAssertionResults) != 2 {
+		t.Logf(
+			"Got %d assertion executions, expected %d",
+			len(a.storedAssertionResults),
+			2,
+		)
+		t.Error("CriticAssertions are not handled as expected")
+	}
+
+	assertions = AssertionCollection{
+		Critic(NoOpAssertion{}),
+		NoOpAssertion{},
+	}
+
+	a = NewDefaultAsserter()
+	a.Run(assertions)
+	if len(a.storedAssertionResults) != 2 {
+		t.Logf(
+			"Got %d assertion executions, expected %d",
+			len(a.storedAssertionResults),
+			2,
+		)
+		t.Error("CriticAssertions are not handled as expected")
+	}
+}
+
 // runAssertion is a testing helper, which runs an assertion, and returns its underlying error (can
 // be nil)
 func runAssertion(

@@ -115,8 +115,8 @@ func NewDefaultAsserter() *DefaultAssertionAccu {
 }
 
 // Run implements Asserter.Run
-func (a *DefaultAssertionAccu) Run(assertionColl AssertionCollection) {
-	for _, assertion := range assertionColl {
+func (a *DefaultAssertionAccu) Run(assertions AssertionCollection) {
+	for _, assertion := range assertions {
 		err := assertion.Execute()
 
 		a.storedAssertionResults = append(
