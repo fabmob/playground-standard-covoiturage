@@ -244,7 +244,7 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 				"/driver_journeys?departureLat=0&departureLng=0&arrivalLat=0&arrivalLng=0&departureDate=1666014179&timeDelta=900&departureRadius=1&arrivalRadius=1",
 				strings.NewReader(""),
 			)
-			panicIfError(err)
+			panicIf(err)
 			response := mockResponse(http.StatusOK, tc.body, tc.header)
 			assertion := assertDriverJourneysFormat{request, response}
 			assertionError := runSingleAssertion(t, assertion)

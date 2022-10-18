@@ -11,7 +11,8 @@ func (e Endpoint) String() string {
 	return e.method + " " + e.path
 }
 
-func panicIfError(err error) {
+// panicIf panics if err is not nil
+func panicIf(err error) {
 	if err != nil {
 		panic(err)
 	}

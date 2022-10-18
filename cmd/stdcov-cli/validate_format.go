@@ -14,27 +14,23 @@ import (
 // OpenAPIv3SpecPath is the relative access path to the OpenAPI specification
 var OpenAPIv3SpecPath = filepath.Join("..", "..", "stdcov_openapi.yaml")
 
-// ValidateResponse validates a Response against the openapi specification
+// ValidateResponse validates a Response against the openapi specification.
 func ValidateResponse(request *http.Request, response *http.Response) error {
 	ctx := context.Background()
 	loader := &openapi3.Loader{Context: ctx, IsExternalRefsAllowed: true}
-	doc, err := loader.LoadFromFile(OpenAPIv3SpecPath)
+	spec, loadingErr := loader.LoadFromFile(OpenAPIv3SpecPath)
+	panicIf(loadingErr) // Error only if problem with module internals
 
-	if err != nil {
-		panic(err)
-	}
+	specValidationErr := spec.Validate(ctx)
+	panicIf(specValidationErr) // Error only if problem with module internals
 
-	router, err := gorillamux.NewRouter(doc)
-
-	if err != nil {
-		panic(err)
-	}
+	router, routerErr := gorillamux.NewRouter(spec)
+	panicIf(routerErr) // Error only if problem with module internals
 
 	// Find route
 	route, pathParams, err := router.FindRoute(request)
-
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	requestValidationInput := &openapi3filter.RequestValidationInput{
@@ -50,9 +46,8 @@ func ValidateResponse(request *http.Request, response *http.Response) error {
 		Header:                 response.Header,
 	}
 	body, err := io.ReadAll(response.Body)
-
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	responseValidationInput.SetBodyBytes(body)
