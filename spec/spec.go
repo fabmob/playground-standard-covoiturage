@@ -5,5 +5,6 @@ import (
 )
 
 // OpenAPISpec is the OpenAPI specification
+//
 //go:embed stdcov_openapi.yaml
 var OpenAPISpec []byte
