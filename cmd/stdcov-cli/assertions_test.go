@@ -224,7 +224,8 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 			false,
 		},
 		{
-			"required \"driver\" property is missing", missingProp,
+			"required \"driver\" property is missing",
+			missingProp,
 			jsonContentTypeHeader,
 			false,
 		},
