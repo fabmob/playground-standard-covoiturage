@@ -56,12 +56,12 @@ type auxTestFun func(APIClient, AssertionAccumulator)
 func testGetStatus(Client APIClient, a AssertionAccumulator) {
 	response, err := Client.GetStatus(context.Background())
 
-	a.Run(
-		AssertionCollection{
-			{assertAPICallSuccess{err}, true},
-			{assertStatusCode{response, http.StatusOK}, false},
-		},
-	)
+	AssertAPICallSuccess(a, err)
+	if a.LastAssertionHasError() {
+		return
+	}
+
+	AssertStatusCodeOK(a, response)
 }
 
 func testGetDriverJourneys(Client APIClient, a AssertionAccumulator) {
