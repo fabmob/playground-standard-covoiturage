@@ -106,15 +106,15 @@ type DefaultAssertionAccu struct {
 	endpoint               Endpoint
 }
 
-// NewDefaultAsserter inits a *DefaultAsserter
-func NewDefaultAsserter() *DefaultAssertionAccu {
+// NewAssertionAccu inits a *DefaultAssertionAccu
+func NewAssertionAccu() *DefaultAssertionAccu {
 	return &DefaultAssertionAccu{
 		storedAssertionResults: []AssertionResult{},
 		endpoint:               Endpoint{},
 	}
 }
 
-// Run implements Asserter.Run
+// Run implements AssertionAccumulator.Run
 func (a *DefaultAssertionAccu) Run(assertions AssertionCollection) {
 	for _, assertion := range assertions {
 		err := assertion.Execute()
@@ -132,12 +132,12 @@ func (a *DefaultAssertionAccu) Run(assertions AssertionCollection) {
 	}
 }
 
-// GetAssertionResults implements Asserter.GetAssertionResults
+// GetAssertionResults implements AssertionAccumulator.GetAssertionResults
 func (a *DefaultAssertionAccu) GetAssertionResults() []AssertionResult {
 	return a.storedAssertionResults
 }
 
-// LastAssertionHasError implements Asserter.LastAssertionHasError
+// LastAssertionHasError implements AssertionAccumulator.LastAssertionHasError
 func (a *DefaultAssertionAccu) LastAssertionHasError() bool {
 	ar := a.storedAssertionResults
 	if len(ar) == 0 {

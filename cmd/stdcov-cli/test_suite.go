@@ -34,7 +34,7 @@ type TestFun func(APIClient) []AssertionResult
 // TestGetStatus checks the `GET /status` endpoint
 func TestGetStatus(Client APIClient) []AssertionResult {
 	endpoint := Endpoint{"/status", http.MethodGet}
-	a := NewDefaultAsserter()
+	a := NewAssertionAccu()
 	a.endpoint = endpoint
 	testGetStatus(Client, a)
 	return a.GetAssertionResults()
@@ -43,7 +43,7 @@ func TestGetStatus(Client APIClient) []AssertionResult {
 // TestGetDriverJourneys checks the `GET /driver_journeys` endpoint
 func TestGetDriverJourneys(Client APIClient) []AssertionResult {
 	endpoint := Endpoint{"/driver_journeys", http.MethodGet}
-	a := NewDefaultAsserter()
+	a := NewAssertionAccu()
 	a.endpoint = endpoint
 	testGetDriverJourneys(Client, a)
 	return a.GetAssertionResults()

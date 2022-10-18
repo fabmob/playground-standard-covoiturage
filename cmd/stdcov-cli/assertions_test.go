@@ -306,7 +306,7 @@ func TestDefaultAssertionAccu_Run(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			a := NewDefaultAsserter()
+			a := NewAssertionAccu()
 			a.Run(tc.assertions)
 			if len(a.storedAssertionResults) != tc.expectedNAssertions {
 				t.Logf(
@@ -327,7 +327,7 @@ func runSingleAssertion(
 	assertion Assertion,
 ) error {
 	t.Helper()
-	a := NewDefaultAsserter()
+	a := NewAssertionAccu()
 	ac := AssertionCollection{assertion}
 	a.Run(ac)
 
