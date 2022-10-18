@@ -93,9 +93,6 @@ type AssertionAccumulator interface {
 
 	// GetAssertionResults returns all results of executed assertions
 	GetAssertionResults() []AssertionResult
-	// LastAssertionHasError returns whether the last assertion returned an
-	// error
-	LastAssertionHasError() bool
 }
 
 /////////////////////////////////////////////////////////////
@@ -135,15 +132,6 @@ func (a *DefaultAssertionAccu) Run(assertions AssertionCollection) {
 // GetAssertionResults implements AssertionAccumulator.GetAssertionResults
 func (a *DefaultAssertionAccu) GetAssertionResults() []AssertionResult {
 	return a.storedAssertionResults
-}
-
-// LastAssertionHasError implements AssertionAccumulator.LastAssertionHasError
-func (a *DefaultAssertionAccu) LastAssertionHasError() bool {
-	ar := a.storedAssertionResults
-	if len(ar) == 0 {
-		panic("Trying to access inexistant or empty []AssertionError")
-	}
-	return ar[len(ar)-1].Unwrap() != nil
 }
 
 /////////////////////////////////////////////////////////////
