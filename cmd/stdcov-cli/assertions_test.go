@@ -174,8 +174,8 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 	}
 
 	emptyDriverJourneysBody := marshalDriverJourneys([]client.DriverJourney{})
-	singleDriverJourneyBody :=
-		marshalDriverJourneys([]client.DriverJourney{{Type: "DYNAMIC"}})
+	singleDriverJourneyBody := marshalDriverJourneys([]client.DriverJourney{{Type: "DYNAMIC"}})
+	notAllowedByEnum := marshalDriverJourneys([]client.DriverJourney{{Type: "Not allowed"}})
 
 	missingProp := `[
   {
@@ -224,8 +224,14 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 			false,
 		},
 		{
-			"required \"driver\" property is missing",
+			"Required \"driver\" property is missing",
 			missingProp,
+			jsonContentTypeHeader,
+			false,
+		},
+		{
+			"Not allowed \"type\" property",
+			notAllowedByEnum,
 			jsonContentTypeHeader,
 			false,
 		},
