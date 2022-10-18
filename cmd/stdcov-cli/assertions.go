@@ -16,15 +16,6 @@ type Assertion interface {
 	Describe() string
 }
 
-// An AssertionCollection is an ordered list of assertions
-type AssertionCollection []struct {
-	assertion Assertion
-	// fatal indicates how to behave if an assertion fails:
-	// - true: execute next assertion
-	// - false: stop
-	fatal bool
-}
-
 // An AssertionResult stores data and metadata about the result of a single assertion
 type AssertionResult struct {
 	// Error, if any
@@ -78,6 +69,20 @@ func (ar AssertionResult) String() string {
 
 /////////////////////////////////////////////////////////////
 
+// An AssertionCollection is an ordered list of assertions
+type AssertionCollection []Assertion
+
+// A CriticAssertion is an Assertion, which success is critic for the
+// execution of subsequent assertions.
+type CriticAssertion struct {
+	Assertion
+}
+
+// Critic converts an Assertion into a CriticAssertion
+func Critic(a Assertion) CriticAssertion {
+	return CriticAssertion{a}
+}
+
 // An AssertionAccumulator can run assertions, store and retrieve the
 // corresponding AssertionResults
 type AssertionAccumulator interface {
@@ -111,8 +116,7 @@ func NewDefaultAsserter() *DefaultAssertionAccu {
 
 // Run implements Asserter.Run
 func (a *DefaultAssertionAccu) Run(assertionColl AssertionCollection) {
-	for _, assertionWithFatalFlag := range assertionColl {
-		assertion := assertionWithFatalFlag.assertion
+	for _, assertion := range assertionColl {
 		err := assertion.Execute()
 
 		a.storedAssertionResults = append(
@@ -120,7 +124,9 @@ func (a *DefaultAssertionAccu) Run(assertionColl AssertionCollection) {
 			NewAssertionResult(err, a.endpoint.path, a.endpoint.method,
 				assertion.Describe()),
 		)
-		if err != nil && assertionWithFatalFlag.fatal {
+		_, critic := assertion.(CriticAssertion)
+		fatal := (critic && err != nil)
+		if fatal {
 			return
 		}
 	}
@@ -147,7 +153,7 @@ func (a *DefaultAssertionAccu) LastAssertionHasError() bool {
 // AssertAPICallSuccess checks if requesting an endpoint returned an error
 func AssertAPICallSuccess(a AssertionAccumulator, err error) {
 	assertion := assertAPICallSuccess{err}
-	ac := AssertionCollection{{assertion, false}}
+	ac := AssertionCollection{assertion}
 	a.Run(ac)
 }
 
@@ -155,7 +161,7 @@ func AssertAPICallSuccess(a AssertionAccumulator, err error) {
 /* AssertStatusCode(*http.Response, int) */
 func AssertStatusCode(a AssertionAccumulator, resp *http.Response, statusCode int) {
 	assertion := assertStatusCode{resp, statusCode}
-	ac := AssertionCollection{{assertion, false}}
+	ac := AssertionCollection{assertion}
 	a.Run(ac)
 }
 
@@ -168,7 +174,7 @@ func AssertStatusCodeOK(a AssertionAccumulator, resp *http.Response) {
 // value
 func AssertHeaderContains(a AssertionAccumulator, resp *http.Response, key, value string) {
 	assertion := assertHeaderContains{resp, key, value}
-	ac := AssertionCollection{{assertion, false}}
+	ac := AssertionCollection{assertion}
 	a.Run(ac)
 }
 
@@ -176,7 +182,7 @@ func AssertHeaderContains(a AssertionAccumulator, resp *http.Response, key, valu
 // /driver_journeys call has the expected format
 func AssertDriverJourneysFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
 	assertion := assertDriverJourneysFormat{request, response}
-	ac := AssertionCollection{{assertion, false}}
+	ac := AssertionCollection{assertion}
 	a.Run(ac)
 }
 

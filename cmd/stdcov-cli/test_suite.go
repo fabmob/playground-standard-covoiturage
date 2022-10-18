@@ -77,10 +77,10 @@ func testGetDriverJourneys(Client APIClient, a AssertionAccumulator) {
 
 	a.Run(
 		AssertionCollection{
-			{assertAPICallSuccess{clientErr}, true},
-			{assertStatusCode{response, http.StatusOK}, false},
-			{assertHeaderContains{response, "Content-Type", "application/json"}, false},
-			{assertDriverJourneysFormat{request, response}, false},
+			Critic(assertAPICallSuccess{clientErr}),
+			assertStatusCode{response, http.StatusOK},
+			assertHeaderContains{response, "Content-Type", "application/json"},
+			assertDriverJourneysFormat{request, response},
 		},
 	)
 }

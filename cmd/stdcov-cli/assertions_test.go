@@ -286,7 +286,7 @@ func runAssertion(
 ) error {
 	t.Helper()
 	a := NewDefaultAsserter()
-	ac := AssertionCollection{{assertion, false}}
+	ac := AssertionCollection{assertion}
 	a.Run(ac)
 
 	shouldHaveSingleAssertionResult(t, a)
