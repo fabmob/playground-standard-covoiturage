@@ -281,22 +281,22 @@ func shouldHaveSingleAssertionResult(t *testing.T, a *DefaultAssertionAccu) {
 func TestDefaultAssertionAccu_Run(t *testing.T) {
 	testCases := []struct {
 		name                string
-		assertions          AssertionCollection
+		assertions          []Assertion
 		expectedNAssertions int
 	}{
 		{
 			"Two success",
-			AssertionCollection{NoOpAssertion{}, NoOpAssertion{}},
+			[]Assertion{NoOpAssertion{}, NoOpAssertion{}},
 			2,
 		},
 		{
 			"Critic + success is not fatal",
-			AssertionCollection{Critic(NoOpAssertion{}), NoOpAssertion{}},
+			[]Assertion{Critic(NoOpAssertion{}), NoOpAssertion{}},
 			2,
 		},
 		{
 			"Critic + failure is fatal",
-			AssertionCollection{
+			[]Assertion{
 				Critic(NoOpAssertion{errors.New("")}),
 				NoOpAssertion{},
 			},
@@ -328,7 +328,7 @@ func runSingleAssertion(
 ) error {
 	t.Helper()
 	a := NewAssertionAccu()
-	ac := AssertionCollection{assertion}
+	ac := []Assertion{assertion}
 	a.Run(ac)
 
 	shouldHaveSingleAssertionResult(t, a)
