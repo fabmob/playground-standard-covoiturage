@@ -56,10 +56,8 @@ type auxTestFun func(APIClient, AssertionAccumulator)
 func testGetStatus(Client APIClient, a AssertionAccumulator) {
 	response, clientErr := Client.GetStatus(context.Background())
 	a.Run(
-		[]Assertion{
-			Critic(assertAPICallSuccess{clientErr}),
-			assertStatusCode{response, http.StatusOK},
-		},
+		Critic(assertAPICallSuccess{clientErr}),
+		assertStatusCode{response, http.StatusOK},
 	)
 }
 
@@ -75,11 +73,9 @@ func testGetDriverJourneys(Client APIClient, a AssertionAccumulator) {
 	response, clientErr := Client.GetDriverJourneys(context.Background(), params)
 
 	a.Run(
-		[]Assertion{
-			Critic(assertAPICallSuccess{clientErr}),
-			assertStatusCode{response, http.StatusOK},
-			assertHeaderContains{response, "Content-Type", "application/json"},
-			assertDriverJourneysFormat{request, response},
-		},
+		Critic(assertAPICallSuccess{clientErr}),
+		assertStatusCode{response, http.StatusOK},
+		assertHeaderContains{response, "Content-Type", "application/json"},
+		assertDriverJourneysFormat{request, response},
 	)
 }

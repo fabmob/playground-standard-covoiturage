@@ -86,7 +86,7 @@ type AssertionAccumulator interface {
 	// Run executes assertions of the []Assertion and stores the result.
 	// If an assertion with "fatal" flag to "true" fails, execution is
 	// interrupted
-	Run([]Assertion)
+	Run(...Assertion)
 
 	// GetAssertionResults returns all results of executed assertions
 	GetAssertionResults() []AssertionResult
@@ -109,7 +109,7 @@ func NewAssertionAccu() *DefaultAssertionAccu {
 }
 
 // Run implements AssertionAccumulator.Run
-func (a *DefaultAssertionAccu) Run(assertions []Assertion) {
+func (a *DefaultAssertionAccu) Run(assertions ...Assertion) {
 	for _, assertion := range assertions {
 		err := assertion.Execute()
 
@@ -138,16 +138,14 @@ func (a *DefaultAssertionAccu) GetAssertionResults() []AssertionResult {
 // AssertAPICallSuccess checks if requesting an endpoint returned an error
 func AssertAPICallSuccess(a AssertionAccumulator, err error) {
 	assertion := assertAPICallSuccess{err}
-	ac := []Assertion{assertion}
-	a.Run(ac)
+	a.Run(assertion)
 }
 
 // AssertStatusCode checks if a given response has an expected status code
 /* AssertStatusCode(*http.Response, int) */
 func AssertStatusCode(a AssertionAccumulator, resp *http.Response, statusCode int) {
 	assertion := assertStatusCode{resp, statusCode}
-	ac := []Assertion{assertion}
-	a.Run(ac)
+	a.Run(assertion)
 }
 
 // AssertStatusCodeOK checks if a given response has status 200 OK
@@ -159,16 +157,14 @@ func AssertStatusCodeOK(a AssertionAccumulator, resp *http.Response) {
 // value
 func AssertHeaderContains(a AssertionAccumulator, resp *http.Response, key, value string) {
 	assertion := assertHeaderContains{resp, key, value}
-	ac := []Assertion{assertion}
-	a.Run(ac)
+	a.Run(assertion)
 }
 
 // AssertDriverJourneysFormat checks if the response data of
 // /driver_journeys call has the expected format
 func AssertDriverJourneysFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
 	assertion := assertDriverJourneysFormat{request, response}
-	ac := []Assertion{assertion}
-	a.Run(ac)
+	a.Run(assertion)
 }
 
 /////////////////////////////////////////////////////////////

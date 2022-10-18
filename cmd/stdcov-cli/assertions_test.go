@@ -307,7 +307,7 @@ func TestDefaultAssertionAccu_Run(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			a := NewAssertionAccu()
-			a.Run(tc.assertions)
+			a.Run(tc.assertions...)
 			if len(a.storedAssertionResults) != tc.expectedNAssertions {
 				t.Logf(
 					"Got %d assertion executions, expected %d",
@@ -328,8 +328,7 @@ func runSingleAssertion(
 ) error {
 	t.Helper()
 	a := NewAssertionAccu()
-	ac := []Assertion{assertion}
-	a.Run(ac)
+	a.Run(assertion)
 
 	shouldHaveSingleAssertionResult(t, a)
 
