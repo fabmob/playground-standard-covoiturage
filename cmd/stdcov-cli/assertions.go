@@ -262,7 +262,7 @@ func (a assertHeaderContains) Describe() string {
 	return "assertheader " + a.key + ":" + a.value
 }
 
-func (a assertHeader) Detail() Details {
+func (a assertHeaderContains) Detail() Details {
 	details := Details{"header.Content-Type": a.resp.Header.Get("Content-Type")}
 	return details
 }
