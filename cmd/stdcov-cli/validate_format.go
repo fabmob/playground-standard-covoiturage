@@ -4,21 +4,20 @@ import (
 	"context"
 	"io"
 	"net/http"
-	"path/filepath"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/getkin/kin-openapi/routers/gorillamux"
 )
 
-// OpenAPIv3SpecPath is the relative access path to the OpenAPI specification
-var OpenAPIv3SpecPath = filepath.Join("..", "..", "stdcov_openapi.yaml")
+//go:embed ../../stdcov_openapi.yaml
+var OpenAPISpec []byte
 
 // ValidateResponse validates a Response against the openapi specification.
 func ValidateResponse(request *http.Request, response *http.Response) error {
 	ctx := context.Background()
 	loader := &openapi3.Loader{Context: ctx, IsExternalRefsAllowed: true}
-	spec, loadingErr := loader.LoadFromFile(OpenAPIv3SpecPath)
+	spec, loadingErr := loader.LoadFromData(OpenAPISpec)
 	panicIf(loadingErr) // Error only if problem with module internals
 
 	specValidationErr := spec.Validate(ctx)
