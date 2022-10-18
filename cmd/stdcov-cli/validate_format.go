@@ -11,6 +11,7 @@ import (
 	"github.com/getkin/kin-openapi/routers/gorillamux"
 )
 
+// OpenAPIv3SpecPath is the relative access path to the OpenAPI specification
 var OpenAPIv3SpecPath = filepath.Join("..", "..", "stdcov_openapi.yaml")
 
 // ValidateResponse validates a Response against the openapi specification

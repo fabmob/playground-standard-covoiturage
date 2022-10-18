@@ -83,9 +83,8 @@ func Critic(a Assertion) CriticAssertion {
 // An AssertionAccumulator can run assertions, store and retrieve the
 // corresponding AssertionResults
 type AssertionAccumulator interface {
-	// Run executes assertions of the []Assertion and stores the result.
-	// If an assertion with "fatal" flag to "true" fails, execution is
-	// interrupted
+	// Run executes assertions in sequence and stores the results.
+	// If a CriticAssertion fails, execution is interrupted.
 	Run(...Assertion)
 
 	// GetAssertionResults returns all results of executed assertions
