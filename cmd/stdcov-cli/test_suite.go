@@ -67,7 +67,6 @@ func testGetDriverJourneys(Client APIClient, a AssertionAccumulator) {
 
 	// Request
 	request, _ := client.NewGetDriverJourneysRequest(Client.Server, params)
-	/* AssertAPICallSuccess(a, err) */
 
 	// Get response
 	response, clientErr := Client.GetDriverJourneys(context.Background(), params)
