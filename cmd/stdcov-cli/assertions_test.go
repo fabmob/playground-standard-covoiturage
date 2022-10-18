@@ -279,36 +279,44 @@ func shouldHaveSingleAssertionResult(t *testing.T, a *DefaultAssertionAccu) {
 }
 
 func TestDefaultAssertionAccu_Run(t *testing.T) {
-	assertions := AssertionCollection{
-		NoOpAssertion{},
-		NoOpAssertion{},
-	}
-
-	a := NewDefaultAsserter()
-	a.Run(assertions)
-	if len(a.storedAssertionResults) != 2 {
-		t.Logf(
-			"Got %d assertion executions, expected %d",
-			len(a.storedAssertionResults),
+	testCases := []struct {
+		name                string
+		assertions          AssertionCollection
+		expectedNAssertions int
+	}{
+		{
+			"Two success",
+			AssertionCollection{NoOpAssertion{}, NoOpAssertion{}},
 			2,
-		)
-		t.Error("CriticAssertions are not handled as expected")
-	}
-
-	assertions = AssertionCollection{
-		Critic(NoOpAssertion{}),
-		NoOpAssertion{},
-	}
-
-	a = NewDefaultAsserter()
-	a.Run(assertions)
-	if len(a.storedAssertionResults) != 2 {
-		t.Logf(
-			"Got %d assertion executions, expected %d",
-			len(a.storedAssertionResults),
+		},
+		{
+			"Critic + success is not fatal",
+			AssertionCollection{Critic(NoOpAssertion{}), NoOpAssertion{}},
 			2,
-		)
-		t.Error("CriticAssertions are not handled as expected")
+		},
+		{
+			"Critic + failure is fatal",
+			AssertionCollection{
+				Critic(NoOpAssertion{errors.New("")}),
+				NoOpAssertion{},
+			},
+			1,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			a := NewDefaultAsserter()
+			a.Run(tc.assertions)
+			if len(a.storedAssertionResults) != tc.expectedNAssertions {
+				t.Logf(
+					"Got %d assertion executions, expected %d",
+					len(a.storedAssertionResults),
+					tc.expectedNAssertions,
+				)
+				t.Error("CriticAssertions are not handled as expected")
+			}
+		})
 	}
 }
 
