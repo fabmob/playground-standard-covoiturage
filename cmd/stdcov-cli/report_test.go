@@ -40,7 +40,7 @@ func TestReportSingle(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			ar := NewAssertionResult(tc.err, "", "", "", nil)
+			ar := NewAssertionResult(tc.err, "", "", "")
 			if shouldReport(ar, tc.verbose) != tc.shouldReport {
 				t.Logf("verbose: %t", tc.verbose)
 				t.Logf("hasError: %t", tc.err == nil)
@@ -65,10 +65,7 @@ func TestReportCountErrors(t *testing.T) {
 	for _, tc := range testCases {
 		assertionResults := []AssertionResult{}
 		for _, err := range tc.allAssertionErr {
-			assertionResults = append(
-				assertionResults,
-				NewAssertionResult(err, "", "", "", nil),
-			)
+			assertionResults = append(assertionResults, NewAssertionResult(err, "", "", ""))
 		}
 		report := Report{false, assertionResults}
 

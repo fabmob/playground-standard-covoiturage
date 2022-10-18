@@ -10,14 +10,11 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/validate"
 )
 
-type Details map[string]string
-
 // An Assertion is a unit test that can be executed and that can describe
 // itself
 type Assertion interface {
 	Execute() error
 	Describe() string
-	Detail() Details
 }
 
 // An AssertionResult stores data and metadata about the result of a single assertion
@@ -30,27 +27,14 @@ type AssertionResult struct {
 
 	// A string that summarizes the assertion
 	assertionDescription string
-
-	// Any relevant details that can be printed in verbose mode
-	details Details
 }
 
 // NewAssertionResult initializes an AssertionResult
-func NewAssertionResult(
-	err error,
-	endpointPath,
-	endpointMethod,
-	summary string,
-	details Details,
-) AssertionResult {
-	if details == nil {
-		details = make(Details)
-	}
+func NewAssertionResult(err error, endpointPath, endpointMethod, summary string) AssertionResult {
 	return AssertionResult{
 		err,
 		Endpoint{endpointPath, endpointMethod},
 		summary,
-		details,
 	}
 }
 
@@ -82,14 +66,6 @@ func (ar AssertionResult) String() string {
 		resStr += fmt.Sprintf("\n%5s %s", "", err)
 	}
 	return resStr
-}
-
-func (ar AssertionResult) DetailString() string {
-	str := ""
-	for key, detail := range ar.details {
-		str += key + ": " + detail + "\n"
-	}
-	return str
 }
 
 /////////////////////////////////////////////////////////////
@@ -208,10 +184,6 @@ func (a assertAPICallSuccess) Describe() string {
 	return "assertAPICallSuccess"
 }
 
-func (a assertAPICallSuccess) Detail() Details {
-	return nil
-}
-
 /////////////////////////////////////////////////////////////
 
 type assertStatusCode struct {
@@ -230,10 +202,6 @@ func (a assertStatusCode) Execute() error {
 
 func (a assertStatusCode) Describe() string {
 	return "assertStatusCode " + strconv.Itoa(a.statusCode)
-}
-
-func (a assertStatusCode) Detail() Details {
-	return nil
 }
 
 /////////////////////////////////////////////////////////////
@@ -262,11 +230,6 @@ func (a assertHeaderContains) Describe() string {
 	return "assertheader " + a.key + ":" + a.value
 }
 
-func (a assertHeaderContains) Detail() Details {
-	details := Details{"header.Content-Type": a.resp.Header.Get("Content-Type")}
-	return details
-}
-
 /////////////////////////////////////////////////////////////
 
 type assertDriverJourneysFormat struct {
@@ -281,8 +244,4 @@ func (a assertDriverJourneysFormat) Execute() error {
 
 func (a assertDriverJourneysFormat) Describe() string {
 	return "assertDriverJourneysFormat"
-}
-
-func (a assertDriverJourneysFormat) Detail() Details {
-	return nil
 }

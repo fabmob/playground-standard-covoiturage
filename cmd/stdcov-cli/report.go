@@ -31,14 +31,10 @@ func (report Report) hasErrors() bool {
 }
 
 func toString(ar AssertionResult, verbose bool) string {
-	str := ""
 	if shouldReport(ar, verbose) {
-		str = fmt.Sprintf("%s\n", ar.String())
-		if verbose {
-			str += ar.DetailString()
-		}
+		return fmt.Sprintf("%s\n", ar.String())
 	}
-	return str
+	return ""
 
 }
 
