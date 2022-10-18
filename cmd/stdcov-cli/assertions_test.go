@@ -84,7 +84,7 @@ func TestExpectStatusCode(t *testing.T) {
 
 	for _, tc := range testCases {
 		assertion := assertStatusCode{tc.response, tc.testedStatusCode}
-		assertionError := runAssertion(t, assertion)
+		assertionError := runSingleAssertion(t, assertion)
 		if (assertionError == nil) != tc.expectNilError {
 			t.Logf("Response status code: %d", tc.response.StatusCode)
 			t.Logf("Tested status code: %d", tc.testedStatusCode)
@@ -155,7 +155,7 @@ func TestExpectHeaders(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			r := mockResponse(http.StatusOK, "", tc.header)
 			assertion := assertHeaderContains{r, tc.testKey, tc.testValue}
-			assertionError := runAssertion(t, assertion)
+			assertionError := runSingleAssertion(t, assertion)
 			if (assertionError == nil) != tc.expectNilError {
 				t.Logf("Headers: %v", tc.header)
 				t.Logf("Key/value under test: \"%s:%s\"", tc.testKey, tc.testValue)
@@ -240,7 +240,7 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 			panicIfError(err)
 			response := mockResponse(http.StatusOK, tc.body, tc.header)
 			assertion := assertDriverJourneysFormat{request, response}
-			assertionError := runAssertion(t, assertion)
+			assertionError := runSingleAssertion(t, assertion)
 			if (assertionError == nil) != tc.expectNilError {
 				t.Errorf("Wrong format response body should not be validated: %s",
 					assertionError)
@@ -263,7 +263,7 @@ func TestAssertAPICallSuccess(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			err := tc.apiCallError
 			assertion := assertAPICallSuccess{err}
-			assertionError := runAssertion(t, assertion)
+			assertionError := runSingleAssertion(t, assertion)
 			if (assertionError == nil) != tc.expectNilError {
 				t.Error("API call error is not handled as expected")
 			}
@@ -320,9 +320,9 @@ func TestDefaultAssertionAccu_Run(t *testing.T) {
 	}
 }
 
-// runAssertion is a testing helper, which runs an assertion, and returns its underlying error (can
+// runSingleAssertion is a testing helper, which runs an assertion, and returns its underlying error (can
 // be nil)
-func runAssertion(
+func runSingleAssertion(
 	t *testing.T,
 	assertion Assertion,
 ) error {
