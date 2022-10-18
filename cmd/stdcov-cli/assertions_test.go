@@ -15,9 +15,10 @@ func TestAssertionResult_String(t *testing.T) {
 	endpointMethod := http.MethodGet
 	assertStr := "test assertion"
 	errorDescription := "Error description"
+	details := make(Details)
 
 	makeAssertionResult := func(err error) AssertionResult {
-		return NewAssertionResult(err, endpointPath, endpointMethod, assertStr)
+		return NewAssertionResult(err, endpointPath, endpointMethod, assertStr, details)
 	}
 	shouldContain := func(t *testing.T, a AssertionResult, str string) {
 		t.Helper()
