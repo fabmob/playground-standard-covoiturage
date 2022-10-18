@@ -2,28 +2,28 @@ package main
 
 import (
 	"context"
+	_ "embed"
 	"io"
 	"net/http"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/getkin/kin-openapi/routers/gorillamux"
-)
 
-//go:embed ../../stdcov_openapi.yaml
-var OpenAPISpec []byte
+	"gitlab.com/multi/stdcov-api-test/spec"
+)
 
 // ValidateResponse validates a Response against the openapi specification.
 func ValidateResponse(request *http.Request, response *http.Response) error {
 	ctx := context.Background()
 	loader := &openapi3.Loader{Context: ctx, IsExternalRefsAllowed: true}
-	spec, loadingErr := loader.LoadFromData(OpenAPISpec)
+	doc, loadingErr := loader.LoadFromData(spec.OpenAPISpec)
 	panicIf(loadingErr) // Error only if problem with module internals
 
-	specValidationErr := spec.Validate(ctx)
+	specValidationErr := doc.Validate(ctx)
 	panicIf(specValidationErr) // Error only if problem with module internals
 
-	router, routerErr := gorillamux.NewRouter(spec)
+	router, routerErr := gorillamux.NewRouter(doc)
 	panicIf(routerErr) // Error only if problem with module internals
 
 	// Find route

@@ -5,7 +5,7 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
 )
 
-//go:generate oapi-codegen -package server -o ./server/server.go -generate "types,server" --old-config-style ../../stdcov_openapi.yaml
+//go:generate oapi-codegen -package server -o ./server/server.go -generate "types,server" --old-config-style ../../spec/stdcov_openapi.yaml
 
 func main() {
 	var api *StdCovServerImpl
