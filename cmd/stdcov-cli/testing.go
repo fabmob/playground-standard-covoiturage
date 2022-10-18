@@ -65,3 +65,16 @@ func mockResponse(
 func mockStatusResponse(statusCode int) *http.Response {
 	return mockResponse(statusCode, "", nil)
 }
+
+// A NoOpAssertion returns stored error when executed
+type NoOpAssertion struct{ error }
+
+// Execute implements Assertion interface
+func (n NoOpAssertion) Execute() error {
+	return n.error
+}
+
+// Describe implements Assertion interface
+func (NoOpAssertion) Describe() string {
+	return "No assertion"
+}

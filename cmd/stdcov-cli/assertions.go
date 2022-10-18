@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
 )
 
 // An Assertion is a unit test that can be executed and that can describe
@@ -70,17 +69,26 @@ func (ar AssertionResult) String() string {
 
 /////////////////////////////////////////////////////////////
 
+// A CriticAssertion is an Assertion, which success is critic for the
+// execution of subsequent assertions.
+type CriticAssertion struct {
+	Assertion
+}
+
+// Critic converts an Assertion into a CriticAssertion
+func Critic(a Assertion) CriticAssertion {
+	return CriticAssertion{a}
+}
+
 // An AssertionAccumulator can run assertions, store and retrieve the
 // corresponding AssertionResults
 type AssertionAccumulator interface {
-	// Run executes the given Assertion and stores the result
-	Run(Assertion)
+	// Run executes assertions in sequence and stores the results.
+	// If a CriticAssertion fails, execution is interrupted.
+	Run(...Assertion)
 
 	// GetAssertionResults returns all results of executed assertions
 	GetAssertionResults() []AssertionResult
-	// LastAssertionHasError returns whether the last assertion returned an
-	// error
-	LastAssertionHasError() bool
 }
 
 /////////////////////////////////////////////////////////////
@@ -91,36 +99,35 @@ type DefaultAssertionAccu struct {
 	endpoint               Endpoint
 }
 
-// NewDefaultAsserter inits a *DefaultAsserter
-func NewDefaultAsserter() *DefaultAssertionAccu {
+// NewAssertionAccu inits a *DefaultAssertionAccu
+func NewAssertionAccu() *DefaultAssertionAccu {
 	return &DefaultAssertionAccu{
 		storedAssertionResults: []AssertionResult{},
 		endpoint:               Endpoint{},
 	}
 }
 
-// Run implements Asserter.Run
-func (a *DefaultAssertionAccu) Run(assertion Assertion) {
-	err := assertion.Execute()
-	a.storedAssertionResults = append(
-		a.storedAssertionResults,
-		NewAssertionResult(err, a.endpoint.path, a.endpoint.method,
-			assertion.Describe()),
-	)
+// Run implements AssertionAccumulator.Run
+func (a *DefaultAssertionAccu) Run(assertions ...Assertion) {
+	for _, assertion := range assertions {
+		err := assertion.Execute()
+
+		a.storedAssertionResults = append(
+			a.storedAssertionResults,
+			NewAssertionResult(err, a.endpoint.path, a.endpoint.method,
+				assertion.Describe()),
+		)
+		_, critic := assertion.(CriticAssertion)
+		fatal := (critic && err != nil)
+		if fatal {
+			return
+		}
+	}
 }
 
-// GetAssertionResults implements Asserter.GetAssertionResults
+// GetAssertionResults implements AssertionAccumulator.GetAssertionResults
 func (a *DefaultAssertionAccu) GetAssertionResults() []AssertionResult {
 	return a.storedAssertionResults
-}
-
-// LastAssertionHasError implements Asserter.LastAssertionHasError
-func (a *DefaultAssertionAccu) LastAssertionHasError() bool {
-	ar := a.storedAssertionResults
-	if len(ar) == 0 {
-		panic("Trying to access inexistant or empty []AssertionError")
-	}
-	return ar[len(ar)-1].Unwrap() != nil
 }
 
 /////////////////////////////////////////////////////////////
@@ -154,8 +161,8 @@ func AssertHeaderContains(a AssertionAccumulator, resp *http.Response, key, valu
 
 // AssertDriverJourneysFormat checks if the response data of
 // /driver_journeys call has the expected format
-func AssertDriverJourneysFormat(a AssertionAccumulator, response *http.Response) {
-	assertion := assertDriverJourneysFormat{response}
+func AssertDriverJourneysFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := assertDriverJourneysFormat{request, response}
 	a.Run(assertion)
 }
 
@@ -225,12 +232,12 @@ func (a assertHeaderContains) Describe() string {
 /////////////////////////////////////////////////////////////
 
 type assertDriverJourneysFormat struct {
+	request  *http.Request
 	response *http.Response
 }
 
 func (a assertDriverJourneysFormat) Execute() error {
-	a.response.Header["Content-Type"] = []string{"json"}
-	_, err := client.ParseGetDriverJourneysResponse(a.response)
+	err := ValidateResponse(a.request, a.response)
 	return err
 }
 

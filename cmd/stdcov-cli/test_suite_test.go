@@ -14,7 +14,7 @@ func testThrowErrorOnTest(t *testing.T, f auxTestFun) {
 		urlError := &url.Error{Op: "", URL: "", Err: errors.New("error")}
 		m := returnErrorClient(urlError)
 
-		a := NewDefaultAsserter()
+		a := NewAssertionAccu()
 
 		f(m, a)
 		shouldHaveSingleAssertionResult(t, a)

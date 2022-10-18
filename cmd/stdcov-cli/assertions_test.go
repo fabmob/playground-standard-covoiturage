@@ -84,7 +84,7 @@ func TestExpectStatusCode(t *testing.T) {
 
 	for _, tc := range testCases {
 		assertion := assertStatusCode{tc.response, tc.testedStatusCode}
-		assertionError := runAssertion(t, assertion)
+		assertionError := runSingleAssertion(t, assertion)
 		if (assertionError == nil) != tc.expectNilError {
 			t.Logf("Response status code: %d", tc.response.StatusCode)
 			t.Logf("Tested status code: %d", tc.testedStatusCode)
@@ -155,7 +155,7 @@ func TestExpectHeaders(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			r := mockResponse(http.StatusOK, "", tc.header)
 			assertion := assertHeaderContains{r, tc.testKey, tc.testValue}
-			assertionError := runAssertion(t, assertion)
+			assertionError := runSingleAssertion(t, assertion)
 			if (assertionError == nil) != tc.expectNilError {
 				t.Logf("Headers: %v", tc.header)
 				t.Logf("Key/value under test: \"%s:%s\"", tc.testKey, tc.testValue)
@@ -174,9 +174,25 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 	}
 
 	emptyDriverJourneysBody := marshalDriverJourneys([]client.DriverJourney{})
-	singleDriverJourneyBody := marshalDriverJourneys([]client.DriverJourney{{}})
+	singleDriverJourneyBody := marshalDriverJourneys([]client.DriverJourney{{Type: "DYNAMIC"}})
+	notAllowedByEnum := marshalDriverJourneys([]client.DriverJourney{{Type: "Not allowed"}})
+
+	missingProp := `[
+  {
+    "duration": 0,
+    "operator": "",
+    "passengerDropLat": 0,
+    "passengerDropLng": 0,
+    "passengerPickupDate": 0,
+    "passengerPickupLat": 0,
+    "passengerPickupLng": 0,
+    "type": ""
+  }
+]
+`
 
 	jsonContentTypeHeader := http.Header{"Content-Type": []string{"application/json"}}
+
 	testCases := []struct {
 		name           string
 		body           string
@@ -207,15 +223,34 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 			http.Header{"Content-Type": []string{"text/plain"}},
 			false,
 		},
+		{
+			"Required \"driver\" property is missing",
+			missingProp,
+			jsonContentTypeHeader,
+			false,
+		},
+		{
+			"Not allowed \"type\" property",
+			notAllowedByEnum,
+			jsonContentTypeHeader,
+			false,
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			r := mockResponse(http.StatusOK, tc.body, tc.header)
-			assertion := assertDriverJourneysFormat{r}
-			assertionError := runAssertion(t, assertion)
+			request, err := http.NewRequest(
+				http.MethodGet,
+				"/driver_journeys?departureLat=0&departureLng=0&arrivalLat=0&arrivalLng=0&departureDate=1666014179&timeDelta=900&departureRadius=1&arrivalRadius=1",
+				strings.NewReader(""),
+			)
+			panicIf(err)
+			response := mockResponse(http.StatusOK, tc.body, tc.header)
+			assertion := assertDriverJourneysFormat{request, response}
+			assertionError := runSingleAssertion(t, assertion)
 			if (assertionError == nil) != tc.expectNilError {
-				t.Errorf("Wrong format response body should not be validated")
+				t.Errorf("Wrong format response body should not be validated: %s",
+					assertionError)
 			}
 		})
 	}
@@ -235,7 +270,7 @@ func TestAssertAPICallSuccess(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			err := tc.apiCallError
 			assertion := assertAPICallSuccess{err}
-			assertionError := runAssertion(t, assertion)
+			assertionError := runSingleAssertion(t, assertion)
 			if (assertionError == nil) != tc.expectNilError {
 				t.Error("API call error is not handled as expected")
 			}
@@ -250,14 +285,56 @@ func shouldHaveSingleAssertionResult(t *testing.T, a *DefaultAssertionAccu) {
 	}
 }
 
-// runAssertion is a testing helper, which runs an assertion, and returns its underlying error (can
+func TestDefaultAssertionAccu_Run(t *testing.T) {
+	testCases := []struct {
+		name                string
+		assertions          []Assertion
+		expectedNAssertions int
+	}{
+		{
+			"Two success",
+			[]Assertion{NoOpAssertion{}, NoOpAssertion{}},
+			2,
+		},
+		{
+			"Critic + success is not fatal",
+			[]Assertion{Critic(NoOpAssertion{}), NoOpAssertion{}},
+			2,
+		},
+		{
+			"Critic + failure is fatal",
+			[]Assertion{
+				Critic(NoOpAssertion{errors.New("")}),
+				NoOpAssertion{},
+			},
+			1,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			a := NewAssertionAccu()
+			a.Run(tc.assertions...)
+			if len(a.storedAssertionResults) != tc.expectedNAssertions {
+				t.Logf(
+					"Got %d assertion executions, expected %d",
+					len(a.storedAssertionResults),
+					tc.expectedNAssertions,
+				)
+				t.Error("CriticAssertions are not handled as expected")
+			}
+		})
+	}
+}
+
+// runSingleAssertion is a testing helper, which runs an assertion, and returns its underlying error (can
 // be nil)
-func runAssertion(
+func runSingleAssertion(
 	t *testing.T,
 	assertion Assertion,
 ) error {
 	t.Helper()
-	a := NewDefaultAsserter()
+	a := NewAssertionAccu()
 	a.Run(assertion)
 
 	shouldHaveSingleAssertionResult(t, a)

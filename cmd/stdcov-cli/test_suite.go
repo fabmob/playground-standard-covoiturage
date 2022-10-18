@@ -34,7 +34,7 @@ type TestFun func(APIClient) []AssertionResult
 // TestGetStatus checks the `GET /status` endpoint
 func TestGetStatus(Client APIClient) []AssertionResult {
 	endpoint := Endpoint{"/status", http.MethodGet}
-	a := NewDefaultAsserter()
+	a := NewAssertionAccu()
 	a.endpoint = endpoint
 	testGetStatus(Client, a)
 	return a.GetAssertionResults()
@@ -43,7 +43,7 @@ func TestGetStatus(Client APIClient) []AssertionResult {
 // TestGetDriverJourneys checks the `GET /driver_journeys` endpoint
 func TestGetDriverJourneys(Client APIClient) []AssertionResult {
 	endpoint := Endpoint{"/driver_journeys", http.MethodGet}
-	a := NewDefaultAsserter()
+	a := NewAssertionAccu()
 	a.endpoint = endpoint
 	testGetDriverJourneys(Client, a)
 	return a.GetAssertionResults()
@@ -54,35 +54,28 @@ func TestGetDriverJourneys(Client APIClient) []AssertionResult {
 type auxTestFun func(APIClient, AssertionAccumulator)
 
 func testGetStatus(Client APIClient, a AssertionAccumulator) {
-	response, err := Client.GetStatus(context.Background())
-
-	AssertAPICallSuccess(a, err)
-	if a.LastAssertionHasError() {
-		return
-	}
-
-	AssertStatusCodeOK(a, response)
+	response, clientErr := Client.GetStatus(context.Background())
+	a.Run(
+		Critic(assertAPICallSuccess{clientErr}),
+		assertStatusCode{response, http.StatusOK},
+	)
 }
 
 func testGetDriverJourneys(Client APIClient, a AssertionAccumulator) {
-	response, err := getDriverJourneysResponse(Client)
-	AssertAPICallSuccess(a, err)
-	if a.LastAssertionHasError() {
-		return
-	}
-	AssertStatusCodeOK(a, response)
-	if a.LastAssertionHasError() {
-		return
-	}
-
-	AssertHeaderContains(a, response, "Content-Type", "application/json")
-	AssertDriverJourneysFormat(a, response)
-}
-
-/////////////////////////////////////////////////////////////
-
-func getDriverJourneysResponse(Client APIClient) (*http.Response, error) {
+	// Test query parameters
 	params := &client.GetDriverJourneysParams{}
-	response, err := Client.GetDriverJourneys(context.Background(), params)
-	return response, err
+
+	// Request
+	request, _ := client.NewGetDriverJourneysRequest(Client.Server, params)
+	/* AssertAPICallSuccess(a, err) */
+
+	// Get response
+	response, clientErr := Client.GetDriverJourneys(context.Background(), params)
+
+	a.Run(
+		Critic(assertAPICallSuccess{clientErr}),
+		assertStatusCode{response, http.StatusOK},
+		assertHeaderContains{response, "Content-Type", "application/json"},
+		assertDriverJourneysFormat{request, response},
+	)
 }
