@@ -10,6 +10,7 @@ import (
 )
 
 // DriverJourneyJSON stores default driver journey json data
+//
 //go:embed data/defaultJourneyData.json
 var DriverJourneyJSON []byte
 
