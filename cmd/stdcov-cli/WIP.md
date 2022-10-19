@@ -7,6 +7,13 @@
 Server:
 - Validate request with OapiRequestValidator middleware
 
+Possible assertions:
+- "All returned results MUST match the query parameters"
+- "the carpooling operator SHOULD return in priority the most relevant 
+  results. The measure of relevance is left to the discretion of the 
+  carpooling operator."
+- unique ids, same operator fields
+
 
 Vocabulary :
 
