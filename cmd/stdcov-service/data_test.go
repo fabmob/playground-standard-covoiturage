@@ -1,12 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"testing"
 )
 
 func TestDefaultJourneyData(t *testing.T) {
-	defaultDataFile := "./data/defaultJourneyData.json"
-	_, err := ReadJourneyDataFromFile(defaultDataFile)
+	_, err := ReadJourneyData(bytes.NewReader(DriverJourneyJSON))
 	if err != nil {
 		t.Error(err)
 	}

@@ -1,26 +1,21 @@
 package main
 
 import (
+	"bytes"
+	_ "embed"
 	"encoding/json"
 	"io"
-	"os"
 
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
 )
 
+// DriverJourneyJSON stores default driver journey json data
+//go:embed data/defaultJourneyData.json
+var DriverJourneyJSON []byte
+
 // DriverJourneysData is the in-memory equivalent of the driver journeys
 // stored in a database
-var DriverJourneysData, _ = ReadJourneyDataFromFile("./data/defaultJourneyData.json")
-
-// ReadJourneyDataFromFile reads a []DriverJourney array from a json file at given
-// path
-func ReadJourneyDataFromFile(path string) ([]server.DriverJourney, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	return ReadJourneyData(f)
-}
+var DriverJourneysData, _ = ReadJourneyData(bytes.NewReader(DriverJourneyJSON))
 
 // ReadJourneyData reads journey data from io.Reader with json data
 // It does not validate data
