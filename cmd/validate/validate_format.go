@@ -1,8 +1,7 @@
-package main
+package validate
 
 import (
 	"context"
-	_ "embed"
 	"io"
 	"net/http"
 
@@ -13,18 +12,24 @@ import (
 	"gitlab.com/multi/stdcov-api-test/spec"
 )
 
-// ValidateResponse validates a Response against the openapi specification.
-func ValidateResponse(request *http.Request, response *http.Response) error {
+// Response validates a Response against the openapi specification.
+func Response(request *http.Request, response *http.Response) error {
 	ctx := context.Background()
 	loader := &openapi3.Loader{Context: ctx, IsExternalRefsAllowed: true}
 	doc, loadingErr := loader.LoadFromData(spec.OpenAPISpec)
-	panicIf(loadingErr) // Error only if problem with module internals
+	if loadingErr != nil {
+		panic(loadingErr) // Error only if problem with module internals
+	}
 
 	specValidationErr := doc.Validate(ctx)
-	panicIf(specValidationErr) // Error only if problem with module internals
+	if specValidationErr != nil {
+		panic(specValidationErr) // Error only if problem with module internals
+	}
 
 	router, routerErr := gorillamux.NewRouter(doc)
-	panicIf(routerErr) // Error only if problem with module internals
+	if routerErr != nil {
+		panic(routerErr) // Error only if problem with module internals
+	}
 
 	// Find route
 	route, pathParams, err := router.FindRoute(request)

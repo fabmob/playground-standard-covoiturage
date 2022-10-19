@@ -2,13 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 	"os"
 
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
 )
 
+// ReadJourneyDataFromFile reads a []DriverJourney array from a json file at given
+// path
 func ReadJourneyDataFromFile(path string) ([]server.DriverJourney, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -17,7 +18,8 @@ func ReadJourneyDataFromFile(path string) ([]server.DriverJourney, error) {
 	return ReadJourneyData(f)
 }
 
-// ReadJourneyData reads starting journey data from json file
+// ReadJourneyData reads journey data from io.Reader with json data
+// It does not validate data
 func ReadJourneyData(r io.Reader) ([]server.DriverJourney, error) {
 	var journeyData []server.DriverJourney
 	bytes, readErr := io.ReadAll(r)
@@ -26,24 +28,5 @@ func ReadJourneyData(r io.Reader) ([]server.DriverJourney, error) {
 	}
 
 	err := json.Unmarshal(bytes, &journeyData)
-	if journeyData == nil {
-		return nil, errors.New("no journey data to parse")
-	}
 	return journeyData, err
-}
-
-var journeys = []server.DriverJourney{
-	{
-		Driver: server.User{
-			Alias: "bob",
-			Id:    "1",
-		},
-		Operator:            "operator.example.org",
-		Duration:            3600,
-		PassengerDropLat:    48.8450234,
-		PassengerDropLng:    2.3997529,
-		PassengerPickupDate: 1665579951,
-		PassengerPickupLat:  47.461737,
-		Type:                server.DriverJourneyTypeDYNAMIC,
-	},
 }

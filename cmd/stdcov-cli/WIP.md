@@ -16,6 +16,10 @@ Possible assertions driver journeys:
 - weburl required if deeplink supported.
 - long-lat in France ?
 
+Validation:
+- Validate response data from file on import ! 
+- Options : do not allow undocumented status code 
+  (options.IncludeResponseStatus)
 
 Vocabulary :
 

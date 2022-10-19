@@ -4,7 +4,20 @@
 			"alias": "bob",
         "id":    "1"
       },
-		"ieurs":            "operator.example.org",
+		"operator":            "operator.example.org",
+		"duration":            3600,
+		"passengerDropLat":    48.8450234,
+		"passengerDropLng":    2.3997529,
+		"passengerPickupDate": 1665579951,
+		"passengerPickupLat":  47.461737,
+		"type": "DYNAMIC"
+	},
+	{
+		"driver": {
+			"alias": "bob",
+        "id":    "1"
+      },
+		"operator":            "operator.example.org",
 		"duration":            3600,
 		"passengerDropLat":    48.8450234,
 		"passengerDropLng":    2.3997529,
