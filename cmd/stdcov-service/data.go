@@ -8,6 +8,8 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
 )
 
+var DriverJourneysData, _ = ReadJourneyDataFromFile("./data/defaultJourneyData.json")
+
 // ReadJourneyDataFromFile reads a []DriverJourney array from a json file at given
 // path
 func ReadJourneyDataFromFile(path string) ([]server.DriverJourney, error) {

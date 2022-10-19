@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -45,9 +46,8 @@ func (*StdCovServerImpl) GetDriverJourneys(
 	ctx echo.Context,
 	params server.GetDriverJourneysParams,
 ) error {
-	defaultDataFile := "./data/defaultJourneyData.json"
-	v, _ := ReadJourneyDataFromFile(defaultDataFile)
-	return ctx.JSON(http.StatusOK, v)
+	fmt.Printf("%+v\n", DriverJourneysData)
+	return ctx.JSON(http.StatusOK, DriverJourneysData)
 }
 
 // GetDriverRegularTrips searches for matching regular driver trip.
