@@ -8,6 +8,8 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
 )
 
+// DriverJourneysData is the in-memory equivalent of the driver journeys
+// stored in a database
 var DriverJourneysData, _ = ReadJourneyDataFromFile("./data/defaultJourneyData.json")
 
 // ReadJourneyDataFromFile reads a []DriverJourney array from a json file at given
