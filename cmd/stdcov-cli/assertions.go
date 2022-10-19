@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"gitlab.com/multi/stdcov-api-test/cmd/validate"
 )
 
 // An Assertion is a unit test that can be executed and that can describe
@@ -237,7 +238,7 @@ type assertDriverJourneysFormat struct {
 }
 
 func (a assertDriverJourneysFormat) Execute() error {
-	err := ValidateResponse(a.request, a.response)
+	err := validate.Response(a.request, a.response)
 	return err
 }
 

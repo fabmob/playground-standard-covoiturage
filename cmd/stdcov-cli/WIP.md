@@ -7,6 +7,19 @@
 Server:
 - Validate request with OapiRequestValidator middleware
 
+Possible assertions driver journeys:
+- "All returned results MUST match the query parameters"
+- "the carpooling operator SHOULD return in priority the most relevant 
+  results. The measure of relevance is left to the discretion of the 
+  carpooling operator."
+- unique ids, same operator fields, operator fields format
+- weburl required if deeplink supported.
+- long-lat in France ?
+
+Validation:
+- Validate response data from file on import ! 
+- Options : do not allow undocumented status code 
+  (options.IncludeResponseStatus)
 
 Vocabulary :
 
