@@ -51,7 +51,7 @@ func TestGetDriverJourneys(Client APIClient, request *http.Request) []AssertionR
 	return a.GetAssertionResults()
 }
 
-/////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 
 type auxTestFun func(APIClient, *http.Request, AssertionAccumulator)
 
