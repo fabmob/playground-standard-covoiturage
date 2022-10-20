@@ -4,19 +4,21 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
-	"strings"
 	"testing"
 )
 
 // throwErrorOnTest returns an urlError for every API call and checks:
 // - that only one AssertionError is returned
 // - that AssertionError.Unwrap() != nil
-func testThrowErrorOnTest(t *testing.T, f auxTestFun, r *http.Request) {
+func testThrowErrorOnTest(t *testing.T, f auxTestFun) {
 	t.Run("API call throws error", func(t *testing.T) {
 		urlError := &url.Error{Op: "", URL: "", Err: errors.New("error")}
 		m := returnErrorClient(urlError)
 		a := NewAssertionAccu()
 
+		// specific request is irrelevant as the error client is in any case returning
+		// an error
+		var r *http.Request
 		f(m, r, a)
 		shouldHaveSingleAssertionResult(t, a)
 
@@ -28,27 +30,13 @@ func testThrowErrorOnTest(t *testing.T, f auxTestFun, r *http.Request) {
 }
 
 func TestAPIErrors(t *testing.T) {
-	GetStatusRequest, err := http.NewRequest(
-		http.MethodGet,
-		"/status",
-		strings.NewReader(""),
-	)
-	if err != nil {
-		panic(err)
+
+	testCases := []auxTestFun{
+		testGetStatus,
+		testGetDriverJourneys,
 	}
-	GetDriverJourneysRequest, err := http.NewRequest(
-		http.MethodGet,
-		"/driver_journeys",
-		strings.NewReader(""),
-	)
-	testCases := []struct {
-		f auxTestFun
-		r *http.Request
-	}{
-		{testGetStatus, GetStatusRequest},
-		{testGetDriverJourneys, GetDriverJourneysRequest},
-	}
-	for _, tc := range testCases {
-		testThrowErrorOnTest(t, tc.f, tc.r)
+
+	for _, f := range testCases {
+		testThrowErrorOnTest(t, f)
 	}
 }
