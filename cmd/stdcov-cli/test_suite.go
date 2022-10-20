@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
 )
@@ -19,8 +20,9 @@ var TestSuite = []TestFun{
 // ExecuteTestSuite tests a client against all implemented tests
 func ExecuteTestSuite(client APIClient) Report {
 	all := []AssertionResult{}
+	request, _ := http.NewRequest("GET", "/", strings.NewReader(""))
 	for _, testFun := range TestSuite {
-		all = append(all, testFun(client)...)
+		all = append(all, testFun(client, request)...)
 	}
 	return Report{allAssertionResults: all}
 }
@@ -29,31 +31,31 @@ func ExecuteTestSuite(client APIClient) Report {
 
 // A TestFun is a function that the API in a specific way (e.g. testing a
 // single endpoint).
-type TestFun func(APIClient) []AssertionResult
+type TestFun func(APIClient, *http.Request) []AssertionResult
 
 // TestGetStatus checks the `GET /status` endpoint
-func TestGetStatus(Client APIClient) []AssertionResult {
+func TestGetStatus(Client APIClient, request *http.Request) []AssertionResult {
 	endpoint := Endpoint{"/status", http.MethodGet}
 	a := NewAssertionAccu()
 	a.endpoint = endpoint
-	testGetStatus(Client, a)
+	testGetStatus(Client, request, a)
 	return a.GetAssertionResults()
 }
 
 // TestGetDriverJourneys checks the `GET /driver_journeys` endpoint
-func TestGetDriverJourneys(Client APIClient) []AssertionResult {
+func TestGetDriverJourneys(Client APIClient, request *http.Request) []AssertionResult {
 	endpoint := Endpoint{"/driver_journeys", http.MethodGet}
 	a := NewAssertionAccu()
 	a.endpoint = endpoint
-	testGetDriverJourneys(Client, a)
+	testGetDriverJourneys(Client, request, a)
 	return a.GetAssertionResults()
 }
 
 /////////////////////////////////////////////////////////////
 
-type auxTestFun func(APIClient, AssertionAccumulator)
+type auxTestFun func(APIClient, *http.Request, AssertionAccumulator)
 
-func testGetStatus(Client APIClient, a AssertionAccumulator) {
+func testGetStatus(Client APIClient, request *http.Request, a AssertionAccumulator) {
 	response, clientErr := Client.GetStatus(context.Background())
 	a.Run(
 		Critic(assertAPICallSuccess{clientErr}),
@@ -61,12 +63,12 @@ func testGetStatus(Client APIClient, a AssertionAccumulator) {
 	)
 }
 
-func testGetDriverJourneys(Client APIClient, a AssertionAccumulator) {
+func testGetDriverJourneys(Client APIClient, request *http.Request, a AssertionAccumulator) {
 	// Test query parameters
 	params := &client.GetDriverJourneysParams{}
 
 	// Request
-	request, _ := client.NewGetDriverJourneysRequest(Client.Server, params)
+	request, _ = client.NewGetDriverJourneysRequest(Client.Server, params)
 	/* AssertAPICallSuccess(a, err) */
 
 	// Get response
