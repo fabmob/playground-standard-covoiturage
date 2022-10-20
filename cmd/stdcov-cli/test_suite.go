@@ -64,15 +64,10 @@ func testGetStatus(Client APIClient, request *http.Request, a AssertionAccumulat
 }
 
 func testGetDriverJourneys(c APIClient, request *http.Request, a AssertionAccumulator) {
-	// Test query parameters
-	params := &client.GetDriverJourneysParams{}
-
-	// Request
-	request, _ = client.NewGetDriverJourneysRequest(c.Server, params)
-	/* AssertAPICallSuccess(a, err) */
+	request, _ = http.NewRequest(http.MethodGet, "/driver_journeys", strings.NewReader(""))
 
 	// Get response
-	response, clientErr := c.GetDriverJourneys(context.Background(), params)
+	response, clientErr := c.Client.Do(request)
 
 	a.Run(
 		Critic(assertAPICallSuccess{clientErr}),
