@@ -8,30 +8,30 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
 )
 
-type mockClient struct {
+type MockClient struct {
 	Response *http.Response
 	Error    error
 	Requests []*http.Request
 }
 
 func NewMockClientWithError(err error) APIClient {
-	m := &mockClient{Error: err}
+	m := &MockClient{Error: err}
 	return newTestClient(m)
 }
 
 func NewMockClientWithResponse(r *http.Response) APIClient {
-	m := &mockClient{Response: r}
+	m := &MockClient{Response: r}
 	return newTestClient(m)
 }
 
-func newTestClient(m *mockClient) *client.Client {
+func newTestClient(m *MockClient) *client.Client {
 	c, _ := client.NewClient("", client.WithHTTPClient(m))
 	return c
 }
 
-// Get returns the stored response of the mockClient, implements
+// Do returns the stored response of the MockClient, implements
 // HTTPRequestDoer
-func (m *mockClient) Do(req *http.Request) (*http.Response, error) {
+func (m *MockClient) Do(req *http.Request) (*http.Response, error) {
 	m.Requests = append(m.Requests, req)
 	if m.Error != nil {
 		return nil, m.Error
@@ -67,6 +67,10 @@ func mockResponse(
 
 func mockStatusResponse(statusCode int) *http.Response {
 	return mockResponse(statusCode, "", nil)
+}
+
+func mockOKStatusResponse() *http.Response {
+	return mockStatusResponse(http.StatusOK)
 }
 
 // A NoOpAssertion returns stored error when executed

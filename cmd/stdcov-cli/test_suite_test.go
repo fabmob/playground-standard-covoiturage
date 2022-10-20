@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 )
 
@@ -39,4 +40,24 @@ func TestAPIErrors(t *testing.T) {
 	for _, f := range testCases {
 		testErrorOnRequestIsHandled(t, f)
 	}
+}
+
+// Test that the expected requests are made.
+func TestRequests(t *testing.T) {
+	m := NewMockClientWithResponse(mockOKStatusResponse())
+	r, err := http.NewRequest(http.MethodGet, "/driver_journeys", strings.NewReader(""))
+	panicIf(err)
+	a := NewAssertionAccu()
+	testGetDriverJourneys(m, r, a)
+
+	requestsDone := m.Client.(*MockClient).Requests
+	if len(requestsDone) != 1 {
+		t.Error("MockClient is expected to do exactly one request")
+	}
+	if requestsDone[0] != r {
+		t.Logf("Request done: %+v", requestsDone[0])
+		t.Logf("Request expected: %+v", r)
+		t.Error("MockClient request is expected to be the one passed as argument")
+	}
+
 }
