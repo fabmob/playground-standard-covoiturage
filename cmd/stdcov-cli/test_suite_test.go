@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 )
 
@@ -27,14 +28,27 @@ func testThrowErrorOnTest(t *testing.T, f auxTestFun, r *http.Request) {
 }
 
 func TestAPIErrors(t *testing.T) {
-	testFuns := []struct {
+	GetStatusRequest, err := http.NewRequest(
+		http.MethodGet,
+		"/status",
+		strings.NewReader(""),
+	)
+	if err != nil {
+		panic(err)
+	}
+	GetDriverJourneysRequest, err := http.NewRequest(
+		http.MethodGet,
+		"/driver_journeys",
+		strings.NewReader(""),
+	)
+	testCases := []struct {
 		f auxTestFun
 		r *http.Request
 	}{
-		testGetStatus,
-		testGetDriverJourneys,
+		{testGetStatus, GetStatusRequest},
+		{testGetDriverJourneys, GetDriverJourneysRequest},
 	}
-	for _, f := range testFuns {
-		testThrowErrorOnTest(t, f)
+	for _, tc := range testCases {
+		testThrowErrorOnTest(t, tc.f, tc.r)
 	}
 }
