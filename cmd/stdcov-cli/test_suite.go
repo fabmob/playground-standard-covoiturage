@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"net/http"
 	"strings"
 
@@ -33,30 +32,26 @@ func ExecuteTestSuite(client APIClient) Report {
 // single endpoint).
 type TestFun func(APIClient, *http.Request) []AssertionResult
 
-// TestGetStatus checks the `GET /status` endpoint
-func TestGetStatus(Client APIClient, request *http.Request) []AssertionResult {
-	endpoint := Endpoint{"/status", http.MethodGet}
-	a := NewAssertionAccu()
-	a.endpoint = endpoint
-	testGetStatus(Client, request, a)
-	return a.GetAssertionResults()
-}
+var TestGetStatus = wrapTest(testGetStatus)
+var TestGetDriverJourneys = wrapTest(testGetDriverJourneys)
 
-// TestGetDriverJourneys checks the `GET /driver_journeys` endpoint
-func TestGetDriverJourneys(Client APIClient, request *http.Request) []AssertionResult {
-	endpoint := Endpoint{"/driver_journeys", http.MethodGet}
-	a := NewAssertionAccu()
-	a.endpoint = endpoint
-	testGetDriverJourneys(Client, request, a)
-	return a.GetAssertionResults()
+func wrapTest(f auxTestFun) TestFun {
+	return func(Client APIClient, request *http.Request) []AssertionResult {
+		endpoint := Endpoint{request.URL.Path, request.Method}
+		a := NewAssertionAccu()
+		a.endpoint = endpoint
+		f(Client, request, a)
+		return a.GetAssertionResults()
+	}
 }
 
 //////////////////////////////////////////////////////////////
 
 type auxTestFun func(APIClient, *http.Request, AssertionAccumulator)
 
-func testGetStatus(Client APIClient, request *http.Request, a AssertionAccumulator) {
-	response, clientErr := Client.GetStatus(context.Background())
+func testGetStatus(c APIClient, request *http.Request, a AssertionAccumulator) {
+	response, clientErr := c.Client.Do(request)
+
 	a.Run(
 		Critic(assertAPICallSuccess{clientErr}),
 		assertStatusCode{response, http.StatusOK},

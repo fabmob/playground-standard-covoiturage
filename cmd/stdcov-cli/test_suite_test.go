@@ -47,42 +47,30 @@ func TestAPIErrors(t *testing.T) {
 
 // Test that the expected requests are made.
 func TestRequests(t *testing.T) {
-	t.Run("", func(t *testing.T) {
-		m := NewMockClientWithResponse(mockOKStatusResponse())
-		r, err := http.NewRequest(http.MethodGet, "/driver_journeys", strings.NewReader(""))
-		panicIf(err)
-		a := NewAssertionAccu()
-		testGetDriverJourneys(m, r, a)
+	testCases := []string{
+		"/driver_journeys",
+		"/driver_journeys?departureLat=0&departureLng=0",
+	}
+	for _, url := range testCases {
+		t.Run(url, func(t *testing.T) {
+			m := NewMockClientWithResponse(mockOKStatusResponse())
+			r, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
+			panicIf(err)
+			a := NewAssertionAccu()
+			testGetDriverJourneys(m, r, a)
 
-		requestsDone := m.Client.(*MockClient).Requests
-		if len(requestsDone) != 1 {
-			t.Error("MockClient is expected to do exactly one request")
-		}
-		if !cmpRequests(t, requestsDone[0], r) {
-			t.Logf("Request done: %+v", requestsDone[0])
-			t.Logf("Request expected: %+v", r)
-			t.Error("MockClient request is expected to be the one passed as argument")
-		}
+			requestsDone := m.Client.(*MockClient).Requests
+			if len(requestsDone) != 1 {
+				t.Error("MockClient is expected to do exactly one request")
+			}
+			if !cmpRequests(t, requestsDone[0], r) {
+				t.Logf("Request done: %+v", requestsDone[0])
+				t.Logf("Request expected: %+v", r)
+				t.Error("MockClient request is expected to be the one passed as argument")
+			}
 
-	})
-
-	t.Run("", func(t *testing.T) {
-		m := NewMockClientWithResponse(mockOKStatusResponse())
-		r, err := http.NewRequest(http.MethodGet, "/driver_journeys?departureLat=0&departureLng=0", strings.NewReader(""))
-		panicIf(err)
-		a := NewAssertionAccu()
-		testGetDriverJourneys(m, r, a)
-
-		requestsDone := m.Client.(*MockClient).Requests
-		if len(requestsDone) != 1 {
-			t.Error("MockClient is expected to do exactly one request")
-		}
-		if !cmpRequests(t, requestsDone[0], r) {
-			t.Logf("Request done: %+v", requestsDone[0])
-			t.Logf("Request expected: %+v", r)
-			t.Error("MockClient request is expected to be the one passed as argument")
-		}
-	})
+		})
+	}
 }
 
 // compareRequests ensures req1 and req2 have same Method, url and headers.
