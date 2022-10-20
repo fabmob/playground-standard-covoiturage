@@ -33,7 +33,7 @@ type AssertionResult struct {
 func NewAssertionResult(err error, endpointPath, endpointMethod, summary string) AssertionResult {
 	return AssertionResult{
 		err,
-		Endpoint{endpointPath, endpointMethod},
+		Endpoint{endpointMethod, endpointPath},
 		summary,
 	}
 }

@@ -33,13 +33,11 @@ func testErrorOnRequestIsHandled(t *testing.T, f TestFun) {
 }
 
 func TestAPIErrors(t *testing.T) {
-	testCases := []TestFun{
-		TestGetStatus,
-		TestGetDriverJourneys,
-	}
 
-	for _, f := range testCases {
-		testErrorOnRequestIsHandled(t, f)
+	for _, funs := range mapping {
+		for _, f := range funs {
+			testErrorOnRequestIsHandled(t, f)
+		}
 	}
 }
 
@@ -56,7 +54,7 @@ func TestRequests(t *testing.T) {
 			panicIf(err)
 			noopAuxTestFun := func(*http.Request, *http.Response, AssertionAccumulator) {
 			}
-			wrapTest(noopAuxTestFun)(m, r)
+			wrapTest(noopAuxTestFun, Endpoint{})(m, r)
 
 			requestsDone := m.Client.(*MockClient).Requests
 			if len(requestsDone) != 1 {
@@ -90,4 +88,8 @@ func cmpRequests(t *testing.T, req1, req2 *http.Request) bool {
 		req1.URL.String() == req2.URL.String() &&
 		cmp.Equal(req1.Header, req2.Header) &&
 		bodyString[0] == bodyString[1]
+}
+
+func TestExecutedTestsGivenRequest(t *testing.T) {
+
 }

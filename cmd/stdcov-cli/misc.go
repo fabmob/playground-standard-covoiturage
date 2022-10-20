@@ -2,8 +2,8 @@ package main
 
 // Endpoint describes an Endpoint
 type Endpoint struct {
-	path   string
 	method string
+	path   string
 }
 
 // String implements the Stringer interface for Endpoint type
