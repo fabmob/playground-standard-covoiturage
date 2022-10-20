@@ -9,27 +9,30 @@ import (
 )
 
 type mockClient struct {
-	Response      *http.Response
-	Error         error
-	nCalls        int
-	lastURLCalled string
+	Response *http.Response
+	Error    error
+	Requests []*http.Request
 }
 
-func returnErrorClient(err error) APIClient {
+func NewMockClientWithError(err error) APIClient {
 	m := &mockClient{Error: err}
 	return newTestClient(m)
 }
 
+func NewMockClientWithResponse(r *http.Response) APIClient {
+	m := &mockClient{Response: r}
+	return newTestClient(m)
+}
+
 func newTestClient(m *mockClient) *client.Client {
-	c, _ := client.NewClient("https://localhost:8000", client.WithHTTPClient(m))
+	c, _ := client.NewClient("", client.WithHTTPClient(m))
 	return c
 }
 
 // Get returns the stored response of the mockClient, implements
 // HTTPRequestDoer
 func (m *mockClient) Do(req *http.Request) (*http.Response, error) {
-	m.nCalls++
-	m.lastURLCalled = req.URL.String()
+	m.Requests = append(m.Requests, req)
 	if m.Error != nil {
 		return nil, m.Error
 	}

@@ -13,7 +13,7 @@ import (
 func testThrowErrorOnTest(t *testing.T, f auxTestFun) {
 	t.Run("API call throws error", func(t *testing.T) {
 		urlError := &url.Error{Op: "", URL: "", Err: errors.New("error")}
-		m := returnErrorClient(urlError)
+		m := NewMockClientWithError(urlError)
 		a := NewAssertionAccu()
 
 		// specific request is irrelevant as the error client is in any case returning
