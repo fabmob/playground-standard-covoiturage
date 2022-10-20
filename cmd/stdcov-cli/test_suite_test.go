@@ -14,20 +14,18 @@ import (
 //  testErrorOnRequestIsHandled returns an urlError for every API call and checks:
 // - that only one AssertionError is returned
 // - that AssertionError.Unwrap() != nil
-func testErrorOnRequestIsHandled(t *testing.T, f auxTestFun) {
+func testErrorOnRequestIsHandled(t *testing.T, f TestFun) {
 	t.Helper()
 	t.Run("API call throws error", func(t *testing.T) {
 		urlError := &url.Error{Op: "", URL: "", Err: errors.New("error")}
 		m := NewMockClientWithError(urlError)
-		a := NewAssertionAccu()
 
-		// specific request is irrelevant as the error client is in any case returning
-		// an error
-		var r *http.Request
-		f(m, r, a)
-		shouldHaveSingleAssertionResult(t, a)
+		// specific request is irrelevant as the error client is in any case returning an error
+		r, _ := http.NewRequest(http.MethodGet, "/", strings.NewReader(""))
+		results := f(m, r)
+		shouldHaveSingleAssertionResult(t, results)
 
-		err := a.GetAssertionResults()[0].Unwrap()
+		err := results[0].Unwrap()
 		if err == nil {
 			t.Error("If error returned, api is not up")
 		}
@@ -35,9 +33,9 @@ func testErrorOnRequestIsHandled(t *testing.T, f auxTestFun) {
 }
 
 func TestAPIErrors(t *testing.T) {
-	testCases := []auxTestFun{
-		testGetStatus,
-		testGetDriverJourneys,
+	testCases := []TestFun{
+		TestGetStatus,
+		TestGetDriverJourneys,
 	}
 
 	for _, f := range testCases {
@@ -56,8 +54,7 @@ func TestRequests(t *testing.T) {
 			m := NewMockClientWithResponse(mockOKStatusResponse())
 			r, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
 			panicIf(err)
-			a := NewAssertionAccu()
-			testGetDriverJourneys(m, r, a)
+			TestGetDriverJourneys(m, r)
 
 			requestsDone := m.Client.(*MockClient).Requests
 			if len(requestsDone) != 1 {

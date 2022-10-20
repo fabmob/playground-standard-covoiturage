@@ -278,9 +278,9 @@ func TestAssertAPICallSuccess(t *testing.T) {
 	}
 }
 
-func shouldHaveSingleAssertionResult(t *testing.T, a *DefaultAssertionAccu) {
+func shouldHaveSingleAssertionResult(t *testing.T, ar []AssertionResult) {
 	t.Helper()
-	if len(a.storedAssertionResults) != 1 {
+	if len(ar) != 1 {
 		t.Error("Each assertion should return only one AssertionResult")
 	}
 }
@@ -337,7 +337,7 @@ func runSingleAssertion(
 	a := NewAssertionAccu()
 	a.Run(assertion)
 
-	shouldHaveSingleAssertionResult(t, a)
+	shouldHaveSingleAssertionResult(t, a.GetAssertionResults())
 
 	return a.storedAssertionResults[0].err
 }

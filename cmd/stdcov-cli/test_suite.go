@@ -29,41 +29,54 @@ func ExecuteTestSuite(client APIClient) Report {
 /////////////////////////////////////////////////////////////
 
 // A TestFun is a function that the API in a specific way (e.g. testing a
-// single endpoint).
+// single endpoint). Assumes that request is non-nil.
 type TestFun func(APIClient, *http.Request) []AssertionResult
 
+// TestGetStatus tests the GET /status endpoint
 var TestGetStatus = wrapTest(testGetStatus)
+
+// TestGetDriverJourneys tests the GET /driver_journeys endpoint
 var TestGetDriverJourneys = wrapTest(testGetDriverJourneys)
 
+// wrapTest wraps an auxTestFun (that tests a response against a request) to a
+// TestFun
 func wrapTest(f auxTestFun) TestFun {
-	return func(Client APIClient, request *http.Request) []AssertionResult {
+	return func(c APIClient, request *http.Request) []AssertionResult {
 		endpoint := Endpoint{request.URL.Path, request.Method}
 		a := NewAssertionAccu()
 		a.endpoint = endpoint
-		f(Client, request, a)
+		response, clientErr := c.Client.Do(request)
+		if clientErr != nil {
+			a.Run(assertAPICallSuccess{clientErr})
+		} else {
+			f(request, response, a)
+		}
 		return a.GetAssertionResults()
 	}
 }
 
 //////////////////////////////////////////////////////////////
 
-type auxTestFun func(APIClient, *http.Request, AssertionAccumulator)
+type auxTestFun func(*http.Request, *http.Response, AssertionAccumulator)
 
-func testGetStatus(c APIClient, request *http.Request, a AssertionAccumulator) {
-	response, clientErr := c.Client.Do(request)
+func testGetStatus(
+	request *http.Request,
+	response *http.Response,
+	a AssertionAccumulator,
+) {
 
 	a.Run(
-		Critic(assertAPICallSuccess{clientErr}),
 		assertStatusCode{response, http.StatusOK},
 	)
 }
 
-func testGetDriverJourneys(c APIClient, request *http.Request, a AssertionAccumulator) {
-	// Get response
-	response, clientErr := c.Client.Do(request)
+func testGetDriverJourneys(
+	request *http.Request,
+	response *http.Response,
+	a AssertionAccumulator,
+) {
 
 	a.Run(
-		Critic(assertAPICallSuccess{clientErr}),
 		assertStatusCode{response, http.StatusOK},
 		assertHeaderContains{response, "Content-Type", "application/json"},
 		assertDriverJourneysFormat{request, response},
