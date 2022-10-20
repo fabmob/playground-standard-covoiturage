@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"strings"
 
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
 )
@@ -17,9 +16,8 @@ var TestSuite = []TestFun{
 }
 
 // ExecuteTestSuite tests a client against all implemented tests
-func ExecuteTestSuite(client APIClient) Report {
+func ExecuteTestSuite(client APIClient, request *http.Request) Report {
 	all := []AssertionResult{}
-	request, _ := http.NewRequest("GET", "/", strings.NewReader(""))
 	for _, testFun := range TestSuite {
 		all = append(all, testFun(client, request)...)
 	}

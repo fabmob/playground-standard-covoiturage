@@ -8,25 +8,12 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
 )
 
+// MockClient is an HTTP client that returns always the same response or
+// error, and stores the requests that are made.
 type MockClient struct {
 	Response *http.Response
 	Error    error
 	Requests []*http.Request
-}
-
-func NewMockClientWithError(err error) APIClient {
-	m := &MockClient{Error: err}
-	return newTestClient(m)
-}
-
-func NewMockClientWithResponse(r *http.Response) APIClient {
-	m := &MockClient{Response: r}
-	return newTestClient(m)
-}
-
-func newTestClient(m *MockClient) *client.Client {
-	c, _ := client.NewClient("", client.WithHTTPClient(m))
-	return c
 }
 
 // Do returns the stored response of the MockClient, implements
@@ -37,6 +24,25 @@ func (m *MockClient) Do(req *http.Request) (*http.Response, error) {
 		return nil, m.Error
 	}
 	return m.Response, nil
+}
+
+// NewMockClientWithError returns a MockClient that always returns error
+// `err`
+func NewMockClientWithError(err error) APIClient {
+	m := &MockClient{Error: err}
+	return newTestClient(m)
+}
+
+// NewMockClientWithResponse returns a MockClient that always returns response
+// `r`
+func NewMockClientWithResponse(r *http.Response) APIClient {
+	m := &MockClient{Response: r}
+	return newTestClient(m)
+}
+
+func newTestClient(m *MockClient) *client.Client {
+	c, _ := client.NewClient("", client.WithHTTPClient(m))
+	return c
 }
 
 // mockResponse returns a mock response with given statusCode, body, and

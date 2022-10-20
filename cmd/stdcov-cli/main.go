@@ -21,11 +21,12 @@ func run() int {
 
 	flag.Parse()
 
-	client, err := client.NewClient(*urlStrPtr)
+	c, err := client.NewClient(*urlStrPtr)
 	if err != nil {
 		panic(err)
 	}
-	report := ExecuteTestSuite(client)
+	request, _ := client.NewGetDriverJourneysRequest(c.Server, &client.GetDriverJourneysParams{})
+	report := ExecuteTestSuite(c, request)
 	report.verbose = *verboseBoolPtr
 	fmt.Println(report)
 	if report.hasErrors() {

@@ -43,7 +43,7 @@ func TestAPIErrors(t *testing.T) {
 	}
 }
 
-// Test that the expected requests are made.
+// Test that the expected requests are made with wrapTest
 func TestRequests(t *testing.T) {
 	testCases := []string{
 		"/driver_journeys",
@@ -54,7 +54,9 @@ func TestRequests(t *testing.T) {
 			m := NewMockClientWithResponse(mockOKStatusResponse())
 			r, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
 			panicIf(err)
-			TestGetDriverJourneys(m, r)
+			noopAuxTestFun := func(*http.Request, *http.Response, AssertionAccumulator) {
+			}
+			wrapTest(noopAuxTestFun)(m, r)
 
 			requestsDone := m.Client.(*MockClient).Requests
 			if len(requestsDone) != 1 {
