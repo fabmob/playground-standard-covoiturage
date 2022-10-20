@@ -67,16 +67,19 @@ func TestRequests(t *testing.T) {
 // compareRequests ensures req1 and req2 have same Method, url and headers.
 func cmpRequests(t *testing.T, req1, req2 *http.Request) bool {
 	t.Helper()
-	b1, err := req1.GetBody()
-	panicIf(err)
-	b2, err := req2.GetBody()
-	panicIf(err)
-	b1Bytes, err := io.ReadAll(b1)
-	panicIf(err)
-	b2Bytes, err := io.ReadAll(b2)
-	panicIf(err)
+	body := make([]io.Reader, 2)
+	bodyString := make([]string, 2)
+	reqs := []*http.Request{req1, req2}
+	for i, req := range reqs {
+		var err error
+		body[i], err = req.GetBody()
+		panicIf(err)
+		bodyBytes, err := io.ReadAll(body[i])
+		panicIf(err)
+		bodyString[i] = string(bodyBytes)
+	}
 	return req1.Method == req2.Method &&
 		req1.URL.String() == req2.URL.String() &&
 		cmp.Equal(req1.Header, req2.Header) &&
-		string(b1Bytes) == string(b2Bytes)
+		bodyString[0] == bodyString[1]
 }
