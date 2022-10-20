@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"net/http"
 	"net/url"
 	"testing"
 )
@@ -9,14 +10,13 @@ import (
 // throwErrorOnTest returns an urlError for every API call and checks:
 // - that only one AssertionError is returned
 // - that AssertionError.Unwrap() != nil
-func testThrowErrorOnTest(t *testing.T, f auxTestFun) {
+func testThrowErrorOnTest(t *testing.T, f auxTestFun, r *http.Request) {
 	t.Run("API call throws error", func(t *testing.T) {
 		urlError := &url.Error{Op: "", URL: "", Err: errors.New("error")}
 		m := returnErrorClient(urlError)
-
 		a := NewAssertionAccu()
 
-		f(m, a)
+		f(m, r, a)
 		shouldHaveSingleAssertionResult(t, a)
 
 		err := a.GetAssertionResults()[0].Unwrap()
@@ -27,7 +27,10 @@ func testThrowErrorOnTest(t *testing.T, f auxTestFun) {
 }
 
 func TestAPIErrors(t *testing.T) {
-	testFuns := []auxTestFun{
+	testFuns := []struct {
+		f auxTestFun
+		r *http.Request
+	}{
 		testGetStatus,
 		testGetDriverJourneys,
 	}
