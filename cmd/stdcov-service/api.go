@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -46,7 +45,6 @@ func (*StdCovServerImpl) GetDriverJourneys(
 	ctx echo.Context,
 	params server.GetDriverJourneysParams,
 ) error {
-	fmt.Printf("%+v\n", DriverJourneysData)
 	return ctx.JSON(http.StatusOK, DriverJourneysData)
 }
 
