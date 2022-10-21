@@ -10,20 +10,20 @@ import (
 type APIClient = *client.Client
 
 // ExecuteTestSuite tests a client against all implemented tests
-func ExecuteTestSuite(client APIClient, request *http.Request) Report {
-	TestSuite := make([]TestFun, 0, len(apiMapping))
-	for _, v := range apiMapping {
-		TestSuite = append(TestSuite, v...)
+func ExecuteTestSuite(client APIClient, request *http.Request) (*Report, error) {
+	selectedTestFuns, err := SelectTestFuns(request)
+	if err != nil {
+		return nil, err
 	}
-	return executeTestFuns(client, request, TestSuite)
+	return executeTestFuns(client, request, selectedTestFuns), nil
 }
 
-func executeTestFuns(client APIClient, request *http.Request, tests []TestFun) Report {
+func executeTestFuns(client APIClient, request *http.Request, tests []TestFun) *Report {
 	all := []AssertionResult{}
 	for _, testFun := range tests {
 		all = append(all, testFun(client, request)...)
 	}
-	return Report{allAssertionResults: all}
+	return &Report{allAssertionResults: all}
 }
 
 /////////////////////////////////////////////////////////////

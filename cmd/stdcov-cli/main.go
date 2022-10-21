@@ -26,7 +26,11 @@ func run() int {
 		panic(err)
 	}
 	request, _ := client.NewGetDriverJourneysRequest(c.Server, &client.GetDriverJourneysParams{})
-	report := ExecuteTestSuite(c, request)
+	report, err := ExecuteTestSuite(c, request)
+	if err != nil {
+		fmt.Println(err)
+		return 1
+	}
 	report.verbose = *verboseBoolPtr
 	fmt.Println(report)
 	if report.hasErrors() {

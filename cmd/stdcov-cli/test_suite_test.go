@@ -97,7 +97,8 @@ func TestExecutedTestsGivenRequest(t *testing.T) {
 	r, err := http.NewRequest(method, path, strings.NewReader(""))
 	panicIf(err)
 
-	report := ExecuteTestSuite(m, r)
+	report, err := ExecuteTestSuite(m, r)
+	panicIf(err)
 	for _, a := range report.allAssertionResults {
 		if a.endpoint.path != path || a.endpoint.method != method {
 			t.Logf("Path expected by request: %s %s", method, path)

@@ -91,3 +91,10 @@ func (n NoOpAssertion) Execute() error {
 func (NoOpAssertion) Describe() string {
 	return "No assertion"
 }
+
+// panicIf panics if err is not nil
+func panicIf(err error) {
+	if err != nil {
+		panic(err)
+	}
+}

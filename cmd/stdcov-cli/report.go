@@ -8,7 +8,7 @@ type Report struct {
 	allAssertionResults []AssertionResult
 }
 
-func (report Report) String() string {
+func (report *Report) String() string {
 	str := ""
 	for _, ar := range report.allAssertionResults {
 		str += toString(ar, report.verbose)
@@ -16,7 +16,7 @@ func (report Report) String() string {
 	return str
 }
 
-func (report Report) countErrors() int {
+func (report *Report) countErrors() int {
 	nErr := 0
 	for _, ar := range report.allAssertionResults {
 		if ar.Unwrap() != nil {
@@ -26,7 +26,7 @@ func (report Report) countErrors() int {
 	return nErr
 }
 
-func (report Report) hasErrors() bool {
+func (report *Report) hasErrors() bool {
 	return report.countErrors() > 0
 }
 
