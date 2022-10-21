@@ -34,7 +34,7 @@ func testErrorOnRequestIsHandled(t *testing.T, f TestFun) {
 
 func TestAPIErrors(t *testing.T) {
 
-	for _, funs := range mapping {
+	for _, funs := range apiMapping {
 		for _, f := range funs {
 			testErrorOnRequestIsHandled(t, f)
 		}
@@ -91,5 +91,18 @@ func cmpRequests(t *testing.T, req1, req2 *http.Request) bool {
 }
 
 func TestExecutedTestsGivenRequest(t *testing.T) {
+	m := NewMockClientWithResponse(mockOKStatusResponse())
+	path := "/driver_journeys"
+	method := http.MethodGet
+	r, err := http.NewRequest(method, path, strings.NewReader(""))
+	panicIf(err)
 
+	report := ExecuteTestSuite(m, r)
+	for _, a := range report.allAssertionResults {
+		if a.endpoint.path != path || a.endpoint.method != method {
+			t.Logf("Path expected by request: %s %s", method, path)
+			t.Logf("Assertion run for: %s %s", a.endpoint.method, a.endpoint.path)
+			t.Error("Unexpected assertion run for given request")
+		}
+	}
 }
