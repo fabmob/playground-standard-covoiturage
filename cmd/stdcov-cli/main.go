@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
@@ -29,8 +30,8 @@ func Run() int {
 	if err != nil {
 		panic(err)
 	}
-
-	req, err := http.NewRequest("GET", *urlStrPtr, nil)
+	fullURL, _ := url.JoinPath(*serverStrPtr, *urlStrPtr)
+	req, err := http.NewRequest("GET", fullURL, nil)
 	if err != nil {
 		fmt.Println(err)
 		return 1

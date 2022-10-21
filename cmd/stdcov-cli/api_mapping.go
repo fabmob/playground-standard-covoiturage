@@ -36,7 +36,6 @@ func SelectTestFuns(request *http.Request, server string) ([]TestFun, error) {
 		return nil, err
 	}
 	testFuns, ok := apiMapping[*endpoint]
-	fmt.Printf("%+v\n", *endpoint)
 	if !ok {
 		return nil, fmt.Errorf("request to an unknown endpoint. Method: %s, path: %s",
 			request.Method,
@@ -45,6 +44,8 @@ func SelectTestFuns(request *http.Request, server string) ([]TestFun, error) {
 	return testFuns, nil
 }
 
+// ExtractEndpoint extracts the endpoint from a request, given server
+// information
 func ExtractEndpoint(request *http.Request, server string) (*Endpoint, error) {
 	serverURL, err := url.Parse(server)
 	if err != nil {

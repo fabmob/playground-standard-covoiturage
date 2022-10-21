@@ -35,6 +35,8 @@ func (qp *Query) Set(s string) error {
 	return nil
 }
 
+// AddQueryParameters adds query parameters stored in a Query object to an
+// existing request
 func AddQueryParameters(query Query, req *http.Request) {
 	q := req.URL.Query()
 	for k, v := range query.params {
