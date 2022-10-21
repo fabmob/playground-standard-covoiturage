@@ -61,6 +61,7 @@ type Query struct {
 	params map[string]string
 }
 
+// String implements flag.Value.String
 func (qp *Query) String() string {
 	str := ""
 	for k, v := range qp.params {
@@ -69,6 +70,7 @@ func (qp *Query) String() string {
 	return str
 }
 
+// Set implements flag.Value.Set
 func (qp *Query) Set(s string) error {
 	parts := strings.SplitN(s, "=", 2)
 	key := parts[0]
