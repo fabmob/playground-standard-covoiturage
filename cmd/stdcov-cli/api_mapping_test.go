@@ -47,8 +47,10 @@ func TestExtractEndpoint(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			request, err := http.NewRequest(tc.method, tc.requestURL, nil)
 			panicIf(err)
-			endpoint := ExtractEndpoint(request, tc.server)
+			endpoint, _ := ExtractEndpoint(request, tc.server)
 			if endpoint.Method != tc.method || endpoint.Path != tc.expectedEndpointPath {
+				t.Logf("Method : exected %s, got %s", tc.method, endpoint.Method)
+				t.Logf("Path : exected %s, got %s", tc.expectedEndpointPath, endpoint.Path)
 				t.Error("Failure to identify right endpoint from request")
 			}
 		})

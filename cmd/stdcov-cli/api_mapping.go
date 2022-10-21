@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 )
 
 // Endpoint describes an Endpoint
@@ -29,7 +31,12 @@ var apiMapping = map[Endpoint][]TestFun{
 
 // SelectTestFuns returns the test functions related to a given request
 func SelectTestFuns(request *http.Request, server string) ([]TestFun, error) {
-	testFuns, ok := apiMapping[ExtractEndpoint(request, server)]
+	endpoint, err := ExtractEndpoint(request, server)
+	if err != nil {
+		return nil, err
+	}
+	testFuns, ok := apiMapping[*endpoint]
+	fmt.Printf("%+v\n", *endpoint)
 	if !ok {
 		return nil, fmt.Errorf("request to an unknown endpoint. Method: %s, path: %s",
 			request.Method,
@@ -38,8 +45,15 @@ func SelectTestFuns(request *http.Request, server string) ([]TestFun, error) {
 	return testFuns, nil
 }
 
-func ExtractEndpoint(request *http.Request, server string) Endpoint {
+func ExtractEndpoint(request *http.Request, server string) (*Endpoint, error) {
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
 	method := request.Method
-	path := request.URL.Path
-	return Endpoint{method, path}
+	path := strings.TrimPrefix(request.URL.Path, serverURL.Path)
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+	return &Endpoint{method, path}, nil
 }
