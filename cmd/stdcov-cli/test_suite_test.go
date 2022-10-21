@@ -11,7 +11,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-//  testErrorOnRequestIsHandled returns an urlError for every API call and checks:
+// testErrorOnRequestIsHandled returns an urlError for every API call and checks:
 // - that only one AssertionError is returned
 // - that AssertionError.Unwrap() != nil
 func testErrorOnRequestIsHandled(t *testing.T, f TestFun) {
@@ -70,7 +70,7 @@ func TestRequests(t *testing.T) {
 	}
 }
 
-// compareRequests ensures req1 and req2 have same Method, url and headers.
+// cmpRequests ensures req1 and req2 have same Method, url and headers.
 func cmpRequests(t *testing.T, req1, req2 *http.Request) bool {
 	t.Helper()
 	body := make([]io.Reader, 2)
