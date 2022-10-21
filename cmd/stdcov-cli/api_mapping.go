@@ -7,13 +7,13 @@ import (
 
 // Endpoint describes an Endpoint
 type Endpoint struct {
-	method string
-	path   string
+	Method string
+	Path   string
 }
 
 // String implements the Stringer interface for Endpoint type
 func (e Endpoint) String() string {
-	return e.method + " " + e.path
+	return e.Method + " " + e.Path
 }
 
 // GetStatusEndpoint is the Endpoint of GET /status
@@ -28,13 +28,18 @@ var apiMapping = map[Endpoint][]TestFun{
 }
 
 // SelectTestFuns returns the test functions related to a given request
-func SelectTestFuns(request *http.Request) ([]TestFun, error) {
-	method := request.Method
-	path := request.URL.Path
-	testFuns, ok := apiMapping[Endpoint{method, path}]
+func SelectTestFuns(request *http.Request, server string) ([]TestFun, error) {
+	testFuns, ok := apiMapping[ExtractEndpoint(request, server)]
 	if !ok {
-		return nil, fmt.Errorf("request to an unknown endpoint: %s %s", method,
-			path)
+		return nil, fmt.Errorf("request to an unknown endpoint. Method: %s, path: %s",
+			request.Method,
+			request.URL.Path)
 	}
 	return testFuns, nil
+}
+
+func ExtractEndpoint(request *http.Request, server string) Endpoint {
+	method := request.Method
+	path := request.URL.Path
+	return Endpoint{method, path}
 }

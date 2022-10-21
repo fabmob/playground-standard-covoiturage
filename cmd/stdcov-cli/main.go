@@ -17,14 +17,15 @@ func main() {
 
 // Run runs the cli validation and returns an exit code
 func Run() int {
-	urlStrPtr := flag.String("url", "", "Server url of the API under test")
+	serverStrPtr := flag.String("server", "", "Server URL of the API under test")
+	urlStrPtr := flag.String("url", "", "API call URL")
 	verboseBoolPtr := flag.Bool("verbose", false, "Make the operation more talkative")
 	var query Query
 	flag.Var(&query, "q", "Query parameters in the form name=value")
 
 	flag.Parse()
 
-	c, err := client.NewClient("")
+	c, err := client.NewClient(*serverStrPtr)
 	if err != nil {
 		panic(err)
 	}

@@ -11,7 +11,7 @@ type APIClient = *client.Client
 
 // ExecuteTestSuite tests a client against all implemented tests
 func ExecuteTestSuite(client APIClient, request *http.Request) (*Report, error) {
-	selectedTestFuns, err := SelectTestFuns(request)
+	selectedTestFuns, err := SelectTestFuns(request, client.Server)
 	if err != nil {
 		return nil, err
 	}

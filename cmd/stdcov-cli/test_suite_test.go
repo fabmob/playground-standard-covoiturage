@@ -100,9 +100,9 @@ func TestExecutedTestsGivenRequest(t *testing.T) {
 	report, err := ExecuteTestSuite(m, r)
 	panicIf(err)
 	for _, a := range report.allAssertionResults {
-		if a.endpoint.path != path || a.endpoint.method != method {
+		if a.endpoint.Path != path || a.endpoint.Method != method {
 			t.Logf("Path expected by request: %s %s", method, path)
-			t.Logf("Assertion run for: %s %s", a.endpoint.method, a.endpoint.path)
+			t.Logf("Assertion run for: %s %s", a.endpoint.Method, a.endpoint.Path)
 			t.Error("Unexpected assertion run for given request")
 		}
 	}

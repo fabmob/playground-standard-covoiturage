@@ -115,7 +115,7 @@ func (a *DefaultAssertionAccu) Run(assertions ...Assertion) {
 
 		a.storedAssertionResults = append(
 			a.storedAssertionResults,
-			NewAssertionResult(err, a.endpoint.path, a.endpoint.method,
+			NewAssertionResult(err, a.endpoint.Path, a.endpoint.Method,
 				assertion.Describe()),
 		)
 		_, critic := assertion.(CriticAssertion)
