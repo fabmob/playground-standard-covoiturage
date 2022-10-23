@@ -8,32 +8,41 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
 )
 
-type mockClient struct {
-	Response      *http.Response
-	Error         error
-	nCalls        int
-	lastURLCalled string
+// MockClient is an HTTP client that returns always the same response or
+// error, and stores the requests that are made.
+type MockClient struct {
+	Response *http.Response
+	Error    error
+	Requests []*http.Request
 }
 
-func returnErrorClient(err error) APIClient {
-	m := &mockClient{Error: err}
-	return newTestClient(m)
-}
-
-func newTestClient(m *mockClient) *client.Client {
-	c, _ := client.NewClient("https://localhost:8000", client.WithHTTPClient(m))
-	return c
-}
-
-// Get returns the stored response of the mockClient, implements
+// Do returns the stored response of the MockClient, implements
 // HTTPRequestDoer
-func (m *mockClient) Do(req *http.Request) (*http.Response, error) {
-	m.nCalls++
-	m.lastURLCalled = req.URL.String()
+func (m *MockClient) Do(req *http.Request) (*http.Response, error) {
+	m.Requests = append(m.Requests, req)
 	if m.Error != nil {
 		return nil, m.Error
 	}
 	return m.Response, nil
+}
+
+// NewMockClientWithError returns a MockClient that always returns error
+// `err`
+func NewMockClientWithError(err error) APIClient {
+	m := &MockClient{Error: err}
+	return newTestClient(m)
+}
+
+// NewMockClientWithResponse returns a MockClient that always returns response
+// `r`
+func NewMockClientWithResponse(r *http.Response) APIClient {
+	m := &MockClient{Response: r}
+	return newTestClient(m)
+}
+
+func newTestClient(m *MockClient) *client.Client {
+	c, _ := client.NewClient("", client.WithHTTPClient(m))
+	return c
 }
 
 // mockResponse returns a mock response with given statusCode, body, and
@@ -66,6 +75,10 @@ func mockStatusResponse(statusCode int) *http.Response {
 	return mockResponse(statusCode, "", nil)
 }
 
+func mockOKStatusResponse() *http.Response {
+	return mockStatusResponse(http.StatusOK)
+}
+
 // A NoOpAssertion returns stored error when executed
 type NoOpAssertion struct{ error }
 
@@ -77,4 +90,11 @@ func (n NoOpAssertion) Execute() error {
 // Describe implements Assertion interface
 func (NoOpAssertion) Describe() string {
 	return "No assertion"
+}
+
+// panicIf panics if err is not nil
+func panicIf(err error) {
+	if err != nil {
+		panic(err)
+	}
 }

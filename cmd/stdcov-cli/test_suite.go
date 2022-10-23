@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"net/http"
 
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
@@ -10,70 +9,67 @@ import (
 // APIClient is a client to the API standard covoiturage
 type APIClient = *client.Client
 
-// TestSuite lists all test functions that are executed when the API is tested
-var TestSuite = []TestFun{
-	TestGetStatus,
-	TestGetDriverJourneys,
+// ExecuteTestSuite tests a client against all implemented tests
+func ExecuteTestSuite(client APIClient, request *http.Request) (*Report, error) {
+	selectedTestFuns, err := SelectTestFuns(request, client.Server)
+	if err != nil {
+		return nil, err
+	}
+	return executeTestFuns(client, request, selectedTestFuns), nil
 }
 
-// ExecuteTestSuite tests a client against all implemented tests
-func ExecuteTestSuite(client APIClient) Report {
+func executeTestFuns(client APIClient, request *http.Request, tests []TestFun) *Report {
 	all := []AssertionResult{}
-	for _, testFun := range TestSuite {
-		all = append(all, testFun(client)...)
+	for _, testFun := range tests {
+		all = append(all, testFun(client, request)...)
 	}
-	return Report{allAssertionResults: all}
+	return &Report{allAssertionResults: all}
 }
 
 /////////////////////////////////////////////////////////////
 
 // A TestFun is a function that the API in a specific way (e.g. testing a
-// single endpoint).
-type TestFun func(APIClient) []AssertionResult
+// single endpoint). Assumes that request is non-nil.
+type TestFun func(APIClient, *http.Request) []AssertionResult
 
-// TestGetStatus checks the `GET /status` endpoint
-func TestGetStatus(Client APIClient) []AssertionResult {
-	endpoint := Endpoint{"/status", http.MethodGet}
-	a := NewAssertionAccu()
-	a.endpoint = endpoint
-	testGetStatus(Client, a)
-	return a.GetAssertionResults()
+// wrapTest wraps an auxTestFun (that tests a response against a request) to a
+// TestFun
+func wrapTest(f auxTestFun, endpoint Endpoint) TestFun {
+	return func(c APIClient, request *http.Request) []AssertionResult {
+		a := NewAssertionAccu()
+		a.endpoint = endpoint
+		response, clientErr := c.Client.Do(request)
+		if clientErr != nil {
+			a.Run(assertAPICallSuccess{clientErr})
+		} else {
+			f(request, response, a)
+		}
+		return a.GetAssertionResults()
+	}
 }
 
-// TestGetDriverJourneys checks the `GET /driver_journeys` endpoint
-func TestGetDriverJourneys(Client APIClient) []AssertionResult {
-	endpoint := Endpoint{"/driver_journeys", http.MethodGet}
-	a := NewAssertionAccu()
-	a.endpoint = endpoint
-	testGetDriverJourneys(Client, a)
-	return a.GetAssertionResults()
-}
+//////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////////////
+type auxTestFun func(*http.Request, *http.Response, AssertionAccumulator)
 
-type auxTestFun func(APIClient, AssertionAccumulator)
+func testGetStatus(
+	request *http.Request,
+	response *http.Response,
+	a AssertionAccumulator,
+) {
 
-func testGetStatus(Client APIClient, a AssertionAccumulator) {
-	response, clientErr := Client.GetStatus(context.Background())
 	a.Run(
-		Critic(assertAPICallSuccess{clientErr}),
 		assertStatusCode{response, http.StatusOK},
 	)
 }
 
-func testGetDriverJourneys(Client APIClient, a AssertionAccumulator) {
-	// Test query parameters
-	params := &client.GetDriverJourneysParams{}
-
-	// Request
-	request, _ := client.NewGetDriverJourneysRequest(Client.Server, params)
-	/* AssertAPICallSuccess(a, err) */
-
-	// Get response
-	response, clientErr := Client.GetDriverJourneys(context.Background(), params)
+func testGetDriverJourneys(
+	request *http.Request,
+	response *http.Response,
+	a AssertionAccumulator,
+) {
 
 	a.Run(
-		Critic(assertAPICallSuccess{clientErr}),
 		assertStatusCode{response, http.StatusOK},
 		assertHeaderContains{response, "Content-Type", "application/json"},
 		assertDriverJourneysFormat{request, response},
