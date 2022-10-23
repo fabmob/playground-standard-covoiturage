@@ -16,6 +16,13 @@ Possible assertions driver journeys:
 - weburl required if deeplink supported.
 - long-lat in France ?
 
+Ideas:
+- Each unit test data set is on a separate day. It is therefore possible to 
+  consolidate unit test data into a single default dataset on which to run the 
+  test queries.
+- A flag "--failIfEmpty" which does not accept empty responses
+
+
 Validation:
 - Validate response data from file on import ! 
 - Options : do not allow undocumented status code 
