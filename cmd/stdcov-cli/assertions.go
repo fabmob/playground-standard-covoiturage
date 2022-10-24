@@ -265,21 +265,15 @@ type assertDriverJourneysRadius struct {
 }
 
 func (a assertDriverJourneysRadius) Execute() error {
-	queryParams := a.request.URL.Query()
-
-	// Get radius
-	var radius float32
-	if !queryParams.Has("departureRadius") {
-		radius = DefaultRadius
-	} else {
-		tempRadius, _ := strconv.ParseFloat(queryParams.Get("departureRadius"), 32)
-		radius = float32(tempRadius)
+	queryParams, err := client.ParseGetDriverJourneysRequest(a.request)
+	if err != nil {
+		return fmt.Errorf(
+			"internal error while parsing driver journey request:%w",
+			err,
+		)
 	}
-
-	// Get query departureLng and departureLat
-	departureLat, _ := strconv.ParseFloat(queryParams.Get("departureLat"), 64)
-	departureLon, _ := strconv.ParseFloat(queryParams.Get("departureLng"), 64)
-	coordsQuery := coords{departureLat, departureLon} // reference
+	radius := *queryParams.DepartureRadius
+	coordsQuery := coords{float64(queryParams.DepartureLat), float64(queryParams.DepartureLng)} // reference
 
 	responseObj, err := client.ParseGetDriverJourneysResponse(a.response)
 	if err != nil {
