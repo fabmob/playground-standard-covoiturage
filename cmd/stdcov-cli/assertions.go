@@ -262,7 +262,7 @@ type assertDriverJourneysRadius struct {
 }
 
 func (a assertDriverJourneysRadius) Execute() error {
-	return nil
+	return errors.New("")
 }
 
 func (a assertDriverJourneysRadius) Describe() string {
