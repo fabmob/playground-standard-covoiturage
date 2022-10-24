@@ -269,7 +269,13 @@ func (a assertDriverJourneysRadius) Execute() error {
 	if err != nil {
 		return failedParsing("request", err)
 	}
-	radius := *queryParams.DepartureRadius
+	radiusPtr := queryParams.DepartureRadius
+	var radius float32
+	if radiusPtr != nil {
+		radius = *radiusPtr
+	} else {
+		radius = DefaultRadius
+	}
 	coordsQuery := coords{float64(queryParams.DepartureLat), float64(queryParams.DepartureLng)}
 
 	responseObj, err := client.ParseGetDriverJourneysResponse(a.response)
@@ -284,6 +290,9 @@ func (a assertDriverJourneysRadius) Execute() error {
 	radiusWithMargin := float64(radius) * (1. + safetyMarginPercent/100)
 
 	for _, dj := range driverJourneys {
+		if dj.DriverDepartureLng == nil || dj.DriverDepartureLat == nil {
+			return fmt.Errorf("driverDepartureLng and driverDepartureLat are required but missing")
+		}
 		coordsResp := coords{*dj.DriverDepartureLat, *dj.DriverDepartureLng}
 		dist := distanceKm(coordsResp, coordsQuery)
 		if dist > radiusWithMargin {
