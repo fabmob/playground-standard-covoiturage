@@ -267,20 +267,14 @@ type assertDriverJourneysRadius struct {
 func (a assertDriverJourneysRadius) Execute() error {
 	queryParams, err := client.ParseGetDriverJourneysRequest(a.request)
 	if err != nil {
-		return fmt.Errorf(
-			"internal error while parsing driver journey request:%w",
-			err,
-		)
+		return failedParsing("request", err)
 	}
 	radius := *queryParams.DepartureRadius
-	coordsQuery := coords{float64(queryParams.DepartureLat), float64(queryParams.DepartureLng)} // reference
+	coordsQuery := coords{float64(queryParams.DepartureLat), float64(queryParams.DepartureLng)}
 
 	responseObj, err := client.ParseGetDriverJourneysResponse(a.response)
 	if err != nil {
-		return fmt.Errorf(
-			"internal error while parsing driver journey response:%w",
-			err,
-		)
+		return failedParsing("response", err)
 	}
 	driverJourneys := *responseObj.JSON200
 
@@ -301,4 +295,13 @@ func (a assertDriverJourneysRadius) Execute() error {
 
 func (a assertDriverJourneysRadius) Describe() string {
 	return fmt.Sprintf("assert %s", a.queryParameter)
+}
+
+// failedParsing wraps a parsing error with additional details
+func failedParsing(responseOrRequest string, err error) error {
+	return fmt.Errorf(
+		"internal error while parsing %s:%w",
+		responseOrRequest,
+		err,
+	)
 }
