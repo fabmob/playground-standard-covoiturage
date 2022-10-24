@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
 	"gitlab.com/multi/stdcov-api-test/cmd/validate"
 )
 
@@ -262,7 +263,24 @@ type assertDriverJourneysRadius struct {
 }
 
 func (a assertDriverJourneysRadius) Execute() error {
-	return errors.New("")
+	radius := 1.
+	responseObj, err := client.ParseGetDriverJourneysResponse(a.response)
+	if err != nil {
+		return fmt.Errorf(
+			"internal error while parsing driver journey response:%w",
+			err,
+		)
+	}
+	driverJourneys := *responseObj.JSON200
+	coordsQuery := coords{46.1590436, -1.2251247} // reference
+	safetyMargin := 1.01
+	for _, dj := range driverJourneys {
+		coordsResp := coords{*dj.DriverDepartureLat, *dj.DriverDepartureLng}
+		if distanceKm(coordsResp, coordsQuery) > radius*safetyMargin {
+			return errors.New("a driver journey does not comply to maximum 'departureRadius' distance to query departure parameters")
+		}
+	}
+	return nil
 }
 
 func (a assertDriverJourneysRadius) Describe() string {
