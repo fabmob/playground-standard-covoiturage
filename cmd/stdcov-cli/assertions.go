@@ -249,8 +249,6 @@ func (a assertDriverJourneysFormat) Describe() string {
 
 /////////////////////////////////////////////////////////////
 
-const DefaultRadius float32 = 1
-
 type departureOrArrival string
 
 const (
@@ -258,68 +256,48 @@ const (
 	arrival   departureOrArrival = "arrivalRadius"
 )
 
+// assertDriverJourneysRadius expects that response format has been validated
 type assertDriverJourneysRadius struct {
-	request        *http.Request
-	response       *http.Response
-	queryParameter departureOrArrival
+	request            *http.Request
+	response           *http.Response
+	departureOrArrival departureOrArrival
 }
 
 func (a assertDriverJourneysRadius) Execute() error {
+	// Parse request
 	queryParams, err := client.ParseGetDriverJourneysRequest(a.request)
 	if err != nil {
 		return failedParsing("request", err)
 	}
-	var radiusPtr *float32
-	var coordsQuery coords
-	if a.queryParameter == departure {
-		radiusPtr = queryParams.DepartureRadius
-		coordsQuery = coords{float64(queryParams.DepartureLat), float64(queryParams.DepartureLng)}
-	} else {
-		radiusPtr = queryParams.ArrivalRadius
-		coordsQuery = coords{float64(queryParams.ArrivalLat), float64(queryParams.ArrivalLng)}
-	}
-	var radius float32
-	if radiusPtr != nil {
-		radius = *radiusPtr
-	} else {
-		radius = DefaultRadius
-	}
+	coordsQuery := getQueryCoords(a.departureOrArrival, queryParams)
+	// As different distance computations may give different distances, we apply
+	// a safety margin
+	radius := getQueryRadiusOrDefault(a.departureOrArrival, queryParams)
+	safetyMarginPercent := 1.
+	radiusWithMargin := radius * (1. + safetyMarginPercent/100)
 
+	// Parse response
 	responseObj, err := client.ParseGetDriverJourneysResponse(a.response)
 	if err != nil {
 		return failedParsing("response", err)
 	}
 	driverJourneys := *responseObj.JSON200
 
-	// As different distance computations may give different distances, we apply
-	// a safety margin
-	safetyMarginPercent := 1.
-	radiusWithMargin := float64(radius) * (1. + safetyMarginPercent/100)
-
 	for _, dj := range driverJourneys {
-		if a.queryParameter == departure && (dj.DriverDepartureLng == nil || dj.DriverDepartureLat == nil) {
-			return fmt.Errorf("driverDepartureLng and driverDepartureLat are required but missing")
-		}
-		if a.queryParameter == arrival && (dj.DriverArrivalLng == nil || dj.DriverArrivalLat == nil) {
-			return fmt.Errorf("driverDepartureLng and driverDepartureLat are required but missing")
-		}
-		var coordsResponse coords
-		switch a.queryParameter {
-		case departure:
-			coordsResponse = coords{*dj.DriverDepartureLat, *dj.DriverDepartureLng}
-		case arrival:
-			coordsResponse = coords{*dj.DriverArrivalLat, *dj.DriverArrivalLng}
+		coordsResponse, err := getResponseCoords(a.departureOrArrival, dj)
+		if err != nil {
+			return err
 		}
 		dist := distanceKm(coordsResponse, coordsQuery)
 		if dist > radiusWithMargin {
-			return fmt.Errorf("a driver journey does not comply to maximum '%s' distance to query departure parameters", a.queryParameter)
+			return fmt.Errorf("a driver journey does not comply to maximum '%s' distance to query departure parameters", a.departureOrArrival)
 		}
 	}
 	return nil
 }
 
 func (a assertDriverJourneysRadius) Describe() string {
-	return fmt.Sprintf("assert %s", a.queryParameter)
+	return fmt.Sprintf("assert %s", a.departureOrArrival)
 }
 
 // failedParsing wraps a parsing error with additional details
@@ -329,4 +307,55 @@ func failedParsing(responseOrRequest string, err error) error {
 		responseOrRequest,
 		err,
 	)
+}
+
+// getQueryRadiusOrDefault returns departureRadius er arrivalRadius query parameter
+// (depending on departureOrArrival), or the default value if missing
+func getQueryRadiusOrDefault(departureOrArrival departureOrArrival, queryParams *client.GetDriverJourneysParams) float64 {
+	const DefaultRadius float32 = 1
+	var radiusPtr *float32
+	switch departureOrArrival {
+	case departure:
+		radiusPtr = queryParams.DepartureRadius
+	case arrival:
+		radiusPtr = queryParams.ArrivalRadius
+	}
+	var radius float32
+	if radiusPtr != nil {
+		radius = *radiusPtr
+	} else {
+		radius = DefaultRadius
+	}
+	return float64(radius)
+}
+
+func getQueryCoords(departureOrArrival departureOrArrival, queryParams *client.GetDriverJourneysParams) coords {
+	var coordsQuery coords
+	switch departureOrArrival {
+	case departure:
+		coordsQuery = coords{float64(queryParams.DepartureLat), float64(queryParams.DepartureLng)}
+	case arrival:
+		coordsQuery = coords{float64(queryParams.ArrivalLat), float64(queryParams.ArrivalLng)}
+	}
+	return coordsQuery
+}
+
+func getResponseCoords(departureOrArrival departureOrArrival, driverJourney client.DriverJourney) (coords, error) {
+	missingDeparture := departureOrArrival == departure &&
+		(driverJourney.DriverDepartureLng == nil || driverJourney.DriverDepartureLat == nil)
+	missingArrival := departureOrArrival == arrival &&
+		(driverJourney.DriverArrivalLng == nil || driverJourney.DriverArrivalLat ==
+			nil)
+	if missingDeparture || missingArrival {
+
+		return coords{}, fmt.Errorf("malformed response: driverDepartureLat, driverDepartureLng, driverArrivalLat and driverArrivalLng are required")
+	}
+	var coordsResponse coords
+	switch departureOrArrival {
+	case departure:
+		coordsResponse = coords{*driverJourney.DriverDepartureLat, *driverJourney.DriverDepartureLng}
+	case arrival:
+		coordsResponse = coords{*driverJourney.DriverArrivalLat, *driverJourney.DriverArrivalLng}
+	}
+	return coordsResponse, nil
 }
