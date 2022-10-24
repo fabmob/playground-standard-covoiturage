@@ -249,6 +249,8 @@ func (a assertDriverJourneysFormat) Describe() string {
 
 /////////////////////////////////////////////////////////////
 
+const DefaultRadius float32 = 1
+
 type departureOrArrival string
 
 const (
@@ -263,7 +265,14 @@ type assertDriverJourneysRadius struct {
 }
 
 func (a assertDriverJourneysRadius) Execute() error {
-	radius := 1.
+	queryParams := a.request.URL.Query()
+	var radius float32
+	if !queryParams.Has("departureRadius") {
+		radius = DefaultRadius
+	} else {
+		tempRadius, _ := strconv.ParseFloat(queryParams.Get("departureRadius"), 32)
+		radius = float32(tempRadius)
+	}
 	responseObj, err := client.ParseGetDriverJourneysResponse(a.response)
 	if err != nil {
 		return fmt.Errorf(
@@ -272,11 +281,16 @@ func (a assertDriverJourneysRadius) Execute() error {
 		)
 	}
 	driverJourneys := *responseObj.JSON200
-	coordsQuery := coords{46.1590436, -1.2251247} // reference
-	safetyMargin := 1.01
+	coordsQuery := coords{46.1604531, -1.2219607} // reference
+	// As different distance computations may give different distances, we apply
+	// a safety margin
+	safetyMarginPercent := 1.
+	radiusWithMargin := float64(radius) * (1. + safetyMarginPercent/100)
+
 	for _, dj := range driverJourneys {
 		coordsResp := coords{*dj.DriverDepartureLat, *dj.DriverDepartureLng}
-		if distanceKm(coordsResp, coordsQuery) > radius*safetyMargin {
+		dist := distanceKm(coordsResp, coordsQuery)
+		if dist > radiusWithMargin {
 			return errors.New("a driver journey does not comply to maximum 'departureRadius' distance to query departure parameters")
 		}
 	}

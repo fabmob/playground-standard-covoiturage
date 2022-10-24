@@ -344,17 +344,10 @@ func runSingleAssertion(
 
 func TestAssertRadius(t *testing.T) {
 	var (
-		coordsRef   = coords{46.1590436, -1.2251247} // reference
+		coordsRef   = coords{46.1604531, -1.2219607} // reference
 		coords900m  = coords{46.1613673, -1.2227555} // at ~900m from reference
-		coords1100m = coords{46.1612861, -1.2091147} // at ~1100m from reference
+		coords1100m = coords{46.1613679, -1.2086563} // at ~1100m from reference
 	)
-	params := client.GetDriverJourneysParams{
-		DepartureRadius: &radius,
-		DepartureLat:    float32(coordsRef.lat),
-		DepartureLng:    float32(coordsRef.lon),
-	}
-	request, err := client.NewGetDriverJourneysRequest("localhost:1323", &params)
-	panicIf(err)
 
 	testCases := []struct {
 		name           string
@@ -391,6 +384,13 @@ func TestAssertRadius(t *testing.T) {
 	for _, tc := range testCases {
 
 		t.Run(tc.name, func(t *testing.T) {
+			params := client.GetDriverJourneysParams{
+				DepartureRadius: &tc.radius,
+				DepartureLat:    float32(coordsRef.lat),
+				DepartureLng:    float32(coordsRef.lon),
+			}
+			request, err := client.NewGetDriverJourneysRequest("localhost:1323", &params)
+			panicIf(err)
 
 			responseObj := []client.DriverJourney{}
 			for _, c := range tc.coordsResponse {
