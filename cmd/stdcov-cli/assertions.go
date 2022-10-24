@@ -269,14 +269,21 @@ func (a assertDriverJourneysRadius) Execute() error {
 	if err != nil {
 		return failedParsing("request", err)
 	}
-	radiusPtr := queryParams.DepartureRadius
+	var radiusPtr *float32
+	var coordsQuery coords
+	if a.queryParameter == departure {
+		radiusPtr = queryParams.DepartureRadius
+		coordsQuery = coords{float64(queryParams.DepartureLat), float64(queryParams.DepartureLng)}
+	} else {
+		radiusPtr = queryParams.ArrivalRadius
+		coordsQuery = coords{float64(queryParams.ArrivalLat), float64(queryParams.ArrivalLng)}
+	}
 	var radius float32
 	if radiusPtr != nil {
 		radius = *radiusPtr
 	} else {
 		radius = DefaultRadius
 	}
-	coordsQuery := coords{float64(queryParams.DepartureLat), float64(queryParams.DepartureLng)}
 
 	responseObj, err := client.ParseGetDriverJourneysResponse(a.response)
 	if err != nil {
@@ -290,13 +297,22 @@ func (a assertDriverJourneysRadius) Execute() error {
 	radiusWithMargin := float64(radius) * (1. + safetyMarginPercent/100)
 
 	for _, dj := range driverJourneys {
-		if dj.DriverDepartureLng == nil || dj.DriverDepartureLat == nil {
+		if a.queryParameter == departure && (dj.DriverDepartureLng == nil || dj.DriverDepartureLat == nil) {
 			return fmt.Errorf("driverDepartureLng and driverDepartureLat are required but missing")
 		}
-		coordsResp := coords{*dj.DriverDepartureLat, *dj.DriverDepartureLng}
-		dist := distanceKm(coordsResp, coordsQuery)
+		if a.queryParameter == arrival && (dj.DriverArrivalLng == nil || dj.DriverArrivalLat == nil) {
+			return fmt.Errorf("driverDepartureLng and driverDepartureLat are required but missing")
+		}
+		var coordsResponse coords
+		switch a.queryParameter {
+		case departure:
+			coordsResponse = coords{*dj.DriverDepartureLat, *dj.DriverDepartureLng}
+		case arrival:
+			coordsResponse = coords{*dj.DriverArrivalLat, *dj.DriverArrivalLng}
+		}
+		dist := distanceKm(coordsResponse, coordsQuery)
 		if dist > radiusWithMargin {
-			return errors.New("a driver journey does not comply to maximum 'departureRadius' distance to query departure parameters")
+			return fmt.Errorf("a driver journey does not comply to maximum '%s' distance to query departure parameters", a.queryParameter)
 		}
 	}
 	return nil
