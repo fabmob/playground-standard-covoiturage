@@ -347,7 +347,6 @@ func TestAssertRadius(t *testing.T) {
 		coordsRef   = coords{46.1590436, -1.2251247} // reference
 		coords900m  = coords{46.1613673, -1.2227555} // at ~900m from reference
 		coords1100m = coords{46.1612861, -1.2091147} // at ~1100m from reference
-		radius      = float32(1.)                    // km
 	)
 	params := client.GetDriverJourneysParams{
 		DepartureRadius: &radius,
@@ -355,62 +354,65 @@ func TestAssertRadius(t *testing.T) {
 		DepartureLng:    float32(coordsRef.lon),
 	}
 	request, err := client.NewGetDriverJourneysRequest("localhost:1323", &params)
+	panicIf(err)
 
-	t.Run("", func(t *testing.T) {
-		panicIf(err)
+	testCases := []struct {
+		name           string
+		coordsResponse []coords
+		radius         float32
+		expectError    bool
+	}{
+		{
+			name:           "no response",
+			coordsResponse: []coords{},
+			radius:         1,
+			expectError:    false,
+		},
+		{
+			name:           "1 inside radius 1km",
+			coordsResponse: []coords{coords900m},
+			radius:         1,
+			expectError:    false,
+		},
+		{
+			name:           "1 inside, 1 outside radius 1km",
+			coordsResponse: []coords{coords900m, coords1100m},
+			radius:         1,
+			expectError:    true,
+		},
+		{
+			name:           "2 inside, radius 1,2km",
+			coordsResponse: []coords{coords900m, coords1100m},
+			radius:         1.2,
+			expectError:    false,
+		},
+	}
 
-		responseObj := []client.DriverJourney{
-			{
-				DriverDepartureLat: &coords900m.lat,
-				DriverDepartureLng: &coords900m.lon,
-			},
-			{
-				DriverDepartureLat: &coords1100m.lat,
-				DriverDepartureLng: &coords1100m.lon,
-			},
-		}
+	for _, tc := range testCases {
 
-		responseJSON, err := json.Marshal(responseObj)
-		panicIf(err)
-		response := mockResponse(200, string(responseJSON), nil)
+		t.Run(tc.name, func(t *testing.T) {
 
-		a := NewAssertionAccu()
-		a.Run(assertDriverJourneysRadius{request, response, departure})
+			responseObj := []client.DriverJourney{}
+			for _, c := range tc.coordsResponse {
+				responseObj = append(
+					responseObj,
+					client.DriverJourney{DriverDepartureLat: &c.lat, DriverDepartureLng: &c.lon},
+				)
+			}
 
-		results := a.GetAssertionResults()
+			responseJSON, err := json.Marshal(responseObj)
+			panicIf(err)
+			response := mockResponse(200, string(responseJSON), nil)
 
-		if len(results) < 1 || results[0].Unwrap() == nil {
-			t.Fail()
-		}
-	})
+			a := NewAssertionAccu()
+			a.Run(assertDriverJourneysRadius{request, response, departure})
 
-	t.Run("", func(t *testing.T) {
-		params := client.GetDriverJourneysParams{
-			DepartureRadius: &radius,
-			DepartureLat:    float32(coordsRef.lat),
-			DepartureLng:    float32(coordsRef.lon),
-		}
-		request, err := client.NewGetDriverJourneysRequest("localhost:1323", &params)
-		panicIf(err)
+			results := a.GetAssertionResults()
 
-		responseObj := []client.DriverJourney{
-			{
-				DriverDepartureLat: &coords900m.lat,
-				DriverDepartureLng: &coords900m.lon,
-			},
-		}
-
-		responseJSON, err := json.Marshal(responseObj)
-		panicIf(err)
-		response := mockResponse(200, string(responseJSON), nil)
-
-		a := NewAssertionAccu()
-		a.Run(assertDriverJourneysRadius{request, response, departure})
-
-		results := a.GetAssertionResults()
-
-		if len(results) < 1 || results[0].Unwrap() != nil {
-			t.Fail()
-		}
-	})
+			anyError := results[0].Unwrap() != nil
+			if len(results) < 1 || anyError != tc.expectError {
+				t.Error("Wrong behavior when asserting *radius query parameters")
+			}
+		})
+	}
 }
