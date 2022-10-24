@@ -343,41 +343,43 @@ func runSingleAssertion(
 }
 
 func TestAssertRadius(t *testing.T) {
-	radius := float32(1.)
-	params := client.GetDriverJourneysParams{
-		DepartureRadius: &radius,
-		DepartureLat:    46.1590436,
-		DepartureLng:    -1.2251247,
-	}
-	request, err := client.NewGetDriverJourneysRequest("localhost:1323", &params)
-	panicIf(err)
+	var (
+		coordsRef   = coords{46.1590436, -1.2251247} // reference
+		coords900m  = coords{46.1613673, -1.2227555} // at ~900m from reference
+		coords1100m = coords{46.1612861, -1.2091147} // at ~1100m from reference
+		radius      = float32(1.)                    // km
+	)
+	t.Run("", func(t *testing.T) {
+		params := client.GetDriverJourneysParams{
+			DepartureRadius: &radius,
+			DepartureLat:    float32(coordsRef.lat),
+			DepartureLng:    float32(coordsRef.lon),
+		}
+		request, err := client.NewGetDriverJourneysRequest("localhost:1323", &params)
+		panicIf(err)
 
-	lat900m := 46.1613673
-	lng900m := -1.2227555
-	lat1100m := 46.1612861
-	lng1100m := -1.2091147
+		responseObj := []client.DriverJourney{
+			{
+				DriverDepartureLat: &coords900m.lat,
+				DriverDepartureLng: &coords900m.lon,
+			},
+			{
+				DriverDepartureLat: &coords1100m.lat,
+				DriverDepartureLng: &coords1100m.lon,
+			},
+		}
 
-	responseObj := []client.DriverJourney{
-		{
-			DriverDepartureLat: &lat900m,
-			DriverDepartureLng: &lng900m,
-		},
-		{
-			DriverDepartureLat: &lat1100m,
-			DriverDepartureLng: &lng1100m,
-		},
-	}
+		responseJSON, err := json.Marshal(responseObj)
+		panicIf(err)
+		response := mockResponse(200, string(responseJSON), nil)
 
-	responseJSON, err := json.Marshal(responseObj)
-	panicIf(err)
-	response := mockResponse(200, string(responseJSON), nil)
+		a := NewAssertionAccu()
+		a.Run(assertDriverJourneysRadius{request, response, departure})
 
-	a := NewAssertionAccu()
-	a.Run(assertDriverJourneysRadius{request, response, departure})
+		results := a.GetAssertionResults()
 
-	results := a.GetAssertionResults()
-
-	if len(results) < 1 || results[0].Unwrap() == nil {
-		t.Fail()
-	}
+		if len(results) < 1 || results[0].Unwrap() == nil {
+			t.Fail()
+		}
+	})
 }
