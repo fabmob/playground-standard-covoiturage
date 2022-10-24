@@ -266,6 +266,8 @@ type assertDriverJourneysRadius struct {
 
 func (a assertDriverJourneysRadius) Execute() error {
 	queryParams := a.request.URL.Query()
+
+	// Get radius
 	var radius float32
 	if !queryParams.Has("departureRadius") {
 		radius = DefaultRadius
@@ -273,6 +275,12 @@ func (a assertDriverJourneysRadius) Execute() error {
 		tempRadius, _ := strconv.ParseFloat(queryParams.Get("departureRadius"), 32)
 		radius = float32(tempRadius)
 	}
+
+	// Get query departureLng and departureLat
+	departureLat, _ := strconv.ParseFloat(queryParams.Get("departureLat"), 64)
+	departureLon, _ := strconv.ParseFloat(queryParams.Get("departureLng"), 64)
+	coordsQuery := coords{departureLat, departureLon} // reference
+
 	responseObj, err := client.ParseGetDriverJourneysResponse(a.response)
 	if err != nil {
 		return fmt.Errorf(
@@ -281,7 +289,7 @@ func (a assertDriverJourneysRadius) Execute() error {
 		)
 	}
 	driverJourneys := *responseObj.JSON200
-	coordsQuery := coords{46.1604531, -1.2219607} // reference
+
 	// As different distance computations may give different distances, we apply
 	// a safety margin
 	safetyMarginPercent := 1.

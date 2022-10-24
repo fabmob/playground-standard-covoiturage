@@ -345,7 +345,7 @@ func runSingleAssertion(
 func TestAssertRadius(t *testing.T) {
 	var (
 		coordsRef   = coords{46.1604531, -1.2219607} // reference
-		coords900m  = coords{46.1613673, -1.2227555} // at ~900m from reference
+		coords900m  = coords{46.1613442, -1.2103736} // at ~900m from reference
 		coords1100m = coords{46.1613679, -1.2086563} // at ~1100m from reference
 	)
 
