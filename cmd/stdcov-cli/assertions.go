@@ -245,3 +245,26 @@ func (a assertDriverJourneysFormat) Execute() error {
 func (a assertDriverJourneysFormat) Describe() string {
 	return "assertDriverJourneysFormat"
 }
+
+/////////////////////////////////////////////////////////////
+
+type departureOrArrival string
+
+const (
+	departure departureOrArrival = "departureRadius"
+	arrival   departureOrArrival = "arrivalRadius"
+)
+
+type assertDriverJourneysRadius struct {
+	request        *http.Request
+	response       *http.Response
+	queryParameter departureOrArrival
+}
+
+func (a assertDriverJourneysRadius) Execute() error {
+	return nil
+}
+
+func (a assertDriverJourneysRadius) Describe() string {
+	return fmt.Sprintf("assert %s", a.queryParameter)
+}

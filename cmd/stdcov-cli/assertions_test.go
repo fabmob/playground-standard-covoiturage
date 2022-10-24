@@ -341,3 +341,43 @@ func runSingleAssertion(
 
 	return a.storedAssertionResults[0].err
 }
+
+func TestAssertRadius(t *testing.T) {
+	radius := float32(1.)
+	params := client.GetDriverJourneysParams{
+		DepartureRadius: &radius,
+		DepartureLat:    46.1590436,
+		DepartureLng:    -1.2251247,
+	}
+	request, err := client.NewGetDriverJourneysRequest("localhost:1323", &params)
+	panicIf(err)
+
+	lat900m := 46.1613673
+	lng900m := -1.2227555
+	lat1100m := 46.1612861
+	lng1100m := -1.2091147
+
+	responseObj := []client.DriverJourney{
+		{
+			DriverDepartureLat: &lat900m,
+			DriverDepartureLng: &lng900m,
+		},
+		{
+			DriverDepartureLat: &lat1100m,
+			DriverDepartureLng: &lng1100m,
+		},
+	}
+
+	responseJSON, err := json.Marshal(responseObj)
+	panicIf(err)
+	response := mockResponse(200, string(responseJSON), nil)
+
+	a := NewAssertionAccu()
+	a.Run(assertDriverJourneysRadius{request, response, departure})
+
+	results := a.GetAssertionResults()
+
+	if len(results) < 1 || results[0].Unwrap() == nil {
+		t.Fail()
+	}
+}
