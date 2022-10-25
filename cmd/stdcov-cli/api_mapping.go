@@ -25,8 +25,8 @@ var GetStatusEndpoint = Endpoint{http.MethodGet, "/status"}
 var GetDriverJourneyEndpoint = Endpoint{http.MethodGet, "/driver_journeys"}
 
 var apiMapping = map[Endpoint][]TestFun{
-	GetStatusEndpoint:        {wrapTest(testGetStatus, GetStatusEndpoint)},
-	GetDriverJourneyEndpoint: {wrapTest(testGetDriverJourneys, GetDriverJourneyEndpoint)},
+	GetStatusEndpoint:        {wrapTest(TestGetStatus, GetStatusEndpoint)},
+	GetDriverJourneyEndpoint: {wrapTest(TestGetDriverJourneys, GetDriverJourneyEndpoint)},
 }
 
 // SelectTestFuns returns the test functions related to a given request

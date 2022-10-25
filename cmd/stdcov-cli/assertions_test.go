@@ -463,9 +463,9 @@ func TestAssertRadius(t *testing.T) {
 			for _, c := range tc.coordsResponse {
 				var dj client.DriverJourney
 				if tc.departureOrArrival == departure {
-					dj = client.DriverJourney{DriverDepartureLat: &c.lat, DriverDepartureLng: &c.lon}
+					dj = client.DriverJourney{PassengerPickupLat: c.lat, PassengerPickupLng: c.lon}
 				} else {
-					dj = client.DriverJourney{DriverArrivalLat: &c.lat, DriverArrivalLng: &c.lon}
+					dj = client.DriverJourney{PassengerDropLat: c.lat, PassengerDropLng: c.lon}
 				}
 				responseObj = append(responseObj, dj)
 			}

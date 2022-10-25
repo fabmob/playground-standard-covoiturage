@@ -1,4 +1,4 @@
-package main
+package stdcovcli
 
 import (
 	"net/http"
@@ -53,7 +53,7 @@ func wrapTest(f auxTestFun, endpoint Endpoint) TestFun {
 
 type auxTestFun func(*http.Request, *http.Response, AssertionAccumulator)
 
-func testGetStatus(
+func TestGetStatus(
 	request *http.Request,
 	response *http.Response,
 	a AssertionAccumulator,
@@ -64,7 +64,7 @@ func testGetStatus(
 	)
 }
 
-func testGetDriverJourneys(
+func TestGetDriverJourneys(
 	request *http.Request,
 	response *http.Response,
 	a AssertionAccumulator,
