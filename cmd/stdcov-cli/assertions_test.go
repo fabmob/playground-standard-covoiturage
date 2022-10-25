@@ -489,12 +489,25 @@ func TestAssertRadius(t *testing.T) {
 }
 
 func TestAssertNotEmpty(t *testing.T) {
-	driverJourneys := []client.DriverJourney{}
-	responseJSON, err := json.Marshal(driverJourneys)
-	panicIf(err)
-	response := mockResponse(200, string(responseJSON), nil)
-	err = runSingleAssertion(t, assertDriverJourneysNotEmpty{response})
-	if err == nil {
-		t.Fail()
-	}
+	t.Run("", func(t *testing.T) {
+		driverJourneys := []client.DriverJourney{}
+		responseJSON, err := json.Marshal(driverJourneys)
+		panicIf(err)
+		response := mockResponse(200, string(responseJSON), nil)
+		err = runSingleAssertion(t, assertDriverJourneysNotEmpty{response})
+		if err == nil {
+			t.Fail()
+		}
+	})
+
+	t.Run("", func(t *testing.T) {
+		driverJourneys := []client.DriverJourney{{}}
+		responseJSON, err := json.Marshal(driverJourneys)
+		panicIf(err)
+		response := mockResponse(200, string(responseJSON), nil)
+		err = runSingleAssertion(t, assertDriverJourneysNotEmpty{response})
+		if err != nil {
+			t.Fail()
+		}
+	})
 }
