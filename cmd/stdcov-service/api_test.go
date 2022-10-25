@@ -23,6 +23,7 @@ func TestCreateUser(t *testing.T) {
 	c := e.NewContext(request, rec)
 
 	mockDB := NewMockDB()
+	mockDB.driverJourneys = []server.DriverJourney{}
 	handler := &StdCovServerImpl{mockDB}
 
 	params := server.GetDriverJourneysParams{}
