@@ -489,25 +489,23 @@ func TestAssertRadius(t *testing.T) {
 }
 
 func TestAssertNotEmpty(t *testing.T) {
-	t.Run("", func(t *testing.T) {
-		driverJourneys := []client.DriverJourney{}
-		responseJSON, err := json.Marshal(driverJourneys)
-		panicIf(err)
-		response := mockResponse(200, string(responseJSON), nil)
-		err = runSingleAssertion(t, assertDriverJourneysNotEmpty{response})
-		if err == nil {
-			t.Fail()
-		}
-	})
-
-	t.Run("", func(t *testing.T) {
-		driverJourneys := []client.DriverJourney{{}}
-		responseJSON, err := json.Marshal(driverJourneys)
-		panicIf(err)
-		response := mockResponse(200, string(responseJSON), nil)
-		err = runSingleAssertion(t, assertDriverJourneysNotEmpty{response})
-		if err != nil {
-			t.Fail()
-		}
-	})
+	testCases := []struct {
+		name         string
+		responseData []client.DriverJourney
+		expectError  bool
+	}{
+		{"empty", []client.DriverJourney{}, true},
+		{"non empty", []client.DriverJourney{{}}, false},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			responseJSON, err := json.Marshal(tc.responseData)
+			panicIf(err)
+			response := mockResponse(200, string(responseJSON), nil)
+			err = runSingleAssertion(t, assertDriverJourneysNotEmpty{response})
+			if (err != nil) != tc.expectError {
+				t.Fail()
+			}
+		})
+	}
 }
