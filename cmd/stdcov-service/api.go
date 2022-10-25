@@ -53,7 +53,7 @@ func (s *StdCovServerImpl) GetDriverJourneys(
 	ctx echo.Context,
 	params server.GetDriverJourneysParams,
 ) error {
-	return ctx.JSON(http.StatusOK, s.mockDB.driverJourneys)
+	return ctx.JSON(http.StatusOK, []server.DriverJourney{})
 }
 
 // GetDriverRegularTrips searches for matching regular driver trip.
