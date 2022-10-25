@@ -42,7 +42,6 @@ func wrapTest(f auxTestFun, endpoint Endpoint) TestFun {
 		if clientErr != nil {
 			a.Run(assertAPICallSuccess{clientErr})
 		} else {
-			response.Body = ReusableReadCloser(response.Body)
 			f(request, response, a)
 		}
 		return a.GetAssertionResults()
@@ -69,6 +68,7 @@ func TestGetDriverJourneys(
 	a AssertionAccumulator,
 ) {
 
+	response.Body = ReusableReadCloser(response.Body)
 	a.Run(
 		assertStatusCode{response, http.StatusOK},
 		assertHeaderContains{response, "Content-Type", "application/json"},
