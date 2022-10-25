@@ -307,11 +307,14 @@ type assertDriverJourneysNotEmpty struct {
 }
 
 func (a assertDriverJourneysNotEmpty) Execute() error {
-	/* responseObj, err := client.ParseGetDriverJourneysResponse(a.response) */
-	/* if err != nil { */
-	/* 	return failedParsing("response", err) */
-	/* } */
-	/* driverJourneys := *responseObj.JSON200 */
+	responseObj, err := client.ParseGetDriverJourneysResponse(a.response)
+	if err != nil {
+		return failedParsing("response", err)
+	}
+	driverJourneys := *responseObj.JSON200
+	if len(driverJourneys) == 0 {
+		return errors.New("Empty response not accepted with \"disallowEmpty\" option")
+	}
 	return nil
 }
 
