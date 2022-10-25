@@ -39,10 +39,10 @@ func wrapTest(f auxTestFun, endpoint Endpoint) TestFun {
 		a := NewAssertionAccu()
 		a.endpoint = endpoint
 		response, clientErr := c.Client.Do(request)
-		response.Body = ReusableReadCloser(response.Body)
 		if clientErr != nil {
 			a.Run(assertAPICallSuccess{clientErr})
 		} else {
+			response.Body = ReusableReadCloser(response.Body)
 			f(request, response, a)
 		}
 		return a.GetAssertionResults()
@@ -58,7 +58,6 @@ func TestGetStatus(
 	response *http.Response,
 	a AssertionAccumulator,
 ) {
-
 	a.Run(
 		assertStatusCode{response, http.StatusOK},
 	)

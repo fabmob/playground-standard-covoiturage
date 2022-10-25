@@ -21,11 +21,12 @@ func testErrorOnRequestIsHandled(t *testing.T, f TestFun) {
 		m := NewMockClientWithError(urlError)
 
 		// specific request is irrelevant as the error client is in any case returning an error
-		r, _ := http.NewRequest(http.MethodGet, "/", strings.NewReader(""))
+		r, err := http.NewRequest(http.MethodGet, "/", strings.NewReader(""))
+		panicIf(err)
 		results := f(m, r)
 		shouldHaveSingleAssertionResult(t, results)
 
-		err := results[0].Unwrap()
+		err = results[0].Unwrap()
 		if err == nil {
 			t.Error("If error returned, api is not up")
 		}
@@ -33,7 +34,6 @@ func testErrorOnRequestIsHandled(t *testing.T, f TestFun) {
 }
 
 func TestAPIErrors(t *testing.T) {
-
 	for _, funs := range apiMapping {
 		for _, f := range funs {
 			testErrorOnRequestIsHandled(t, f)
@@ -52,8 +52,7 @@ func TestRequests(t *testing.T) {
 			m := NewMockClientWithResponse(mockOKStatusResponse())
 			r, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
 			panicIf(err)
-			noopAuxTestFun := func(*http.Request, *http.Response, AssertionAccumulator) {
-			}
+			noopAuxTestFun := func(*http.Request, *http.Response, AssertionAccumulator) {}
 			wrapTest(noopAuxTestFun, Endpoint{})(m, r)
 
 			requestsDone := m.Client.(*MockClient).Requests
