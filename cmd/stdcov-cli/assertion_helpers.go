@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 
 	"github.com/umahmood/haversine"
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
@@ -35,21 +37,12 @@ func getQueryCoords(departureOrArrival departureOrArrival, queryParams *client.G
 // getResponseCoords extracts departure or arrival coordinates from
 // driverJourney object. Fails if required coordinates are missing.
 func getResponseCoords(departureOrArrival departureOrArrival, driverJourney client.DriverJourney) (coords, error) {
-	missingDeparture := departureOrArrival == departure &&
-		(driverJourney.DriverDepartureLng == nil || driverJourney.DriverDepartureLat == nil)
-	missingArrival := departureOrArrival == arrival &&
-		(driverJourney.DriverArrivalLng == nil || driverJourney.DriverArrivalLat ==
-			nil)
-	if missingDeparture || missingArrival {
-
-		return coords{}, fmt.Errorf("malformed response: driverDepartureLat, driverDepartureLng, driverArrivalLat and driverArrivalLng are required")
-	}
 	var coordsResponse coords
 	switch departureOrArrival {
 	case departure:
-		coordsResponse = coords{*driverJourney.DriverDepartureLat, *driverJourney.DriverDepartureLng}
+		coordsResponse = coords{driverJourney.PassengerPickupLat, driverJourney.PassengerPickupLng}
 	case arrival:
-		coordsResponse = coords{*driverJourney.DriverArrivalLat, *driverJourney.DriverArrivalLng}
+		coordsResponse = coords{driverJourney.PassengerDropLat, driverJourney.PassengerDropLng}
 	}
 	return coordsResponse, nil
 }
@@ -81,4 +74,40 @@ func failedParsing(responseOrRequest string, err error) error {
 		responseOrRequest,
 		err,
 	)
+}
+
+type reusableReadCloser struct {
+	io.ReadCloser
+	readBuf *bytes.Buffer
+	backBuf *bytes.Buffer
+}
+
+// ReusableReadCloser wraps a io.ReadCloser so that it can be read and closed as
+// many times as needed
+func ReusableReadCloser(r io.ReadCloser) io.ReadCloser {
+	readBuf := bytes.Buffer{}
+	readBuf.ReadFrom(r) // error handling ignored for brevity
+	backBuf := bytes.Buffer{}
+
+	return reusableReadCloser{
+		io.NopCloser(io.TeeReader(&readBuf, &backBuf)),
+		&readBuf,
+		&backBuf,
+	}
+}
+
+func (r reusableReadCloser) Read(p []byte) (int, error) {
+	n, err := r.ReadCloser.Read(p)
+	if err == io.EOF {
+		r.reset()
+	}
+	return n, err
+}
+
+func (r reusableReadCloser) reset() {
+	io.Copy(r.readBuf, r.backBuf) // nolint: errcheck
+}
+
+func (r reusableReadCloser) Close() error {
+	return nil
 }

@@ -39,6 +39,7 @@ func wrapTest(f auxTestFun, endpoint Endpoint) TestFun {
 		a := NewAssertionAccu()
 		a.endpoint = endpoint
 		response, clientErr := c.Client.Do(request)
+		response.Body = ReusableReadCloser(response.Body)
 		if clientErr != nil {
 			a.Run(assertAPICallSuccess{clientErr})
 		} else {
@@ -72,6 +73,8 @@ func testGetDriverJourneys(
 	a.Run(
 		assertStatusCode{response, http.StatusOK},
 		assertHeaderContains{response, "Content-Type", "application/json"},
-		assertDriverJourneysFormat{request, response},
+		Critic(assertDriverJourneysFormat{request, response}),
+		assertDriverJourneysRadius{request, response, arrival},
+		assertDriverJourneysRadius{request, response, departure},
 	)
 }
