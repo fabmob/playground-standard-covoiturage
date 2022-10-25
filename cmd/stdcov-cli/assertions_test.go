@@ -84,7 +84,7 @@ func TestExpectStatusCode(t *testing.T) {
 
 	for _, tc := range testCases {
 		assertion := assertStatusCode{tc.response, tc.testedStatusCode}
-		assertionError := runSingleAssertion(t, assertion)
+		assertionError := singleAssertionError(t, assertion)
 		if (assertionError == nil) != tc.expectNilError {
 			t.Logf("Response status code: %d", tc.response.StatusCode)
 			t.Logf("Tested status code: %d", tc.testedStatusCode)
@@ -155,7 +155,7 @@ func TestExpectHeaders(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			r := mockResponse(http.StatusOK, "", tc.header)
 			assertion := assertHeaderContains{r, tc.testKey, tc.testValue}
-			assertionError := runSingleAssertion(t, assertion)
+			assertionError := singleAssertionError(t, assertion)
 			if (assertionError == nil) != tc.expectNilError {
 				t.Logf("Headers: %v", tc.header)
 				t.Logf("Key/value under test: \"%s:%s\"", tc.testKey, tc.testValue)
@@ -247,7 +247,7 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 			panicIf(err)
 			response := mockResponse(http.StatusOK, tc.body, tc.header)
 			assertion := assertDriverJourneysFormat{request, response}
-			assertionError := runSingleAssertion(t, assertion)
+			assertionError := singleAssertionError(t, assertion)
 			if (assertionError == nil) != tc.expectNilError {
 				t.Errorf("Wrong format response body should not be validated: %s",
 					assertionError)
@@ -270,7 +270,7 @@ func TestAssertAPICallSuccess(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			err := tc.apiCallError
 			assertion := assertAPICallSuccess{err}
-			assertionError := runSingleAssertion(t, assertion)
+			assertionError := singleAssertionError(t, assertion)
 			if (assertionError == nil) != tc.expectNilError {
 				t.Error("API call error is not handled as expected")
 			}
@@ -327,9 +327,9 @@ func TestDefaultAssertionAccu_Run(t *testing.T) {
 	}
 }
 
-// runSingleAssertion is a testing helper, which runs an assertion, and returns its underlying error (can
+// singleAssertionError is a testing helper, which runs an assertion, and returns its underlying error (can
 // be nil)
-func runSingleAssertion(
+func singleAssertionError(
 	t *testing.T,
 	assertion Assertion,
 ) error {
@@ -469,10 +469,7 @@ func TestAssertRadius(t *testing.T) {
 				}
 				responseObj = append(responseObj, dj)
 			}
-
-			responseJSON, err := json.Marshal(responseObj)
-			panicIf(err)
-			response := mockResponse(200, string(responseJSON), nil)
+			response := mockGetDriverJourneysResponse(responseObj)
 
 			a := NewAssertionAccu()
 			a.Run(assertDriverJourneysRadius{request, response, tc.departureOrArrival})
@@ -499,10 +496,8 @@ func TestAssertNotEmpty(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			responseJSON, err := json.Marshal(tc.responseData)
-			panicIf(err)
-			response := mockResponse(200, string(responseJSON), nil)
-			err = runSingleAssertion(t, assertDriverJourneysNotEmpty{response})
+			response := mockGetDriverJourneysResponse(tc.responseData)
+			err := singleAssertionError(t, assertDriverJourneysNotEmpty{response})
 			if (err != nil) != tc.expectError {
 				t.Fail()
 			}

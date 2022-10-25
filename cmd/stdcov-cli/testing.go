@@ -1,6 +1,7 @@
 package stdcovcli
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"strings"
@@ -77,6 +78,12 @@ func mockStatusResponse(statusCode int) *http.Response {
 
 func mockOKStatusResponse() *http.Response {
 	return mockStatusResponse(http.StatusOK)
+}
+
+func mockGetDriverJourneysResponse(responseObj []client.DriverJourney) *http.Response {
+	responseJSON, err := json.Marshal(responseObj)
+	panicIf(err)
+	return mockResponse(200, string(responseJSON), nil)
 }
 
 // A NoOpAssertion returns stored error when executed
