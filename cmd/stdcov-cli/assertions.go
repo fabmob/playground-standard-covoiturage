@@ -299,3 +299,22 @@ func (a assertDriverJourneysRadius) Execute() error {
 func (a assertDriverJourneysRadius) Describe() string {
 	return fmt.Sprintf("assert %s", a.departureOrArrival)
 }
+
+/////////////////////////////////////////////////////////////
+
+type assertDriverJourneysNotEmpty struct {
+	response *http.Response
+}
+
+func (a assertDriverJourneysNotEmpty) Execute() error {
+	/* responseObj, err := client.ParseGetDriverJourneysResponse(a.response) */
+	/* if err != nil { */
+	/* 	return failedParsing("response", err) */
+	/* } */
+	/* driverJourneys := *responseObj.JSON200 */
+	return nil
+}
+
+func (a assertDriverJourneysNotEmpty) Describe() string {
+	return "assert response not empty"
+}
