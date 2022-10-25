@@ -8,7 +8,15 @@ import (
 )
 
 // StdCovServerImpl implements server.ServerInterface
-type StdCovServerImpl struct{}
+type StdCovServerImpl struct {
+	mockDB mockDB
+}
+
+func NewDefaultServer() (*StdCovServerImpl, error) {
+	server := StdCovServerImpl{NewMockDB()}
+	err := server.mockDB.PopulateDBWithDefault()
+	return &server, err
+}
 
 // PostBookingEvents sends booking information of a user connected with a third-party provider back to the provider.
 // (POST /booking_events)
@@ -41,11 +49,11 @@ func (*StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID server.Bookin
 
 // GetDriverJourneys searches for matching punctual planned outward driver journeys.
 // (GET /driver_journeys)
-func (*StdCovServerImpl) GetDriverJourneys(
+func (s *StdCovServerImpl) GetDriverJourneys(
 	ctx echo.Context,
 	params server.GetDriverJourneysParams,
 ) error {
-	return ctx.JSON(http.StatusOK, DriverJourneysData)
+	return ctx.JSON(http.StatusOK, s.mockDB.driverJourneys)
 }
 
 // GetDriverRegularTrips searches for matching regular driver trip.

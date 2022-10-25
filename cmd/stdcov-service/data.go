@@ -9,6 +9,22 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
 )
 
+type mockDB struct {
+	driverJourneys []server.DriverJourney
+}
+
+func NewMockDB() mockDB {
+	m := mockDB{}
+	m.driverJourneys = []server.DriverJourney{}
+	return m
+}
+
+func (db *mockDB) PopulateDBWithDefault() error {
+	var err error
+	db.driverJourneys, err = ReadJourneyData(bytes.NewReader(DriverJourneyJSON))
+	return err
+}
+
 // DriverJourneyJSON stores default driver journey json data
 //
 //go:embed data/defaultJourneyData.json
@@ -16,7 +32,6 @@ var DriverJourneyJSON []byte
 
 // DriverJourneysData is the in-memory equivalent of the driver journeys
 // stored in a database
-var DriverJourneysData, _ = ReadJourneyData(bytes.NewReader(DriverJourneyJSON))
 
 // ReadJourneyData reads journey data from io.Reader with json data
 // It does not validate data
