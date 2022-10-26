@@ -35,6 +35,10 @@ func (qp *Query) Set(s string) error {
 	return nil
 }
 
+func (qp *Query) Type() string {
+	return "*Query"
+}
+
 // AddQueryParameters adds query parameters stored in a Query object to an
 // existing request
 func AddQueryParameters(query Query, req *http.Request) {

@@ -10,7 +10,7 @@ import (
 
 //go:generate oapi-codegen -package server -o ./service/server.go -generate "types,server" --old-config-style ../../spec/stdcov_openapi.yaml
 
-func main() {
+func Run() {
 	handler, err := NewDefaultServer()
 	if err != nil {
 		fmt.Println(err)
