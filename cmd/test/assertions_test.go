@@ -293,19 +293,19 @@ func TestDefaultAssertionAccu_Run(t *testing.T) {
 	}{
 		{
 			"Two success",
-			[]Assertion{NoOpAssertion{}, NoOpAssertion{}},
+			[]Assertion{NopAssertion{}, NopAssertion{}},
 			2,
 		},
 		{
 			"Critic + success is not fatal",
-			[]Assertion{Critic(NoOpAssertion{}), NoOpAssertion{}},
+			[]Assertion{Critic(NopAssertion{}), NopAssertion{}},
 			2,
 		},
 		{
 			"Critic + failure is fatal",
 			[]Assertion{
-				Critic(NoOpAssertion{errors.New("")}),
-				NoOpAssertion{},
+				Critic(NopAssertion{errors.New("")}),
+				NopAssertion{},
 			},
 			1,
 		},

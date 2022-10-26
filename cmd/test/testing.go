@@ -86,16 +86,16 @@ func mockGetDriverJourneysResponse(responseObj []client.DriverJourney) *http.Res
 	return mockResponse(200, string(responseJSON), nil)
 }
 
-// A NoOpAssertion returns stored error when executed
-type NoOpAssertion struct{ error }
+// A NopAssertion returns stored error when executed
+type NopAssertion struct{ error }
 
 // Execute implements Assertion interface
-func (n NoOpAssertion) Execute() error {
+func (n NopAssertion) Execute() error {
 	return n.error
 }
 
 // Describe implements Assertion interface
-func (NoOpAssertion) Describe() string {
+func (NopAssertion) Describe() string {
 	return "No assertion"
 }
 

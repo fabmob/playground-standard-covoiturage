@@ -54,10 +54,11 @@ func TestRequests(t *testing.T) {
 			m := NewMockClientWithResponse(mockOKStatusResponse())
 			r, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
 			panicIf(err)
-			noopAuxTestFun := func(*http.Request, *http.Response,
-				AssertionAccumulator, Flags) {
+			testNoAssertions := func(*http.Request, *http.Response,
+				AssertionAccumulator, Flags) []Assertion {
+				return nil
 			}
-			wrapTest(noopAuxTestFun, Endpoint{})(m, r, defaultTestFlags)
+			wrapTest(testNoAssertions, Endpoint{})(m, r, defaultTestFlags)
 
 			requestsDone := m.Client.(*MockClient).Requests
 			if len(requestsDone) != 1 {
@@ -109,4 +110,8 @@ func TestExecutedTestsGivenRequest(t *testing.T) {
 			t.Error("Unexpected assertion run for given request")
 		}
 	}
+}
+
+func TestNoEmpty(t *testing.T) {
+
 }

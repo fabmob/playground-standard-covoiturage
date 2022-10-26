@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
 	"gitlab.com/multi/stdcov-api-test/cmd/service/server"
 	"gitlab.com/multi/stdcov-api-test/cmd/test"
 )
@@ -38,7 +39,9 @@ func TestCreateUser(t *testing.T) {
 		}
 		response := rec.Result()
 		a := test.NewAssertionAccu()
-		test.TestGetDriverJourneys(request, response, a, defaultTestFlags)
+		a.Run(test.TestGetDriverJourneys(request, response, a,
+			defaultTestFlags)...)
+		assert.Greater(t, len(a.GetAssertionResults()), 0)
 		for _, ar := range a.GetAssertionResults() {
 			if err := ar.Unwrap(); err != nil {
 				t.Log(err)
@@ -93,13 +96,14 @@ func TestCreateUser(t *testing.T) {
 		}
 		response := rec.Result()
 		a := test.NewAssertionAccu()
-		test.TestGetDriverJourneys(request, response, a, defaultTestFlags)
+		a.Run(test.TestGetDriverJourneys(request, response, a,
+			defaultTestFlags)...)
+		assert.Greater(t, len(a.GetAssertionResults()), 0)
 		for _, ar := range a.GetAssertionResults() {
 			if err := ar.Unwrap(); err != nil {
 				t.Log(err)
 				t.Fail()
 			}
-
 		}
 	})
 }

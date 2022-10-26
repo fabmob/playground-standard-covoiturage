@@ -39,7 +39,7 @@ type TestFun func(APIClient, *http.Request, Flags) []AssertionResult
 
 // wrapTest wraps an auxTestFun (that tests a response against a request) to a
 // TestFun
-func wrapTest(f auxTestFun, endpoint Endpoint) TestFun {
+func wrapTest(f testAssertions, endpoint Endpoint) TestFun {
 	return func(c APIClient, request *http.Request, flags Flags) []AssertionResult {
 		a := NewAssertionAccu()
 		a.endpoint = endpoint
@@ -47,7 +47,7 @@ func wrapTest(f auxTestFun, endpoint Endpoint) TestFun {
 		if clientErr != nil {
 			a.Run(assertAPICallSuccess{clientErr})
 		} else {
-			f(request, response, a, flags)
+			a.Run(f(request, response, a, flags)...)
 		}
 		return a.GetAssertionResults()
 	}
@@ -55,23 +55,23 @@ func wrapTest(f auxTestFun, endpoint Endpoint) TestFun {
 
 //////////////////////////////////////////////////////////////
 
-type auxTestFun func(
+type testAssertions func(
 	*http.Request,
 	*http.Response,
 	AssertionAccumulator,
 	Flags,
-)
+) []Assertion
 
 func TestGetStatus(
 	request *http.Request,
 	response *http.Response,
 	a AssertionAccumulator,
 	flags Flags,
-) {
+) []Assertion {
 	assertions := []Assertion{
 		assertStatusCode{response, http.StatusOK},
 	}
-	a.Run(assertions...)
+	return assertions
 }
 
 func TestGetDriverJourneys(
@@ -79,7 +79,7 @@ func TestGetDriverJourneys(
 	response *http.Response,
 	a AssertionAccumulator,
 	flags Flags,
-) {
+) []Assertion {
 
 	response.Body = ReusableReadCloser(response.Body)
 
@@ -101,5 +101,5 @@ func TestGetDriverJourneys(
 		}
 	}
 
-	a.Run(assertions...)
+	return assertions
 }
