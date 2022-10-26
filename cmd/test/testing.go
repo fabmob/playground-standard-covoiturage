@@ -1,4 +1,4 @@
-package stdcovcli
+package test
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
+	"gitlab.com/multi/stdcov-api-test/cmd/test/client"
 )
 
 // MockClient is an HTTP client that returns always the same response or

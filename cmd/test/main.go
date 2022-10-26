@@ -1,4 +1,4 @@
-package stdcovcli
+package test
 
 import (
 	"flag"
@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"os"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
+	"gitlab.com/multi/stdcov-api-test/cmd/test/client"
 )
 
 //go:generate oapi-codegen -package client -o ./client/client.go -generate "types,client" --old-config-style ../../spec/stdcov_openapi.yaml
@@ -39,7 +39,10 @@ func Run() int {
 
 	AddQueryParameters(query, req)
 
-	report, err := ExecuteTestSuite(c, req)
+	flags := Flags{
+		disallowEmpty: true,
+	}
+	report, err := ExecuteTestSuite(c, req, flags)
 	if err != nil {
 		fmt.Println(err)
 		return 1

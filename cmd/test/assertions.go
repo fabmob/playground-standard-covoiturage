@@ -1,4 +1,4 @@
-package stdcovcli
+package test
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
+	"gitlab.com/multi/stdcov-api-test/cmd/test/client"
 	"gitlab.com/multi/stdcov-api-test/cmd/validate"
 )
 

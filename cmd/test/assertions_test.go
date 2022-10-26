@@ -1,4 +1,4 @@
-package stdcovcli
+package test
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
+	"gitlab.com/multi/stdcov-api-test/cmd/test/client"
 )
 
 func TestAssertionResult_String(t *testing.T) {
@@ -338,7 +338,6 @@ func singleAssertionError(
 	a.Run(assertion)
 
 	shouldHaveSingleAssertionResult(t, a.GetAssertionResults())
-
 	return a.storedAssertionResults[0].err
 }
 

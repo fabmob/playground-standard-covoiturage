@@ -1,4 +1,4 @@
-package stdcovcli
+package test
 
 import (
 	"errors"
@@ -10,6 +10,8 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 )
+
+var defaultTestFlags Flags = Flags{disallowEmpty: false}
 
 // testErrorOnRequestIsHandled returns an urlError for every API call and checks:
 // - that only one AssertionError is returned
@@ -23,7 +25,7 @@ func testErrorOnRequestIsHandled(t *testing.T, f TestFun) {
 		// specific request is irrelevant as the error client is in any case returning an error
 		r, err := http.NewRequest(http.MethodGet, "/", strings.NewReader(""))
 		panicIf(err)
-		results := f(m, r)
+		results := f(m, r, defaultTestFlags)
 		shouldHaveSingleAssertionResult(t, results)
 
 		err = results[0].Unwrap()
@@ -52,8 +54,10 @@ func TestRequests(t *testing.T) {
 			m := NewMockClientWithResponse(mockOKStatusResponse())
 			r, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
 			panicIf(err)
-			noopAuxTestFun := func(*http.Request, *http.Response, AssertionAccumulator) {}
-			wrapTest(noopAuxTestFun, Endpoint{})(m, r)
+			noopAuxTestFun := func(*http.Request, *http.Response,
+				AssertionAccumulator, Flags) {
+			}
+			wrapTest(noopAuxTestFun, Endpoint{})(m, r, defaultTestFlags)
 
 			requestsDone := m.Client.(*MockClient).Requests
 			if len(requestsDone) != 1 {
@@ -96,7 +100,7 @@ func TestExecutedTestsGivenRequest(t *testing.T) {
 	r, err := http.NewRequest(method, path, strings.NewReader(""))
 	panicIf(err)
 
-	report, err := ExecuteTestSuite(m, r)
+	report, err := ExecuteTestSuite(m, r, defaultTestFlags)
 	panicIf(err)
 	for _, a := range report.allAssertionResults {
 		if a.endpoint.Path != path || a.endpoint.Method != method {

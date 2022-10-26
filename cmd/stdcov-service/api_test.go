@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/labstack/echo/v4"
-	stdcovcli "gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli"
 	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
+	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/test"
 )
 
 func TestCreateUser(t *testing.T) {
@@ -35,8 +35,8 @@ func TestCreateUser(t *testing.T) {
 			t.Fail()
 		}
 		response := rec.Result()
-		a := stdcovcli.NewAssertionAccu()
-		stdcovcli.TestGetDriverJourneys(request, response, a)
+		a := test.NewAssertionAccu()
+		test.TestGetDriverJourneys(request, response, a)
 		for _, ar := range a.GetAssertionResults() {
 			if err := ar.Unwrap(); err != nil {
 				t.Log(err)
@@ -90,8 +90,8 @@ func TestCreateUser(t *testing.T) {
 			t.Fail()
 		}
 		response := rec.Result()
-		a := stdcovcli.NewAssertionAccu()
-		stdcovcli.TestGetDriverJourneys(request, response, a)
+		a := test.NewAssertionAccu()
+		test.TestGetDriverJourneys(request, response, a)
 		for _, ar := range a.GetAssertionResults() {
 			if err := ar.Unwrap(); err != nil {
 				t.Log(err)

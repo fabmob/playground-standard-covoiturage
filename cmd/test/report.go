@@ -1,4 +1,4 @@
-package stdcovcli
+package test
 
 import "fmt"
 

@@ -1,4 +1,4 @@
-package stdcovcli
+package test
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	"io"
 
 	"github.com/umahmood/haversine"
-	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
+	"gitlab.com/multi/stdcov-api-test/cmd/test/client"
 )
 
 type coords struct {
