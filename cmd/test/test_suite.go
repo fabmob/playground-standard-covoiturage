@@ -45,9 +45,11 @@ func wrapTest(f testAssertions, endpoint Endpoint) TestFun {
 		a.endpoint = endpoint
 		response, clientErr := c.Client.Do(request)
 		if clientErr != nil {
-			a.ExecuteAll(assertAPICallSuccess{clientErr})
+			a.Queue(assertAPICallSuccess{clientErr})
+			a.ExecuteAll()
 		} else {
-			a.ExecuteAll(f(request, response, a, flags)...)
+			a.Queue(f(request, response, a, flags)...)
+			a.ExecuteAll()
 		}
 		return a.GetAssertionResults()
 	}

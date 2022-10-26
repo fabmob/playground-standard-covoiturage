@@ -314,7 +314,8 @@ func TestDefaultAssertionAccu_Run(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			a := NewAssertionAccu()
-			a.Run(tc.assertions...)
+			a.Queue(tc.assertions...)
+			a.ExecuteAll()
 			if len(a.storedAssertionResults) != tc.expectedNAssertions {
 				t.Logf(
 					"Got %d assertion executions, expected %d",
@@ -335,7 +336,8 @@ func singleAssertionError(
 ) error {
 	t.Helper()
 	a := NewAssertionAccu()
-	a.Run(assertion)
+	a.Queue(assertion)
+	a.ExecuteAll()
 
 	shouldHaveSingleAssertionResult(t, a.GetAssertionResults())
 	return a.storedAssertionResults[0].err
@@ -471,7 +473,9 @@ func TestAssertRadius(t *testing.T) {
 			response := mockGetDriverJourneysResponse(responseObj)
 
 			a := NewAssertionAccu()
-			a.Run(assertDriverJourneysRadius{request, response, tc.departureOrArrival})
+			a.Queue(assertDriverJourneysRadius{request, response,
+				tc.departureOrArrival})
+			a.ExecuteAll()
 
 			results := a.GetAssertionResults()
 

@@ -39,8 +39,9 @@ func TestCreateUser(t *testing.T) {
 		}
 		response := rec.Result()
 		a := test.NewAssertionAccu()
-		a.Run(test.TestGetDriverJourneys(request, response, a,
+		a.Queue(test.TestGetDriverJourneys(request, response, a,
 			defaultTestFlags)...)
+		a.ExecuteAll()
 		assert.Greater(t, len(a.GetAssertionResults()), 0)
 		for _, ar := range a.GetAssertionResults() {
 			if err := ar.Unwrap(); err != nil {
@@ -96,8 +97,9 @@ func TestCreateUser(t *testing.T) {
 		}
 		response := rec.Result()
 		a := test.NewAssertionAccu()
-		a.Run(test.TestGetDriverJourneys(request, response, a,
+		a.Queue(test.TestGetDriverJourneys(request, response, a,
 			defaultTestFlags)...)
+		a.ExecuteAll()
 		assert.Greater(t, len(a.GetAssertionResults()), 0)
 		for _, ar := range a.GetAssertionResults() {
 			if err := ar.Unwrap(); err != nil {

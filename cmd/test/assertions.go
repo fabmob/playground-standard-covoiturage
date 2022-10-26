@@ -85,9 +85,12 @@ func Critic(a Assertion) CriticAssertion {
 // An AssertionAccumulator can run assertions, store and retrieve the
 // corresponding AssertionResults
 type AssertionAccumulator interface {
-	// Run executes assertions in sequence and stores the results.
+	// Queue adds assertion to the queue for later execution
+	Queue(...Assertion)
+
+	// ExecuteAll executes assertions in sequence and stores the results.
 	// If a CriticAssertion fails, execution is interrupted.
-	Run(...Assertion)
+	ExecuteAll()
 
 	// GetAssertionResults returns all results of executed assertions
 	GetAssertionResults() []AssertionResult
@@ -97,6 +100,7 @@ type AssertionAccumulator interface {
 
 // DefaultAssertionAccu implements Asserter interface
 type DefaultAssertionAccu struct {
+	queuedAssertions       []Assertion
 	storedAssertionResults []AssertionResult
 	endpoint               Endpoint
 }
@@ -109,9 +113,15 @@ func NewAssertionAccu() *DefaultAssertionAccu {
 	}
 }
 
-// Run implements AssertionAccumulator.Run
-func (a *DefaultAssertionAccu) Run(assertions ...Assertion) {
+func (a *DefaultAssertionAccu) Queue(assertions ...Assertion) {
 	for _, assertion := range assertions {
+		a.queuedAssertions = append(a.queuedAssertions, assertion)
+	}
+}
+
+// ExecuteAll implements AssertionAccumulator.Run
+func (a *DefaultAssertionAccu) ExecuteAll() {
+	for _, assertion := range a.queuedAssertions {
 		err := assertion.Execute()
 
 		a.storedAssertionResults = append(
@@ -139,14 +149,14 @@ func (a *DefaultAssertionAccu) GetAssertionResults() []AssertionResult {
 // AssertAPICallSuccess checks if requesting an endpoint returned an error
 func AssertAPICallSuccess(a AssertionAccumulator, err error) {
 	assertion := assertAPICallSuccess{err}
-	a.Run(assertion)
+	a.Queue(assertion)
 }
 
 // AssertStatusCode checks if a given response has an expected status code
 /* AssertStatusCode(*http.Response, int) */
 func AssertStatusCode(a AssertionAccumulator, resp *http.Response, statusCode int) {
 	assertion := assertStatusCode{resp, statusCode}
-	a.Run(assertion)
+	a.Queue(assertion)
 }
 
 // AssertStatusCodeOK checks if a given response has status 200 OK
@@ -158,14 +168,31 @@ func AssertStatusCodeOK(a AssertionAccumulator, resp *http.Response) {
 // value
 func AssertHeaderContains(a AssertionAccumulator, resp *http.Response, key, value string) {
 	assertion := assertHeaderContains{resp, key, value}
-	a.Run(assertion)
+	a.Queue(assertion)
 }
 
 // AssertDriverJourneysFormat checks if the response data of
 // /driver_journeys call has the expected format
 func AssertDriverJourneysFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
 	assertion := assertDriverJourneysFormat{request, response}
-	a.Run(assertion)
+	a.Queue(assertion)
+}
+
+// AssertDriverJourneysFormat checks if the response data of
+// /driver_journeys call has the expected format
+func AssertDriverJourneysDepartureRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := assertDriverJourneysRadius{request, response, departure}
+	a.Queue(assertion)
+}
+
+func AssertDriverJourneysArrivalRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := assertDriverJourneysRadius{request, response, arrival}
+	a.Queue(assertion)
+}
+
+func AssertDriverJourneysNotEmpty(a AssertionAccumulator, response *http.Response) {
+	assertion := assertDriverJourneysNotEmpty{response}
+	a.Queue(assertion)
 }
 
 /////////////////////////////////////////////////////////////
