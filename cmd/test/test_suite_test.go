@@ -113,5 +113,10 @@ func TestExecutedTestsGivenRequest(t *testing.T) {
 }
 
 func TestNoEmpty(t *testing.T) {
-
+	assertions := TestGetDriverJourneys(nil, mockOKStatusResponse(), nil, Flags{DisallowEmpty: true})
+	for _, a := range assertions {
+		if _, ok := a.(assertDriverJourneysNotEmpty); ok {
+			t.Error("DisallowEmpty flag is not taken into account properly")
+		}
+	}
 }

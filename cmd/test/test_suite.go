@@ -45,9 +45,9 @@ func wrapTest(f testAssertions, endpoint Endpoint) TestFun {
 		a.endpoint = endpoint
 		response, clientErr := c.Client.Do(request)
 		if clientErr != nil {
-			a.Run(assertAPICallSuccess{clientErr})
+			a.ExecuteAll(assertAPICallSuccess{clientErr})
 		} else {
-			a.Run(f(request, response, a, flags)...)
+			a.ExecuteAll(f(request, response, a, flags)...)
 		}
 		return a.GetAssertionResults()
 	}
@@ -74,6 +74,7 @@ func TestGetStatus(
 	return assertions
 }
 
+// TestGetDriverJourneys .. Assumes non empty response.
 func TestGetDriverJourneys(
 	request *http.Request,
 	response *http.Response,
