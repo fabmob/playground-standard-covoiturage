@@ -1,10 +1,10 @@
-package main
+package service
 
 import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
+	"gitlab.com/multi/stdcov-api-test/cmd/service/server"
 )
 
 // StdCovServerImpl implements server.ServerInterface

@@ -1,14 +1,14 @@
-package main
+package service
 
 import (
 	"fmt"
 	"os"
 
 	"github.com/labstack/echo/v4"
-	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
+	"gitlab.com/multi/stdcov-api-test/cmd/service/server"
 )
 
-//go:generate oapi-codegen -package server -o ./server/server.go -generate "types,server" --old-config-style ../../spec/stdcov_openapi.yaml
+//go:generate oapi-codegen -package server -o ./service/server.go -generate "types,server" --old-config-style ../../spec/stdcov_openapi.yaml
 
 func main() {
 	handler, err := NewDefaultServer()

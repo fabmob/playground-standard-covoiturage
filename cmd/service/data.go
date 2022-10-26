@@ -1,4 +1,4 @@
-package main
+package service
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"io"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
+	"gitlab.com/multi/stdcov-api-test/cmd/service/server"
 )
 
 type mockDB struct {

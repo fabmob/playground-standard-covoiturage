@@ -1,4 +1,4 @@
-package main
+package service
 
 import (
 	"net/http"
@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/labstack/echo/v4"
-	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/server"
-	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-service/test"
+	"gitlab.com/multi/stdcov-api-test/cmd/service/server"
+	"gitlab.com/multi/stdcov-api-test/cmd/test"
 )
 
 func TestCreateUser(t *testing.T) {
