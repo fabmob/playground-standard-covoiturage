@@ -11,7 +11,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-var defaultTestFlags Flags = Flags{disallowEmpty: false}
+var defaultTestFlags Flags = Flags{DisallowEmpty: false}
 
 // testErrorOnRequestIsHandled returns an urlError for every API call and checks:
 // - that only one AssertionError is returned

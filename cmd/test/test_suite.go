@@ -84,7 +84,7 @@ func TestGetDriverJourneys(
 	response.Body = ReusableReadCloser(response.Body)
 
 	var assertions []Assertion
-	if flags.disallowEmpty {
+	if flags.DisallowEmpty {
 		assertions = []Assertion{
 			assertStatusCode{response, http.StatusOK},
 			assertHeaderContains{response, "Content-Type", "application/json"},

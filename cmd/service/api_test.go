@@ -10,6 +10,8 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/test"
 )
 
+var defaultTestFlags test.Flags = test.Flags{DisallowEmpty: false}
+
 func TestCreateUser(t *testing.T) {
 	t.Run("", func(t *testing.T) {
 		// Setup
@@ -36,7 +38,7 @@ func TestCreateUser(t *testing.T) {
 		}
 		response := rec.Result()
 		a := test.NewAssertionAccu()
-		test.TestGetDriverJourneys(request, response, a)
+		test.TestGetDriverJourneys(request, response, a, defaultTestFlags)
 		for _, ar := range a.GetAssertionResults() {
 			if err := ar.Unwrap(); err != nil {
 				t.Log(err)
@@ -91,7 +93,7 @@ func TestCreateUser(t *testing.T) {
 		}
 		response := rec.Result()
 		a := test.NewAssertionAccu()
-		test.TestGetDriverJourneys(request, response, a)
+		test.TestGetDriverJourneys(request, response, a, defaultTestFlags)
 		for _, ar := range a.GetAssertionResults() {
 			if err := ar.Unwrap(); err != nil {
 				t.Log(err)

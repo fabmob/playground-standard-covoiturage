@@ -1,5 +1,5 @@
 package test
 
 type Flags struct {
-	disallowEmpty bool
+	DisallowEmpty bool
 }
