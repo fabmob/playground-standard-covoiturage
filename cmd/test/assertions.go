@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -204,6 +205,15 @@ func CriticAssertDriverJourneysNotEmpty(a AssertionAccumulator, response *http.R
 	a.Queue(assertion)
 }
 
+func AssertDriverJourneysTimeDelta(
+	a AssertionAccumulator,
+	request *http.Request,
+	response *http.Response,
+) {
+	assertion := assertDriverJourneysTimeDelta{request, response}
+	a.Queue(assertion)
+}
+
 /////////////////////////////////////////////////////////////
 
 type assertAPICallSuccess struct {
@@ -325,7 +335,7 @@ func (a assertDriverJourneysRadius) Execute() error {
 		}
 		dist := util.Distance(coordsResponse, coordsQuery)
 		if dist > radiusWithMargin {
-			return fmt.Errorf("a driver journey does not comply to maximum '%s' distance to query departure parameters", a.departureOrArrival)
+			return fmt.Errorf("a driver journey does not comply to maximum '%s' distance to query parameters", a.departureOrArrival)
 		}
 	}
 	return nil
@@ -347,7 +357,7 @@ func (a assertDriverJourneysNotEmpty) Execute() error {
 		return failedParsing("response", err)
 	}
 	if len(driverJourneys) == 0 {
-		return errors.New("Empty response not accepted with \"disallowEmpty\" option")
+		return errors.New("empty response not accepted with \"disallowEmpty\" option")
 	}
 	return nil
 }
@@ -364,6 +374,20 @@ type assertDriverJourneysTimeDelta struct {
 }
 
 func (a assertDriverJourneysTimeDelta) Execute() error {
+	params, err := api.ParseGetDriverJourneysRequest(a.request)
+	if err != nil {
+		return err
+	}
+	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
+	if err != nil {
+		return err
+	}
+	for _, dj := range driverJourneys {
+		if math.Abs(float64(dj.PassengerPickupDate)-float64(params.DepartureDate)) >
+			float64(params.GetTimeDelta()) {
+			return errors.New("a driver journey does not comply to timeDelta query parameter")
+		}
+	}
 	return nil
 }
 

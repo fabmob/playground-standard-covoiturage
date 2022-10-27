@@ -114,4 +114,5 @@ func testGetDriverJourneys(
 	CriticAssertDriverJourneysFormat(a, request, response)
 	AssertDriverJourneysDepartureRadius(a, request, response)
 	AssertDriverJourneysArrivalRadius(a, request, response)
+	AssertDriverJourneysTimeDelta(a, request, response)
 }
