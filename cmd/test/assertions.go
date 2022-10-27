@@ -117,10 +117,9 @@ func NewAssertionAccu() *DefaultAssertionAccu {
 	}
 }
 
+// Queue implements AssertionAccumulator.Queue.
 func (a *DefaultAssertionAccu) Queue(assertions ...Assertion) {
-	for _, assertion := range assertions {
-		a.queuedAssertions = append(a.queuedAssertions, assertion)
-	}
+	a.queuedAssertions = append(a.queuedAssertions, assertions...)
 }
 
 // ExecuteAll implements AssertionAccumulator.Run
@@ -182,46 +181,64 @@ func AssertDriverJourneysFormat(a AssertionAccumulator, request *http.Request, r
 	a.Queue(assertion)
 }
 
+// CriticAssertDriverJourneysFormat checks if the response data of
+// /driver_journeys call has the expected format. A failure prevents the
+// following assertions to be executed.
 func CriticAssertDriverJourneysFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
 	assertion := Critic(assertDriverJourneysFormat{request, response})
 	a.Queue(assertion)
 }
 
+// AssertDriverJourneysDepartureRadius checks that the response data respect
+// the "departureRadius" query parameter
 func AssertDriverJourneysDepartureRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
 	assertion := assertDriverJourneysRadius{request, response, departure}
 	a.Queue(assertion)
 }
 
+// AssertDriverJourneysArrivalRadius checks that the response data respect
+// the "arrivalRadius" query parameter
 func AssertDriverJourneysArrivalRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
 	assertion := assertDriverJourneysRadius{request, response, arrival}
 	a.Queue(assertion)
 }
 
+// AssertDriverJourneysNotEmpty checks that the response is not empty
 func AssertDriverJourneysNotEmpty(a AssertionAccumulator, response *http.Response) {
 	assertion := assertDriverJourneysNotEmpty{response}
 	a.Queue(assertion)
 }
 
+// CriticAssertDriverJourneysNotEmpty checks that the response is not empty. A
+// failure prevents the following assertions to be executed.
 func CriticAssertDriverJourneysNotEmpty(a AssertionAccumulator, response *http.Response) {
 	assertion := Critic(assertDriverJourneysNotEmpty{response})
 	a.Queue(assertion)
 }
 
+// AssertDriverJourneysTimeDelta checks that the response data respect the
+// "timeDelta" query parameter
 func AssertDriverJourneysTimeDelta(a AssertionAccumulator, request *http.Request, response *http.Response) {
 	assertion := assertDriverJourneysTimeDelta{request, response}
 	a.Queue(assertion)
 }
 
+// AssertDriverJourneysCount checks that the response data respect the "count"
+// query parameter
 func AssertDriverJourneysCount(a AssertionAccumulator, request *http.Request, response *http.Response) {
 	assertion := assertDriverJourneysCount{request, response}
 	a.Queue(assertion)
 }
 
+// AssertUniqueIDs checks that all driverJourneys IDs, if they exist, are
+// unique.
 func AssertUniqueIDs(a AssertionAccumulator, response *http.Response) {
 	assertion := assertUniqueIDs{response}
 	a.Queue(assertion)
 }
 
+// AssertOperatorFieldFormat checks that the response data has well formated
+// "operator" field
 func AssertOperatorFieldFormat(a AssertionAccumulator, response *http.Response) {
 	assertion := assertOperatorFieldFormat{response}
 	a.Queue(assertion)

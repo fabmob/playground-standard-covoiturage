@@ -1,7 +1,11 @@
 package test
 
+// Flags stores validation options
 type Flags struct {
-	DisallowEmpty   bool
+	// If true, an Empty response is considered to be an error
+	DisallowEmpty bool
+
+	// If true, the API is supposed to support the booking by deep link use case
 	SupportDeepLink bool
 }
 

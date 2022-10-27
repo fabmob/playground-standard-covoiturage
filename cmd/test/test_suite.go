@@ -21,7 +21,7 @@ func ExecuteTestSuite(client APIClient, request *http.Request, flags Flags) (*Re
 func executeTestFuns(
 	client APIClient,
 	request *http.Request,
-	tests []TestRequestFun,
+	tests []RequestTestFun,
 	flags Flags,
 ) *Report {
 	all := []AssertionResult{}
@@ -33,12 +33,12 @@ func executeTestFuns(
 
 /////////////////////////////////////////////////////////////
 
-// A TestRequestFun runs all tests associated with a given Request, and return
+// A RequestTestFun runs all tests associated with a given Request, and return
 // the correspending `AssertionResult`s
-type TestRequestFun func(APIClient, *http.Request, Flags) []AssertionResult
+type RequestTestFun func(APIClient, *http.Request, Flags) []AssertionResult
 
 // wrapTestResponseFun wraps an TestResponseFun to a TestRequestFun
-func wrapTestResponseFun(f TestResponseFun, endpoint Endpoint) TestRequestFun {
+func wrapTestResponseFun(f ResponseTestFun, endpoint Endpoint) RequestTestFun {
 	return func(c APIClient, request *http.Request, flags Flags) []AssertionResult {
 		a := NewAssertionAccu()
 		a.endpoint = endpoint
@@ -54,7 +54,9 @@ func wrapTestResponseFun(f TestResponseFun, endpoint Endpoint) TestRequestFun {
 
 //////////////////////////////////////////////////////////////
 
-type TestResponseFun func(
+// A ResponseTestFun runs tests on a given *http.Response (given a
+// *http.Request) and return the correspending `AssertionsResult`s
+type ResponseTestFun func(
 	*http.Request,
 	*http.Response,
 	AssertionAccumulator,
@@ -62,11 +64,13 @@ type TestResponseFun func(
 ) []AssertionResult
 
 var (
-	TestGetStatusResponse         TestResponseFun = wrapAssertionsFun(testGetStatus)
-	TestGetDriverJourneysResponse                 = wrapAssertionsFun(testGetDriverJourneys)
+	// TestGetStatusResponse tests response of GET /status
+	TestGetStatusResponse ResponseTestFun = wrapAssertionsFun(testGetStatus)
+	// TestGetDriverJourneysResponse tests response of GET /driver_journeys
+	TestGetDriverJourneysResponse = wrapAssertionsFun(testGetDriverJourneys)
 )
 
-func wrapAssertionsFun(f assertionFun) TestResponseFun {
+func wrapAssertionsFun(f assertionFun) ResponseTestFun {
 	return func(
 		req *http.Request,
 		resp *http.Response,

@@ -2,6 +2,7 @@ package service
 
 import (
 	"bytes"
+	// for the go:embed directive
 	_ "embed"
 	"encoding/json"
 	"io"
@@ -9,17 +10,20 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/api"
 )
 
-type mockDB struct {
+// MockDB stores the data of the server in memory
+type MockDB struct {
 	driverJourneys []api.DriverJourney
 }
 
-func NewMockDB() mockDB {
-	m := mockDB{}
+// NewMockDB initiates a MockDB with no data
+func NewMockDB() MockDB {
+	m := MockDB{}
 	m.driverJourneys = []api.DriverJourney{}
 	return m
 }
 
-func (db *mockDB) PopulateDBWithDefault() error {
+// PopulateDBWithDefault populates the MockDB with default data
+func (db *MockDB) PopulateDBWithDefault() error {
 	var err error
 	db.driverJourneys, err = ReadJourneyData(bytes.NewReader(DriverJourneyJSON))
 	return err

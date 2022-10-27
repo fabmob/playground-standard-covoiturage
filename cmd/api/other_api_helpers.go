@@ -25,6 +25,8 @@ func ParseGetDriverJourneysOKResponse(response *http.Response) ([]DriverJourney,
 
 }
 
+// NewGetDriverJourneysParams returns query parameters, looking for a trip
+// from "departure" to "arrival" at "departureDate".
 func NewGetDriverJourneysParams(
 	departure, arrival util.Coord,
 	departureDate int,

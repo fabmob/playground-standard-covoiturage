@@ -11,9 +11,11 @@ import (
 
 // StdCovServerImpl implements server.ServerInterface
 type StdCovServerImpl struct {
-	mockDB mockDB
+	mockDB MockDB
 }
 
+// NewDefaultServer returns a server, and populates the associated DB with
+// default data
 func NewDefaultServer() (*StdCovServerImpl, error) {
 	server := StdCovServerImpl{NewMockDB()}
 	err := server.mockDB.PopulateDBWithDefault()

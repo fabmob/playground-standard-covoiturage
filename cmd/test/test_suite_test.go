@@ -16,7 +16,7 @@ var defaultTestFlags Flags = Flags{DisallowEmpty: false}
 // testErrorOnRequestIsHandled returns an urlError for every API call and checks:
 // - that only one AssertionError is returned
 // - that AssertionError.Unwrap() != nil
-func testErrorOnRequestIsHandled(t *testing.T, f TestRequestFun) {
+func testErrorOnRequestIsHandled(t *testing.T, f RequestTestFun) {
 	t.Helper()
 	t.Run("API call throws error", func(t *testing.T) {
 		urlError := &url.Error{Op: "", URL: "", Err: errors.New("error")}
