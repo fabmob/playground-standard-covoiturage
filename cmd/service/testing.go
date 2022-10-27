@@ -5,6 +5,14 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
+func makeNDriverJourneys(n int) []api.DriverJourney {
+	driverJourneys := make([]api.DriverJourney, 0, n)
+	for i := 0; i < n; i++ {
+		driverJourneys = append(driverJourneys, api.DriverJourney{Type: "DYNAMIC"})
+	}
+	return driverJourneys
+}
+
 func makeDriverJourneyAtCoords(coordPickup, coordDrop util.Coord) api.DriverJourney {
 	return api.DriverJourney{
 		PassengerPickupLat: coordPickup.Lat,
@@ -49,5 +57,11 @@ func makeParamsWithArrivalRadius(arrivalCoord util.Coord, arrivalRadius float32)
 func makeParamsWithTimeDelta(date int) *api.GetDriverJourneysParams {
 	params := &api.GetDriverJourneysParams{}
 	params.TimeDelta = &date
+	return params
+}
+
+func makeParamsWithCount(count int) *api.GetDriverJourneysParams {
+	params := &api.GetDriverJourneysParams{}
+	params.Count = &count
 	return params
 }

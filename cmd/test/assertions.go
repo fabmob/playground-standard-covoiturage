@@ -395,3 +395,28 @@ func (a assertDriverJourneysTimeDelta) Describe() string {
 
 	return "assert timeDelta"
 }
+
+/////////////////////////////////////////////////////////////
+
+type assertDriverJourneysCount struct {
+	request  *http.Request
+	response *http.Response
+}
+
+func (a assertDriverJourneysCount) Execute() error {
+	params, err := api.ParseGetDriverJourneysRequest(a.request)
+	if err != nil {
+		return err
+	}
+	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
+	if err != nil {
+		return err
+	}
+	if params.Count != nil {
+		expectedMaxCount := params.Count
+		if len(driverJourneys) > *expectedMaxCount {
+			return errors.New("the number of returned driver journeys exceeds the query count parameter")
+		}
+	}
+	return nil
+}
