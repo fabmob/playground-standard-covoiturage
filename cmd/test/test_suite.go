@@ -21,7 +21,7 @@ func ExecuteTestSuite(client APIClient, request *http.Request, flags Flags) (*Re
 func executeTestFuns(
 	client APIClient,
 	request *http.Request,
-	tests []TestFun,
+	tests []TestRequestFun,
 	flags Flags,
 ) *Report {
 	all := []AssertionResult{}
@@ -33,13 +33,12 @@ func executeTestFuns(
 
 /////////////////////////////////////////////////////////////
 
-// A TestFun is a function that the API in a specific way (e.g. testing a
-// single endpoint). Assumes that request is non-nil.
-type TestFun func(APIClient, *http.Request, Flags) []AssertionResult
+// A TestRequestFun runs all tests associated with a given Request, and return
+// the correspending `AssertionResult`s
+type TestRequestFun func(APIClient, *http.Request, Flags) []AssertionResult
 
-// wrapTest wraps an auxTestFun (that tests a response against a request) to a
-// TestFun
-func wrapTest(f testAssertions, endpoint Endpoint) TestFun {
+// wrapTestResponseFun wraps an TestResponseFun to a TestRequestFun
+func wrapTestResponseFun(f TestResponseFun, endpoint Endpoint) TestRequestFun {
 	return func(c APIClient, request *http.Request, flags Flags) []AssertionResult {
 		a := NewAssertionAccu()
 		a.endpoint = endpoint
@@ -47,62 +46,72 @@ func wrapTest(f testAssertions, endpoint Endpoint) TestFun {
 		if clientErr != nil {
 			a.Queue(assertAPICallSuccess{clientErr})
 			a.ExecuteAll()
-		} else {
-			a.Queue(f(request, response, a, flags)...)
-			a.ExecuteAll()
+			return a.GetAssertionResults()
 		}
+		return f(request, response, a, flags)
+	}
+}
+
+//////////////////////////////////////////////////////////////
+
+type TestResponseFun func(
+	*http.Request,
+	*http.Response,
+	AssertionAccumulator,
+	Flags,
+) []AssertionResult
+
+var (
+	TestGetStatusResponse         TestResponseFun = wrapAssertionsFun(testGetStatus)
+	TestGetDriverJourneysResponse                 = wrapAssertionsFun(testGetDriverJourneys)
+)
+
+func wrapAssertionsFun(f assertionFun) TestResponseFun {
+	return func(
+		req *http.Request,
+		resp *http.Response,
+		a AssertionAccumulator,
+		flags Flags,
+	) []AssertionResult {
+		f(req, resp, a, flags)
+		a.ExecuteAll()
 		return a.GetAssertionResults()
 	}
 }
 
 //////////////////////////////////////////////////////////////
 
-type testAssertions func(
+type assertionFun func(
 	*http.Request,
 	*http.Response,
 	AssertionAccumulator,
 	Flags,
-) []Assertion
+)
 
-func TestGetStatus(
+func testGetStatus(
 	request *http.Request,
 	response *http.Response,
 	a AssertionAccumulator,
 	flags Flags,
-) []Assertion {
-	assertions := []Assertion{
-		assertStatusCode{response, http.StatusOK},
-	}
-	return assertions
+) {
+	AssertStatusCodeOK(a, response)
 }
 
 // TestGetDriverJourneys .. Assumes non empty response.
-func TestGetDriverJourneys(
+func testGetDriverJourneys(
 	request *http.Request,
 	response *http.Response,
 	a AssertionAccumulator,
 	flags Flags,
-) []Assertion {
-
+) {
 	response.Body = ReusableReadCloser(response.Body)
 
-	var assertions []Assertion
+	AssertStatusCodeOK(a, response)
+	AssertHeaderContains(a, response, "Content-Type", "application/json")
 	if flags.DisallowEmpty {
-		assertions = []Assertion{
-			assertStatusCode{response, http.StatusOK},
-			assertHeaderContains{response, "Content-Type", "application/json"},
-			Critic(assertDriverJourneysNotEmpty{response}),
-			Critic(assertDriverJourneysFormat{request, response}),
-			assertDriverJourneysRadius{request, response, arrival}, assertDriverJourneysRadius{request, response, departure},
-		}
-	} else {
-		assertions = []Assertion{
-			assertStatusCode{response, http.StatusOK},
-			assertHeaderContains{response, "Content-Type", "application/json"},
-			Critic(assertDriverJourneysFormat{request, response}),
-			assertDriverJourneysRadius{request, response, arrival}, assertDriverJourneysRadius{request, response, departure},
-		}
+		CriticAssertDriverJourneysNotEmpty(a, response)
 	}
-
-	return assertions
+	CriticAssertDriverJourneysFormat(a, request, response)
+	AssertDriverJourneysDepartureRadius(a, request, response)
+	AssertDriverJourneysArrivalRadius(a, request, response)
 }

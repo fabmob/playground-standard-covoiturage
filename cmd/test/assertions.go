@@ -178,8 +178,11 @@ func AssertDriverJourneysFormat(a AssertionAccumulator, request *http.Request, r
 	a.Queue(assertion)
 }
 
-// AssertDriverJourneysFormat checks if the response data of
-// /driver_journeys call has the expected format
+func CriticAssertDriverJourneysFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := Critic(assertDriverJourneysFormat{request, response})
+	a.Queue(assertion)
+}
+
 func AssertDriverJourneysDepartureRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
 	assertion := assertDriverJourneysRadius{request, response, departure}
 	a.Queue(assertion)
@@ -192,6 +195,11 @@ func AssertDriverJourneysArrivalRadius(a AssertionAccumulator, request *http.Req
 
 func AssertDriverJourneysNotEmpty(a AssertionAccumulator, response *http.Response) {
 	assertion := assertDriverJourneysNotEmpty{response}
+	a.Queue(assertion)
+}
+
+func CriticAssertDriverJourneysNotEmpty(a AssertionAccumulator, response *http.Response) {
+	assertion := Critic(assertDriverJourneysNotEmpty{response})
 	a.Queue(assertion)
 }
 

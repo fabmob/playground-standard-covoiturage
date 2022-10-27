@@ -16,7 +16,7 @@ var defaultTestFlags Flags = Flags{DisallowEmpty: false}
 // testErrorOnRequestIsHandled returns an urlError for every API call and checks:
 // - that only one AssertionError is returned
 // - that AssertionError.Unwrap() != nil
-func testErrorOnRequestIsHandled(t *testing.T, f TestFun) {
+func testErrorOnRequestIsHandled(t *testing.T, f TestRequestFun) {
 	t.Helper()
 	t.Run("API call throws error", func(t *testing.T) {
 		urlError := &url.Error{Op: "", URL: "", Err: errors.New("error")}
@@ -55,10 +55,10 @@ func TestRequests(t *testing.T) {
 			r, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
 			panicIf(err)
 			testNoAssertions := func(*http.Request, *http.Response,
-				AssertionAccumulator, Flags) []Assertion {
+				AssertionAccumulator, Flags) []AssertionResult {
 				return nil
 			}
-			wrapTest(testNoAssertions, Endpoint{})(m, r, defaultTestFlags)
+			wrapTestResponseFun(testNoAssertions, Endpoint{})(m, r, defaultTestFlags)
 
 			requestsDone := m.Client.(*MockClient).Requests
 			if len(requestsDone) != 1 {
@@ -113,9 +113,10 @@ func TestExecutedTestsGivenRequest(t *testing.T) {
 }
 
 func TestNoEmpty(t *testing.T) {
-	assertions := TestGetDriverJourneys(nil, mockOKStatusResponse(), nil, Flags{DisallowEmpty: true})
-	for _, a := range assertions {
-		if _, ok := a.(assertDriverJourneysNotEmpty); ok {
+	a := NewAssertionAccu()
+	testGetDriverJourneys(nil, mockOKStatusResponse(), a, Flags{DisallowEmpty: true})
+	for _, assertion := range a.queuedAssertions {
+		if _, ok := assertion.(assertDriverJourneysNotEmpty); ok {
 			t.Error("DisallowEmpty flag is not taken into account properly")
 		}
 	}
