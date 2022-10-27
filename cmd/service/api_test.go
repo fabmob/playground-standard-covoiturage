@@ -84,8 +84,8 @@ func TestDriverJourneys(t *testing.T) {
 			"Arrival radius 2",
 			makeParamsWithArrivalRadius(coordsRef, 2),
 			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coordsIgnore, coords900m),
 				makeDriverJourneyAtCoords(coordsIgnore, coords2100m),
+				makeDriverJourneyAtCoords(coordsIgnore, coords900m),
 			},
 			false,
 		},
@@ -130,8 +130,8 @@ func TestDriverJourneys(t *testing.T) {
 			"TimeDelta 3",
 			makeParamsWithTimeDelta(20),
 			[]api.DriverJourney{
-				makeDriverJourneyAtDate(15),
 				makeDriverJourneyAtDate(25),
+				makeDriverJourneyAtDate(15),
 			},
 			false,
 		},

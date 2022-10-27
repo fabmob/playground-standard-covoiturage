@@ -1,6 +1,7 @@
 package service
 
 import (
+	"math"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -74,6 +75,7 @@ func keepDriverJourney(params api.GetDriverJourneysParams, dj api.DriverJourney)
 	}
 	departureRadiusOK := util.Distance(coordsRequestDeparture, coordsResponseDeparture) <=
 		params.GetDepartureRadius()
+
 	coordsRequestArrival := util.Coord{
 		Lat: float64(params.ArrivalLat),
 		Lon: float64(params.ArrivalLng),
@@ -84,7 +86,11 @@ func keepDriverJourney(params api.GetDriverJourneysParams, dj api.DriverJourney)
 	}
 	arrivalRadiusOK := util.Distance(coordsRequestArrival, coordsResponseArrival) <=
 		params.GetArrivalRadius()
-	return departureRadiusOK && arrivalRadiusOK
+
+	timeDeltaOK :=
+		math.Abs(float64(dj.PassengerPickupDate)-float64(params.DepartureDate)) <
+			float64(params.GetTimeDelta())
+	return departureRadiusOK && arrivalRadiusOK && timeDeltaOK
 
 }
 
