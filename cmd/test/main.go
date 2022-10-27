@@ -25,7 +25,7 @@ func Run(server, URL string, verbose bool, query Query) int {
 	AddQueryParameters(query, req)
 
 	flags := Flags{
-		DisallowEmpty: true,
+		DisallowEmpty: false,
 	}
 	report, err := ExecuteTestSuite(c, req, flags)
 	if err != nil {
