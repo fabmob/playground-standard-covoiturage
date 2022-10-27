@@ -6,7 +6,7 @@ import (
 	"io"
 
 	"github.com/umahmood/haversine"
-	"gitlab.com/multi/stdcov-api-test/cmd/test/client"
+	"gitlab.com/multi/stdcov-api-test/cmd/api"
 )
 
 type coords struct {
@@ -23,7 +23,7 @@ func distanceKm(coords1, coords2 coords) float64 {
 
 // getQueryCoords extracts departure or arrival coordinates from
 // queryParameters
-func getQueryCoords(departureOrArrival departureOrArrival, queryParams *client.GetDriverJourneysParams) coords {
+func getQueryCoords(departureOrArrival departureOrArrival, queryParams *api.GetDriverJourneysParams) coords {
 	var coordsQuery coords
 	switch departureOrArrival {
 	case departure:
@@ -36,7 +36,7 @@ func getQueryCoords(departureOrArrival departureOrArrival, queryParams *client.G
 
 // getResponseCoords extracts departure or arrival coordinates from
 // driverJourney object. Fails if required coordinates are missing.
-func getResponseCoords(departureOrArrival departureOrArrival, driverJourney client.DriverJourney) (coords, error) {
+func getResponseCoords(departureOrArrival departureOrArrival, driverJourney api.DriverJourney) (coords, error) {
 	var coordsResponse coords
 	switch departureOrArrival {
 	case departure:
@@ -49,7 +49,7 @@ func getResponseCoords(departureOrArrival departureOrArrival, driverJourney clie
 
 // getQueryRadiusOrDefault returns departureRadius er arrivalRadius query parameter
 // (depending on departureOrArrival), or the default value if missing
-func getQueryRadiusOrDefault(departureOrArrival departureOrArrival, queryParams *client.GetDriverJourneysParams) float64 {
+func getQueryRadiusOrDefault(departureOrArrival departureOrArrival, queryParams *api.GetDriverJourneysParams) float64 {
 	const DefaultRadius float32 = 1
 	var radiusPtr *float32
 	switch departureOrArrival {

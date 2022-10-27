@@ -6,9 +6,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/multi/stdcov-api-test/cmd/service/server"
+	"gitlab.com/multi/stdcov-api-test/cmd/api"
 	"gitlab.com/multi/stdcov-api-test/cmd/test"
-	"gitlab.com/multi/stdcov-api-test/cmd/test/client"
 )
 
 var fakeServer = "https:localhost:1323"
@@ -23,16 +22,16 @@ func TestDriverJourneys(t *testing.T) {
 
 	testCases := []struct {
 		name              string
-		testParams        *client.GetDriverJourneysParams
-		testData          []server.DriverJourney
+		testParams        *api.GetDriverJourneysParams
+		testData          []api.DriverJourney
 		expectEmptyResult bool
 	}{
 
-		{"No data", &client.GetDriverJourneysParams{}, []server.DriverJourney{}, true},
+		{"No data", &api.GetDriverJourneysParams{}, []api.DriverJourney{}, true},
 		{
 			"Departure radius",
 			paramsWithDepartureRadius(coordsRef, 1),
-			[]server.DriverJourney{
+			[]api.DriverJourney{
 				{
 					PassengerPickupLat: coords900m.lat,
 					PassengerPickupLng: coords900m.lon,
@@ -62,12 +61,12 @@ func TestDriverJourneys(t *testing.T) {
 
 func testGetDriverJourneyRequestWithData(
 	t *testing.T,
-	params *client.GetDriverJourneysParams,
-	testData []server.DriverJourney,
+	params *api.GetDriverJourneysParams,
+	testData []api.DriverJourney,
 	expectEmpty bool,
 ) {
 
-	testRequest, err := client.NewGetDriverJourneysRequest(fakeServer, params)
+	testRequest, err := api.NewGetDriverJourneysRequest(fakeServer, params)
 	panicIf(err)
 
 	e := echo.New()
@@ -80,7 +79,7 @@ func testGetDriverJourneyRequestWithData(
 	handler := &StdCovServerImpl{mockDB}
 
 	// Assertions
-	err = handler.GetDriverJourneys(c, server.GetDriverJourneysParams(*params))
+	err = handler.GetDriverJourneys(c, api.GetDriverJourneysParams(*params))
 	if err != nil {
 		t.Fail()
 	}
@@ -108,8 +107,8 @@ type coords struct {
 	lon float64
 }
 
-func paramsWithDepartureRadius(departureCoords coords, departureRadius float32) *client.GetDriverJourneysParams {
-	params := client.NewGetDriverJourneysParams(
+func paramsWithDepartureRadius(departureCoords coords, departureRadius float32) *api.GetDriverJourneysParams {
+	params := api.NewGetDriverJourneysParams(
 		float32(departureCoords.lat),
 		float32(departureCoords.lon),
 		0,

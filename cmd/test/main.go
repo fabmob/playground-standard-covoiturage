@@ -5,15 +5,13 @@ import (
 	"net/http"
 	"net/url"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/test/client"
+	"gitlab.com/multi/stdcov-api-test/cmd/api"
 )
-
-//go:generate oapi-codegen -package client -o ./client/client.go -generate "types,client" --old-config-style ../../spec/stdcov_openapi.yaml
 
 // Run runs the cli validation and returns an exit code
 func Run(server, URL string, verbose bool, query Query) int {
 
-	c, err := client.NewClient(server)
+	c, err := api.NewClient(server)
 	if err != nil {
 		panic(err)
 	}

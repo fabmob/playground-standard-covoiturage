@@ -5,10 +5,8 @@ import (
 	"os"
 
 	"github.com/labstack/echo/v4"
-	"gitlab.com/multi/stdcov-api-test/cmd/service/server"
+	"gitlab.com/multi/stdcov-api-test/cmd/api"
 )
-
-//go:generate oapi-codegen -package server -o ./service/server.go -generate "types,server" --old-config-style ../../spec/stdcov_openapi.yaml
 
 func Run() {
 	handler, err := NewDefaultServer()
@@ -17,6 +15,6 @@ func Run() {
 		os.Exit(1)
 	}
 	e := echo.New()
-	server.RegisterHandlers(e, handler)
+	api.RegisterHandlers(e, handler)
 	e.Logger.Fatal(e.Start(":1323"))
 }

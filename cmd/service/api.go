@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/umahmood/haversine"
-	"gitlab.com/multi/stdcov-api-test/cmd/service/server"
+	"gitlab.com/multi/stdcov-api-test/cmd/api"
+	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
 // StdCovServerImpl implements server.ServerInterface
@@ -35,15 +35,15 @@ func (*StdCovServerImpl) PostBookings(ctx echo.Context) error {
 
 // GetBookings retrieves an existing Booking request.
 // (GET /bookings/{bookingId})
-func (*StdCovServerImpl) GetBookings(ctx echo.Context, bookingID server.BookingId) error {
+func (*StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId) error {
 	// Implement me
 	return nil
 }
 
 // PatchBookings updates status of an existing Booking request.
 // (PATCH /bookings/{bookingId})
-func (*StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID server.BookingId,
-	params server.PatchBookingsParams) error {
+func (*StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.BookingId,
+	params api.PatchBookingsParams) error {
 	// Implement me
 	return nil
 }
@@ -57,17 +57,19 @@ var (
 // (GET /driver_journeys)
 func (s *StdCovServerImpl) GetDriverJourneys(
 	ctx echo.Context,
-	params server.GetDriverJourneysParams,
+	params api.GetDriverJourneysParams,
 ) error {
-	if params.DepartureRadius == nil {
-		params.DepartureRadius = &defaultGetDriverJourneysDepartureRadius
-	}
-	response := []server.DriverJourney{}
+	response := []api.DriverJourney{}
 	for _, dj := range s.mockDB.driverJourneys {
-		coordsRequest := haversine.Coord{Lat: float64(params.DepartureLat), Lon: float64(params.DepartureLng)}
-		coordsResponse := haversine.Coord{Lat: dj.PassengerPickupLat, Lon: dj.PassengerPickupLng}
-		_, distance := haversine.Distance(coordsRequest, coordsResponse)
-		if distance <= float64(*params.DepartureRadius) {
+		coordsRequest := util.Coord{
+			Lat: float64(params.DepartureLat),
+			Lon: float64(params.DepartureLng),
+		}
+		coordsResponse := util.Coord{
+			Lat: dj.PassengerPickupLat,
+			Lon: dj.PassengerPickupLng,
+		}
+		if util.Distance(coordsRequest, coordsResponse) <= params.GetDepartureRadius() {
 			response = append(response, dj)
 		}
 	}
@@ -78,7 +80,7 @@ func (s *StdCovServerImpl) GetDriverJourneys(
 // (GET /driver_regular_trips)
 func (*StdCovServerImpl) GetDriverRegularTrips(
 	ctx echo.Context,
-	params server.GetDriverRegularTripsParams,
+	params api.GetDriverRegularTripsParams,
 ) error {
 	// Implement me
 	return nil
@@ -95,7 +97,7 @@ func (*StdCovServerImpl) PostConnections(ctx echo.Context) error {
 // (GET /passenger_journeys)
 func (*StdCovServerImpl) GetPassengerJourneys(
 	ctx echo.Context,
-	params server.GetPassengerJourneysParams,
+	params api.GetPassengerJourneysParams,
 ) error {
 	// Implement me
 	return nil
@@ -105,7 +107,7 @@ func (*StdCovServerImpl) GetPassengerJourneys(
 // (GET /passenger_regular_trips)
 func (*StdCovServerImpl) GetPassengerRegularTrips(
 	ctx echo.Context,
-	params server.GetPassengerRegularTripsParams,
+	params api.GetPassengerRegularTripsParams,
 ) error {
 	// Implement me
 	return nil

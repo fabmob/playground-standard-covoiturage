@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/test/client"
+	"gitlab.com/multi/stdcov-api-test/cmd/api"
 )
 
 // MockClient is an HTTP client that returns always the same response or
@@ -41,8 +41,8 @@ func NewMockClientWithResponse(r *http.Response) APIClient {
 	return newTestClient(m)
 }
 
-func newTestClient(m *MockClient) *client.Client {
-	c, _ := client.NewClient("", client.WithHTTPClient(m))
+func newTestClient(m *MockClient) *api.Client {
+	c, _ := api.NewClient("", api.WithHTTPClient(m))
 	return c
 }
 
@@ -80,7 +80,7 @@ func mockOKStatusResponse() *http.Response {
 	return mockStatusResponse(http.StatusOK)
 }
 
-func mockGetDriverJourneysResponse(responseObj []client.DriverJourney) *http.Response {
+func mockGetDriverJourneysResponse(responseObj []api.DriverJourney) *http.Response {
 	responseJSON, err := json.Marshal(responseObj)
 	panicIf(err)
 	return mockResponse(200, string(responseJSON), nil)

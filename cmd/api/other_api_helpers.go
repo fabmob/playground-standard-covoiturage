@@ -1,4 +1,4 @@
-package client
+package api
 
 import (
 	"errors"
@@ -40,4 +40,34 @@ func NewGetDriverJourneysParams(
 		DepartureRadius: &defaultDepartureRadius,
 		ArrivalRadius:   &defaultArrivalRadius,
 	}
+}
+
+// GetTimeDelta returns the value of TimeDelta if any, or its default value
+// otherwise.
+func (p GetDriverJourneysParams) GetTimeDelta() int {
+	defaultTimeDelta := 900
+	if p.TimeDelta == nil {
+		return defaultTimeDelta
+	}
+	return *p.TimeDelta
+}
+
+// GetDepartureRadius returns the value of DepartureRadius if any, or its default value
+// otherwise.
+func (p GetDriverJourneysParams) GetDepartureRadius() float64 {
+	defaultDepartureRadius := 1.
+	if p.DepartureRadius == nil {
+		return defaultDepartureRadius
+	}
+	return float64(*p.DepartureRadius)
+}
+
+// GetArrivalRadius returns the value of ArrivalRadius if any, or its default value
+// otherwise.
+func (p GetDriverJourneysParams) GetArrivalRadius() float64 {
+	defaultArrivalRadius := 1.
+	if p.ArrivalRadius == nil {
+		return defaultArrivalRadius
+	}
+	return float64(*p.ArrivalRadius)
 }

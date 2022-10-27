@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/test/client"
+	"gitlab.com/multi/stdcov-api-test/cmd/api"
 )
 
 func TestAssertionResult_String(t *testing.T) {
@@ -168,14 +168,14 @@ func TestExpectHeaders(t *testing.T) {
 
 func TestExpectDriverJourneysFormat(t *testing.T) {
 
-	marshalDriverJourneys := func(dj []client.DriverJourney) string {
+	marshalDriverJourneys := func(dj []api.DriverJourney) string {
 		bodyBytes, _ := json.Marshal(dj)
 		return string(bodyBytes)
 	}
 
-	emptyDriverJourneysBody := marshalDriverJourneys([]client.DriverJourney{})
-	singleDriverJourneyBody := marshalDriverJourneys([]client.DriverJourney{{Type: "DYNAMIC"}})
-	notAllowedByEnum := marshalDriverJourneys([]client.DriverJourney{{Type: "Not allowed"}})
+	emptyDriverJourneysBody := marshalDriverJourneys([]api.DriverJourney{})
+	singleDriverJourneyBody := marshalDriverJourneys([]api.DriverJourney{{Type: "DYNAMIC"}})
+	notAllowedByEnum := marshalDriverJourneys([]api.DriverJourney{{Type: "Not allowed"}})
 
 	missingProp := `[
   {
@@ -443,30 +443,30 @@ func TestAssertRadius(t *testing.T) {
 	for _, tc := range testCases {
 
 		t.Run(tc.name, func(t *testing.T) {
-			var params client.GetDriverJourneysParams
+			var params api.GetDriverJourneysParams
 			if tc.departureOrArrival == departure {
-				params = client.GetDriverJourneysParams{
+				params = api.GetDriverJourneysParams{
 					DepartureRadius: &tc.radius,
 					DepartureLat:    float32(tc.coordsRequest.lat),
 					DepartureLng:    float32(tc.coordsRequest.lon),
 				}
 			} else {
-				params = client.GetDriverJourneysParams{
+				params = api.GetDriverJourneysParams{
 					ArrivalRadius: &tc.radius,
 					ArrivalLat:    float32(tc.coordsRequest.lat),
 					ArrivalLng:    float32(tc.coordsRequest.lon),
 				}
 			}
-			request, err := client.NewGetDriverJourneysRequest("localhost:1323", &params)
+			request, err := api.NewGetDriverJourneysRequest("localhost:1323", &params)
 			panicIf(err)
 
-			responseObj := []client.DriverJourney{}
+			responseObj := []api.DriverJourney{}
 			for _, c := range tc.coordsResponse {
-				var dj client.DriverJourney
+				var dj api.DriverJourney
 				if tc.departureOrArrival == departure {
-					dj = client.DriverJourney{PassengerPickupLat: c.lat, PassengerPickupLng: c.lon}
+					dj = api.DriverJourney{PassengerPickupLat: c.lat, PassengerPickupLng: c.lon}
 				} else {
-					dj = client.DriverJourney{PassengerDropLat: c.lat, PassengerDropLng: c.lon}
+					dj = api.DriverJourney{PassengerDropLat: c.lat, PassengerDropLng: c.lon}
 				}
 				responseObj = append(responseObj, dj)
 			}
@@ -491,11 +491,11 @@ func TestAssertRadius(t *testing.T) {
 func TestAssertNotEmpty(t *testing.T) {
 	testCases := []struct {
 		name         string
-		responseData []client.DriverJourney
+		responseData []api.DriverJourney
 		expectError  bool
 	}{
-		{"empty", []client.DriverJourney{}, true},
-		{"non empty", []client.DriverJourney{{}}, false},
+		{"empty", []api.DriverJourney{}, true},
+		{"non empty", []api.DriverJourney{{}}, false},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {

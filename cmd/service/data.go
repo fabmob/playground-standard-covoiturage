@@ -6,16 +6,16 @@ import (
 	"encoding/json"
 	"io"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/service/server"
+	"gitlab.com/multi/stdcov-api-test/cmd/api"
 )
 
 type mockDB struct {
-	driverJourneys []server.DriverJourney
+	driverJourneys []api.DriverJourney
 }
 
 func NewMockDB() mockDB {
 	m := mockDB{}
-	m.driverJourneys = []server.DriverJourney{}
+	m.driverJourneys = []api.DriverJourney{}
 	return m
 }
 
@@ -35,8 +35,8 @@ var DriverJourneyJSON []byte
 
 // ReadJourneyData reads journey data from io.Reader with json data
 // It does not validate data
-func ReadJourneyData(r io.Reader) ([]server.DriverJourney, error) {
-	var journeyData []server.DriverJourney
+func ReadJourneyData(r io.Reader) ([]api.DriverJourney, error) {
+	var journeyData []api.DriverJourney
 	bytes, readErr := io.ReadAll(r)
 	if readErr != nil {
 		return nil, readErr

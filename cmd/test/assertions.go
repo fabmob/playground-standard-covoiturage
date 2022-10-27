@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"gitlab.com/multi/stdcov-api-test/cmd/test/client"
+	"gitlab.com/multi/stdcov-api-test/cmd/api"
 	"gitlab.com/multi/stdcov-api-test/cmd/validate"
 )
 
@@ -300,7 +300,7 @@ type assertDriverJourneysRadius struct {
 
 func (a assertDriverJourneysRadius) Execute() error {
 	// Parse request
-	queryParams, err := client.ParseGetDriverJourneysRequest(a.request)
+	queryParams, err := api.ParseGetDriverJourneysRequest(a.request)
 	if err != nil {
 		return failedParsing("request", err)
 	}
@@ -312,7 +312,7 @@ func (a assertDriverJourneysRadius) Execute() error {
 	radiusWithMargin := radius * (1. + safetyMarginPercent/100)
 
 	// Parse response
-	driverJourneys, err := client.ParseGetDriverJourneysOKResponse(a.response)
+	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
 	if err != nil {
 		return failedParsing("response", err)
 	}
@@ -341,7 +341,7 @@ type assertDriverJourneysNotEmpty struct {
 }
 
 func (a assertDriverJourneysNotEmpty) Execute() error {
-	driverJourneys, err := client.ParseGetDriverJourneysOKResponse(a.response)
+	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
 	if err != nil {
 		return failedParsing("response", err)
 	}

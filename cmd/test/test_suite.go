@@ -3,11 +3,11 @@ package test
 import (
 	"net/http"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/test/client"
+	"gitlab.com/multi/stdcov-api-test/cmd/api"
 )
 
 // APIClient is a client to the API standard covoiturage
-type APIClient = *client.Client
+type APIClient = *api.Client
 
 // ExecuteTestSuite tests a client against all implemented tests
 func ExecuteTestSuite(client APIClient, request *http.Request, flags Flags) (*Report, error) {
