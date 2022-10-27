@@ -14,6 +14,7 @@ func makeDriverJourney(coordPickup, coordDrop util.Coord) api.DriverJourney {
 		Type:               "DYNAMIC",
 	}
 }
+
 func makeParamsWithDepartureRadius(departureCoord util.Coord, departureRadius float32) *api.GetDriverJourneysParams {
 	params := api.NewGetDriverJourneysParams(
 		float32(departureCoord.Lat),
@@ -23,5 +24,17 @@ func makeParamsWithDepartureRadius(departureCoord util.Coord, departureRadius fl
 		0,
 	)
 	params.DepartureRadius = &departureRadius
+	return params
+}
+
+func makeParamsWithArrivalRadius(arrivalCoord util.Coord, arrivalRadius float32) *api.GetDriverJourneysParams {
+	params := api.NewGetDriverJourneysParams(
+		float32(arrivalCoord.Lat),
+		float32(arrivalCoord.Lon),
+		0,
+		0,
+		0,
+	)
+	params.ArrivalRadius = &arrivalRadius
 	return params
 }
