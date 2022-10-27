@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/umahmood/haversine"
 	"gitlab.com/multi/stdcov-api-test/cmd/service/server"
 )
 
@@ -47,13 +48,30 @@ func (*StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID server.Bookin
 	return nil
 }
 
+var (
+	defaultGetDriverJourneysDepartureRadius float32 = 1.
+	defaultGetDriverJourneysArrivalRadius   float32 = 1.
+)
+
 // GetDriverJourneys searches for matching punctual planned outward driver journeys.
 // (GET /driver_journeys)
 func (s *StdCovServerImpl) GetDriverJourneys(
 	ctx echo.Context,
 	params server.GetDriverJourneysParams,
 ) error {
-	return ctx.JSON(http.StatusOK, []server.DriverJourney{})
+	if params.DepartureRadius == nil {
+		params.DepartureRadius = &defaultGetDriverJourneysDepartureRadius
+	}
+	response := []server.DriverJourney{}
+	for _, dj := range s.mockDB.driverJourneys {
+		coordsRequest := haversine.Coord{Lat: float64(params.DepartureLat), Lon: float64(params.DepartureLng)}
+		coordsResponse := haversine.Coord{Lat: dj.PassengerPickupLat, Lon: dj.PassengerPickupLng}
+		_, distance := haversine.Distance(coordsRequest, coordsResponse)
+		if distance <= float64(*params.DepartureRadius) {
+			response = append(response, dj)
+		}
+	}
+	return ctx.JSON(http.StatusOK, response)
 }
 
 // GetDriverRegularTrips searches for matching regular driver trip.
