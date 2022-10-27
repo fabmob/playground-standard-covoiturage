@@ -215,6 +215,11 @@ func AssertDriverJourneysCount(a AssertionAccumulator, request *http.Request, re
 	a.Queue(assertion)
 }
 
+func AssertUniqueIDs(a AssertionAccumulator, response *http.Response) {
+	assertion := assertUniqueIDs{response}
+	a.Queue(assertion)
+}
+
 /////////////////////////////////////////////////////////////
 
 type assertAPICallSuccess struct {
@@ -424,4 +429,33 @@ func (a assertDriverJourneysCount) Execute() error {
 
 func (a assertDriverJourneysCount) Describe() string {
 	return "assert count"
+}
+
+/////////////////////////////////////////////////////////////
+
+type assertUniqueIDs struct {
+	response *http.Response
+}
+
+func (a assertUniqueIDs) Execute() error {
+	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
+	if err != nil {
+		return err
+	}
+	ids := map[string]bool{}
+	for _, dj := range driverJourneys {
+		if dj.Id != nil {
+			id := *dj.Id
+			_, idDuplicate := ids[id]
+			if idDuplicate {
+				return errors.New("IDs should be unique")
+			}
+			ids[*dj.Id] = true
+		}
+	}
+	return nil
+}
+
+func (a assertUniqueIDs) Describe() string {
+	return "assert unique ids"
 }

@@ -94,7 +94,6 @@ func keepDriverJourney(params api.GetDriverJourneysParams, dj api.DriverJourney)
 		math.Abs(float64(dj.PassengerPickupDate)-float64(params.DepartureDate)) <
 			float64(params.GetTimeDelta())
 	return departureRadiusOK && arrivalRadiusOK && timeDeltaOK
-
 }
 
 // GetDriverRegularTrips searches for matching regular driver trip.

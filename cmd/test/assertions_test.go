@@ -508,3 +508,34 @@ func TestAssertNotEmpty(t *testing.T) {
 		})
 	}
 }
+
+func TestAssertUniqueIDs(t *testing.T) {
+	var (
+		id1          = "1"
+		id1duplicate = "1"
+		id2          = "2"
+	)
+	testCases := []struct {
+		name        string
+		ids         []*string
+		expectError bool
+	}{
+		{"no id", []*string{nil, nil}, false},
+		{"unique ids", []*string{&id1, &id2}, false},
+		{"duplicate id", []*string{&id1, &id2, &id1duplicate}, true},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			responseData := make([]api.DriverJourney, 0, len(tc.ids))
+			for _, id := range tc.ids {
+				responseData = append(responseData, api.DriverJourney{Id: id})
+			}
+			response := mockGetDriverJourneysResponse(responseData)
+			err := singleAssertionError(t, assertUniqueIDs{response})
+			if (err != nil) != tc.expectError {
+				t.Fail()
+			}
+		})
+	}
+}
