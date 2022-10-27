@@ -81,12 +81,8 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.19
-      - name: build server
-        run: go build ./cmd/stdcov-service/
       - name: run server
-        run: ./stdcov-service &
-      - name: build cli
-        run: go build ./cmd/stdcov-cli/
+        run: go run main.go serve &
       - name: test server
-        run: ./stdcov-cli --verbose --server "http://localhost:1323" --url /driver_journeys -q departureLat=0 -q departureLng=0 -q arrivalLat=0 -q arrivalLng=0 -q departureDate=0 -q timeDelta=900 -q departureRadius=1 -q arrivalRadius=1
+        run: go run main.go test ./stdcov-cli --verbose --server "http://localhost:1323" --url /driver_journeys -q departureLat=0 -q departureLng=0 -q arrivalLat=0 -q arrivalLng=0 -q departureDate=1665500000 -q timeDelta=2000000000 -q departureRadius=500000 -q arrivalRadius=50000
 

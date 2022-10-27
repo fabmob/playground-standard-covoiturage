@@ -1,4 +1,4 @@
-package main
+package test
 
 import (
 	"errors"
@@ -11,21 +11,24 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+var defaultTestFlags Flags = Flags{DisallowEmpty: false}
+
 // testErrorOnRequestIsHandled returns an urlError for every API call and checks:
 // - that only one AssertionError is returned
 // - that AssertionError.Unwrap() != nil
-func testErrorOnRequestIsHandled(t *testing.T, f TestFun) {
+func testErrorOnRequestIsHandled(t *testing.T, f RequestTestFun) {
 	t.Helper()
 	t.Run("API call throws error", func(t *testing.T) {
 		urlError := &url.Error{Op: "", URL: "", Err: errors.New("error")}
 		m := NewMockClientWithError(urlError)
 
 		// specific request is irrelevant as the error client is in any case returning an error
-		r, _ := http.NewRequest(http.MethodGet, "/", strings.NewReader(""))
-		results := f(m, r)
+		r, err := http.NewRequest(http.MethodGet, "/", strings.NewReader(""))
+		panicIf(err)
+		results := f(m, r, defaultTestFlags)
 		shouldHaveSingleAssertionResult(t, results)
 
-		err := results[0].Unwrap()
+		err = results[0].Unwrap()
 		if err == nil {
 			t.Error("If error returned, api is not up")
 		}
@@ -33,7 +36,6 @@ func testErrorOnRequestIsHandled(t *testing.T, f TestFun) {
 }
 
 func TestAPIErrors(t *testing.T) {
-
 	for _, funs := range apiMapping {
 		for _, f := range funs {
 			testErrorOnRequestIsHandled(t, f)
@@ -52,9 +54,11 @@ func TestRequests(t *testing.T) {
 			m := NewMockClientWithResponse(mockOKStatusResponse())
 			r, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
 			panicIf(err)
-			noopAuxTestFun := func(*http.Request, *http.Response, AssertionAccumulator) {
+			testNoAssertions := func(*http.Request, *http.Response,
+				AssertionAccumulator, Flags) []AssertionResult {
+				return nil
 			}
-			wrapTest(noopAuxTestFun, Endpoint{})(m, r)
+			wrapTestResponseFun(testNoAssertions, Endpoint{})(m, r, defaultTestFlags)
 
 			requestsDone := m.Client.(*MockClient).Requests
 			if len(requestsDone) != 1 {
@@ -97,13 +101,23 @@ func TestExecutedTestsGivenRequest(t *testing.T) {
 	r, err := http.NewRequest(method, path, strings.NewReader(""))
 	panicIf(err)
 
-	report, err := ExecuteTestSuite(m, r)
+	report, err := ExecuteTestSuite(m, r, defaultTestFlags)
 	panicIf(err)
 	for _, a := range report.allAssertionResults {
 		if a.endpoint.Path != path || a.endpoint.Method != method {
 			t.Logf("Path expected by request: %s %s", method, path)
 			t.Logf("Assertion run for: %s %s", a.endpoint.Method, a.endpoint.Path)
 			t.Error("Unexpected assertion run for given request")
+		}
+	}
+}
+
+func TestNoEmpty(t *testing.T) {
+	a := NewAssertionAccu()
+	testGetDriverJourneys(nil, mockOKStatusResponse(), a, Flags{DisallowEmpty: true})
+	for _, assertion := range a.queuedAssertions {
+		if _, ok := assertion.(assertDriverJourneysNotEmpty); ok {
+			t.Error("DisallowEmpty flag is not taken into account properly")
 		}
 	}
 }

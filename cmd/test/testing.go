@@ -1,11 +1,12 @@
-package main
+package test
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"strings"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/stdcov-cli/client"
+	"gitlab.com/multi/stdcov-api-test/cmd/api"
 )
 
 // MockClient is an HTTP client that returns always the same response or
@@ -40,8 +41,8 @@ func NewMockClientWithResponse(r *http.Response) APIClient {
 	return newTestClient(m)
 }
 
-func newTestClient(m *MockClient) *client.Client {
-	c, _ := client.NewClient("", client.WithHTTPClient(m))
+func newTestClient(m *MockClient) *api.Client {
+	c, _ := api.NewClient("", api.WithHTTPClient(m))
 	return c
 }
 
@@ -79,16 +80,22 @@ func mockOKStatusResponse() *http.Response {
 	return mockStatusResponse(http.StatusOK)
 }
 
-// A NoOpAssertion returns stored error when executed
-type NoOpAssertion struct{ error }
+func mockGetDriverJourneysResponse(responseObj []api.DriverJourney) *http.Response {
+	responseJSON, err := json.Marshal(responseObj)
+	panicIf(err)
+	return mockResponse(200, string(responseJSON), nil)
+}
+
+// A NopAssertion returns stored error when executed
+type NopAssertion struct{ error }
 
 // Execute implements Assertion interface
-func (n NoOpAssertion) Execute() error {
+func (n NopAssertion) Execute() error {
 	return n.error
 }
 
 // Describe implements Assertion interface
-func (NoOpAssertion) Describe() string {
+func (NopAssertion) Describe() string {
 	return "No assertion"
 }
 

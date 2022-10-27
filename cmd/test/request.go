@@ -1,4 +1,4 @@
-package main
+package test
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ type Query struct {
 	params map[string]string
 }
 
-// String implements flag.Value.String
+// String implements pflag.Value.String (cobra flags)
 func (qp *Query) String() string {
 	str := ""
 	for k, v := range qp.params {
@@ -20,7 +20,7 @@ func (qp *Query) String() string {
 	return str
 }
 
-// Set implements flag.Value.Set
+// Set implements pflag.Value.Set (cobra flags)
 func (qp *Query) Set(s string) error {
 	parts := strings.SplitN(s, "=", 2)
 	key := parts[0]
@@ -33,6 +33,11 @@ func (qp *Query) Set(s string) error {
 	}
 	qp.params[key] = value
 	return nil
+}
+
+// Type implements pflag.Value.Type (cobra flags)
+func (qp *Query) Type() string {
+	return "*Query"
 }
 
 // AddQueryParameters adds query parameters stored in a Query object to an
