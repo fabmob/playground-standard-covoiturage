@@ -205,12 +205,13 @@ func CriticAssertDriverJourneysNotEmpty(a AssertionAccumulator, response *http.R
 	a.Queue(assertion)
 }
 
-func AssertDriverJourneysTimeDelta(
-	a AssertionAccumulator,
-	request *http.Request,
-	response *http.Response,
-) {
+func AssertDriverJourneysTimeDelta(a AssertionAccumulator, request *http.Request, response *http.Response) {
 	assertion := assertDriverJourneysTimeDelta{request, response}
+	a.Queue(assertion)
+}
+
+func AssertDriverJourneysCount(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := assertDriverJourneysCount{request, response}
 	a.Queue(assertion)
 }
 
@@ -419,4 +420,8 @@ func (a assertDriverJourneysCount) Execute() error {
 		}
 	}
 	return nil
+}
+
+func (a assertDriverJourneysCount) Describe() string {
+	return "assert count"
 }

@@ -142,6 +142,20 @@ func TestDriverJourneys(t *testing.T) {
 			makeNDriverJourneys(1),
 			false,
 		},
+
+		{
+			"Count 2",
+			makeParamsWithCount(0),
+			makeNDriverJourneys(1),
+			true,
+		},
+
+		{
+			"Count 3",
+			makeParamsWithCount(2),
+			makeNDriverJourneys(4),
+			true,
+		},
 	}
 
 	for _, tc := range testCases {
