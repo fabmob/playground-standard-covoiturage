@@ -1,6 +1,6 @@
 [
 	{
-    "id": "0",
+    "id": "aui",
 		"driver": {
 			"alias": "bob",
         "id":    "1"
@@ -14,7 +14,7 @@
 		"type": "DYNAMIC"
 	},
 	{
-    "id": "0",
+    "id": "pio",
 		"driver": {
 			"alias": "bob",
         "id":    "1"

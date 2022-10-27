@@ -31,25 +31,13 @@ func makeDriverJourneyAtDate(date int64) api.DriverJourney {
 }
 
 func makeParamsWithDepartureRadius(departureCoord util.Coord, departureRadius float32) *api.GetDriverJourneysParams {
-	params := api.NewGetDriverJourneysParams(
-		float32(departureCoord.Lat),
-		float32(departureCoord.Lon),
-		0,
-		0,
-		0,
-	)
+	params := api.NewGetDriverJourneysParams(departureCoord, util.CoordIgnore, 0)
 	params.DepartureRadius = &departureRadius
 	return params
 }
 
 func makeParamsWithArrivalRadius(arrivalCoord util.Coord, arrivalRadius float32) *api.GetDriverJourneysParams {
-	params := api.NewGetDriverJourneysParams(
-		0,
-		0,
-		float32(arrivalCoord.Lat),
-		float32(arrivalCoord.Lon),
-		0,
-	)
+	params := api.NewGetDriverJourneysParams(util.CoordIgnore, arrivalCoord, 0)
 	params.ArrivalRadius = &arrivalRadius
 	return params
 }

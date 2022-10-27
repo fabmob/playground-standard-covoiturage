@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+
+	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
 // ParseGetDriverJourneysOKResponse extracts and parses the data when the
@@ -24,21 +26,15 @@ func ParseGetDriverJourneysOKResponse(response *http.Response) ([]DriverJourney,
 }
 
 func NewGetDriverJourneysParams(
-	departureLat, departureLng, arrivalLat, arrivalLng float32,
+	departure, arrival util.Coord,
 	departureDate int,
 ) *GetDriverJourneysParams {
-	defaultTimeDelta := 900
-	defaultDepartureRadius := float32(1.)
-	defaultArrivalRadius := float32(1.)
 	return &GetDriverJourneysParams{
-		DepartureLat:    departureLat,
-		DepartureLng:    departureLng,
-		ArrivalLat:      arrivalLat,
-		ArrivalLng:      arrivalLng,
-		DepartureDate:   departureDate,
-		TimeDelta:       &defaultTimeDelta,
-		DepartureRadius: &defaultDepartureRadius,
-		ArrivalRadius:   &defaultArrivalRadius,
+		DepartureLat:  float32(departure.Lat),
+		DepartureLng:  float32(departure.Lon),
+		ArrivalLat:    float32(arrival.Lat),
+		ArrivalLng:    float32(arrival.Lon),
+		DepartureDate: departureDate,
 	}
 }
 

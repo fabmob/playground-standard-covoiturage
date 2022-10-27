@@ -117,4 +117,5 @@ func testGetDriverJourneys(
 	AssertDriverJourneysTimeDelta(a, request, response)
 	AssertDriverJourneysCount(a, request, response)
 	AssertUniqueIDs(a, response)
+	AssertOperatorFieldFormat(a, response)
 }

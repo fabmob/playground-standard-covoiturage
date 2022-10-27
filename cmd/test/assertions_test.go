@@ -539,3 +539,31 @@ func TestAssertUniqueIDs(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateOperator(t *testing.T) {
+	testCases := []struct {
+		operator string
+		valid    bool
+	}{
+		{"operator.com", true},
+		{"operator.fr", true},
+		{"carpooling.com", true},
+		{"subdomain.operator.com", true},
+		{"subdomain.subdomain.operator.co.uk", true},
+		{"random", false},
+		{"https://operator.com", false},
+		{"operator.com/", false},
+		{"operator.com/path", false},
+		{"/some/path", false},
+	}
+
+	for _, tc := range testCases {
+		if err := validateOperator(tc.operator); (tc.valid && err != nil) ||
+			(!tc.valid && err == nil) {
+
+			t.Logf("Operator: %s, Expected to be valid: %t", tc.operator, tc.valid)
+			t.Logf("Error: %s", err)
+			t.Fail()
+		}
+	}
+}

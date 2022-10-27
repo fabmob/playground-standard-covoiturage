@@ -11,6 +11,8 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/api"
 	"gitlab.com/multi/stdcov-api-test/cmd/util"
 	"gitlab.com/multi/stdcov-api-test/cmd/validate"
+
+	tld "github.com/jpillora/go-tld"
 )
 
 // An Assertion is a unit test that can be executed and that can describe
@@ -217,6 +219,11 @@ func AssertDriverJourneysCount(a AssertionAccumulator, request *http.Request, re
 
 func AssertUniqueIDs(a AssertionAccumulator, response *http.Response) {
 	assertion := assertUniqueIDs{response}
+	a.Queue(assertion)
+}
+
+func AssertOperatorFieldFormat(a AssertionAccumulator, response *http.Response) {
+	assertion := assertOperatorFieldFormat{response}
 	a.Queue(assertion)
 }
 
@@ -458,4 +465,38 @@ func (a assertUniqueIDs) Execute() error {
 
 func (a assertUniqueIDs) Describe() string {
 	return "assert unique ids"
+}
+
+/////////////////////////////////////////////////////////////
+
+type assertOperatorFieldFormat struct {
+	response *http.Response
+}
+
+func (a assertOperatorFieldFormat) Execute() error {
+	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
+	if err != nil {
+		return err
+	}
+	for _, dj := range driverJourneys {
+		if err := validateOperator(dj.Operator); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateOperator(operator string) error {
+	uri, err := tld.Parse("https://" + operator)
+	if err != nil {
+		return fmt.Errorf("wrong operator field format: %w", err)
+	}
+	if uri.Path != "" || uri.User != nil || uri.RawQuery != "" {
+		return fmt.Errorf("wrong operator field format")
+	}
+	return nil
+}
+
+func (a assertOperatorFieldFormat) Describe() string {
+	return "assert operator field format"
 }
