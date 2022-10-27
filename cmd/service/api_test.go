@@ -53,7 +53,7 @@ func TestDriverJourneys(t *testing.T) {
 		},
 
 		{
-			"Departure radius 3",
+			"Departure radius 4",
 			makeParamsWithDepartureRadius(coordsRef, 1),
 			[]api.DriverJourney{
 				makeDriverJourney(coords1100m, coordsIgnore),
