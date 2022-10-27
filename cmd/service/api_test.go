@@ -11,8 +11,6 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/test/client"
 )
 
-var defaultTestFlags test.Flags = test.Flags{DisallowEmpty: false}
-
 var fakeServer = "https:localhost:1323"
 
 func TestDriverJourneys(t *testing.T) {
@@ -52,7 +50,12 @@ func TestDriverJourneys(t *testing.T) {
 	for _, tc := range testCases {
 
 		t.Run(tc.name, func(t *testing.T) {
-			testGetDriverJourneyRequestWithData(t, tc.testParams, tc.testData)
+			testGetDriverJourneyRequestWithData(
+				t,
+				tc.testParams,
+				tc.testData,
+				tc.expectEmptyResult,
+			)
 		})
 	}
 }
@@ -61,6 +64,7 @@ func testGetDriverJourneyRequestWithData(
 	t *testing.T,
 	params *client.GetDriverJourneysParams,
 	testData []server.DriverJourney,
+	expectEmpty bool,
 ) {
 
 	testRequest, err := client.NewGetDriverJourneysRequest(fakeServer, params)
@@ -82,8 +86,8 @@ func testGetDriverJourneyRequestWithData(
 	}
 	response := rec.Result()
 	a := test.NewAssertionAccu()
-	test.TestGetDriverJourneysResponse(testRequest, response, a,
-		defaultTestFlags)
+	flags := test.Flags{DisallowEmpty: !expectEmpty}
+	test.TestGetDriverJourneysResponse(testRequest, response, a, flags)
 	assert.Greater(t, len(a.GetAssertionResults()), 0)
 	for _, ar := range a.GetAssertionResults() {
 		if err := ar.Unwrap(); err != nil {
