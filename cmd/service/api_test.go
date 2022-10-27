@@ -53,7 +53,7 @@ func TestDriverJourneys(t *testing.T) {
 		},
 
 		{
-			"Departure radius 4",
+			"Departure radius 3",
 			makeParamsWithDepartureRadius(coordsRef, 1),
 			[]api.DriverJourney{
 				makeDriverJourney(coords1100m, coordsIgnore),
@@ -62,8 +62,8 @@ func TestDriverJourneys(t *testing.T) {
 		},
 
 		{
-			"Arrival radius 3",
-			makeParamsWithArrivalRadius(coordsRef, 1),
+			"Departure radius 3",
+			makeParamsWithDepartureRadius(coordsRef, 1),
 			[]api.DriverJourney{
 				makeDriverJourney(coords900m, coordsIgnore),
 			},
@@ -75,7 +75,7 @@ func TestDriverJourneys(t *testing.T) {
 			makeParamsWithArrivalRadius(coordsRef, 1),
 			[]api.DriverJourney{
 				makeDriverJourney(coordsIgnore, coords900m),
-				makeDriverJourney(coordsIgnore, coords900m),
+				makeDriverJourney(coordsIgnore, coords1100m),
 			},
 			false,
 		},

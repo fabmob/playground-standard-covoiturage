@@ -56,19 +56,36 @@ func (s *StdCovServerImpl) GetDriverJourneys(
 ) error {
 	response := []api.DriverJourney{}
 	for _, dj := range s.mockDB.driverJourneys {
-		coordsRequest := util.Coord{
-			Lat: float64(params.DepartureLat),
-			Lon: float64(params.DepartureLng),
-		}
-		coordsResponse := util.Coord{
-			Lat: dj.PassengerPickupLat,
-			Lon: dj.PassengerPickupLng,
-		}
-		if util.Distance(coordsRequest, coordsResponse) <= params.GetDepartureRadius() {
+		if keepDriverJourney(params, dj) {
 			response = append(response, dj)
 		}
 	}
 	return ctx.JSON(http.StatusOK, response)
+}
+
+func keepDriverJourney(params api.GetDriverJourneysParams, dj api.DriverJourney) bool {
+	coordsRequestDeparture := util.Coord{
+		Lat: float64(params.DepartureLat),
+		Lon: float64(params.DepartureLng),
+	}
+	coordsResponseDeparture := util.Coord{
+		Lat: dj.PassengerPickupLat,
+		Lon: dj.PassengerPickupLng,
+	}
+	departureRadiusOK := util.Distance(coordsRequestDeparture, coordsResponseDeparture) <=
+		params.GetDepartureRadius()
+	coordsRequestArrival := util.Coord{
+		Lat: float64(params.ArrivalLat),
+		Lon: float64(params.ArrivalLng),
+	}
+	coordsResponseArrival := util.Coord{
+		Lat: dj.PassengerDropLat,
+		Lon: dj.PassengerDropLng,
+	}
+	arrivalRadiusOK := util.Distance(coordsRequestArrival, coordsResponseArrival) <=
+		params.GetArrivalRadius()
+	return departureRadiusOK && arrivalRadiusOK
+
 }
 
 // GetDriverRegularTrips searches for matching regular driver trip.

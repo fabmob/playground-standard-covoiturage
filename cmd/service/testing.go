@@ -29,10 +29,10 @@ func makeParamsWithDepartureRadius(departureCoord util.Coord, departureRadius fl
 
 func makeParamsWithArrivalRadius(arrivalCoord util.Coord, arrivalRadius float32) *api.GetDriverJourneysParams {
 	params := api.NewGetDriverJourneysParams(
+		0,
+		0,
 		float32(arrivalCoord.Lat),
 		float32(arrivalCoord.Lon),
-		0,
-		0,
 		0,
 	)
 	params.ArrivalRadius = &arrivalRadius
