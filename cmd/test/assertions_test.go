@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"gitlab.com/multi/stdcov-api-test/cmd/api"
+	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
 func TestAssertionResult_String(t *testing.T) {
@@ -345,16 +346,16 @@ func singleAssertionError(
 
 func TestAssertRadius(t *testing.T) {
 	var (
-		coordsRef   = coords{46.1604531, -1.2219607} // reference
-		coords900m  = coords{46.1613442, -1.2103736} // at ~900m from reference
-		coords1100m = coords{46.1613679, -1.2086563} // at ~1100m from reference
+		coordsRef   = util.Coord{46.1604531, -1.2219607} // reference
+		coords900m  = util.Coord{46.1613442, -1.2103736} // at ~900m from reference
+		coords1100m = util.Coord{46.1613679, -1.2086563} // at ~1100m from reference
 	)
 
 	testCases := []struct {
 		name               string
 		departureOrArrival departureOrArrival
-		coordsRequest      coords
-		coordsResponse     []coords
+		coordsRequest      util.Coord
+		coordsResponse     []util.Coord
 		radius             float32
 		expectError        bool
 	}{
@@ -362,7 +363,7 @@ func TestAssertRadius(t *testing.T) {
 			name:               "no response",
 			departureOrArrival: departure,
 			coordsRequest:      coordsRef,
-			coordsResponse:     []coords{},
+			coordsResponse:     []util.Coord{},
 			radius:             1,
 			expectError:        false,
 		},
@@ -370,7 +371,7 @@ func TestAssertRadius(t *testing.T) {
 			name:               "1 inside radius 1km",
 			departureOrArrival: departure,
 			coordsRequest:      coordsRef,
-			coordsResponse:     []coords{coords900m},
+			coordsResponse:     []util.Coord{coords900m},
 			radius:             1,
 			expectError:        false,
 		},
@@ -378,7 +379,7 @@ func TestAssertRadius(t *testing.T) {
 			name:               "1 inside, 1 outside radius 1km",
 			departureOrArrival: departure,
 			coordsRequest:      coordsRef,
-			coordsResponse:     []coords{coords900m, coords1100m},
+			coordsResponse:     []util.Coord{coords900m, coords1100m},
 			radius:             1,
 			expectError:        true,
 		},
@@ -386,7 +387,7 @@ func TestAssertRadius(t *testing.T) {
 			name:               "2 inside, radius 1,2km",
 			departureOrArrival: departure,
 			coordsRequest:      coordsRef,
-			coordsResponse:     []coords{coords900m, coords1100m},
+			coordsResponse:     []util.Coord{coords900m, coords1100m},
 			radius:             1.2,
 			expectError:        false,
 		},
@@ -394,7 +395,7 @@ func TestAssertRadius(t *testing.T) {
 			name:               "1 inside, other reference, radius 0.5km",
 			departureOrArrival: departure,
 			coordsRequest:      coords900m,
-			coordsResponse:     []coords{coords1100m},
+			coordsResponse:     []util.Coord{coords1100m},
 			radius:             0.5,
 			expectError:        false,
 		},
@@ -402,7 +403,7 @@ func TestAssertRadius(t *testing.T) {
 			name:               "no response",
 			departureOrArrival: arrival,
 			coordsRequest:      coordsRef,
-			coordsResponse:     []coords{},
+			coordsResponse:     []util.Coord{},
 			radius:             1,
 			expectError:        false,
 		},
@@ -410,7 +411,7 @@ func TestAssertRadius(t *testing.T) {
 			name:               "1 inside radius 1km",
 			departureOrArrival: arrival,
 			coordsRequest:      coordsRef,
-			coordsResponse:     []coords{coords900m},
+			coordsResponse:     []util.Coord{coords900m},
 			radius:             1,
 			expectError:        false,
 		},
@@ -418,7 +419,7 @@ func TestAssertRadius(t *testing.T) {
 			name:               "1 inside, 1 outside radius 1km",
 			departureOrArrival: arrival,
 			coordsRequest:      coordsRef,
-			coordsResponse:     []coords{coords900m, coords1100m},
+			coordsResponse:     []util.Coord{coords900m, coords1100m},
 			radius:             1,
 			expectError:        true,
 		},
@@ -426,7 +427,7 @@ func TestAssertRadius(t *testing.T) {
 			name:               "2 inside, radius 1,2km",
 			departureOrArrival: arrival,
 			coordsRequest:      coordsRef,
-			coordsResponse:     []coords{coords900m, coords1100m},
+			coordsResponse:     []util.Coord{coords900m, coords1100m},
 			radius:             1.2,
 			expectError:        false,
 		},
@@ -434,7 +435,7 @@ func TestAssertRadius(t *testing.T) {
 			name:               "1 inside, other reference, radius 0.5km",
 			departureOrArrival: arrival,
 			coordsRequest:      coords900m,
-			coordsResponse:     []coords{coords1100m},
+			coordsResponse:     []util.Coord{coords1100m},
 			radius:             0.5,
 			expectError:        false,
 		},
@@ -447,14 +448,14 @@ func TestAssertRadius(t *testing.T) {
 			if tc.departureOrArrival == departure {
 				params = api.GetDriverJourneysParams{
 					DepartureRadius: &tc.radius,
-					DepartureLat:    float32(tc.coordsRequest.lat),
-					DepartureLng:    float32(tc.coordsRequest.lon),
+					DepartureLat:    float32(tc.coordsRequest.Lat),
+					DepartureLng:    float32(tc.coordsRequest.Lon),
 				}
 			} else {
 				params = api.GetDriverJourneysParams{
 					ArrivalRadius: &tc.radius,
-					ArrivalLat:    float32(tc.coordsRequest.lat),
-					ArrivalLng:    float32(tc.coordsRequest.lon),
+					ArrivalLat:    float32(tc.coordsRequest.Lat),
+					ArrivalLng:    float32(tc.coordsRequest.Lon),
 				}
 			}
 			request, err := api.NewGetDriverJourneysRequest("localhost:1323", &params)
@@ -464,9 +465,9 @@ func TestAssertRadius(t *testing.T) {
 			for _, c := range tc.coordsResponse {
 				var dj api.DriverJourney
 				if tc.departureOrArrival == departure {
-					dj = api.DriverJourney{PassengerPickupLat: c.lat, PassengerPickupLng: c.lon}
+					dj = api.DriverJourney{PassengerPickupLat: c.Lat, PassengerPickupLng: c.Lon}
 				} else {
-					dj = api.DriverJourney{PassengerDropLat: c.lat, PassengerDropLng: c.lon}
+					dj = api.DriverJourney{PassengerDropLat: c.Lat, PassengerDropLng: c.Lon}
 				}
 				responseObj = append(responseObj, dj)
 			}

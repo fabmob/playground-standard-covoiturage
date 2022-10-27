@@ -8,6 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 	"gitlab.com/multi/stdcov-api-test/cmd/api"
+	"gitlab.com/multi/stdcov-api-test/cmd/util"
 	"gitlab.com/multi/stdcov-api-test/cmd/validate"
 )
 
@@ -304,7 +305,7 @@ func (a assertDriverJourneysRadius) Execute() error {
 	if err != nil {
 		return failedParsing("request", err)
 	}
-	coordsQuery := getQueryCoords(a.departureOrArrival, queryParams)
+	coordsQuery := getQueryCoord(a.departureOrArrival, queryParams)
 	// As different distance computations may give different distances, we apply
 	// a safety margin
 	radius := getQueryRadiusOrDefault(a.departureOrArrival, queryParams)
@@ -318,11 +319,11 @@ func (a assertDriverJourneysRadius) Execute() error {
 	}
 
 	for _, dj := range driverJourneys {
-		coordsResponse, err := getResponseCoords(a.departureOrArrival, dj)
+		coordsResponse, err := getResponseCoord(a.departureOrArrival, dj)
 		if err != nil {
 			return err
 		}
-		dist := distanceKm(coordsResponse, coordsQuery)
+		dist := util.Distance(coordsResponse, coordsQuery)
 		if dist > radiusWithMargin {
 			return fmt.Errorf("a driver journey does not comply to maximum '%s' distance to query departure parameters", a.departureOrArrival)
 		}
@@ -353,4 +354,20 @@ func (a assertDriverJourneysNotEmpty) Execute() error {
 
 func (a assertDriverJourneysNotEmpty) Describe() string {
 	return "assert response not empty"
+}
+
+/////////////////////////////////////////////////////////////
+
+type assertDriverJourneysTimeDelta struct {
+	request  *http.Request
+	response *http.Response
+}
+
+func (a assertDriverJourneysTimeDelta) Execute() error {
+	return nil
+}
+
+func (a assertDriverJourneysTimeDelta) Describe() string {
+
+	return "assert timeDelta"
 }

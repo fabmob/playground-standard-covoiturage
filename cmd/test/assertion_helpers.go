@@ -5,46 +5,34 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/umahmood/haversine"
 	"gitlab.com/multi/stdcov-api-test/cmd/api"
+	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
-type coords struct {
-	lat float64
-	lon float64
-}
-
-func distanceKm(coords1, coords2 coords) float64 {
-	c1 := haversine.Coord{Lat: coords1.lat, Lon: coords1.lon}
-	c2 := haversine.Coord{Lat: coords2.lat, Lon: coords2.lon}
-	_, dist := haversine.Distance(c1, c2)
-	return dist
-}
-
-// getQueryCoords extracts departure or arrival coordinates from
+// getQueryCoord extracts departure or arrival coordinates from
 // queryParameters
-func getQueryCoords(departureOrArrival departureOrArrival, queryParams *api.GetDriverJourneysParams) coords {
-	var coordsQuery coords
+func getQueryCoord(departureOrArrival departureOrArrival, queryParams *api.GetDriverJourneysParams) util.Coord {
+	var coordQuery util.Coord
 	switch departureOrArrival {
 	case departure:
-		coordsQuery = coords{float64(queryParams.DepartureLat), float64(queryParams.DepartureLng)}
+		coordQuery = util.Coord{Lat: float64(queryParams.DepartureLat), Lon: float64(queryParams.DepartureLng)}
 	case arrival:
-		coordsQuery = coords{float64(queryParams.ArrivalLat), float64(queryParams.ArrivalLng)}
+		coordQuery = util.Coord{Lat: float64(queryParams.ArrivalLat), Lon: float64(queryParams.ArrivalLng)}
 	}
-	return coordsQuery
+	return coordQuery
 }
 
-// getResponseCoords extracts departure or arrival coordinates from
+// getResponseCoord extracts departure or arrival coordinates from
 // driverJourney object. Fails if required coordinates are missing.
-func getResponseCoords(departureOrArrival departureOrArrival, driverJourney api.DriverJourney) (coords, error) {
-	var coordsResponse coords
+func getResponseCoord(departureOrArrival departureOrArrival, driverJourney api.DriverJourney) (util.Coord, error) {
+	var coordResponse util.Coord
 	switch departureOrArrival {
 	case departure:
-		coordsResponse = coords{driverJourney.PassengerPickupLat, driverJourney.PassengerPickupLng}
+		coordResponse = util.Coord{Lat: driverJourney.PassengerPickupLat, Lon: driverJourney.PassengerPickupLng}
 	case arrival:
-		coordsResponse = coords{driverJourney.PassengerDropLat, driverJourney.PassengerDropLng}
+		coordResponse = util.Coord{Lat: driverJourney.PassengerDropLat, Lon: driverJourney.PassengerDropLng}
 	}
-	return coordsResponse, nil
+	return coordResponse, nil
 }
 
 // getQueryRadiusOrDefault returns departureRadius er arrivalRadius query parameter
