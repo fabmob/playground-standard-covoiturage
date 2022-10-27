@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/multi/stdcov-api-test/cmd/api"
 	"gitlab.com/multi/stdcov-api-test/cmd/test"
+	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
 var fakeServer = "https:localhost:1323"
@@ -15,9 +16,9 @@ var fakeServer = "https:localhost:1323"
 func TestDriverJourneys(t *testing.T) {
 
 	var (
-		coordsRef   = coords{46.1604531, -1.2219607} // reference
-		coords900m  = coords{46.1613442, -1.2103736} // at ~900m from reference
-		coords1100m = coords{46.1613679, -1.2086563} // at ~1100m from reference
+		coordsRef   = util.Coord{46.1604531, -1.2219607} // reference
+		coords900m  = util.Coord{46.1613442, -1.2103736} // at ~900m from reference
+		coords1100m = util.Coord{46.1613679, -1.2086563} // at ~1100m from reference
 	)
 
 	testCases := []struct {
@@ -33,13 +34,13 @@ func TestDriverJourneys(t *testing.T) {
 			paramsWithDepartureRadius(coordsRef, 1),
 			[]api.DriverJourney{
 				{
-					PassengerPickupLat: coords900m.lat,
-					PassengerPickupLng: coords900m.lon,
+					PassengerPickupLat: coords900m.Lat,
+					PassengerPickupLng: coords900m.Lon,
 					Type:               "DYNAMIC",
 				},
 				{
-					PassengerPickupLat: coords1100m.lat,
-					PassengerPickupLng: coords1100m.lon,
+					PassengerPickupLat: coords1100m.Lat,
+					PassengerPickupLng: coords1100m.Lon,
 					Type:               "DYNAMIC",
 				},
 			},
@@ -102,15 +103,10 @@ func panicIf(err error) {
 	}
 }
 
-type coords struct {
-	lat float64
-	lon float64
-}
-
-func paramsWithDepartureRadius(departureCoords coords, departureRadius float32) *api.GetDriverJourneysParams {
+func paramsWithDepartureRadius(departureCoords util.Coord, departureRadius float32) *api.GetDriverJourneysParams {
 	params := api.NewGetDriverJourneysParams(
-		float32(departureCoords.lat),
-		float32(departureCoords.lon),
+		float32(departureCoords.Lat),
+		float32(departureCoords.Lon),
 		0,
 		0,
 		0,

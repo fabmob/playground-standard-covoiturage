@@ -48,11 +48,6 @@ func (*StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.BookingId
 	return nil
 }
 
-var (
-	defaultGetDriverJourneysDepartureRadius float32 = 1.
-	defaultGetDriverJourneysArrivalRadius   float32 = 1.
-)
-
 // GetDriverJourneys searches for matching punctual planned outward driver journeys.
 // (GET /driver_journeys)
 func (s *StdCovServerImpl) GetDriverJourneys(
