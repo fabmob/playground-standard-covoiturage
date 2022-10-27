@@ -51,6 +51,24 @@ func TestDriverJourneys(t *testing.T) {
 			},
 			false,
 		},
+
+		{
+			"Departure radius 3",
+			makeParamsWithDepartureRadius(coordsRef, 1),
+			[]api.DriverJourney{
+				makeDriverJourney(coords1100m, coordsIgnore),
+			},
+			true,
+		},
+
+		{
+			"Departure radius 3",
+			makeParamsWithDepartureRadius(coordsRef, 1),
+			[]api.DriverJourney{
+				makeDriverJourney(coords900m, coordsIgnore),
+			},
+			false,
+		},
 	}
 
 	for _, tc := range testCases {
