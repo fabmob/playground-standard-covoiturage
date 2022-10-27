@@ -17,31 +17,23 @@ var fakeServer = "https:localhost:1323"
 
 func TestDriverJourneys(t *testing.T) {
 
-	type coords struct {
-		lat float64
-		lon float64
-	}
 	var (
-		coordsRef               = coords{46.1604531, -1.2219607} // reference
-		coords900m              = coords{46.1613442, -1.2103736} // at ~900m from reference
-		coords1100m             = coords{46.1613679, -1.2086563} // at ~1100m from reference
-		departureRadius float32 = 1.
+		coordsRef   = coords{46.1604531, -1.2219607} // reference
+		coords900m  = coords{46.1613442, -1.2103736} // at ~900m from reference
+		coords1100m = coords{46.1613679, -1.2086563} // at ~1100m from reference
 	)
 
 	testCases := []struct {
-		name       string
-		testParams *client.GetDriverJourneysParams
-		testData   []server.DriverJourney
+		name              string
+		testParams        *client.GetDriverJourneysParams
+		testData          []server.DriverJourney
+		expectEmptyResult bool
 	}{
 
-		{"No data", &client.GetDriverJourneysParams{}, []server.DriverJourney{}},
+		{"No data", &client.GetDriverJourneysParams{}, []server.DriverJourney{}, true},
 		{
 			"Departure radius",
-			&client.GetDriverJourneysParams{
-				DepartureRadius: &departureRadius,
-				DepartureLat:    float32(coordsRef.lat),
-				DepartureLng:    float32(coordsRef.lon),
-			},
+			paramsWithDepartureRadius(coordsRef, 1),
 			[]server.DriverJourney{
 				{
 					PassengerPickupLat: coords900m.lat,
@@ -54,6 +46,7 @@ func TestDriverJourneys(t *testing.T) {
 					Type:               "DYNAMIC",
 				},
 			},
+			false,
 		},
 	}
 	for _, tc := range testCases {
@@ -104,4 +97,21 @@ func panicIf(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+type coords struct {
+	lat float64
+	lon float64
+}
+
+func paramsWithDepartureRadius(departureCoords coords, departureRadius float32) *client.GetDriverJourneysParams {
+	params := client.NewGetDriverJourneysParams(
+		float32(departureCoords.lat),
+		float32(departureCoords.lon),
+		0,
+		0,
+		0,
+	)
+	params.DepartureRadius = &departureRadius
+	return params
 }
