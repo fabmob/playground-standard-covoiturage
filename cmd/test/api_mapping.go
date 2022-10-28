@@ -7,6 +7,14 @@ import (
 	"strings"
 )
 
+var APIMapping = map[Endpoint]ResponseTestFun{}
+
+// Register associates a test function to a given function. If any
+// TestFunction is already associated, it overwrites it.
+func Register(f ResponseTestFun, e Endpoint) {
+	APIMapping[e] = f
+}
+
 // Endpoint describes an Endpoint
 type Endpoint struct {
 	Method string
@@ -25,14 +33,9 @@ var (
 	GetDriverJourneyEndpoint = Endpoint{http.MethodGet, "/driver_journeys"}
 )
 
-var apiMapping = map[Endpoint]ResponseTestFun{
-	GetStatusEndpoint:        TestGetStatusResponse,
-	GetDriverJourneyEndpoint: TestGetDriverJourneysResponse,
-}
-
 // SelectTestFuns returns the test functions related to a given request.
 func SelectTestFuns(endpoint Endpoint) (ResponseTestFun, error) {
-	testFun, ok := apiMapping[endpoint]
+	testFun, ok := APIMapping[endpoint]
 	if !ok {
 		return nil, fmt.Errorf("request to an unknown endpoint: %s", endpoint)
 	}
