@@ -15,7 +15,7 @@ func TestRequest(client APIClient, request *http.Request, flags Flags) (*Report,
 	if err != nil {
 		return nil, err
 	}
-	selectedTestFuns, err := SelectTestFuns(request, endpoint)
+	selectedTestFuns, err := SelectTestFuns(endpoint)
 	if err != nil {
 		return nil, err
 	}

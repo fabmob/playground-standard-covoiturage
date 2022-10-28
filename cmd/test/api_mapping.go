@@ -30,12 +30,10 @@ var apiMapping = map[Endpoint][]RequestTestFun{
 }
 
 // SelectTestFuns returns the test functions related to a given request.
-func SelectTestFuns(request *http.Request, endpoint Endpoint) ([]RequestTestFun, error) {
+func SelectTestFuns(endpoint Endpoint) ([]RequestTestFun, error) {
 	testFuns, ok := apiMapping[endpoint]
 	if !ok {
-		return nil, fmt.Errorf("request to an unknown endpoint. Method: %s, path: %s",
-			request.Method,
-			request.URL.Path)
+		return nil, fmt.Errorf("request to an unknown endpoint: %s", endpoint)
 	}
 	return testFuns, nil
 }
