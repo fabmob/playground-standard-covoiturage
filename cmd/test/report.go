@@ -9,6 +9,7 @@ type Report struct {
 	assertionResults []AssertionResult
 }
 
+// NewReport creates a new report with given assertion results
 func NewReport(assertionResults ...AssertionResult) Report {
 	return Report{assertionResults: assertionResults}
 }

@@ -9,8 +9,8 @@ import (
 // APIClient is a client to the API standard covoiturage
 type APIClient = *api.Client
 
-// TestRequest tests a request
-func TestRequest(client APIClient, request *http.Request, flags Flags) (*Report, error) {
+// Request tests a request
+func Request(client APIClient, request *http.Request, flags Flags) (*Report, error) {
 	endpoint, err := ExtractEndpoint(request, client.Server)
 	if err != nil {
 		return nil, err
