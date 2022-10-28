@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"net/http"
 
 	"gitlab.com/multi/stdcov-api-test/cmd/api"
@@ -72,6 +73,20 @@ var (
 	// TestGetDriverJourneysResponse tests response of GET /driver_journeys
 	TestGetDriverJourneysResponse = wrapAssertionsFun(testGetDriverJourneys)
 )
+
+var (
+	// GetStatusEndpoint is the Endpoint of GET /status
+	GetStatusEndpoint = Endpoint{http.MethodGet, "/status"}
+	// GetDriverJourneyEndpoint is the Endpoint of GET /driver_journeys
+	GetDriverJourneyEndpoint = Endpoint{http.MethodGet, "/driver_journeys"}
+)
+
+func registerAllTests() {
+	fmt.Println(APIMapping)
+	Register(TestGetDriverJourneysResponse, GetDriverJourneyEndpoint)
+	Register(TestGetStatusResponse, GetStatusEndpoint)
+	fmt.Println(APIMapping)
+}
 
 func wrapAssertionsFun(f assertionFun) ResponseTestFun {
 	return func(req *http.Request, resp *http.Response, flags Flags) []AssertionResult {

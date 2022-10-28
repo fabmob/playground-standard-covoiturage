@@ -26,13 +26,6 @@ func (e Endpoint) String() string {
 	return e.Method + " " + e.Path
 }
 
-var (
-	// GetStatusEndpoint is the Endpoint of GET /status
-	GetStatusEndpoint = Endpoint{http.MethodGet, "/status"}
-	// GetDriverJourneyEndpoint is the Endpoint of GET /driver_journeys
-	GetDriverJourneyEndpoint = Endpoint{http.MethodGet, "/driver_journeys"}
-)
-
 // SelectTestFuns returns the test functions related to a given request.
 func SelectTestFuns(endpoint Endpoint) (ResponseTestFun, error) {
 	testFun, ok := APIMapping[endpoint]

@@ -27,6 +27,7 @@ func Run(server, URL string, verbose bool, query Query) int {
 	flags := Flags{
 		DisallowEmpty: false,
 	}
+	registerAllTests()
 	report, err := Request(c, req, flags)
 	if err != nil {
 		fmt.Println(err)
