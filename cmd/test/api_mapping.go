@@ -30,31 +30,27 @@ var apiMapping = map[Endpoint][]RequestTestFun{
 }
 
 // SelectTestFuns returns the test functions related to a given request.
-func SelectTestFuns(request *http.Request, server string) (Endpoint, []RequestTestFun, error) {
-	endpoint, err := ExtractEndpoint(request, server)
-	if err != nil {
-		return Endpoint{}, nil, err
-	}
-	testFuns, ok := apiMapping[*endpoint]
+func SelectTestFuns(request *http.Request, endpoint Endpoint) ([]RequestTestFun, error) {
+	testFuns, ok := apiMapping[endpoint]
 	if !ok {
-		return Endpoint{}, nil, fmt.Errorf("request to an unknown endpoint. Method: %s, path: %s",
+		return nil, fmt.Errorf("request to an unknown endpoint. Method: %s, path: %s",
 			request.Method,
 			request.URL.Path)
 	}
-	return *endpoint, testFuns, nil
+	return testFuns, nil
 }
 
 // ExtractEndpoint extracts the endpoint from a request, given server
 // information
-func ExtractEndpoint(request *http.Request, server string) (*Endpoint, error) {
+func ExtractEndpoint(request *http.Request, server string) (Endpoint, error) {
 	serverURL, err := url.Parse(server)
 	if err != nil {
-		return nil, err
+		return Endpoint{}, err
 	}
 	method := request.Method
 	path := strings.TrimPrefix(request.URL.Path, serverURL.Path)
 	if !strings.HasPrefix(path, "/") {
 		path = "/" + path
 	}
-	return &Endpoint{method, path}, nil
+	return Endpoint{method, path}, nil
 }
