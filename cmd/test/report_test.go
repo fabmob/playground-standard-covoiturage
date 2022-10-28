@@ -2,8 +2,59 @@ package test
 
 import (
 	"errors"
+	"net/http"
+	"strings"
 	"testing"
 )
+
+func TestReport(t *testing.T) {
+	endpoint := Endpoint{http.MethodGet, "/endpoint_path"}
+	assertStr := "test assertion"
+	errorDescription := "Error description"
+
+	makeReport := func(err error, verbose bool) Report {
+		report := NewReport(NewAssertionResult(err, assertStr))
+		report.endpoint = endpoint
+		report.verbose = verbose
+		return report
+	}
+	shouldContain := func(t *testing.T, r Report, str string) {
+		t.Helper()
+		if !strings.Contains(r.String(), str) {
+			t.Logf("Assertion string : %s", r.String())
+			t.Error("Assertion string does not contain " + str)
+		}
+	}
+
+	testCases := []struct {
+		name    string
+		err     error
+		verbose bool
+	}{
+		{
+			"Assertion without error",
+			nil,
+			true,
+		},
+		{
+			"Assertion with error",
+			errors.New(errorDescription),
+			true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run("Assertion with error", func(t *testing.T) {
+			r := makeReport(tc.err, tc.verbose)
+			shouldContain(t, r, endpoint.Method)
+			shouldContain(t, r, endpoint.Path)
+			shouldContain(t, r, assertStr)
+			if tc.err != nil {
+				shouldContain(t, r, errorDescription)
+			}
+		})
+	}
+}
 
 func TestReportSingle(t *testing.T) {
 	testCases := []struct {
@@ -40,10 +91,13 @@ func TestReportSingle(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			ar := NewAssertionResult(tc.err, "", "", "")
-			if shouldReport(ar, tc.verbose) != tc.shouldReport {
+			ar := NewAssertionResult(tc.err, "")
+			report := NewReport(ar)
+			report.verbose = tc.verbose
+			if (report.String() != "") != tc.shouldReport {
 				t.Logf("verbose: %t", tc.verbose)
 				t.Logf("hasError: %t", tc.err == nil)
+				t.Logf("report: %s", report.String())
 				t.Error("Report single has wrong behavior")
 			}
 		})
@@ -65,9 +119,9 @@ func TestReportCountErrors(t *testing.T) {
 	for _, tc := range testCases {
 		assertionResults := []AssertionResult{}
 		for _, err := range tc.allAssertionErr {
-			assertionResults = append(assertionResults, NewAssertionResult(err, "", "", ""))
+			assertionResults = append(assertionResults, NewAssertionResult(err, ""))
 		}
-		report := Report{false, assertionResults}
+		report := NewReport(assertionResults...)
 
 		if report.countErrors() != tc.expectedNErr {
 			t.Error("Wrong number of errors")

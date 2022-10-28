@@ -2,21 +2,21 @@ package test
 
 import "fmt"
 
-func printError(msg string) {
-	printWithSymbol("ERROR ❌", msg)
+func stringError(msg string) string {
+	return stringWithSymbol("ERROR ❌", msg)
 }
 
-func printOK(msg string) {
-	printWithSymbol("OK ✅", msg)
+func stringOK(msg string) string {
+	return stringWithSymbol("OK ✅", msg)
 }
 
-func printDetail(msg string) {
-	printWithSymbol("", msg)
+func stringDetail(msg string) string {
+	return stringWithSymbol("", msg)
 }
 
-func printWithSymbol(symbol, msg string) {
-	fmt.Printf(
-		"%7s %s",
+func stringWithSymbol(symbol, msg string) string {
+	return fmt.Sprintf(
+		"%7s %s\n",
 		symbol,
 		msg,
 	)

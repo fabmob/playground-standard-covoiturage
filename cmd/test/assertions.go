@@ -27,18 +27,14 @@ type AssertionResult struct {
 	// Error, if any
 	err error
 
-	// Endpoint under test
-	endpoint Endpoint
-
 	// A string that summarizes the assertion
 	assertionDescription string
 }
 
 // NewAssertionResult initializes an AssertionResult
-func NewAssertionResult(err error, endpointPath, endpointMethod, summary string) AssertionResult {
+func NewAssertionResult(err error, summary string) AssertionResult {
 	return AssertionResult{
 		err,
-		Endpoint{endpointMethod, endpointPath},
 		summary,
 	}
 }
@@ -64,7 +60,7 @@ func (ar AssertionResult) String() string {
 	resStr := fmt.Sprintf(
 		"%7s %-35s  %-35s",
 		symbol,
-		ar.endpoint,
+		"",
 		ar.assertionDescription,
 	)
 	if err != nil {
@@ -129,8 +125,7 @@ func (a *DefaultAssertionAccu) ExecuteAll() {
 
 		a.storedAssertionResults = append(
 			a.storedAssertionResults,
-			NewAssertionResult(err, a.endpoint.Path, a.endpoint.Method,
-				assertion.Describe()),
+			NewAssertionResult(err, assertion.Describe()),
 		)
 		_, critic := assertion.(CriticAssertion)
 		fatal := (critic && err != nil)

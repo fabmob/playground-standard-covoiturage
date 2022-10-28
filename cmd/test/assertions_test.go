@@ -11,50 +11,6 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
-func TestAssertionResult_String(t *testing.T) {
-	endpointPath := "/endpoint_path"
-	endpointMethod := http.MethodGet
-	assertStr := "test assertion"
-	errorDescription := "Error description"
-
-	makeAssertionResult := func(err error) AssertionResult {
-		return NewAssertionResult(err, endpointPath, endpointMethod, assertStr)
-	}
-	shouldContain := func(t *testing.T, a AssertionResult, str string) {
-		t.Helper()
-		if !strings.Contains(a.String(), str) {
-			t.Logf("Assertion string : %s", a.String())
-			t.Error("Assertion string does not contain " + str)
-		}
-	}
-
-	testCases := []struct {
-		name string
-		err  error
-	}{
-		{
-			"Assertion without error",
-			nil,
-		},
-		{
-			"Assertion with error",
-			errors.New(errorDescription),
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run("Assertion with error", func(t *testing.T) {
-			a := makeAssertionResult(tc.err)
-			shouldContain(t, a, endpointMethod)
-			shouldContain(t, a, endpointPath)
-			shouldContain(t, a, assertStr)
-			if tc.err != nil {
-				shouldContain(t, a, errorDescription)
-			}
-		})
-	}
-}
-
 func TestExpectStatusCode(t *testing.T) {
 	testCases := []struct {
 		response         *http.Response

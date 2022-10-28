@@ -27,7 +27,7 @@ func Run(server, URL string, verbose bool, query Query) int {
 	flags := Flags{
 		DisallowEmpty: false,
 	}
-	report, err := ExecuteTestSuite(c, req, flags)
+	report, err := TestRequest(c, req, flags)
 	if err != nil {
 		fmt.Println(err)
 		return 1

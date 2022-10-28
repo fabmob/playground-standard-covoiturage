@@ -9,8 +9,8 @@ import (
 // APIClient is a client to the API standard covoiturage
 type APIClient = *api.Client
 
-// ExecuteTestSuite tests a client against all implemented tests
-func ExecuteTestSuite(client APIClient, request *http.Request, flags Flags) (*Report, error) {
+// TestRequest tests a request
+func TestRequest(client APIClient, request *http.Request, flags Flags) (*Report, error) {
 	selectedTestFuns, err := SelectTestFuns(request, client.Server)
 	if err != nil {
 		return nil, err
@@ -28,7 +28,7 @@ func executeTestFuns(
 	for _, testFun := range tests {
 		all = append(all, testFun(client, request, flags)...)
 	}
-	return &Report{allAssertionResults: all}
+	return &Report{assertionResults: all}
 }
 
 /////////////////////////////////////////////////////////////
@@ -38,10 +38,9 @@ func executeTestFuns(
 type RequestTestFun func(APIClient, *http.Request, Flags) []AssertionResult
 
 // wrapTestResponseFun wraps an TestResponseFun to a TestRequestFun
-func wrapTestResponseFun(f ResponseTestFun, endpoint Endpoint) RequestTestFun {
+func wrapTestResponseFun(f ResponseTestFun) RequestTestFun {
 	return func(c APIClient, request *http.Request, flags Flags) []AssertionResult {
 		a := NewAssertionAccu()
-		a.endpoint = endpoint
 		response, clientErr := c.Client.Do(request)
 		if clientErr != nil {
 			a.Queue(assertAPICallSuccess{clientErr})
