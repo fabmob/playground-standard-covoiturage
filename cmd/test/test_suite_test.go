@@ -92,24 +92,6 @@ func cmpRequests(t *testing.T, req1, req2 *http.Request) bool {
 		bodyString[0] == bodyString[1]
 }
 
-/* func TestExecutedTestsGivenRequest(t *testing.T) { */
-/* 	path := "/driver_journeys" */
-/* 	method := http.MethodGet */
-/* 	r, err := http.NewRequest(method, path, strings.NewReader("")) */
-/* 	panicIf(err) */
-
-/* 	m := NewMockClientWithResponse(mockOKStatusResponse()) */
-/* 	report, err := TestRequest(m, r, defaultTestFlags) */
-/* 	panicIf(err) */
-/* 	for _, a := range report.assertionResults { */
-/* 		if a.endpoint.Path != path || a.endpoint.Method != method { */
-/* 			t.Logf("Path expected by request: %s %s", method, path) */
-/* 			t.Logf("Assertion run for: %s %s", a.endpoint.Method, a.endpoint.Path) */
-/* 			t.Error("Unexpected assertion run for given request") */
-/* 		} */
-/* 	} */
-/* } */
-
 func TestNoEmpty(t *testing.T) {
 	a := NewAssertionAccu()
 	testGetDriverJourneys(nil, mockOKStatusResponse(), a, Flags{DisallowEmpty: true})
