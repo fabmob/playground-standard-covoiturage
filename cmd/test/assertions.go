@@ -27,18 +27,14 @@ type AssertionResult struct {
 	// Error, if any
 	err error
 
-	// Endpoint under test
-	endpoint Endpoint
-
 	// A string that summarizes the assertion
 	assertionDescription string
 }
 
 // NewAssertionResult initializes an AssertionResult
-func NewAssertionResult(err error, endpointPath, endpointMethod, summary string) AssertionResult {
+func NewAssertionResult(err error, summary string) AssertionResult {
 	return AssertionResult{
 		err,
-		Endpoint{endpointMethod, endpointPath},
 		summary,
 	}
 }
@@ -46,31 +42,6 @@ func NewAssertionResult(err error, endpointPath, endpointMethod, summary string)
 // Unwrap returns AssertionResult underlying error (possibly nil)
 func (ar AssertionResult) Unwrap() error {
 	return ar.err
-}
-
-// String implements Stringer interface.
-// Formats the AssertionResult nicely in one line (no linebreak).
-func (ar AssertionResult) String() string {
-
-	err := ar.Unwrap()
-
-	var symbol string
-	if err != nil {
-		symbol = "ERROR ❌"
-	} else {
-		symbol = "OK ✅"
-	}
-
-	resStr := fmt.Sprintf(
-		"%7s %-35s  %-35s",
-		symbol,
-		ar.endpoint,
-		ar.assertionDescription,
-	)
-	if err != nil {
-		resStr += fmt.Sprintf("\n%5s %s", "", err)
-	}
-	return resStr
 }
 
 /////////////////////////////////////////////////////////////
@@ -129,8 +100,7 @@ func (a *DefaultAssertionAccu) ExecuteAll() {
 
 		a.storedAssertionResults = append(
 			a.storedAssertionResults,
-			NewAssertionResult(err, a.endpoint.Path, a.endpoint.Method,
-				assertion.Describe()),
+			NewAssertionResult(err, assertion.Describe()),
 		)
 		_, critic := assertion.(CriticAssertion)
 		fatal := (critic && err != nil)

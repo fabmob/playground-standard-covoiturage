@@ -9,46 +9,52 @@ import (
 // APIClient is a client to the API standard covoiturage
 type APIClient = *api.Client
 
-// ExecuteTestSuite tests a client against all implemented tests
-func ExecuteTestSuite(client APIClient, request *http.Request, flags Flags) (*Report, error) {
-	selectedTestFuns, err := SelectTestFuns(request, client.Server)
+// Request tests a request
+func Request(client APIClient, request *http.Request, flags Flags) (*Report, error) {
+	endpoint, err := ExtractEndpoint(request, client.Server)
 	if err != nil {
 		return nil, err
 	}
-	return executeTestFuns(client, request, selectedTestFuns, flags), nil
+	selectedTestFuns, err := SelectTestFuns(endpoint)
+	if err != nil {
+		return nil, err
+	}
+	report := executeTestFuns(client, request, selectedTestFuns, flags)
+	report.endpoint = endpoint
+	return report, nil
 }
 
 func executeTestFuns(
 	client APIClient,
 	request *http.Request,
-	tests []RequestTestFun,
+	tests []ResponseTestFun,
 	flags Flags,
 ) *Report {
 	all := []AssertionResult{}
 	for _, testFun := range tests {
-		all = append(all, testFun(client, request, flags)...)
+		all = append(all, wrapTestResponseFun(testFun)(client, request, flags)...)
 	}
-	return &Report{allAssertionResults: all}
+	report := NewReport(all...)
+	return &report
 }
 
 /////////////////////////////////////////////////////////////
 
-// A RequestTestFun runs all tests associated with a given Request, and return
+// A requestTestFun runs all tests associated with a given Request, and return
 // the correspending `AssertionResult`s
-type RequestTestFun func(APIClient, *http.Request, Flags) []AssertionResult
+type requestTestFun func(APIClient, *http.Request, Flags) []AssertionResult
 
 // wrapTestResponseFun wraps an TestResponseFun to a TestRequestFun
-func wrapTestResponseFun(f ResponseTestFun, endpoint Endpoint) RequestTestFun {
+func wrapTestResponseFun(f ResponseTestFun) requestTestFun {
 	return func(c APIClient, request *http.Request, flags Flags) []AssertionResult {
-		a := NewAssertionAccu()
-		a.endpoint = endpoint
 		response, clientErr := c.Client.Do(request)
 		if clientErr != nil {
+			a := NewAssertionAccu()
 			a.Queue(assertAPICallSuccess{clientErr})
 			a.ExecuteAll()
 			return a.GetAssertionResults()
 		}
-		return f(request, response, a, flags)
+		return f(request, response, flags)
 	}
 }
 
@@ -59,7 +65,6 @@ func wrapTestResponseFun(f ResponseTestFun, endpoint Endpoint) RequestTestFun {
 type ResponseTestFun func(
 	*http.Request,
 	*http.Response,
-	AssertionAccumulator,
 	Flags,
 ) []AssertionResult
 
@@ -71,12 +76,8 @@ var (
 )
 
 func wrapAssertionsFun(f assertionFun) ResponseTestFun {
-	return func(
-		req *http.Request,
-		resp *http.Response,
-		a AssertionAccumulator,
-		flags Flags,
-	) []AssertionResult {
+	return func(req *http.Request, resp *http.Response, flags Flags) []AssertionResult {
+		a := NewAssertionAccu()
 		f(req, resp, a, flags)
 		a.ExecuteAll()
 		return a.GetAssertionResults()

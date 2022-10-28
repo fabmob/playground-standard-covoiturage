@@ -16,7 +16,7 @@ var defaultTestFlags Flags = Flags{DisallowEmpty: false}
 // testErrorOnRequestIsHandled returns an urlError for every API call and checks:
 // - that only one AssertionError is returned
 // - that AssertionError.Unwrap() != nil
-func testErrorOnRequestIsHandled(t *testing.T, f RequestTestFun) {
+func testErrorOnRequestIsHandled(t *testing.T, f requestTestFun) {
 	t.Helper()
 	t.Run("API call throws error", func(t *testing.T) {
 		urlError := &url.Error{Op: "", URL: "", Err: errors.New("error")}
@@ -38,7 +38,7 @@ func testErrorOnRequestIsHandled(t *testing.T, f RequestTestFun) {
 func TestAPIErrors(t *testing.T) {
 	for _, funs := range apiMapping {
 		for _, f := range funs {
-			testErrorOnRequestIsHandled(t, f)
+			testErrorOnRequestIsHandled(t, wrapTestResponseFun(f))
 		}
 	}
 }
@@ -54,11 +54,10 @@ func TestRequests(t *testing.T) {
 			m := NewMockClientWithResponse(mockOKStatusResponse())
 			r, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
 			panicIf(err)
-			testNoAssertions := func(*http.Request, *http.Response,
-				AssertionAccumulator, Flags) []AssertionResult {
+			testNoAssertions := func(*http.Request, *http.Response, Flags) []AssertionResult {
 				return nil
 			}
-			wrapTestResponseFun(testNoAssertions, Endpoint{})(m, r, defaultTestFlags)
+			wrapTestResponseFun(testNoAssertions)(m, r, defaultTestFlags)
 
 			requestsDone := m.Client.(*MockClient).Requests
 			if len(requestsDone) != 1 {
@@ -69,7 +68,6 @@ func TestRequests(t *testing.T) {
 				t.Logf("Request expected: %+v", r)
 				t.Error("MockClient request is expected to be the one passed as argument")
 			}
-
 		})
 	}
 }
@@ -92,24 +90,6 @@ func cmpRequests(t *testing.T, req1, req2 *http.Request) bool {
 		req1.URL.String() == req2.URL.String() &&
 		cmp.Equal(req1.Header, req2.Header) &&
 		bodyString[0] == bodyString[1]
-}
-
-func TestExecutedTestsGivenRequest(t *testing.T) {
-	m := NewMockClientWithResponse(mockOKStatusResponse())
-	path := "/driver_journeys"
-	method := http.MethodGet
-	r, err := http.NewRequest(method, path, strings.NewReader(""))
-	panicIf(err)
-
-	report, err := ExecuteTestSuite(m, r, defaultTestFlags)
-	panicIf(err)
-	for _, a := range report.allAssertionResults {
-		if a.endpoint.Path != path || a.endpoint.Method != method {
-			t.Logf("Path expected by request: %s %s", method, path)
-			t.Logf("Assertion run for: %s %s", a.endpoint.Method, a.endpoint.Path)
-			t.Error("Unexpected assertion run for given request")
-		}
-	}
 }
 
 func TestNoEmpty(t *testing.T) {
