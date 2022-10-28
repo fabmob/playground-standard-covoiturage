@@ -44,31 +44,6 @@ func (ar AssertionResult) Unwrap() error {
 	return ar.err
 }
 
-// String implements Stringer interface.
-// Formats the AssertionResult nicely in one line (no linebreak).
-func (ar AssertionResult) String() string {
-
-	err := ar.Unwrap()
-
-	var symbol string
-	if err != nil {
-		symbol = "ERROR ❌"
-	} else {
-		symbol = "OK ✅"
-	}
-
-	resStr := fmt.Sprintf(
-		"%7s %-35s  %-35s",
-		symbol,
-		"",
-		ar.assertionDescription,
-	)
-	if err != nil {
-		resStr += fmt.Sprintf("\n%5s %s", "", err)
-	}
-	return resStr
-}
-
 /////////////////////////////////////////////////////////////
 
 // A CriticAssertion is an Assertion, which success is critic for the
