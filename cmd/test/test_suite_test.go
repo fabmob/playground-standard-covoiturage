@@ -36,10 +36,8 @@ func testErrorOnRequestIsHandled(t *testing.T, f requestTestFun) {
 }
 
 func TestAPIErrors(t *testing.T) {
-	for _, funs := range apiMapping {
-		for _, f := range funs {
-			testErrorOnRequestIsHandled(t, wrapTestResponseFun(f))
-		}
+	for _, fun := range apiMapping {
+		testErrorOnRequestIsHandled(t, wrapTestResponseFun(fun))
 	}
 }
 

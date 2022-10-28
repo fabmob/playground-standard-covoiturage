@@ -18,24 +18,25 @@ func (e Endpoint) String() string {
 	return e.Method + " " + e.Path
 }
 
-// GetStatusEndpoint is the Endpoint of GET /status
-var GetStatusEndpoint = Endpoint{http.MethodGet, "/status"}
+var (
+	// GetStatusEndpoint is the Endpoint of GET /status
+	GetStatusEndpoint = Endpoint{http.MethodGet, "/status"}
+	// GetDriverJourneyEndpoint is the Endpoint of GET /driver_journeys
+	GetDriverJourneyEndpoint = Endpoint{http.MethodGet, "/driver_journeys"}
+)
 
-// GetDriverJourneyEndpoint is the Endpoint of GET /driver_journeys
-var GetDriverJourneyEndpoint = Endpoint{http.MethodGet, "/driver_journeys"}
-
-var apiMapping = map[Endpoint][]ResponseTestFun{
-	GetStatusEndpoint:        {TestGetStatusResponse},
-	GetDriverJourneyEndpoint: {TestGetDriverJourneysResponse},
+var apiMapping = map[Endpoint]ResponseTestFun{
+	GetStatusEndpoint:        TestGetStatusResponse,
+	GetDriverJourneyEndpoint: TestGetDriverJourneysResponse,
 }
 
 // SelectTestFuns returns the test functions related to a given request.
-func SelectTestFuns(endpoint Endpoint) ([]ResponseTestFun, error) {
-	testFuns, ok := apiMapping[endpoint]
+func SelectTestFuns(endpoint Endpoint) (ResponseTestFun, error) {
+	testFun, ok := apiMapping[endpoint]
 	if !ok {
 		return nil, fmt.Errorf("request to an unknown endpoint: %s", endpoint)
 	}
-	return testFuns, nil
+	return testFun, nil
 }
 
 // ExtractEndpoint extracts the endpoint from a request, given server

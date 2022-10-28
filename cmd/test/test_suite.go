@@ -15,11 +15,11 @@ func Request(client APIClient, request *http.Request, flags Flags) (*Report, err
 	if err != nil {
 		return nil, err
 	}
-	selectedTestFuns, err := SelectTestFuns(endpoint)
+	selectedTestFun, err := SelectTestFuns(endpoint)
 	if err != nil {
 		return nil, err
 	}
-	report := executeTestFuns(client, request, selectedTestFuns, flags)
+	report := executeTestFuns(client, request, selectedTestFun, flags)
 	report.endpoint = endpoint
 	return report, nil
 }
@@ -27,13 +27,11 @@ func Request(client APIClient, request *http.Request, flags Flags) (*Report, err
 func executeTestFuns(
 	client APIClient,
 	request *http.Request,
-	tests []ResponseTestFun,
+	testFun ResponseTestFun,
 	flags Flags,
 ) *Report {
 	all := []AssertionResult{}
-	for _, testFun := range tests {
-		all = append(all, wrapTestResponseFun(testFun)(client, request, flags)...)
-	}
+	all = append(all, wrapTestResponseFun(testFun)(client, request, flags)...)
 	report := NewReport(all...)
 	return &report
 }
