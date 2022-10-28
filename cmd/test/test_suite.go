@@ -34,7 +34,8 @@ func executeTestFuns(
 	for _, testFun := range tests {
 		all = append(all, wrapTestResponseFun(testFun)(client, request, flags)...)
 	}
-	return &Report{assertionResults: all}
+	report := NewReport(all...)
+	return &report
 }
 
 /////////////////////////////////////////////////////////////
