@@ -11,11 +11,13 @@ type APIClient = *api.Client
 
 // TestRequest tests a request
 func TestRequest(client APIClient, request *http.Request, flags Flags) (*Report, error) {
-	selectedTestFuns, err := SelectTestFuns(request, client.Server)
+	endpoint, selectedTestFuns, err := SelectTestFuns(request, client.Server)
 	if err != nil {
 		return nil, err
 	}
-	return executeTestFuns(client, request, selectedTestFuns, flags), nil
+	report := executeTestFuns(client, request, selectedTestFuns, flags)
+	report.endpoint = endpoint
+	return report, nil
 }
 
 func executeTestFuns(

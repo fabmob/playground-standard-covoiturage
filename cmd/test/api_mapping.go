@@ -29,19 +29,19 @@ var apiMapping = map[Endpoint][]RequestTestFun{
 	GetDriverJourneyEndpoint: {wrapTestResponseFun(TestGetDriverJourneysResponse)},
 }
 
-// SelectTestFuns returns the test functions related to a given request
-func SelectTestFuns(request *http.Request, server string) ([]RequestTestFun, error) {
+// SelectTestFuns returns the test functions related to a given request.
+func SelectTestFuns(request *http.Request, server string) (Endpoint, []RequestTestFun, error) {
 	endpoint, err := ExtractEndpoint(request, server)
 	if err != nil {
-		return nil, err
+		return Endpoint{}, nil, err
 	}
 	testFuns, ok := apiMapping[*endpoint]
 	if !ok {
-		return nil, fmt.Errorf("request to an unknown endpoint. Method: %s, path: %s",
+		return Endpoint{}, nil, fmt.Errorf("request to an unknown endpoint. Method: %s, path: %s",
 			request.Method,
 			request.URL.Path)
 	}
-	return testFuns, nil
+	return *endpoint, testFuns, nil
 }
 
 // ExtractEndpoint extracts the endpoint from a request, given server
