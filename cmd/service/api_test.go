@@ -196,11 +196,10 @@ func testGetDriverJourneyRequestWithData(
 		t.Fail()
 	}
 	response := rec.Result()
-	a := test.NewAssertionAccu()
 	flags := test.Flags{DisallowEmpty: !expectEmpty}
-	test.TestGetDriverJourneysResponse(testRequest, response, a, flags)
-	assert.Greater(t, len(a.GetAssertionResults()), 0)
-	for _, ar := range a.GetAssertionResults() {
+	assertionResults := test.TestGetDriverJourneysResponse(testRequest, response, flags)
+	assert.Greater(t, len(assertionResults), 0)
+	for _, ar := range assertionResults {
 		if err := ar.Unwrap(); err != nil {
 			t.Log(err)
 			t.Fail()

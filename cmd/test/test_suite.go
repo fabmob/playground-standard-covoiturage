@@ -27,33 +27,33 @@ func TestRequest(client APIClient, request *http.Request, flags Flags) (*Report,
 func executeTestFuns(
 	client APIClient,
 	request *http.Request,
-	tests []RequestTestFun,
+	tests []ResponseTestFun,
 	flags Flags,
 ) *Report {
 	all := []AssertionResult{}
 	for _, testFun := range tests {
-		all = append(all, testFun(client, request, flags)...)
+		all = append(all, wrapTestResponseFun(testFun)(client, request, flags)...)
 	}
 	return &Report{assertionResults: all}
 }
 
 /////////////////////////////////////////////////////////////
 
-// A RequestTestFun runs all tests associated with a given Request, and return
+// A requestTestFun runs all tests associated with a given Request, and return
 // the correspending `AssertionResult`s
-type RequestTestFun func(APIClient, *http.Request, Flags) []AssertionResult
+type requestTestFun func(APIClient, *http.Request, Flags) []AssertionResult
 
 // wrapTestResponseFun wraps an TestResponseFun to a TestRequestFun
-func wrapTestResponseFun(f ResponseTestFun) RequestTestFun {
+func wrapTestResponseFun(f ResponseTestFun) requestTestFun {
 	return func(c APIClient, request *http.Request, flags Flags) []AssertionResult {
-		a := NewAssertionAccu()
 		response, clientErr := c.Client.Do(request)
 		if clientErr != nil {
+			a := NewAssertionAccu()
 			a.Queue(assertAPICallSuccess{clientErr})
 			a.ExecuteAll()
 			return a.GetAssertionResults()
 		}
-		return f(request, response, a, flags)
+		return f(request, response, flags)
 	}
 }
 
@@ -64,7 +64,6 @@ func wrapTestResponseFun(f ResponseTestFun) RequestTestFun {
 type ResponseTestFun func(
 	*http.Request,
 	*http.Response,
-	AssertionAccumulator,
 	Flags,
 ) []AssertionResult
 
@@ -76,12 +75,8 @@ var (
 )
 
 func wrapAssertionsFun(f assertionFun) ResponseTestFun {
-	return func(
-		req *http.Request,
-		resp *http.Response,
-		a AssertionAccumulator,
-		flags Flags,
-	) []AssertionResult {
+	return func(req *http.Request, resp *http.Response, flags Flags) []AssertionResult {
+		a := NewAssertionAccu()
 		f(req, resp, a, flags)
 		a.ExecuteAll()
 		return a.GetAssertionResults()
