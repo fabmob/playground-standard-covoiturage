@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+// APIMapping is the mapping between endpoint and the associated test
+// function that has been registered, if any
 var APIMapping = map[Endpoint]ResponseTestFun{}
 
 // Register associates a test function to a given function. If any
