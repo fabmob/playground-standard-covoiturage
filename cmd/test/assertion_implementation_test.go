@@ -317,98 +317,109 @@ func singleAssertionError(
 
 func TestAssertRadius(t *testing.T) {
 	var (
-		coordsRef   = util.Coord{46.1604531, -1.2219607} // reference
-		coords900m  = util.Coord{46.1613442, -1.2103736} // at ~900m from reference
-		coords1100m = util.Coord{46.1613679, -1.2086563} // at ~1100m from reference
+		coordsRef   = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
+		coords900m  = util.Coord{Lat: 46.1613442, Lon: -1.2103736} // at ~900m from reference
+		coords1100m = util.Coord{Lat: 46.1613679, Lon: -1.2086563} // at ~1100m from reference
 	)
 
 	testCases := []struct {
-		name               string
-		departureOrArrival departureOrArrival
-		coordsRequest      util.Coord
-		coordsResponse     []util.Coord
-		radius             float32
-		expectError        bool
+		name                     string
+		departureOrArrival       departureOrArrival
+		passengerOrDriverJourney passengerOrDriverJourney
+		coordsRequest            util.Coord
+		coordsResponse           []util.Coord
+		radius                   float32
+		expectError              bool
 	}{
 		{
-			name:               "no response",
-			departureOrArrival: departure,
-			coordsRequest:      coordsRef,
-			coordsResponse:     []util.Coord{},
-			radius:             1,
-			expectError:        false,
+			name:                     "no response",
+			departureOrArrival:       departure,
+			passengerOrDriverJourney: driverJourney,
+			coordsRequest:            coordsRef,
+			coordsResponse:           []util.Coord{},
+			radius:                   1,
+			expectError:              false,
 		},
 		{
-			name:               "1 inside radius 1km",
-			departureOrArrival: departure,
-			coordsRequest:      coordsRef,
-			coordsResponse:     []util.Coord{coords900m},
-			radius:             1,
-			expectError:        false,
+			name:                     "1 inside radius 1km",
+			departureOrArrival:       departure,
+			passengerOrDriverJourney: driverJourney,
+			coordsRequest:            coordsRef,
+			coordsResponse:           []util.Coord{coords900m},
+			radius:                   1,
+			expectError:              false,
 		},
 		{
-			name:               "1 inside, 1 outside radius 1km",
-			departureOrArrival: departure,
-			coordsRequest:      coordsRef,
-			coordsResponse:     []util.Coord{coords900m, coords1100m},
-			radius:             1,
-			expectError:        true,
+			name:                     "1 inside, 1 outside radius 1km",
+			departureOrArrival:       departure,
+			passengerOrDriverJourney: driverJourney,
+			coordsRequest:            coordsRef,
+			coordsResponse:           []util.Coord{coords900m, coords1100m},
+			radius:                   1,
+			expectError:              true,
 		},
 		{
-			name:               "2 inside, radius 1,2km",
-			departureOrArrival: departure,
-			coordsRequest:      coordsRef,
-			coordsResponse:     []util.Coord{coords900m, coords1100m},
-			radius:             1.2,
-			expectError:        false,
+			name:                     "2 inside, radius 1,2km",
+			departureOrArrival:       departure,
+			passengerOrDriverJourney: driverJourney,
+			coordsRequest:            coordsRef,
+			coordsResponse:           []util.Coord{coords900m, coords1100m},
+			radius:                   1.2,
+			expectError:              false,
 		},
 		{
-			name:               "1 inside, other reference, radius 0.5km",
-			departureOrArrival: departure,
-			coordsRequest:      coords900m,
-			coordsResponse:     []util.Coord{coords1100m},
-			radius:             0.5,
-			expectError:        false,
+			name:                     "1 inside, other reference, radius 0.5km",
+			departureOrArrival:       departure,
+			passengerOrDriverJourney: driverJourney,
+			coordsRequest:            coords900m,
+			coordsResponse:           []util.Coord{coords1100m},
+			radius:                   0.5,
+			expectError:              false,
 		},
 		{
-			name:               "no response",
-			departureOrArrival: arrival,
-			coordsRequest:      coordsRef,
-			coordsResponse:     []util.Coord{},
-			radius:             1,
-			expectError:        false,
+			name:                     "no response",
+			departureOrArrival:       arrival,
+			passengerOrDriverJourney: driverJourney,
+			coordsRequest:            coordsRef,
+			coordsResponse:           []util.Coord{},
+			radius:                   1,
+			expectError:              false,
 		},
 		{
-			name:               "1 inside radius 1km",
-			departureOrArrival: arrival,
-			coordsRequest:      coordsRef,
-			coordsResponse:     []util.Coord{coords900m},
-			radius:             1,
-			expectError:        false,
+			name:                     "1 inside radius 1km",
+			departureOrArrival:       arrival,
+			passengerOrDriverJourney: driverJourney,
+			coordsRequest:            coordsRef,
+			coordsResponse:           []util.Coord{coords900m},
+			radius:                   1,
+			expectError:              false,
 		},
 		{
-			name:               "1 inside, 1 outside radius 1km",
-			departureOrArrival: arrival,
-			coordsRequest:      coordsRef,
-			coordsResponse:     []util.Coord{coords900m, coords1100m},
-			radius:             1,
-			expectError:        true,
+			name:                     "1 inside, 1 outside radius 1km",
+			departureOrArrival:       arrival,
+			passengerOrDriverJourney: driverJourney,
+			coordsRequest:            coordsRef,
+			coordsResponse:           []util.Coord{coords900m, coords1100m},
+			radius:                   1,
+			expectError:              true,
 		},
 		{
-			name:               "2 inside, radius 1,2km",
-			departureOrArrival: arrival,
-			coordsRequest:      coordsRef,
-			coordsResponse:     []util.Coord{coords900m, coords1100m},
-			radius:             1.2,
-			expectError:        false,
+			name:                     "2 inside, radius 1,2km",
+			departureOrArrival:       arrival,
+			passengerOrDriverJourney: driverJourney,
+			coordsRequest:            coordsRef,
+			coordsResponse:           []util.Coord{coords900m, coords1100m},
+			radius:                   1.2,
+			expectError:              false,
 		},
 		{
-			name:               "1 inside, other reference, radius 0.5km",
-			departureOrArrival: arrival,
-			coordsRequest:      coords900m,
-			coordsResponse:     []util.Coord{coords1100m},
-			radius:             0.5,
-			expectError:        false,
+			name:                     "1 inside, other reference, radius 0.5km",
+			departureOrArrival:       arrival,
+			passengerOrDriverJourney: driverJourney,
+			coordsRequest:            coords900m,
+			coordsResponse:           []util.Coord{coords1100m},
+			radius:                   0.5,
+			expectError:              false,
 		},
 	}
 
@@ -416,37 +427,51 @@ func TestAssertRadius(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 			var params api.GetDriverJourneysParams
-			if tc.departureOrArrival == departure {
-				params = api.GetDriverJourneysParams{
-					DepartureRadius: &tc.radius,
-					DepartureLat:    float32(tc.coordsRequest.Lat),
-					DepartureLng:    float32(tc.coordsRequest.Lon),
-				}
-			} else {
-				params = api.GetDriverJourneysParams{
-					ArrivalRadius: &tc.radius,
-					ArrivalLat:    float32(tc.coordsRequest.Lat),
-					ArrivalLng:    float32(tc.coordsRequest.Lon),
-				}
-			}
-			request, err := api.NewGetDriverJourneysRequest("localhost:1323", &params)
-			panicIf(err)
+			var request *http.Request
+			var responseInterface interface{}
 
-			responseObj := []api.DriverJourney{}
-			for _, c := range tc.coordsResponse {
-				var dj api.DriverJourney
-				if tc.departureOrArrival == departure {
-					dj = api.DriverJourney{PassengerPickupLat: c.Lat, PassengerPickupLng: c.Lon}
-				} else {
-					dj = api.DriverJourney{PassengerDropLat: c.Lat, PassengerDropLng: c.Lon}
+			switch tc.passengerOrDriverJourney {
+			case driverJourney:
+				switch tc.departureOrArrival {
+
+				case departure:
+
+					params = api.GetDriverJourneysParams{
+						DepartureRadius: &tc.radius,
+						DepartureLat:    float32(tc.coordsRequest.Lat),
+						DepartureLng:    float32(tc.coordsRequest.Lon),
+					}
+
+				case arrival:
+
+					params = api.GetDriverJourneysParams{
+						ArrivalRadius: &tc.radius,
+						ArrivalLat:    float32(tc.coordsRequest.Lat),
+						ArrivalLng:    float32(tc.coordsRequest.Lon),
+					}
+
 				}
-				responseObj = append(responseObj, dj)
+				var err error
+				request, err = api.NewGetDriverJourneysRequest("localhost:1323", &params)
+				panicIf(err)
+				responseObj := []api.DriverJourney{}
+				for _, c := range tc.coordsResponse {
+					var dj api.DriverJourney
+					if tc.departureOrArrival == departure {
+						dj = api.DriverJourney{PassengerPickupLat: c.Lat, PassengerPickupLng: c.Lon}
+					} else {
+						dj = api.DriverJourney{PassengerDropLat: c.Lat, PassengerDropLng: c.Lon}
+					}
+					responseObj = append(responseObj, dj)
+				}
+				responseInterface = interface{}(responseObj)
 			}
-			response := mockBodyResponse(interface{}(responseObj))
+
+			response := mockBodyResponse(responseInterface)
 
 			a := NewAssertionAccu()
 			a.Queue(assertDriverJourneysRadius{request, response,
-				tc.departureOrArrival})
+				tc.departureOrArrival, tc.passengerOrDriverJourney})
 			a.ExecuteAll()
 
 			results := a.GetAssertionResults()
