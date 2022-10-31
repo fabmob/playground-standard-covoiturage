@@ -30,7 +30,29 @@ func testGetDriverJourneys(
 	AssertStatusCodeOK(a, response)
 	AssertHeaderContains(a, response, "Content-Type", "application/json")
 	if flags.DisallowEmpty {
-		CriticAssertDriverJourneysNotEmpty(a, response)
+		CriticAssertArrayNotEmpty(a, response)
+	}
+	CriticAssertDriverJourneysFormat(a, request, response)
+	AssertDriverJourneysDepartureRadius(a, request, response)
+	AssertDriverJourneysArrivalRadius(a, request, response)
+	AssertDriverJourneysTimeDelta(a, request, response)
+	AssertDriverJourneysCount(a, request, response)
+	AssertUniqueIDs(a, response)
+	AssertOperatorFieldFormat(a, response)
+}
+
+func testGetPassengerJourneys(
+	request *http.Request,
+	response *http.Response,
+	a AssertionAccumulator,
+	flags Flags,
+) {
+	response.Body = ReusableReadCloser(response.Body)
+
+	AssertStatusCodeOK(a, response)
+	AssertHeaderContains(a, response, "Content-Type", "application/json")
+	if flags.DisallowEmpty {
+		CriticAssertArrayNotEmpty(a, response)
 	}
 	CriticAssertDriverJourneysFormat(a, request, response)
 	AssertDriverJourneysDepartureRadius(a, request, response)

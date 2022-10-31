@@ -427,7 +427,7 @@ func TestAssertRadius(t *testing.T) {
 				}
 				responseObj = append(responseObj, dj)
 			}
-			response := mockGetDriverJourneysResponse(responseObj)
+			response := mockBodyResponse(interface{}(responseObj))
 
 			a := NewAssertionAccu()
 			a.Queue(assertDriverJourneysRadius{request, response,
@@ -448,16 +448,18 @@ func TestAssertRadius(t *testing.T) {
 func TestAssertNotEmpty(t *testing.T) {
 	testCases := []struct {
 		name         string
-		responseData []api.DriverJourney
+		responseData []interface{}
 		expectError  bool
 	}{
-		{"empty", []api.DriverJourney{}, true},
-		{"non empty", []api.DriverJourney{{}}, false},
+		{"empty whatever", []interface{}{}, true},
+		{"non empty driver journeys", []interface{}{api.DriverJourney{}}, false},
+		{"non empty passenger journeys", []interface{}{api.PassengerJourney{}}, false},
 	}
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			response := mockGetDriverJourneysResponse(tc.responseData)
-			err := singleAssertionError(t, assertDriverJourneysNotEmpty{response})
+			response := mockBodyResponse(tc.responseData)
+			err := singleAssertionError(t, assertArrayNotEmpty{response})
 			if (err != nil) != tc.expectError {
 				t.Fail()
 			}
@@ -487,7 +489,7 @@ func TestAssertUniqueIDs(t *testing.T) {
 			for _, id := range tc.ids {
 				responseData = append(responseData, api.DriverJourney{Id: id})
 			}
-			response := mockGetDriverJourneysResponse(responseData)
+			response := mockBodyResponse(responseData)
 			err := singleAssertionError(t, assertUniqueIDs{response})
 			if (err != nil) != tc.expectError {
 				t.Fail()

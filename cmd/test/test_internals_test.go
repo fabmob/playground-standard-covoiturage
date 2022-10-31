@@ -94,7 +94,7 @@ func TestNoEmpty(t *testing.T) {
 	a := NewAssertionAccu()
 	testGetDriverJourneys(nil, mockOKStatusResponse(), a, Flags{DisallowEmpty: true})
 	for _, assertion := range a.queuedAssertions {
-		if _, ok := assertion.(assertDriverJourneysNotEmpty); ok {
+		if _, ok := assertion.(assertArrayNotEmpty); ok {
 			t.Error("DisallowEmpty flag is not taken into account properly")
 		}
 	}

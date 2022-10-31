@@ -1,7 +1,9 @@
 package test
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"math"
 	"net/http"
 	"strconv"
@@ -72,16 +74,16 @@ func AssertDriverJourneysArrivalRadius(a AssertionAccumulator, request *http.Req
 	a.Queue(assertion)
 }
 
-// AssertDriverJourneysNotEmpty checks that the response is not empty
-func AssertDriverJourneysNotEmpty(a AssertionAccumulator, response *http.Response) {
-	assertion := assertDriverJourneysNotEmpty{response}
+// AssertArrayNotEmpty checks that the response is not empty
+func AssertArrayNotEmpty(a AssertionAccumulator, response *http.Response) {
+	assertion := assertArrayNotEmpty{response}
 	a.Queue(assertion)
 }
 
-// CriticAssertDriverJourneysNotEmpty checks that the response is not empty. A
+// CriticAssertArrayNotEmpty checks that the response is not empty. A
 // failure prevents the following assertions to be executed.
-func CriticAssertDriverJourneysNotEmpty(a AssertionAccumulator, response *http.Response) {
-	assertion := Critic(assertDriverJourneysNotEmpty{response})
+func CriticAssertArrayNotEmpty(a AssertionAccumulator, response *http.Response) {
+	assertion := Critic(assertArrayNotEmpty{response})
 	a.Queue(assertion)
 }
 
@@ -246,22 +248,37 @@ func (a assertDriverJourneysRadius) Describe() string {
 
 /////////////////////////////////////////////////////////////
 
-type assertDriverJourneysNotEmpty struct {
+type assertArrayNotEmpty struct {
 	response *http.Response
 }
 
-func (a assertDriverJourneysNotEmpty) Execute() error {
-	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
+// parseArrayOKResponse parses an array of any type, casting it to interface{}
+func parseArrayResponse(rsp *http.Response) ([]interface{}, error) {
+
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+	var dest []interface{}
+	if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+		return nil, err
+	}
+	return dest, nil
+}
+
+func (a assertArrayNotEmpty) Execute() error {
+	array, err := parseArrayResponse(a.response)
 	if err != nil {
 		return failedParsing("response", err)
 	}
-	if len(driverJourneys) == 0 {
+	if len(array) == 0 {
 		return errors.New("empty response not accepted with \"disallowEmpty\" option")
 	}
 	return nil
 }
 
-func (a assertDriverJourneysNotEmpty) Describe() string {
+func (a assertArrayNotEmpty) Describe() string {
 	return "assert response not empty"
 }
 

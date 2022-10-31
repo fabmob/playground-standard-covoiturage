@@ -80,7 +80,7 @@ func mockOKStatusResponse() *http.Response {
 	return mockStatusResponse(http.StatusOK)
 }
 
-func mockGetDriverJourneysResponse(responseObj []api.DriverJourney) *http.Response {
+func mockBodyResponse(responseObj interface{}) *http.Response {
 	responseJSON, err := json.Marshal(responseObj)
 	panicIf(err)
 	return mockResponse(200, string(responseJSON), nil)
