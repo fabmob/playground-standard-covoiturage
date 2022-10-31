@@ -212,22 +212,28 @@ type assertDriverJourneysRadius struct {
 
 func (a assertDriverJourneysRadius) Execute() error {
 	// Parse request
-	coordsQuery := getQueryCoord(a.departureOrArrival, a.request)
+	coordsQuery, err := getQueryCoord(a.departureOrArrival, a.request)
+	if err != nil {
+		return failedParsing("request", err)
+	}
 	// As different distance computations may give different distances, we apply
 	// a safety margin
-	radius := getQueryRadius(a.departureOrArrival, a.request)
+	radius, err := getQueryRadius(a.departureOrArrival, a.request)
+	if err != nil {
+		return failedParsing("request", err)
+	}
 
 	safetyMarginPercent := 1.
 	radiusWithMargin := radius * (1. + safetyMarginPercent/100)
 
 	// Parse response
-	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
+	responseObjects, err := parseArrayResponse(a.response)
 	if err != nil {
 		return failedParsing("response", err)
 	}
 
-	for _, dj := range driverJourneys {
-		coordsResponse, err := getResponseCoord(a.departureOrArrival, dj)
+	for _, obj := range responseObjects {
+		coordsResponse, err := getResponseCoord(a.departureOrArrival, obj)
 		if err != nil {
 			return err
 		}
@@ -249,15 +255,16 @@ type assertArrayNotEmpty struct {
 	response *http.Response
 }
 
-// parseArrayOKResponse parses an array of any type, casting it to interface{}
-func parseArrayResponse(rsp *http.Response) ([]interface{}, error) {
+// parseArrayOKResponse parses an array of any type, keeping array elements as
+// json.RawMessage
+func parseArrayResponse(rsp *http.Response) ([]json.RawMessage, error) {
 
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
-	var dest []interface{}
+	var dest []json.RawMessage
 	if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 		return nil, err
 	}

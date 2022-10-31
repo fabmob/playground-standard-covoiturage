@@ -2,32 +2,31 @@ package test
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/api"
 	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
-func getQueryRadius(departureOrArrival departureOrArrival, req *http.Request) float64 {
+/////////////////////////////////////////////////////////////
+// Query parameter extraction
+/////////////////////////////////////////////////////////////
+
+func getQueryRadius(departureOrArrival departureOrArrival, req *http.Request) (float64, error) {
 	const DefaultRadius float64 = 1
-
-	radiusStr := req.URL.Query().Get(string(departureOrArrival))
-
-	var radius float64
-	if radiusStr == "" {
-		return DefaultRadius
-	}
-	radius, err := strconv.ParseFloat(radiusStr, 64)
-	panicIf(err) // Should never happen it request format is validated
-	return radius
+	return parseQueryFloatParamWithDefault(
+		req,
+		string(departureOrArrival),
+		DefaultRadius,
+	)
 }
 
 // getQueryCoord extracts departure or arrival coordinates from
 // queryParameters
-func getQueryCoord(departureOrArrival departureOrArrival, request *http.Request) util.Coord {
+func getQueryCoord(departureOrArrival departureOrArrival, request *http.Request) (util.Coord, error) {
 	var latParam, lonParam string
 	switch departureOrArrival {
 	case departure:
@@ -37,23 +36,87 @@ func getQueryCoord(departureOrArrival departureOrArrival, request *http.Request)
 		latParam = "arrivalLat"
 		lonParam = "arrivalLng"
 	}
-	latStr := request.URL.Query().Get(latParam)
-	lat, _ := strconv.ParseFloat(latStr, 64)
-	lonStr := request.URL.Query().Get(lonParam)
-	lon, _ := strconv.ParseFloat(lonStr, 64)
+	lat, err := parseQueryFloatParam(request, latParam)
+	if err != nil {
+		return util.Coord{}, err
+	}
+	lon, err := parseQueryFloatParam(request, lonParam)
+	if err != nil {
+		return util.Coord{}, err
+	}
 	coordQuery := util.Coord{Lat: lat, Lon: lon}
-	return coordQuery
+	return coordQuery, nil
 }
 
+func parseQueryFloatParam(request *http.Request, paramName string) (float64, error) {
+	paramStr := request.URL.Query().Get(paramName)
+	param, err := strconv.ParseFloat(paramStr, 64)
+	if err != nil {
+		return 0, fmt.Errorf(
+			"%s could not be properly parsed as float in query (%w)",
+			paramStr,
+			err,
+		)
+	}
+	return param, nil
+}
+
+func parseQueryFloatParamWithDefault(request *http.Request, paramName string, defaultValue float64) (float64, error) {
+	paramStr := request.URL.Query().Get(paramName)
+	if paramStr == "" {
+		return defaultValue, nil
+	}
+	param, err := strconv.ParseFloat(paramStr, 64)
+	if err != nil {
+		return 0, fmt.Errorf(
+			"%s could not be properly parsed as float in query (%w)",
+			paramStr,
+			err,
+		)
+	}
+	return param, nil
+}
+
+/////////////////////////////////////////////////////////////
+// Response body extraction
+/////////////////////////////////////////////////////////////
+
 // getResponseCoord extracts departure or arrival coordinates from
-// driverJourney object. Fails if required coordinates are missing.
-func getResponseCoord(departureOrArrival departureOrArrival, driverJourney api.DriverJourney) (util.Coord, error) {
+// a json.RawMessage, e.g. as returned by parseArrayResponse. Fails if response has no such coordinates.
+func getResponseCoord(departureOrArrival departureOrArrival, obj json.RawMessage) (util.Coord, error) {
 	var coordResponse util.Coord
+
 	switch departureOrArrival {
 	case departure:
-		coordResponse = util.Coord{Lat: driverJourney.PassengerPickupLat, Lon: driverJourney.PassengerPickupLng}
+		type PassengerPickupCoord struct {
+			PassengerPickupLat float64 `json:"passengerPickupLat"`
+			PassengerPickupLng float64 `json:"passengerPickupLng"`
+		}
+		var passengerPickupCoord PassengerPickupCoord
+		err := json.Unmarshal(obj, &passengerPickupCoord)
+		if err != nil {
+			return util.Coord{}, err
+		}
+
+		coordResponse = util.Coord{
+			Lat: passengerPickupCoord.PassengerPickupLat,
+			Lon: passengerPickupCoord.PassengerPickupLng,
+		}
 	case arrival:
-		coordResponse = util.Coord{Lat: driverJourney.PassengerDropLat, Lon: driverJourney.PassengerDropLng}
+		type PassengerDropCoord struct {
+			PassengerDropLat float64 `json:"passengerDropLat"`
+			PassengerDropLng float64 `json:"passengerDropLng"`
+		}
+		var passengerDropCoord PassengerDropCoord
+		err := json.Unmarshal(obj, &passengerDropCoord)
+		if err != nil {
+			return util.Coord{}, err
+		}
+
+		coordResponse = util.Coord{
+			Lat: passengerDropCoord.PassengerDropLat,
+			Lon: passengerDropCoord.PassengerDropLng,
+		}
 	}
 	return coordResponse, nil
 }
@@ -66,6 +129,8 @@ func failedParsing(responseOrRequest string, err error) error {
 		err,
 	)
 }
+
+/////////////////////////////////////////////////////////////
 
 type reusableReadCloser struct {
 	io.ReadCloser
