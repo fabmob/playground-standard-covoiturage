@@ -11,18 +11,10 @@ import (
 	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
-type radiusQuerier interface {
-	getQueryRadius(*http.Request) float64
-}
-
-type radiusQuerierImpl struct {
-	departureOrArrival departureOrArrival
-}
-
-func (r radiusQuerierImpl) getQueryRadius(req *http.Request) float64 {
+func getQueryRadius(departureOrArrival departureOrArrival, req *http.Request) float64 {
 	const DefaultRadius float64 = 1
 
-	radiusStr := req.URL.Query().Get(string(r.departureOrArrival))
+	radiusStr := req.URL.Query().Get(string(departureOrArrival))
 
 	var radius float64
 	if radiusStr == "" {
@@ -33,42 +25,23 @@ func (r radiusQuerierImpl) getQueryRadius(req *http.Request) float64 {
 	return radius
 }
 
-/* type radiusQuery interface { */
-/* 	getQueryCoord(*http.Request) util.Coord */
-/* 	getQueryRadiusOrDefault(*http.Request) float64 */
-/* 	getResponseCoord(*http.Response) util.Coord */
-/* } */
-
-/* type radiusQueryImplem struct { */
-/* 	endpoint           Endpoint */
-/* 	departureOrArrival departureOrArrival */
-/* 	request            *http.Request */
-/* 	response           *http.Response */
-/* } */
-
-/* func (r radiusQueryImplem) getQueryCoord(req *http.Request) util.Coord { */
-/* 	var coordQuery util.Coord */
-/* 	queryParams, err := api.ParseGetDriverJourneysRequest(r.request) */
-/* 	panicIf(err) // TODO */
-/* 	switch r.departureOrArrival { */
-/* 	case departure: */
-/* 		coordQuery = util.Coord{Lat: float64(queryParams.DepartureLat), Lon: float64(queryParams.DepartureLng)} */
-/* 	case arrival: */
-/* 		coordQuery = util.Coord{Lat: float64(queryParams.ArrivalLat), Lon: float64(queryParams.ArrivalLng)} */
-/* 	} */
-/* 	return coordQuery */
-/* } */
-
 // getQueryCoord extracts departure or arrival coordinates from
 // queryParameters
-func getQueryCoord(departureOrArrival departureOrArrival, queryParams *api.GetDriverJourneysParams) util.Coord {
-	var coordQuery util.Coord
+func getQueryCoord(departureOrArrival departureOrArrival, request *http.Request) util.Coord {
+	var latParam, lonParam string
 	switch departureOrArrival {
 	case departure:
-		coordQuery = util.Coord{Lat: float64(queryParams.DepartureLat), Lon: float64(queryParams.DepartureLng)}
+		latParam = "departureLat"
+		lonParam = "departureLng"
 	case arrival:
-		coordQuery = util.Coord{Lat: float64(queryParams.ArrivalLat), Lon: float64(queryParams.ArrivalLng)}
+		latParam = "arrivalLat"
+		lonParam = "arrivalLng"
 	}
+	latStr := request.URL.Query().Get(latParam)
+	lat, _ := strconv.ParseFloat(latStr, 64)
+	lonStr := request.URL.Query().Get(lonParam)
+	lon, _ := strconv.ParseFloat(lonStr, 64)
+	coordQuery := util.Coord{Lat: lat, Lon: lon}
 	return coordQuery
 }
 

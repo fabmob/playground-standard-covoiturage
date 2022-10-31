@@ -212,15 +212,10 @@ type assertDriverJourneysRadius struct {
 
 func (a assertDriverJourneysRadius) Execute() error {
 	// Parse request
-	queryParams, err := api.ParseGetDriverJourneysRequest(a.request)
-	if err != nil {
-		return failedParsing("request", err)
-	}
-	coordsQuery := getQueryCoord(a.departureOrArrival, queryParams)
+	coordsQuery := getQueryCoord(a.departureOrArrival, a.request)
 	// As different distance computations may give different distances, we apply
 	// a safety margin
-	radiusQuerier := radiusQuerierImpl{a.departureOrArrival}
-	radius := radiusQuerier.getQueryRadius(a.request)
+	radius := getQueryRadius(a.departureOrArrival, a.request)
 
 	safetyMarginPercent := 1.
 	radiusWithMargin := radius * (1. + safetyMarginPercent/100)
