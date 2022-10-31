@@ -28,6 +28,12 @@ func (e Endpoint) String() string {
 	return e.Method + " " + e.Path
 }
 
+// emptyRequest returns an empty *http.Request to the endpoint
+func (e Endpoint) emptyRequest() *http.Request {
+	request, _ := http.NewRequest(e.Method, e.Path, nil)
+	return request
+}
+
 // SelectTestFuns returns the test functions related to a given request.
 func SelectTestFuns(endpoint Endpoint) (ResponseTestFun, error) {
 	testFun, ok := APIMapping[endpoint]

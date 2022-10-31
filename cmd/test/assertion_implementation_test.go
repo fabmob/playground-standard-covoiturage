@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"strings"
 	"testing"
 
 	"gitlab.com/multi/stdcov-api-test/cmd/api"
@@ -130,12 +129,12 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 		return string(bodyBytes)
 	}
 
-	driverJourneysRequest, err := http.NewRequest(http.MethodGet, "/driver_journeys", strings.NewReader(""))
-	panicIf(err)
-	passengerJourneysRequest, err := http.NewRequest(http.MethodGet, "/passenger_journeys", strings.NewReader(""))
-	panicIf(err)
-
 	var (
+		// Test requests
+		driverJourneysRequest    = GetDriverJourneyEndpoint.emptyRequest()
+		passengerJourneysRequest = GetPassengerJourneyEndpoint.emptyRequest()
+
+		// Test bodies
 		emptyDriverJourneysBody    = marshalBody([]api.DriverJourney{})
 		singleDriverJourneyBody    = marshalBody([]api.DriverJourney{{Type: "DYNAMIC"}})
 		singlePassengerJourneyBody = marshalBody([]api.PassengerJourney{{Type: "DYNAMIC"}})
