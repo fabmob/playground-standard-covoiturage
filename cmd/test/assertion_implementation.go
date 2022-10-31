@@ -219,7 +219,9 @@ func (a assertDriverJourneysRadius) Execute() error {
 	coordsQuery := getQueryCoord(a.departureOrArrival, queryParams)
 	// As different distance computations may give different distances, we apply
 	// a safety margin
-	radius := getQueryRadiusOrDefault(a.departureOrArrival, queryParams)
+	radiusQuerier := radiusQuerierImpl{a.departureOrArrival}
+	radius := radiusQuerier.getQueryRadius(a.request)
+
 	safetyMarginPercent := 1.
 	radiusWithMargin := radius * (1. + safetyMarginPercent/100)
 

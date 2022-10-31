@@ -4,10 +4,60 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"net/http"
+	"strconv"
 
 	"gitlab.com/multi/stdcov-api-test/cmd/api"
 	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
+
+type radiusQuerier interface {
+	getQueryRadius(*http.Request) float64
+}
+
+type radiusQuerierImpl struct {
+	departureOrArrival departureOrArrival
+}
+
+func (r radiusQuerierImpl) getQueryRadius(req *http.Request) float64 {
+	const DefaultRadius float64 = 1
+
+	radiusStr := req.URL.Query().Get(string(r.departureOrArrival))
+
+	var radius float64
+	if radiusStr == "" {
+		return DefaultRadius
+	}
+	radius, err := strconv.ParseFloat(radiusStr, 64)
+	panicIf(err) // Should never happen it request format is validated
+	return radius
+}
+
+/* type radiusQuery interface { */
+/* 	getQueryCoord(*http.Request) util.Coord */
+/* 	getQueryRadiusOrDefault(*http.Request) float64 */
+/* 	getResponseCoord(*http.Response) util.Coord */
+/* } */
+
+/* type radiusQueryImplem struct { */
+/* 	endpoint           Endpoint */
+/* 	departureOrArrival departureOrArrival */
+/* 	request            *http.Request */
+/* 	response           *http.Response */
+/* } */
+
+/* func (r radiusQueryImplem) getQueryCoord(req *http.Request) util.Coord { */
+/* 	var coordQuery util.Coord */
+/* 	queryParams, err := api.ParseGetDriverJourneysRequest(r.request) */
+/* 	panicIf(err) // TODO */
+/* 	switch r.departureOrArrival { */
+/* 	case departure: */
+/* 		coordQuery = util.Coord{Lat: float64(queryParams.DepartureLat), Lon: float64(queryParams.DepartureLng)} */
+/* 	case arrival: */
+/* 		coordQuery = util.Coord{Lat: float64(queryParams.ArrivalLat), Lon: float64(queryParams.ArrivalLng)} */
+/* 	} */
+/* 	return coordQuery */
+/* } */
 
 // getQueryCoord extracts departure or arrival coordinates from
 // queryParameters
@@ -33,26 +83,6 @@ func getResponseCoord(departureOrArrival departureOrArrival, driverJourney api.D
 		coordResponse = util.Coord{Lat: driverJourney.PassengerDropLat, Lon: driverJourney.PassengerDropLng}
 	}
 	return coordResponse, nil
-}
-
-// getQueryRadiusOrDefault returns departureRadius er arrivalRadius query parameter
-// (depending on departureOrArrival), or the default value if missing
-func getQueryRadiusOrDefault(departureOrArrival departureOrArrival, queryParams *api.GetDriverJourneysParams) float64 {
-	const DefaultRadius float32 = 1
-	var radiusPtr *float32
-	switch departureOrArrival {
-	case departure:
-		radiusPtr = queryParams.DepartureRadius
-	case arrival:
-		radiusPtr = queryParams.ArrivalRadius
-	}
-	var radius float32
-	if radiusPtr != nil {
-		radius = *radiusPtr
-	} else {
-		radius = DefaultRadius
-	}
-	return float64(radius)
 }
 
 // failedParsing wraps a parsing error with additional details
