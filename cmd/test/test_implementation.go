@@ -32,7 +32,7 @@ func testGetDriverJourneys(
 	if flags.DisallowEmpty {
 		CriticAssertArrayNotEmpty(a, response)
 	}
-	CriticAssertDriverJourneysFormat(a, request, response)
+	CriticAssertFormat(a, request, response)
 	AssertDriverJourneysDepartureRadius(a, request, response)
 	AssertDriverJourneysArrivalRadius(a, request, response)
 	AssertDriverJourneysTimeDelta(a, request, response)
@@ -54,7 +54,7 @@ func testGetPassengerJourneys(
 	if flags.DisallowEmpty {
 		CriticAssertArrayNotEmpty(a, response)
 	}
-	CriticAssertDriverJourneysFormat(a, request, response)
+	CriticAssertFormat(a, request, response)
 	AssertDriverJourneysDepartureRadius(a, request, response)
 	AssertDriverJourneysArrivalRadius(a, request, response)
 	AssertDriverJourneysTimeDelta(a, request, response)

@@ -125,16 +125,22 @@ func TestExpectHeaders(t *testing.T) {
 
 func TestExpectDriverJourneysFormat(t *testing.T) {
 
-	marshalDriverJourneys := func(dj []api.DriverJourney) string {
+	marshalBody := func(dj interface{}) string {
 		bodyBytes, _ := json.Marshal(dj)
 		return string(bodyBytes)
 	}
 
-	emptyDriverJourneysBody := marshalDriverJourneys([]api.DriverJourney{})
-	singleDriverJourneyBody := marshalDriverJourneys([]api.DriverJourney{{Type: "DYNAMIC"}})
-	notAllowedByEnum := marshalDriverJourneys([]api.DriverJourney{{Type: "Not allowed"}})
+	driverJourneysRequest, err := http.NewRequest(http.MethodGet, "/driver_journeys", strings.NewReader(""))
+	panicIf(err)
+	passengerJourneysRequest, err := http.NewRequest(http.MethodGet, "/passenger_journeys", strings.NewReader(""))
+	panicIf(err)
 
-	missingProp := `[
+	var (
+		emptyDriverJourneysBody    = marshalBody([]api.DriverJourney{})
+		singleDriverJourneyBody    = marshalBody([]api.DriverJourney{{Type: "DYNAMIC"}})
+		singlePassengerJourneyBody = marshalBody([]api.PassengerJourney{{Type: "DYNAMIC"}})
+		notAllowedByEnum           = marshalBody([]api.DriverJourney{{Type: "Not allowed"}})
+		missingProp                = `[
   {
     "duration": 0,
     "operator": "",
@@ -147,47 +153,62 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
   }
 ]
 `
+	)
 
 	jsonContentTypeHeader := http.Header{"Content-Type": []string{"application/json"}}
 
 	testCases := []struct {
 		name           string
+		request        *http.Request
 		body           string
 		header         http.Header
 		expectNilError bool
 	}{
 		{
 			"Not JSON",
+			driverJourneysRequest,
 			"Hello, world!",
 			jsonContentTypeHeader,
 			false,
 		},
 		{
 			"Empty []DriverJourney JSON",
+			driverJourneysRequest,
 			emptyDriverJourneysBody,
 			jsonContentTypeHeader,
 			true,
 		},
 		{
 			"Non-empty []DriverJourney JSON",
+			driverJourneysRequest,
 			singleDriverJourneyBody,
 			jsonContentTypeHeader,
 			true,
 		},
 		{
+			"Non-empty []PassengerJourney JSON",
+			passengerJourneysRequest,
+			singlePassengerJourneyBody,
+			jsonContentTypeHeader,
+			true,
+		},
+		{
 			"Other content type",
+			driverJourneysRequest,
 			"Hello, world!",
 			http.Header{"Content-Type": []string{"text/plain"}},
 			false,
 		},
 		{
 			"Required \"driver\" property is missing",
+			driverJourneysRequest,
 			missingProp,
 			jsonContentTypeHeader,
 			false,
 		},
 		{
 			"Not allowed \"type\" property",
+			driverJourneysRequest,
 			notAllowedByEnum,
 			jsonContentTypeHeader,
 			false,
@@ -196,14 +217,9 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			request, err := http.NewRequest(
-				http.MethodGet,
-				"/driver_journeys?departureLat=0&departureLng=0&arrivalLat=0&arrivalLng=0&departureDate=1666014179&timeDelta=900&departureRadius=1&arrivalRadius=1",
-				strings.NewReader(""),
-			)
-			panicIf(err)
+			request := tc.request
 			response := mockResponse(http.StatusOK, tc.body, tc.header)
-			assertion := assertDriverJourneysFormat{request, response}
+			assertion := assertFormat{request, response}
 			assertionError := singleAssertionError(t, assertion)
 			if (assertionError == nil) != tc.expectNilError {
 				t.Errorf("Wrong format response body should not be validated: %s",

@@ -48,15 +48,15 @@ func AssertHeaderContains(a AssertionAccumulator, resp *http.Response, key, valu
 // AssertDriverJourneysFormat checks if the response data of
 // /driver_journeys call has the expected format
 func AssertDriverJourneysFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
-	assertion := assertDriverJourneysFormat{request, response}
+	assertion := assertFormat{request, response}
 	a.Queue(assertion)
 }
 
-// CriticAssertDriverJourneysFormat checks if the response data of
+// CriticAssertFormat checks if the response data of
 // /driver_journeys call has the expected format. A failure prevents the
 // following assertions to be executed.
-func CriticAssertDriverJourneysFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
-	assertion := Critic(assertDriverJourneysFormat{request, response})
+func CriticAssertFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := Critic(assertFormat{request, response})
 	a.Queue(assertion)
 }
 
@@ -180,17 +180,17 @@ func (a assertHeaderContains) Describe() string {
 
 /////////////////////////////////////////////////////////////
 
-type assertDriverJourneysFormat struct {
+type assertFormat struct {
 	request  *http.Request
 	response *http.Response
 }
 
-func (a assertDriverJourneysFormat) Execute() error {
+func (a assertFormat) Execute() error {
 	err := validate.Response(a.request, a.response)
 	return err
 }
 
-func (a assertDriverJourneysFormat) Describe() string {
+func (a assertFormat) Describe() string {
 	return "assertDriverJourneysFormat"
 }
 
