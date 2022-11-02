@@ -80,9 +80,10 @@ func NewDriverJourney() DriverJourney {
 
 // NewPassengerJourney returns a valid PassengerJourney
 func NewPassengerJourney() PassengerJourney {
-	dj := PassengerJourney{}
+	pj := PassengerJourney{}
 	departureDate := int64(0)
-	dj.DriverDepartureDate = &departureDate
-	dj.Type = "DYNAMIC"
-	return dj
+	pj.Operator = "example.com"
+	pj.DriverDepartureDate = &departureDate
+	pj.Type = "DYNAMIC"
+	return pj
 }
