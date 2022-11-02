@@ -42,15 +42,13 @@ func AssertHeaderContains(a AssertionAccumulator, resp *http.Response, key, valu
 	a.Queue(assertion)
 }
 
-// AssertFormat checks if the response data of
-// /driver_journeys call has the expected format
+// AssertFormat checks if the response data has the expected format
 func AssertFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
 	assertion := assertFormat{request, response}
 	a.Queue(assertion)
 }
 
-// CriticAssertFormat checks if the response data of
-// /driver_journeys call has the expected format. A failure prevents the
+// CriticAssertFormat is the same as AssertFormat, but a failure prevents the
 // following assertions to be executed.
 func CriticAssertFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
 	assertion := Critic(assertFormat{request, response})
@@ -98,7 +96,7 @@ func AssertJourneysCount(a AssertionAccumulator, request *http.Request, response
 	a.Queue(assertion)
 }
 
-// AssertUniqueIDs checks that all driverJourneys IDs, if they exist, are
+// AssertUniqueIDs checks that all IDs (property "id"), if they exist, are
 // unique.
 func AssertUniqueIDs(a AssertionAccumulator, response *http.Response) {
 	assertion := assertUniqueIDs{response}
@@ -188,7 +186,7 @@ func (a assertFormat) Execute() error {
 }
 
 func (a assertFormat) Describe() string {
-	return "assertDriverJourneysFormat"
+	return "assertFormat"
 }
 
 /////////////////////////////////////////////////////////////
@@ -236,7 +234,7 @@ func (a assertJourneysRadius) Execute() error {
 		}
 		dist := util.Distance(coordsResponse, coordsQuery)
 		if dist > radius {
-			return fmt.Errorf("a driver journey does not comply to maximum '%s' distance to query parameters", a.departureOrArrival)
+			return fmt.Errorf("a journey does not comply to maximum '%s' distance to query parameters", a.departureOrArrival)
 		}
 	}
 	return nil
@@ -298,7 +296,7 @@ func (a assertJourneysTimeDelta) Execute() error {
 		}
 		if math.Abs(float64(pickupDate)-float64(departureDate)) >
 			float64(timeDelta) {
-			return errors.New("a driver journey does not comply to timeDelta query parameter")
+			return errors.New("a journey does not comply to timeDelta query parameter")
 		}
 	}
 	return nil
