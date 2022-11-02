@@ -30,13 +30,23 @@ func testGetDriverJourneys(
 	AssertStatusCodeOK(a, response)
 	AssertHeaderContains(a, response, "Content-Type", "application/json")
 	if flags.DisallowEmpty {
-		CriticAssertDriverJourneysNotEmpty(a, response)
+		CriticAssertArrayNotEmpty(a, response)
 	}
-	CriticAssertDriverJourneysFormat(a, request, response)
-	AssertDriverJourneysDepartureRadius(a, request, response)
-	AssertDriverJourneysArrivalRadius(a, request, response)
-	AssertDriverJourneysTimeDelta(a, request, response)
-	AssertDriverJourneysCount(a, request, response)
+	CriticAssertFormat(a, request, response)
+	AssertJourneysDepartureRadius(a, request, response)
+	AssertJourneysArrivalRadius(a, request, response)
+	AssertJourneysTimeDelta(a, request, response)
+	AssertJourneysCount(a, request, response)
 	AssertUniqueIDs(a, response)
 	AssertOperatorFieldFormat(a, response)
+}
+
+func testGetPassengerJourneys(
+	request *http.Request,
+	response *http.Response,
+	a AssertionAccumulator,
+	flags Flags,
+) {
+	// Passenger journeys are very similar to driver journeys.
+	testGetDriverJourneys(request, response, a, flags)
 }

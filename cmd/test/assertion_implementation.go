@@ -9,7 +9,6 @@ import (
 
 	tld "github.com/jpillora/go-tld"
 	"github.com/pkg/errors"
-	"gitlab.com/multi/stdcov-api-test/cmd/api"
 	"gitlab.com/multi/stdcov-api-test/cmd/util"
 	"gitlab.com/multi/stdcov-api-test/cmd/validate"
 )
@@ -43,63 +42,61 @@ func AssertHeaderContains(a AssertionAccumulator, resp *http.Response, key, valu
 	a.Queue(assertion)
 }
 
-// AssertDriverJourneysFormat checks if the response data of
-// /driver_journeys call has the expected format
-func AssertDriverJourneysFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
-	assertion := assertDriverJourneysFormat{request, response}
+// AssertFormat checks if the response data has the expected format
+func AssertFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := assertFormat{request, response}
 	a.Queue(assertion)
 }
 
-// CriticAssertDriverJourneysFormat checks if the response data of
-// /driver_journeys call has the expected format. A failure prevents the
+// CriticAssertFormat is the same as AssertFormat, but a failure prevents the
 // following assertions to be executed.
-func CriticAssertDriverJourneysFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
-	assertion := Critic(assertDriverJourneysFormat{request, response})
+func CriticAssertFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := Critic(assertFormat{request, response})
 	a.Queue(assertion)
 }
 
-// AssertDriverJourneysDepartureRadius checks that the response data respect
+// AssertJourneysDepartureRadius checks that the response data respect
 // the "departureRadius" query parameter
-func AssertDriverJourneysDepartureRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
-	assertion := assertDriverJourneysRadius{request, response, departure}
+func AssertJourneysDepartureRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := assertJourneysRadius{request, response, departure}
 	a.Queue(assertion)
 }
 
-// AssertDriverJourneysArrivalRadius checks that the response data respect
+// AssertJourneysArrivalRadius checks that the response data respect
 // the "arrivalRadius" query parameter
-func AssertDriverJourneysArrivalRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
-	assertion := assertDriverJourneysRadius{request, response, arrival}
+func AssertJourneysArrivalRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := assertJourneysRadius{request, response, arrival}
 	a.Queue(assertion)
 }
 
-// AssertDriverJourneysNotEmpty checks that the response is not empty
-func AssertDriverJourneysNotEmpty(a AssertionAccumulator, response *http.Response) {
-	assertion := assertDriverJourneysNotEmpty{response}
+// AssertArrayNotEmpty checks that the response is not empty
+func AssertArrayNotEmpty(a AssertionAccumulator, response *http.Response) {
+	assertion := assertArrayNotEmpty{response}
 	a.Queue(assertion)
 }
 
-// CriticAssertDriverJourneysNotEmpty checks that the response is not empty. A
+// CriticAssertArrayNotEmpty checks that the response is not empty. A
 // failure prevents the following assertions to be executed.
-func CriticAssertDriverJourneysNotEmpty(a AssertionAccumulator, response *http.Response) {
-	assertion := Critic(assertDriverJourneysNotEmpty{response})
+func CriticAssertArrayNotEmpty(a AssertionAccumulator, response *http.Response) {
+	assertion := Critic(assertArrayNotEmpty{response})
 	a.Queue(assertion)
 }
 
-// AssertDriverJourneysTimeDelta checks that the response data respect the
+// AssertJourneysTimeDelta checks that the response data respect the
 // "timeDelta" query parameter
-func AssertDriverJourneysTimeDelta(a AssertionAccumulator, request *http.Request, response *http.Response) {
-	assertion := assertDriverJourneysTimeDelta{request, response}
+func AssertJourneysTimeDelta(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := assertJourneysTimeDelta{request, response}
 	a.Queue(assertion)
 }
 
-// AssertDriverJourneysCount checks that the response data respect the "count"
+// AssertJourneysCount checks that the response data respect the "count"
 // query parameter
-func AssertDriverJourneysCount(a AssertionAccumulator, request *http.Request, response *http.Response) {
-	assertion := assertDriverJourneysCount{request, response}
+func AssertJourneysCount(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := assertJourneysCount{request, response}
 	a.Queue(assertion)
 }
 
-// AssertUniqueIDs checks that all driverJourneys IDs, if they exist, are
+// AssertUniqueIDs checks that all IDs (property "id"), if they exist, are
 // unique.
 func AssertUniqueIDs(a AssertionAccumulator, response *http.Response) {
 	assertion := assertUniqueIDs{response}
@@ -178,18 +175,18 @@ func (a assertHeaderContains) Describe() string {
 
 /////////////////////////////////////////////////////////////
 
-type assertDriverJourneysFormat struct {
+type assertFormat struct {
 	request  *http.Request
 	response *http.Response
 }
 
-func (a assertDriverJourneysFormat) Execute() error {
+func (a assertFormat) Execute() error {
 	err := validate.Response(a.request, a.response)
 	return err
 }
 
-func (a assertDriverJourneysFormat) Describe() string {
-	return "assertDriverJourneysFormat"
+func (a assertFormat) Describe() string {
+	return "assertFormat"
 }
 
 /////////////////////////////////////////////////////////////
@@ -201,126 +198,140 @@ const (
 	arrival   departureOrArrival = "arrivalRadius"
 )
 
-// assertDriverJourneysRadius expects that response format has been validated
-type assertDriverJourneysRadius struct {
+// assertJourneysRadius expects that response format has been validated
+type assertJourneysRadius struct {
 	request            *http.Request
 	response           *http.Response
 	departureOrArrival departureOrArrival
 }
 
-func (a assertDriverJourneysRadius) Execute() error {
+func (a assertJourneysRadius) Execute() error {
 	// Parse request
-	queryParams, err := api.ParseGetDriverJourneysRequest(a.request)
+	coordsQuery, err := getQueryCoord(a.departureOrArrival, a.request)
 	if err != nil {
 		return failedParsing("request", err)
 	}
-	coordsQuery := getQueryCoord(a.departureOrArrival, queryParams)
+	radius, err := getQueryRadius(a.departureOrArrival, a.request)
+	if err != nil {
+		return failedParsing("request", err)
+	}
+
 	// As different distance computations may give different distances, we apply
 	// a safety margin
-	radius := getQueryRadiusOrDefault(a.departureOrArrival, queryParams)
 	safetyMarginPercent := 1.
-	radiusWithMargin := radius * (1. + safetyMarginPercent/100)
+	radius = radius * (1. + safetyMarginPercent/100)
 
 	// Parse response
-	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
+	objsWithRadius, err := parseArrayResponse(a.response)
 	if err != nil {
 		return failedParsing("response", err)
 	}
 
-	for _, dj := range driverJourneys {
-		coordsResponse, err := getResponseCoord(a.departureOrArrival, dj)
+	for _, objWithRadius := range objsWithRadius {
+		coordsResponse, err := getResponseCoord(a.departureOrArrival, objWithRadius)
 		if err != nil {
 			return err
 		}
 		dist := util.Distance(coordsResponse, coordsQuery)
-		if dist > radiusWithMargin {
-			return fmt.Errorf("a driver journey does not comply to maximum '%s' distance to query parameters", a.departureOrArrival)
+		if dist > radius {
+			return fmt.Errorf("a journey does not comply to maximum '%s' distance to query parameters", a.departureOrArrival)
 		}
 	}
 	return nil
 }
 
-func (a assertDriverJourneysRadius) Describe() string {
+func (a assertJourneysRadius) Describe() string {
 	return fmt.Sprintf("assert %s", a.departureOrArrival)
 }
 
 /////////////////////////////////////////////////////////////
 
-type assertDriverJourneysNotEmpty struct {
+type assertArrayNotEmpty struct {
 	response *http.Response
 }
 
-func (a assertDriverJourneysNotEmpty) Execute() error {
-	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
+func (a assertArrayNotEmpty) Execute() error {
+	array, err := parseArrayResponse(a.response)
 	if err != nil {
 		return failedParsing("response", err)
 	}
-	if len(driverJourneys) == 0 {
+	if len(array) == 0 {
 		return errors.New("empty response not accepted with \"disallowEmpty\" option")
 	}
 	return nil
 }
 
-func (a assertDriverJourneysNotEmpty) Describe() string {
+func (a assertArrayNotEmpty) Describe() string {
 	return "assert response not empty"
 }
 
 /////////////////////////////////////////////////////////////
 
-type assertDriverJourneysTimeDelta struct {
+type assertJourneysTimeDelta struct {
 	request  *http.Request
 	response *http.Response
 }
 
-func (a assertDriverJourneysTimeDelta) Execute() error {
-	params, err := api.ParseGetDriverJourneysRequest(a.request)
+func (a assertJourneysTimeDelta) Execute() error {
+
+	timeDelta, err := getQueryTimeDelta(a.request)
 	if err != nil {
-		return err
+		return failedParsing("request", err)
 	}
-	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
+
+	departureDate, err := getQueryDeparturDate(a.request)
 	if err != nil {
-		return err
+		return failedParsing("request", err)
 	}
-	for _, dj := range driverJourneys {
-		if math.Abs(float64(dj.PassengerPickupDate)-float64(params.DepartureDate)) >
-			float64(params.GetTimeDelta()) {
-			return errors.New("a driver journey does not comply to timeDelta query parameter")
+
+	objsWithTimeDelta, err := parseArrayResponse(a.response)
+	if err != nil {
+		return failedParsing("response", err)
+	}
+
+	for _, objWithTimeDelta := range objsWithTimeDelta {
+		pickupDate, err := getResponsePickupDate(objWithTimeDelta)
+		if err != nil {
+			return failedParsing("response", err)
+		}
+		if math.Abs(float64(pickupDate)-float64(departureDate)) >
+			float64(timeDelta) {
+			return errors.New("a journey does not comply to timeDelta query parameter")
 		}
 	}
 	return nil
 }
 
-func (a assertDriverJourneysTimeDelta) Describe() string {
+func (a assertJourneysTimeDelta) Describe() string {
 
 	return "assert timeDelta"
 }
 
 /////////////////////////////////////////////////////////////
 
-type assertDriverJourneysCount struct {
+type assertJourneysCount struct {
 	request  *http.Request
 	response *http.Response
 }
 
-func (a assertDriverJourneysCount) Execute() error {
-	params, err := api.ParseGetDriverJourneysRequest(a.request)
+func (a assertJourneysCount) Execute() error {
+	count, err := getQueryCount(a.request)
+	if err != nil {
+		return failedParsing("request", err)
+	}
+	objsWithCount, err := parseArrayResponse(a.response)
 	if err != nil {
 		return err
 	}
-	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
-	if err != nil {
-		return err
-	}
-	if params.Count != nil {
-		expectedMaxCount := params.Count
-		if len(driverJourneys) > *expectedMaxCount {
-			return errors.New("the number of returned driver journeys exceeds the query count parameter")
+	if count != -1 {
+		if len(objsWithCount) > count {
+			return errors.New("the number of returned journeys exceeds the query count parameter")
 		}
 	}
 	return nil
 }
 
-func (a assertDriverJourneysCount) Describe() string {
+func (a assertJourneysCount) Describe() string {
 	return "assert count"
 }
 
@@ -331,19 +342,23 @@ type assertUniqueIDs struct {
 }
 
 func (a assertUniqueIDs) Execute() error {
-	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
+	objsWithID, err := parseArrayResponse(a.response)
 	if err != nil {
-		return err
+		return failedParsing("response", err)
 	}
 	ids := map[string]bool{}
-	for _, dj := range driverJourneys {
-		if dj.Id != nil {
-			id := *dj.Id
+	for _, objWithID := range objsWithID {
+		idPtr, err := getResponseID(objWithID)
+		if err != nil {
+			return failedParsing("response", err)
+		}
+		if idPtr != nil {
+			id := *idPtr
 			_, idDuplicate := ids[id]
 			if idDuplicate {
 				return errors.New("IDs should be unique")
 			}
-			ids[*dj.Id] = true
+			ids[id] = true
 		}
 	}
 	return nil
@@ -360,12 +375,16 @@ type assertOperatorFieldFormat struct {
 }
 
 func (a assertOperatorFieldFormat) Execute() error {
-	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
+	objsWithOperator, err := parseArrayResponse(a.response)
 	if err != nil {
 		return err
 	}
-	for _, dj := range driverJourneys {
-		if err := validateOperator(dj.Operator); err != nil {
+	for _, objWithOperator := range objsWithOperator {
+		operator, err := getResponseOperator(objWithOperator)
+		if err != nil {
+			return failedParsing("response", err)
+		}
+		if err := validateOperator(operator); err != nil {
 			return err
 		}
 	}
@@ -377,7 +396,7 @@ func validateOperator(operator string) error {
 	if err != nil {
 		return fmt.Errorf("wrong operator field format: %w", err)
 	}
-	if uri.Path != "" || uri.User != nil || uri.RawQuery != "" {
+	if uri.Host == "" || uri.Path != "" || uri.User != nil || uri.RawQuery != "" {
 		return fmt.Errorf("wrong operator field format")
 	}
 	return nil

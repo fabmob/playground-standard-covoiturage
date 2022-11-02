@@ -8,26 +8,24 @@ import (
 func makeNDriverJourneys(n int) []api.DriverJourney {
 	driverJourneys := make([]api.DriverJourney, 0, n)
 	for i := 0; i < n; i++ {
-		driverJourneys = append(driverJourneys, api.DriverJourney{Type: "DYNAMIC"})
+		driverJourneys = append(driverJourneys, api.NewDriverJourney())
 	}
 	return driverJourneys
 }
 
 func makeDriverJourneyAtCoords(coordPickup, coordDrop util.Coord) api.DriverJourney {
-	return api.DriverJourney{
-		PassengerPickupLat: coordPickup.Lat,
-		PassengerPickupLng: coordPickup.Lon,
-		PassengerDropLat:   coordDrop.Lat,
-		PassengerDropLng:   coordDrop.Lon,
-		Type:               "DYNAMIC",
-	}
+	dj := api.NewDriverJourney()
+	dj.PassengerPickupLat = coordPickup.Lat
+	dj.PassengerPickupLng = coordPickup.Lon
+	dj.PassengerDropLat = coordDrop.Lat
+	dj.PassengerDropLng = coordDrop.Lon
+	return dj
 }
 
 func makeDriverJourneyAtDate(date int64) api.DriverJourney {
-	return api.DriverJourney{
-		PassengerPickupDate: date,
-		Type:                "DYNAMIC",
-	}
+	dj := api.NewDriverJourney()
+	dj.PassengerPickupDate = date
+	return dj
 }
 
 func makeParamsWithDepartureRadius(departureCoord util.Coord, departureRadius float32) *api.GetDriverJourneysParams {

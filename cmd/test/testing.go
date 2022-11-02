@@ -5,8 +5,11 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"testing"
 
+	"github.com/pkg/errors"
 	"gitlab.com/multi/stdcov-api-test/cmd/api"
+	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
 // MockClient is an HTTP client that returns always the same response or
@@ -80,7 +83,7 @@ func mockOKStatusResponse() *http.Response {
 	return mockStatusResponse(http.StatusOK)
 }
 
-func mockGetDriverJourneysResponse(responseObj []api.DriverJourney) *http.Response {
+func mockBodyResponse(responseObj interface{}) *http.Response {
 	responseJSON, err := json.Marshal(responseObj)
 	panicIf(err)
 	return mockResponse(200, string(responseJSON), nil)
@@ -104,4 +107,98 @@ func panicIf(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+// makeJourneyRequestWithRadius is a test helper that creates a request,
+// either for GET /driver_journey or GET /passenger_journey, with given
+// coords, either for departure or arrival, and given radius.
+func makeJourneyRequestWithRadius(
+	t *testing.T,
+	coord util.Coord,
+	radius float32,
+	departureOrArrival departureOrArrival,
+	driverOrPassenger string, // "driver" or "passenger"
+) *http.Request {
+
+	t.Helper()
+
+	var params api.GetDriverJourneysParams
+	switch departureOrArrival {
+
+	case departure:
+
+		params = api.GetDriverJourneysParams{
+			DepartureRadius: &radius,
+			DepartureLat:    float32(coord.Lat),
+			DepartureLng:    float32(coord.Lon),
+		}
+
+	case arrival:
+
+		params = api.GetDriverJourneysParams{
+			ArrivalRadius: &radius,
+			ArrivalLat:    float32(coord.Lat),
+			ArrivalLng:    float32(coord.Lon),
+		}
+	default:
+		panic(errors.New("wrong value in test: departureOrArrival"))
+	}
+	var request *http.Request
+	var err error
+	switch driverOrPassenger {
+	case "driver":
+		request, err = api.NewGetDriverJourneysRequest("localhost:1323", &params)
+		panicIf(err)
+	case "passenger":
+		castedParams := api.GetPassengerJourneysParams(params)
+		request, err = api.NewGetPassengerJourneysRequest("localhost:1323",
+			&castedParams)
+		panicIf(err)
+	case "default":
+		panic(errors.New("wrong value in test: driverOrPassenger"))
+	}
+
+	return request
+}
+
+func makeJourneysResponse(t *testing.T, coords []util.Coord, departureOrArrival departureOrArrival, driverOrPassenger string) *http.Response {
+	t.Helper()
+	var response *http.Response
+	driverJourneyObjects := []api.DriverJourney{}
+	passengerJourneyObjects := []api.PassengerJourney{}
+	for _, c := range coords {
+		var trip api.Trip
+		if departureOrArrival == departure {
+			trip.PassengerPickupLat = c.Lat
+			trip.PassengerPickupLng = c.Lon
+		} else {
+			trip.PassengerDropLat = c.Lat
+			trip.PassengerDropLng = c.Lon
+		}
+		switch driverOrPassenger {
+		case "driver":
+			driverJourneyObjects = append(
+				driverJourneyObjects,
+				api.DriverJourney{DriverTrip: api.DriverTrip{Trip: trip}},
+			)
+		case "passenger":
+			passengerJourneyObjects = append(
+				passengerJourneyObjects,
+				api.PassengerJourney{PassengerTrip: api.PassengerTrip{Trip: trip}},
+			)
+		default:
+			panic(errors.New("wrong value in test: driverOrPassenger"))
+		}
+	}
+
+	switch driverOrPassenger {
+	case "driver":
+		response = mockBodyResponse(interface{}(driverJourneyObjects))
+	case "passenger":
+		response = mockBodyResponse(interface{}(passengerJourneyObjects))
+	default:
+		panic(errors.New("wrong value in test: driverOrPassenger"))
+	}
+
+	return response
 }

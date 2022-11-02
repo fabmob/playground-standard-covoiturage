@@ -2,57 +2,214 @@ package test
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
+	"strconv"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/api"
 	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
-// getQueryCoord extracts departure or arrival coordinates from
-// queryParameters
-func getQueryCoord(departureOrArrival departureOrArrival, queryParams *api.GetDriverJourneysParams) util.Coord {
-	var coordQuery util.Coord
-	switch departureOrArrival {
-	case departure:
-		coordQuery = util.Coord{Lat: float64(queryParams.DepartureLat), Lon: float64(queryParams.DepartureLng)}
-	case arrival:
-		coordQuery = util.Coord{Lat: float64(queryParams.ArrivalLat), Lon: float64(queryParams.ArrivalLng)}
-	}
-	return coordQuery
+/////////////////////////////////////////////////////////////
+// Query parameter extraction
+/////////////////////////////////////////////////////////////
+
+func getQueryRadius(departureOrArrival departureOrArrival, req *http.Request) (float64, error) {
+	const DefaultRadius float64 = 1
+	return parseQueryFloatParamWithDefault(
+		req,
+		string(departureOrArrival),
+		DefaultRadius,
+	)
 }
 
-// getResponseCoord extracts departure or arrival coordinates from
-// driverJourney object. Fails if required coordinates are missing.
-func getResponseCoord(departureOrArrival departureOrArrival, driverJourney api.DriverJourney) (util.Coord, error) {
-	var coordResponse util.Coord
+// getQueryTimeDelta extracts timeDelta parameter from request
+func getQueryTimeDelta(req *http.Request) (int, error) {
+	const DefaultTimeDelta int = 900
+	return parseQueryIntParamWithDefault(
+		req,
+		"timeDelta",
+		DefaultTimeDelta,
+	)
+}
+
+func getQueryDeparturDate(req *http.Request) (int, error) {
+	return parseQueryIntParam(req, "departureDate")
+}
+
+func getQueryCount(req *http.Request) (int, error) {
+	return parseQueryIntParamWithDefault(req, "count", -1)
+}
+
+// getQueryCoord extracts departure or arrival coordinates from
+// queryParameters
+func getQueryCoord(departureOrArrival departureOrArrival, request *http.Request) (util.Coord, error) {
+	var latParam, lonParam string
 	switch departureOrArrival {
 	case departure:
-		coordResponse = util.Coord{Lat: driverJourney.PassengerPickupLat, Lon: driverJourney.PassengerPickupLng}
+		latParam = "departureLat"
+		lonParam = "departureLng"
 	case arrival:
-		coordResponse = util.Coord{Lat: driverJourney.PassengerDropLat, Lon: driverJourney.PassengerDropLng}
+		latParam = "arrivalLat"
+		lonParam = "arrivalLng"
+	}
+	lat, err := parseQueryFloatParam(request, latParam)
+	if err != nil {
+		return util.Coord{}, err
+	}
+	lon, err := parseQueryFloatParam(request, lonParam)
+	if err != nil {
+		return util.Coord{}, err
+	}
+	coordQuery := util.Coord{Lat: lat, Lon: lon}
+	return coordQuery, nil
+}
+
+func parseQueryFloatParam(request *http.Request, paramName string) (float64, error) {
+	paramStr := request.URL.Query().Get(paramName)
+	return auxParseFloat(paramStr)
+}
+
+func parseQueryFloatParamWithDefault(request *http.Request, paramName string, defaultValue float64) (float64, error) {
+	paramStr := request.URL.Query().Get(paramName)
+	return withDefaultFloat(auxParseFloat)(paramStr, defaultValue)
+}
+
+func parseQueryIntParam(request *http.Request, paramName string) (int, error) {
+	paramStr := request.URL.Query().Get(paramName)
+	return auxParseInt(paramStr)
+}
+
+func parseQueryIntParamWithDefault(request *http.Request, paramName string, defaultValue int) (int, error) {
+	paramStr := request.URL.Query().Get(paramName)
+	return withDefaultInt(auxParseInt)(paramStr, defaultValue)
+}
+
+func auxParseFloat(paramStr string) (float64, error) {
+	param, err := strconv.ParseFloat(paramStr, 64)
+	if err != nil {
+		return 0, fmt.Errorf(
+			"%s could not be properly parsed as float in query (%w)",
+			paramStr,
+			err,
+		)
+	}
+	return param, nil
+}
+
+func withDefaultFloat(parser func(string) (float64,
+	error)) func(string, float64) (float64, error) {
+
+	return func(paramStr string, defaultValue float64) (float64, error) {
+		if paramStr == "" {
+			return defaultValue, nil
+		}
+		return parser(paramStr)
+	}
+}
+
+func auxParseInt(paramStr string) (int, error) {
+	param, err := strconv.Atoi(paramStr)
+	if err != nil {
+		return 0, fmt.Errorf(
+			"%s could not be properly parsed as int in query (%w)",
+			paramStr,
+			err,
+		)
+	}
+	return param, nil
+}
+
+func withDefaultInt(parser func(string) (int,
+	error)) func(string, int) (int, error) {
+
+	return func(paramStr string, defaultValue int) (int, error) {
+		if paramStr == "" {
+			return defaultValue, nil
+		}
+		return parser(paramStr)
+	}
+}
+
+/////////////////////////////////////////////////////////////
+// Response body extraction
+/////////////////////////////////////////////////////////////
+
+// getResponseCoord extracts departure or arrival coordinates from
+// a json.RawMessage, e.g. as returned by parseArrayResponse. Fails if response has no such coordinates.
+func getResponseCoord(departureOrArrival departureOrArrival, obj json.RawMessage) (util.Coord, error) {
+	var coordResponse util.Coord
+
+	switch departureOrArrival {
+	case departure:
+		type WithPassengerPickupCoord struct {
+			PassengerPickupLat float64 `json:"passengerPickupLat"`
+			PassengerPickupLng float64 `json:"passengerPickupLng"`
+		}
+		var withPassengerPickupCoord WithPassengerPickupCoord
+		err := json.Unmarshal(obj, &withPassengerPickupCoord)
+		if err != nil {
+			return util.Coord{}, err
+		}
+
+		coordResponse = util.Coord{
+			Lat: withPassengerPickupCoord.PassengerPickupLat,
+			Lon: withPassengerPickupCoord.PassengerPickupLng,
+		}
+	case arrival:
+		type WithPassengerDropCoord struct {
+			PassengerDropLat float64 `json:"passengerDropLat"`
+			PassengerDropLng float64 `json:"passengerDropLng"`
+		}
+		var withPassengerDropCoord WithPassengerDropCoord
+		err := json.Unmarshal(obj, &withPassengerDropCoord)
+		if err != nil {
+			return util.Coord{}, err
+		}
+
+		coordResponse = util.Coord{
+			Lat: withPassengerDropCoord.PassengerDropLat,
+			Lon: withPassengerDropCoord.PassengerDropLng,
+		}
 	}
 	return coordResponse, nil
 }
 
-// getQueryRadiusOrDefault returns departureRadius er arrivalRadius query parameter
-// (depending on departureOrArrival), or the default value if missing
-func getQueryRadiusOrDefault(departureOrArrival departureOrArrival, queryParams *api.GetDriverJourneysParams) float64 {
-	const DefaultRadius float32 = 1
-	var radiusPtr *float32
-	switch departureOrArrival {
-	case departure:
-		radiusPtr = queryParams.DepartureRadius
-	case arrival:
-		radiusPtr = queryParams.ArrivalRadius
+func getResponsePickupDate(obj json.RawMessage) (int, error) {
+	type WithPickupDate struct {
+		PassengerPickupDate int `json:"passengerPickupDate"`
 	}
-	var radius float32
-	if radiusPtr != nil {
-		radius = *radiusPtr
-	} else {
-		radius = DefaultRadius
+	var withPickupDate WithPickupDate
+	err := json.Unmarshal(obj, &withPickupDate)
+	if err != nil {
+		return 0, err
 	}
-	return float64(radius)
+	return withPickupDate.PassengerPickupDate, nil
+}
+
+func getResponseID(obj json.RawMessage) (*string, error) {
+	type WithID struct {
+		ID *string `json:"id,omitempty"`
+	}
+	var withID WithID
+	err := json.Unmarshal(obj, &withID)
+	if err != nil {
+		return nil, err
+	}
+	return withID.ID, nil
+}
+
+func getResponseOperator(obj json.RawMessage) (string, error) {
+	type WithOperator struct {
+		Operator string `json:"operator"`
+	}
+	var withOperator WithOperator
+	err := json.Unmarshal(obj, &withOperator)
+	if err != nil {
+		return "", err
+	}
+	return withOperator.Operator, nil
 }
 
 // failedParsing wraps a parsing error with additional details
@@ -63,6 +220,8 @@ func failedParsing(responseOrRequest string, err error) error {
 		err,
 	)
 }
+
+/////////////////////////////////////////////////////////////
 
 type reusableReadCloser struct {
 	io.ReadCloser
@@ -98,4 +257,21 @@ func (r reusableReadCloser) reset() {
 
 func (r reusableReadCloser) Close() error {
 	return nil
+}
+
+/////////////////////////////////////////////////////////////
+
+// parseArrayResponse parses an array of any type, keeping array elements as
+// json.RawMessage
+func parseArrayResponse(rsp *http.Response) ([]json.RawMessage, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+	var dest []json.RawMessage
+	if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+		return nil, err
+	}
+	return dest, nil
 }
