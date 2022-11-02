@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -191,14 +190,14 @@ func getResponsePickupDate(obj json.RawMessage) (int, error) {
 
 func getResponseID(obj json.RawMessage) (*string, error) {
 	type WithID struct {
-		Id *string `json:"id,omitempty"`
+		ID *string `json:"id,omitempty"`
 	}
 	var withID WithID
 	err := json.Unmarshal(obj, &withID)
 	if err != nil {
 		return nil, err
 	}
-	return withID.Id, nil
+	return withID.ID, nil
 }
 
 func getResponseOperator(obj json.RawMessage) (string, error) {
@@ -265,7 +264,7 @@ func (r reusableReadCloser) Close() error {
 // parseArrayResponse parses an array of any type, keeping array elements as
 // json.RawMessage
 func parseArrayResponse(rsp *http.Response) ([]json.RawMessage, error) {
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
