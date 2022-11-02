@@ -614,6 +614,7 @@ func TestValidateOperator(t *testing.T) {
 		{"carpooling.com", true},
 		{"subdomain.operator.com", true},
 		{"subdomain.subdomain.operator.co.uk", true},
+		{"", false},
 		{"random", false},
 		{"https://operator.com", false},
 		{"operator.com/", false},
