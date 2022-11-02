@@ -87,10 +87,10 @@ func CriticAssertArrayNotEmpty(a AssertionAccumulator, response *http.Response) 
 	a.Queue(assertion)
 }
 
-// AssertDriverJourneysTimeDelta checks that the response data respect the
+// AssertJourneysTimeDelta checks that the response data respect the
 // "timeDelta" query parameter
-func AssertDriverJourneysTimeDelta(a AssertionAccumulator, request *http.Request, response *http.Response) {
-	assertion := assertDriverJourneysTimeDelta{request, response}
+func AssertJourneysTimeDelta(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := assertJourneysTimeDelta{request, response}
 	a.Queue(assertion)
 }
 
@@ -288,12 +288,12 @@ func (a assertArrayNotEmpty) Describe() string {
 
 /////////////////////////////////////////////////////////////
 
-type assertDriverJourneysTimeDelta struct {
+type assertJourneysTimeDelta struct {
 	request  *http.Request
 	response *http.Response
 }
 
-func (a assertDriverJourneysTimeDelta) Execute() error {
+func (a assertJourneysTimeDelta) Execute() error {
 	params, err := api.ParseGetDriverJourneysRequest(a.request)
 	if err != nil {
 		return err
@@ -311,7 +311,7 @@ func (a assertDriverJourneysTimeDelta) Execute() error {
 	return nil
 }
 
-func (a assertDriverJourneysTimeDelta) Describe() string {
+func (a assertJourneysTimeDelta) Describe() string {
 
 	return "assert timeDelta"
 }
