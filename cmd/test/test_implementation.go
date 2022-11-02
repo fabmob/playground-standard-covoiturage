@@ -36,7 +36,7 @@ func testGetDriverJourneys(
 	AssertJourneysDepartureRadius(a, request, response)
 	AssertJourneysArrivalRadius(a, request, response)
 	AssertJourneysTimeDelta(a, request, response)
-	AssertDriverJourneysCount(a, request, response)
+	AssertJourneysCount(a, request, response)
 	AssertUniqueIDs(a, response)
 	AssertOperatorFieldFormat(a, response)
 }
@@ -58,7 +58,7 @@ func testGetPassengerJourneys(
 	AssertJourneysDepartureRadius(a, request, response)
 	AssertJourneysArrivalRadius(a, request, response)
 	AssertJourneysTimeDelta(a, request, response)
-	AssertDriverJourneysCount(a, request, response)
+	AssertJourneysCount(a, request, response)
 	AssertUniqueIDs(a, response)
 	AssertOperatorFieldFormat(a, response)
 }

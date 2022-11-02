@@ -43,9 +43,9 @@ func AssertHeaderContains(a AssertionAccumulator, resp *http.Response, key, valu
 	a.Queue(assertion)
 }
 
-// AssertDriverJourneysFormat checks if the response data of
+// AssertFormat checks if the response data of
 // /driver_journeys call has the expected format
-func AssertDriverJourneysFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
+func AssertFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
 	assertion := assertFormat{request, response}
 	a.Queue(assertion)
 }
@@ -92,10 +92,10 @@ func AssertJourneysTimeDelta(a AssertionAccumulator, request *http.Request, resp
 	a.Queue(assertion)
 }
 
-// AssertDriverJourneysCount checks that the response data respect the "count"
+// AssertJourneysCount checks that the response data respect the "count"
 // query parameter
-func AssertDriverJourneysCount(a AssertionAccumulator, request *http.Request, response *http.Response) {
-	assertion := assertDriverJourneysCount{request, response}
+func AssertJourneysCount(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := assertJourneysCount{request, response}
 	a.Queue(assertion)
 }
 
@@ -312,29 +312,29 @@ func (a assertJourneysTimeDelta) Describe() string {
 
 /////////////////////////////////////////////////////////////
 
-type assertDriverJourneysCount struct {
+type assertJourneysCount struct {
 	request  *http.Request
 	response *http.Response
 }
 
-func (a assertDriverJourneysCount) Execute() error {
+func (a assertJourneysCount) Execute() error {
 	count, err := getQueryCount(a.request)
 	if err != nil {
 		return failedParsing("request", err)
 	}
-	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
+	objs, err := parseArrayResponse(a.response)
 	if err != nil {
 		return err
 	}
 	if count != -1 {
-		if len(driverJourneys) > count {
-			return errors.New("the number of returned driver journeys exceeds the query count parameter")
+		if len(objs) > count {
+			return errors.New("the number of returned journeys exceeds the query count parameter")
 		}
 	}
 	return nil
 }
 
-func (a assertDriverJourneysCount) Describe() string {
+func (a assertJourneysCount) Describe() string {
 	return "assert count"
 }
 
