@@ -476,16 +476,14 @@ func TestAssertRadius(t *testing.T) {
 
 			response := mockBodyResponse(responseInterface)
 
-			a := NewAssertionAccu()
-			a.Queue(assertDriverJourneysRadius{request, response,
-				tc.departureOrArrival, tc.passengerOrDriverJourney})
-			a.ExecuteAll()
+			err := singleAssertionError(
+				t,
+				assertDriverJourneysRadius{request, response, tc.departureOrArrival, tc.passengerOrDriverJourney},
+			)
 
-			results := a.GetAssertionResults()
-
-			anyError := results[0].Unwrap() != nil
+			anyError := err != nil
 			if anyError != tc.expectError {
-				t.Log(results[0].Unwrap())
+				t.Log(err)
 				t.Error("Wrong behavior when asserting *radius query parameters")
 			}
 		})
