@@ -36,10 +36,11 @@ func getQueryTimeDelta(req *http.Request) (int, error) {
 }
 
 func getQueryDeparturDate(req *http.Request) (int, error) {
-	return parseQueryIntParam(
-		req,
-		"departureDate",
-	)
+	return parseQueryIntParam(req, "departureDate")
+}
+
+func getQueryCount(req *http.Request) (int, error) {
+	return parseQueryIntParamWithDefault(req, "count", -1)
 }
 
 // getQueryCoord extracts departure or arrival coordinates from

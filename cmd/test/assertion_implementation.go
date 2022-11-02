@@ -318,17 +318,16 @@ type assertDriverJourneysCount struct {
 }
 
 func (a assertDriverJourneysCount) Execute() error {
-	params, err := api.ParseGetDriverJourneysRequest(a.request)
+	count, err := getQueryCount(a.request)
 	if err != nil {
-		return err
+		return failedParsing("request", err)
 	}
 	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
 	if err != nil {
 		return err
 	}
-	if params.Count != nil {
-		expectedMaxCount := params.Count
-		if len(driverJourneys) > *expectedMaxCount {
+	if count != -1 {
+		if len(driverJourneys) > count {
 			return errors.New("the number of returned driver journeys exceeds the query count parameter")
 		}
 	}
