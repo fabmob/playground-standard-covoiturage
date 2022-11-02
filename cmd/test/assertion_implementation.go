@@ -345,19 +345,23 @@ type assertUniqueIDs struct {
 }
 
 func (a assertUniqueIDs) Execute() error {
-	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
+	objsWithID, err := parseArrayResponse(a.response)
 	if err != nil {
-		return err
+		return failedParsing("response", err)
 	}
 	ids := map[string]bool{}
-	for _, dj := range driverJourneys {
-		if dj.Id != nil {
-			id := *dj.Id
+	for _, objWithID := range objsWithID {
+		idPtr, err := getResponseID(objWithID)
+		if err != nil {
+			return failedParsing("response", err)
+		}
+		if idPtr != nil {
+			id := *idPtr
 			_, idDuplicate := ids[id]
 			if idDuplicate {
 				return errors.New("IDs should be unique")
 			}
-			ids[*dj.Id] = true
+			ids[id] = true
 		}
 	}
 	return nil

@@ -187,7 +187,18 @@ func getResponsePickupDate(obj json.RawMessage) (int, error) {
 		return 0, err
 	}
 	return withPickupDate.PassengerPickupDate, nil
+}
 
+func getResponseID(obj json.RawMessage) (*string, error) {
+	type WithID struct {
+		Id *string `json:"id,omitempty"`
+	}
+	var withID WithID
+	err := json.Unmarshal(obj, &withID)
+	if err != nil {
+		return nil, err
+	}
+	return withID.Id, nil
 }
 
 // failedParsing wraps a parsing error with additional details
