@@ -25,6 +25,23 @@ func getQueryRadius(departureOrArrival departureOrArrival, req *http.Request) (f
 	)
 }
 
+// getQueryTimeDelta extracts timeDelta parameter from request
+func getQueryTimeDelta(req *http.Request) (int, error) {
+	const DefaultTimeDelta int = 900
+	return parseQueryIntParamWithDefault(
+		req,
+		"timeDelta",
+		DefaultTimeDelta,
+	)
+}
+
+func getQueryDeparturDate(req *http.Request) (int, error) {
+	return parseQueryIntParam(
+		req,
+		"departureDate",
+	)
+}
+
 // getQueryCoord extracts departure or arrival coordinates from
 // queryParameters
 func getQueryCoord(departureOrArrival departureOrArrival, request *http.Request) (util.Coord, error) {
@@ -71,6 +88,35 @@ func parseQueryFloatParamWithDefault(request *http.Request, paramName string, de
 	if err != nil {
 		return 0, fmt.Errorf(
 			"%s could not be properly parsed as float in query (%w)",
+			paramStr,
+			err,
+		)
+	}
+	return param, nil
+}
+
+func parseQueryIntParam(request *http.Request, paramName string) (int, error) {
+	paramStr := request.URL.Query().Get(paramName)
+	param, err := strconv.Atoi(paramStr)
+	if err != nil {
+		return 0, fmt.Errorf(
+			"%s could not be properly parsed as int in query (%w)",
+			paramStr,
+			err,
+		)
+	}
+	return param, nil
+}
+
+func parseQueryIntParamWithDefault(request *http.Request, paramName string, defaultValue int) (int, error) {
+	paramStr := request.URL.Query().Get(paramName)
+	if paramStr == "" {
+		return defaultValue, nil
+	}
+	param, err := strconv.Atoi(paramStr)
+	if err != nil {
+		return 0, fmt.Errorf(
+			"%s could not be properly parsed as int in query (%w)",
 			paramStr,
 			err,
 		)

@@ -1,9 +1,7 @@
 package test
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"math"
 	"net/http"
 	"strconv"
@@ -255,21 +253,6 @@ type assertArrayNotEmpty struct {
 	response *http.Response
 }
 
-// parseArrayResponse parses an array of any type, keeping array elements as
-// json.RawMessage
-func parseArrayResponse(rsp *http.Response) ([]json.RawMessage, error) {
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-	var dest []json.RawMessage
-	if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-		return nil, err
-	}
-	return dest, nil
-}
-
 func (a assertArrayNotEmpty) Execute() error {
 	array, err := parseArrayResponse(a.response)
 	if err != nil {
@@ -293,17 +276,25 @@ type assertJourneysTimeDelta struct {
 }
 
 func (a assertJourneysTimeDelta) Execute() error {
-	params, err := api.ParseGetDriverJourneysRequest(a.request)
+
+	timeDelta, err := getQueryTimeDelta(a.request)
 	if err != nil {
-		return err
+		return failedParsing("request", err)
 	}
+
+	departureDate, err := getQueryDeparturDate(a.request)
+	if err != nil {
+		return failedParsing("request", err)
+	}
+
 	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
 	if err != nil {
 		return err
 	}
+
 	for _, dj := range driverJourneys {
-		if math.Abs(float64(dj.PassengerPickupDate)-float64(params.DepartureDate)) >
-			float64(params.GetTimeDelta()) {
+		if math.Abs(float64(dj.PassengerPickupDate)-float64(departureDate)) >
+			float64(timeDelta) {
 			return errors.New("a driver journey does not comply to timeDelta query parameter")
 		}
 	}
