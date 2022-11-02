@@ -9,7 +9,6 @@ import (
 
 	tld "github.com/jpillora/go-tld"
 	"github.com/pkg/errors"
-	"gitlab.com/multi/stdcov-api-test/cmd/api"
 	"gitlab.com/multi/stdcov-api-test/cmd/util"
 	"gitlab.com/multi/stdcov-api-test/cmd/validate"
 )
@@ -378,12 +377,16 @@ type assertOperatorFieldFormat struct {
 }
 
 func (a assertOperatorFieldFormat) Execute() error {
-	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
+	objsWithOperator, err := parseArrayResponse(a.response)
 	if err != nil {
 		return err
 	}
-	for _, dj := range driverJourneys {
-		if err := validateOperator(dj.Operator); err != nil {
+	for _, objWithOperator := range objsWithOperator {
+		operator, err := getResponseOperator(objWithOperator)
+		if err != nil {
+			return failedParsing("response", err)
+		}
+		if err := validateOperator(operator); err != nil {
 			return err
 		}
 	}

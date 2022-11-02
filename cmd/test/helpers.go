@@ -201,6 +201,18 @@ func getResponseID(obj json.RawMessage) (*string, error) {
 	return withID.Id, nil
 }
 
+func getResponseOperator(obj json.RawMessage) (string, error) {
+	type WithOperator struct {
+		Operator string `json:"operator"`
+	}
+	var withOperator WithOperator
+	err := json.Unmarshal(obj, &withOperator)
+	if err != nil {
+		return "", err
+	}
+	return withOperator.Operator, nil
+}
+
 // failedParsing wraps a parsing error with additional details
 func failedParsing(responseOrRequest string, err error) error {
 	return fmt.Errorf(
