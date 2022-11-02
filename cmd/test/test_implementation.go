@@ -33,8 +33,8 @@ func testGetDriverJourneys(
 		CriticAssertArrayNotEmpty(a, response)
 	}
 	CriticAssertFormat(a, request, response)
-	AssertDriverJourneysDepartureRadius(a, request, response)
-	AssertDriverJourneysArrivalRadius(a, request, response)
+	AssertJourneysDepartureRadius(a, request, response)
+	AssertJourneysArrivalRadius(a, request, response)
 	AssertDriverJourneysTimeDelta(a, request, response)
 	AssertDriverJourneysCount(a, request, response)
 	AssertUniqueIDs(a, response)
@@ -55,8 +55,8 @@ func testGetPassengerJourneys(
 		CriticAssertArrayNotEmpty(a, response)
 	}
 	CriticAssertFormat(a, request, response)
-	AssertDriverJourneysDepartureRadius(a, request, response)
-	AssertDriverJourneysArrivalRadius(a, request, response)
+	AssertJourneysDepartureRadius(a, request, response)
+	AssertJourneysArrivalRadius(a, request, response)
 	AssertDriverJourneysTimeDelta(a, request, response)
 	AssertDriverJourneysCount(a, request, response)
 	AssertUniqueIDs(a, response)

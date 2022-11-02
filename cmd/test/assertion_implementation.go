@@ -60,17 +60,17 @@ func CriticAssertFormat(a AssertionAccumulator, request *http.Request, response 
 	a.Queue(assertion)
 }
 
-// AssertDriverJourneysDepartureRadius checks that the response data respect
+// AssertJourneysDepartureRadius checks that the response data respect
 // the "departureRadius" query parameter
-func AssertDriverJourneysDepartureRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
-	assertion := assertDriverJourneysRadius{request, response, departure}
+func AssertJourneysDepartureRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := assertJourneysRadius{request, response, departure}
 	a.Queue(assertion)
 }
 
-// AssertDriverJourneysArrivalRadius checks that the response data respect
+// AssertJourneysArrivalRadius checks that the response data respect
 // the "arrivalRadius" query parameter
-func AssertDriverJourneysArrivalRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
-	assertion := assertDriverJourneysRadius{request, response, arrival}
+func AssertJourneysArrivalRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
+	assertion := assertJourneysRadius{request, response, arrival}
 	a.Queue(assertion)
 }
 
@@ -203,28 +203,28 @@ const (
 	arrival   departureOrArrival = "arrivalRadius"
 )
 
-// assertDriverJourneysRadius expects that response format has been validated
-type assertDriverJourneysRadius struct {
+// assertJourneysRadius expects that response format has been validated
+type assertJourneysRadius struct {
 	request            *http.Request
 	response           *http.Response
 	departureOrArrival departureOrArrival
 }
 
-func (a assertDriverJourneysRadius) Execute() error {
+func (a assertJourneysRadius) Execute() error {
 	// Parse request
 	coordsQuery, err := getQueryCoord(a.departureOrArrival, a.request)
 	if err != nil {
 		return failedParsing("request", err)
 	}
-	// As different distance computations may give different distances, we apply
-	// a safety margin
 	radius, err := getQueryRadius(a.departureOrArrival, a.request)
 	if err != nil {
 		return failedParsing("request", err)
 	}
 
+	// As different distance computations may give different distances, we apply
+	// a safety margin
 	safetyMarginPercent := 1.
-	radiusWithMargin := radius * (1. + safetyMarginPercent/100)
+	radius = radius * (1. + safetyMarginPercent/100)
 
 	// Parse response
 	responseObjects, err := parseArrayResponse(a.response)
@@ -238,14 +238,14 @@ func (a assertDriverJourneysRadius) Execute() error {
 			return err
 		}
 		dist := util.Distance(coordsResponse, coordsQuery)
-		if dist > radiusWithMargin {
+		if dist > radius {
 			return fmt.Errorf("a driver journey does not comply to maximum '%s' distance to query parameters", a.departureOrArrival)
 		}
 	}
 	return nil
 }
 
-func (a assertDriverJourneysRadius) Describe() string {
+func (a assertJourneysRadius) Describe() string {
 	return fmt.Sprintf("assert %s", a.departureOrArrival)
 }
 
