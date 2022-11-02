@@ -255,10 +255,9 @@ type assertArrayNotEmpty struct {
 	response *http.Response
 }
 
-// parseArrayOKResponse parses an array of any type, keeping array elements as
+// parseArrayResponse parses an array of any type, keeping array elements as
 // json.RawMessage
 func parseArrayResponse(rsp *http.Response) ([]json.RawMessage, error) {
-
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
