@@ -63,14 +63,14 @@ func CriticAssertFormat(a AssertionAccumulator, request *http.Request, response 
 // AssertDriverJourneysDepartureRadius checks that the response data respect
 // the "departureRadius" query parameter
 func AssertDriverJourneysDepartureRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
-	assertion := assertDriverJourneysRadius{request, response, departure, driverJourney}
+	assertion := assertDriverJourneysRadius{request, response, departure}
 	a.Queue(assertion)
 }
 
 // AssertDriverJourneysArrivalRadius checks that the response data respect
 // the "arrivalRadius" query parameter
 func AssertDriverJourneysArrivalRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
-	assertion := assertDriverJourneysRadius{request, response, arrival, driverJourney}
+	assertion := assertDriverJourneysRadius{request, response, arrival}
 	a.Queue(assertion)
 }
 
@@ -203,19 +203,11 @@ const (
 	arrival   departureOrArrival = "arrivalRadius"
 )
 
-type passengerOrDriverJourney string
-
-const (
-	passengerJourney passengerOrDriverJourney = "passengerJourney"
-	driverJourney    passengerOrDriverJourney = "driverJourney"
-)
-
 // assertDriverJourneysRadius expects that response format has been validated
 type assertDriverJourneysRadius struct {
-	request                  *http.Request
-	response                 *http.Response
-	departureOrArrival       departureOrArrival
-	passengerOrDriverJourney passengerOrDriverJourney
+	request            *http.Request
+	response           *http.Response
+	departureOrArrival departureOrArrival
 }
 
 func (a assertDriverJourneysRadius) Execute() error {
