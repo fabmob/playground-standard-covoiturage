@@ -1,0 +1,8 @@
+package: api
+generate:
+  models: true
+  client: true
+  echo-server: true
+output: api_helpers.gen.go
+compatibility:
+  old-merge-schemas: true

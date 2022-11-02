@@ -69,3 +69,19 @@ func (p GetDriverJourneysParams) GetArrivalRadius() float64 {
 	}
 	return float64(*p.ArrivalRadius)
 }
+
+// NewDriverJourney returns a valid DriverJourney
+func NewDriverJourney() DriverJourney {
+	dj := DriverJourney{}
+	dj.Type = "DYNAMIC"
+	return dj
+}
+
+// NewPassengerJourney returns a valid PassengerJourney
+func NewPassengerJourney() PassengerJourney {
+	dj := PassengerJourney{}
+	departureDate := int64(0)
+	dj.DriverDepartureDate = &departureDate
+	dj.Type = "DYNAMIC"
+	return dj
+}

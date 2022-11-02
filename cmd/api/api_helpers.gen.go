@@ -28,43 +28,11 @@ const (
 	CarpoolBookingStatusWAITINGCONFIRMATION        CarpoolBookingStatus = "WAITING_CONFIRMATION"
 )
 
-// Defines values for DriverCarpoolBookingStatus.
-const (
-	DriverCarpoolBookingStatusCANCELLED                  DriverCarpoolBookingStatus = "CANCELLED"
-	DriverCarpoolBookingStatusCOMPLETEDPENDINGVALIDATION DriverCarpoolBookingStatus = "COMPLETED_PENDING_VALIDATION"
-	DriverCarpoolBookingStatusCONFIRMED                  DriverCarpoolBookingStatus = "CONFIRMED"
-	DriverCarpoolBookingStatusVALIDATED                  DriverCarpoolBookingStatus = "VALIDATED"
-	DriverCarpoolBookingStatusWAITINGCONFIRMATION        DriverCarpoolBookingStatus = "WAITING_CONFIRMATION"
-)
-
-// Defines values for DriverJourneyType.
-const (
-	DriverJourneyTypeDYNAMIC DriverJourneyType = "DYNAMIC"
-	DriverJourneyTypeLINE    DriverJourneyType = "LINE"
-	DriverJourneyTypePLANNED DriverJourneyType = "PLANNED"
-)
-
 // Defines values for JourneyScheduleType.
 const (
-	JourneyScheduleTypeDYNAMIC JourneyScheduleType = "DYNAMIC"
-	JourneyScheduleTypeLINE    JourneyScheduleType = "LINE"
-	JourneyScheduleTypePLANNED JourneyScheduleType = "PLANNED"
-)
-
-// Defines values for PassengerCarpoolBookingStatus.
-const (
-	PassengerCarpoolBookingStatusCANCELLED                  PassengerCarpoolBookingStatus = "CANCELLED"
-	PassengerCarpoolBookingStatusCOMPLETEDPENDINGVALIDATION PassengerCarpoolBookingStatus = "COMPLETED_PENDING_VALIDATION"
-	PassengerCarpoolBookingStatusCONFIRMED                  PassengerCarpoolBookingStatus = "CONFIRMED"
-	PassengerCarpoolBookingStatusVALIDATED                  PassengerCarpoolBookingStatus = "VALIDATED"
-	PassengerCarpoolBookingStatusWAITINGCONFIRMATION        PassengerCarpoolBookingStatus = "WAITING_CONFIRMATION"
-)
-
-// Defines values for PassengerJourneyType.
-const (
-	DYNAMIC PassengerJourneyType = "DYNAMIC"
-	LINE    PassengerJourneyType = "LINE"
-	PLANNED PassengerJourneyType = "PLANNED"
+	DYNAMIC JourneyScheduleType = "DYNAMIC"
+	LINE    JourneyScheduleType = "LINE"
+	PLANNED JourneyScheduleType = "PLANNED"
 )
 
 // Defines values for PriceType.
@@ -213,153 +181,31 @@ type CarpoolBookingEvent struct {
 
 // DriverCarpoolBooking defines model for DriverCarpoolBooking.
 type DriverCarpoolBooking struct {
-	Car *Car `json:"car,omitempty"`
-
-	// Carpooling distance in meters. When the booking is COMPLETED or VALIDATED, this is the actual distance travelled if available.
-	Distance *int `json:"distance,omitempty"`
-	Driver   User `json:"driver"`
-
-	// Carpooling duration in seconds.
-	Duration *int `json:"duration,omitempty"`
-
-	// Unique identifier of the booking.
-	Id string `json:"id"`
-
-	// String representing the drop-off address.
-	PassengerDropAddress *string `json:"passengerDropAddress,omitempty"`
-
-	// Latitude of the passenger drop-off point.
-	PassengerDropLat float64 `json:"passengerDropLat"`
-
-	// Longitude of the passenger drop-off point.
-	PassengerDropLng float64 `json:"passengerDropLng"`
-
-	// String representing the pickup-up address.
-	PassengerPickupAddress *string `json:"passengerPickupAddress,omitempty"`
-
-	// Passenger pickup datetime as a UNIX UTC timestamp in seconds.
-	PassengerPickupDate int64 `json:"passengerPickupDate"`
-
-	// Latitude of the passenger pick-up point.
-	PassengerPickupLat float64 `json:"passengerPickupLat"`
-
-	// Longitude of the passenger pick-up point.
-	PassengerPickupLng float64                    `json:"passengerPickupLng"`
-	Price              Price                      `json:"price"`
-	Status             DriverCarpoolBookingStatus `json:"status"`
-
-	// URL of the booking on the webservice provider platform.
-	WebUrl string `json:"webUrl"`
+	// Embedded struct due to allOf(#/components/schemas/CarpoolBooking)
+	CarpoolBooking `yaml:",inline"`
+	// Embedded fields due to inline allOf schema
+	Car    *Car  `json:"car,omitempty"`
+	Driver User  `json:"driver"`
+	Price  Price `json:"price"`
 }
-
-// DriverCarpoolBookingStatus defines model for DriverCarpoolBooking.Status.
-type DriverCarpoolBookingStatus string
 
 // DriverJourney defines model for DriverJourney.
 type DriverJourney struct {
+	// Embedded struct due to allOf(#/components/schemas/DriverTrip)
+	DriverTrip `yaml:",inline"`
+	// Embedded struct due to allOf(#/components/schemas/JourneySchedule)
+	JourneySchedule `yaml:",inline"`
+	// Embedded fields due to inline allOf schema
 	// Available seats in the car.
-	AvailableSeats *int `json:"availableSeats,omitempty"`
-	Car            *Car `json:"car,omitempty"`
-
-	// Walking distance from the requested departure location
-	// to the pick-up location.
-	DepartureToPickupWalkingDistance *int `json:"departureToPickupWalkingDistance,omitempty"`
-
-	// Walking duration from the requested departure location
-	// to the pick-up location.
-	DepartureToPickupWalkingDuration *int `json:"departureToPickupWalkingDuration,omitempty"`
-
-	// Walking
-	// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm)
-	// from the requested departure location to the pick-up location.
-	DepartureToPickupWalkingPolyline *string `json:"departureToPickupWalkingPolyline,omitempty"`
-
-	// Carpooling distance in meters.
-	Distance *int `json:"distance,omitempty"`
-	Driver   User `json:"driver"`
-
-	// String representing the arrival address of the driver.
-	DriverArrivalAddress *string `json:"driverArrivalAddress,omitempty"`
-
-	// Latitude of the arrival.
-	DriverArrivalLat *float64 `json:"driverArrivalLat,omitempty"`
-
-	// Longitude of the arrival.
-	DriverArrivalLng *float64 `json:"driverArrivalLng,omitempty"`
-
-	// String representing the departure address of the driver.
-	DriverDepartureAddress *string `json:"driverDepartureAddress,omitempty"`
-
-	// Driver departure datetime as a UNIX UTC timestamp in seconds.
-	DriverDepartureDate *int64 `json:"driverDepartureDate,omitempty"`
-
-	// Latitude of the departure.
-	DriverDepartureLat *float64 `json:"driverDepartureLat,omitempty"`
-
-	// Longitude of the departure.
-	DriverDepartureLng *float64 `json:"driverDepartureLng,omitempty"`
-
-	// Walking distance to the requested arrival location
-	// from the drop-off location.
-	DropoffToArrivalWalkingDistance *int `json:"dropoffToArrivalWalkingDistance,omitempty"`
-
-	// Walking duration to the requested arrival location
-	// from the drop-off location.
-	DropoffToArrivalWalkingDuration *int `json:"dropoffToArrivalWalkingDuration,omitempty"`
-
-	// Walking
-	// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm)
-	// to the requested arrival location from the drop-off location.
-	DropoffToArrivalWalkingPolyline *string `json:"dropoffToArrivalWalkingPolyline,omitempty"`
-
-	// Carpooling duration in seconds.
-	Duration int `json:"duration"`
-
-	// Journey's id. It MUST be unique for a given operator.
-	Id *string `json:"id,omitempty"`
-
-	// Carpooling journey itinerary as a
-	// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm), compressed at  level 5.
-	JourneyPolyline *string `json:"journeyPolyline,omitempty"`
-
-	// The operator identifier. MUST be a Root Domain (example operator.org) owned by the operator or a Fully Qualified Domain Name (example carpool.mycity.com) exclusively operated by the operator. A given operator SHOULD always send the same value.
-	Operator string `json:"operator"`
-
-	// String representing the drop-off address.
-	PassengerDropAddress *string `json:"passengerDropAddress,omitempty"`
-
-	// Latitude of the passenger drop-off point.
-	PassengerDropLat float64 `json:"passengerDropLat"`
-
-	// Longitude of the passenger drop-off point.
-	PassengerDropLng float64 `json:"passengerDropLng"`
-
-	// String representing the pickup-up address.
-	PassengerPickupAddress *string `json:"passengerPickupAddress,omitempty"`
-
-	// Passenger pickup datetime as a UNIX UTC timestamp in seconds.
-	PassengerPickupDate int64 `json:"passengerPickupDate"`
-
-	// Latitude of the passenger pick-up point.
-	PassengerPickupLat float64 `json:"passengerPickupLat"`
-
-	// Longitude of the passenger pick-up point.
-	PassengerPickupLng float64      `json:"passengerPickupLng"`
-	Preferences        *Preferences `json:"preferences,omitempty"`
-	Price              *Price       `json:"price,omitempty"`
-
-	// Type of journey. A dynamic journey is happening in real time.
-	Type DriverJourneyType `json:"type"`
-
-	// URL of the journey on the webservice provider platform. Required to support booking by deeplink.
-	WebUrl *string `json:"webUrl,omitempty"`
+	AvailableSeats *int   `json:"availableSeats,omitempty"`
+	Price          *Price `json:"price,omitempty"`
 }
-
-// Type of journey. A dynamic journey is happening in real time.
-type DriverJourneyType string
 
 // DriverTrip defines model for DriverTrip.
 type DriverTrip struct {
+	// Embedded struct due to allOf(#/components/schemas/Trip)
+	Trip `yaml:",inline"`
+	// Embedded fields due to inline allOf schema
 	Car *Car `json:"car,omitempty"`
 
 	// Walking distance from the requested departure location
@@ -374,28 +220,7 @@ type DriverTrip struct {
 	// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm)
 	// from the requested departure location to the pick-up location.
 	DepartureToPickupWalkingPolyline *string `json:"departureToPickupWalkingPolyline,omitempty"`
-
-	// Carpooling distance in meters.
-	Distance *int `json:"distance,omitempty"`
-	Driver   User `json:"driver"`
-
-	// String representing the arrival address of the driver.
-	DriverArrivalAddress *string `json:"driverArrivalAddress,omitempty"`
-
-	// Latitude of the arrival.
-	DriverArrivalLat *float64 `json:"driverArrivalLat,omitempty"`
-
-	// Longitude of the arrival.
-	DriverArrivalLng *float64 `json:"driverArrivalLng,omitempty"`
-
-	// String representing the departure address of the driver.
-	DriverDepartureAddress *string `json:"driverDepartureAddress,omitempty"`
-
-	// Latitude of the departure.
-	DriverDepartureLat *float64 `json:"driverDepartureLat,omitempty"`
-
-	// Longitude of the departure.
-	DriverDepartureLng *float64 `json:"driverDepartureLng,omitempty"`
+	Driver                           User    `json:"driver"`
 
 	// Walking distance to the requested arrival location
 	// from the drop-off location.
@@ -409,38 +234,6 @@ type DriverTrip struct {
 	// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm)
 	// to the requested arrival location from the drop-off location.
 	DropoffToArrivalWalkingPolyline *string `json:"dropoffToArrivalWalkingPolyline,omitempty"`
-
-	// Carpooling duration in seconds.
-	Duration int `json:"duration"`
-
-	// Carpooling journey itinerary as a
-	// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm), compressed at  level 5.
-	JourneyPolyline *string `json:"journeyPolyline,omitempty"`
-
-	// The operator identifier. MUST be a Root Domain (example operator.org) owned by the operator or a Fully Qualified Domain Name (example carpool.mycity.com) exclusively operated by the operator. A given operator SHOULD always send the same value.
-	Operator string `json:"operator"`
-
-	// String representing the drop-off address.
-	PassengerDropAddress *string `json:"passengerDropAddress,omitempty"`
-
-	// Latitude of the passenger drop-off point.
-	PassengerDropLat float64 `json:"passengerDropLat"`
-
-	// Longitude of the passenger drop-off point.
-	PassengerDropLng float64 `json:"passengerDropLng"`
-
-	// String representing the pickup-up address.
-	PassengerPickupAddress *string `json:"passengerPickupAddress,omitempty"`
-
-	// Latitude of the passenger pick-up point.
-	PassengerPickupLat float64 `json:"passengerPickupLat"`
-
-	// Longitude of the passenger pick-up point.
-	PassengerPickupLng float64      `json:"passengerPickupLng"`
-	Preferences        *Preferences `json:"preferences,omitempty"`
-
-	// URL of the trip on the webservice provider platform.
-	WebUrl *string `json:"webUrl,omitempty"`
 }
 
 // JourneySchedule defines model for JourneySchedule.
@@ -466,175 +259,29 @@ type JourneyScheduleType string
 
 // PassengerCarpoolBooking defines model for PassengerCarpoolBooking.
 type PassengerCarpoolBooking struct {
-	// Carpooling distance in meters. When the booking is COMPLETED or VALIDATED, this is the actual distance travelled if available.
-	Distance *int `json:"distance,omitempty"`
-
-	// Carpooling duration in seconds.
-	Duration *int `json:"duration,omitempty"`
-
-	// Unique identifier of the booking.
-	Id        string `json:"id"`
-	Passenger User   `json:"passenger"`
-
-	// String representing the drop-off address.
-	PassengerDropAddress *string `json:"passengerDropAddress,omitempty"`
-
-	// Latitude of the passenger drop-off point.
-	PassengerDropLat float64 `json:"passengerDropLat"`
-
-	// Longitude of the passenger drop-off point.
-	PassengerDropLng float64 `json:"passengerDropLng"`
-
-	// String representing the pickup-up address.
-	PassengerPickupAddress *string `json:"passengerPickupAddress,omitempty"`
-
-	// Passenger pickup datetime as a UNIX UTC timestamp in seconds.
-	PassengerPickupDate int64 `json:"passengerPickupDate"`
-
-	// Latitude of the passenger pick-up point.
-	PassengerPickupLat float64 `json:"passengerPickupLat"`
-
-	// Longitude of the passenger pick-up point.
-	PassengerPickupLng float64                       `json:"passengerPickupLng"`
-	Status             PassengerCarpoolBookingStatus `json:"status"`
-
-	// URL of the booking on the webservice provider platform.
-	WebUrl string `json:"webUrl"`
+	// Embedded struct due to allOf(#/components/schemas/CarpoolBooking)
+	CarpoolBooking `yaml:",inline"`
+	// Embedded fields due to inline allOf schema
+	Passenger User `json:"passenger"`
 }
-
-// PassengerCarpoolBookingStatus defines model for PassengerCarpoolBooking.Status.
-type PassengerCarpoolBookingStatus string
 
 // PassengerJourney defines model for PassengerJourney.
 type PassengerJourney struct {
-	// Carpooling distance in meters.
-	Distance *int `json:"distance,omitempty"`
-
-	// String representing the arrival address of the driver.
-	DriverArrivalAddress *string `json:"driverArrivalAddress,omitempty"`
-
-	// Latitude of the arrival.
-	DriverArrivalLat *float64 `json:"driverArrivalLat,omitempty"`
-
-	// Longitude of the arrival.
-	DriverArrivalLng *float64 `json:"driverArrivalLng,omitempty"`
-
-	// String representing the departure address of the driver.
-	DriverDepartureAddress *string `json:"driverDepartureAddress,omitempty"`
-
-	// Driver departure datetime as a UNIX UTC timestamp in seconds.
-	DriverDepartureDate int64 `json:"driverDepartureDate"`
-
-	// Latitude of the departure.
-	DriverDepartureLat *float64 `json:"driverDepartureLat,omitempty"`
-
-	// Longitude of the departure.
-	DriverDepartureLng *float64 `json:"driverDepartureLng,omitempty"`
-
-	// Carpooling duration in seconds.
-	Duration int `json:"duration"`
-
-	// Journey's id. It MUST be unique for a given operator.
-	Id *string `json:"id,omitempty"`
-
-	// Carpooling journey itinerary as a
-	// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm), compressed at  level 5.
-	JourneyPolyline *string `json:"journeyPolyline,omitempty"`
-
-	// The operator identifier. MUST be a Root Domain (example operator.org) owned by the operator or a Fully Qualified Domain Name (example carpool.mycity.com) exclusively operated by the operator. A given operator SHOULD always send the same value.
-	Operator  string `json:"operator"`
-	Passenger User   `json:"passenger"`
-
-	// String representing the drop-off address.
-	PassengerDropAddress *string `json:"passengerDropAddress,omitempty"`
-
-	// Latitude of the passenger drop-off point.
-	PassengerDropLat float64 `json:"passengerDropLat"`
-
-	// Longitude of the passenger drop-off point.
-	PassengerDropLng float64 `json:"passengerDropLng"`
-
-	// String representing the pickup-up address.
-	PassengerPickupAddress *string `json:"passengerPickupAddress,omitempty"`
-
-	// Passenger pickup datetime as a UNIX UTC timestamp in seconds.
-	PassengerPickupDate int64 `json:"passengerPickupDate"`
-
-	// Latitude of the passenger pick-up point.
-	PassengerPickupLat float64 `json:"passengerPickupLat"`
-
-	// Longitude of the passenger pick-up point.
-	PassengerPickupLng float64      `json:"passengerPickupLng"`
-	Preferences        *Preferences `json:"preferences,omitempty"`
-
+	// Embedded struct due to allOf(#/components/schemas/PassengerTrip)
+	PassengerTrip `yaml:",inline"`
+	// Embedded struct due to allOf(#/components/schemas/JourneySchedule)
+	JourneySchedule `yaml:",inline"`
+	// Embedded fields due to inline allOf schema
 	// Requested seats by the passenger.
 	RequestedSeats *int `json:"requestedSeats,omitempty"`
-
-	// Type of journey. A dynamic journey is happening in real time.
-	Type PassengerJourneyType `json:"type"`
-
-	// URL of the journey on the webservice provider platform. Required to support booking by deeplink.
-	WebUrl *string `json:"webUrl,omitempty"`
 }
-
-// Type of journey. A dynamic journey is happening in real time.
-type PassengerJourneyType string
 
 // PassengerTrip defines model for PassengerTrip.
 type PassengerTrip struct {
-	// Carpooling distance in meters.
-	Distance *int `json:"distance,omitempty"`
-
-	// String representing the arrival address of the driver.
-	DriverArrivalAddress *string `json:"driverArrivalAddress,omitempty"`
-
-	// Latitude of the arrival.
-	DriverArrivalLat *float64 `json:"driverArrivalLat,omitempty"`
-
-	// Longitude of the arrival.
-	DriverArrivalLng *float64 `json:"driverArrivalLng,omitempty"`
-
-	// String representing the departure address of the driver.
-	DriverDepartureAddress *string `json:"driverDepartureAddress,omitempty"`
-
-	// Latitude of the departure.
-	DriverDepartureLat *float64 `json:"driverDepartureLat,omitempty"`
-
-	// Longitude of the departure.
-	DriverDepartureLng *float64 `json:"driverDepartureLng,omitempty"`
-
-	// Carpooling duration in seconds.
-	Duration int `json:"duration"`
-
-	// Carpooling journey itinerary as a
-	// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm), compressed at  level 5.
-	JourneyPolyline *string `json:"journeyPolyline,omitempty"`
-
-	// The operator identifier. MUST be a Root Domain (example operator.org) owned by the operator or a Fully Qualified Domain Name (example carpool.mycity.com) exclusively operated by the operator. A given operator SHOULD always send the same value.
-	Operator  string `json:"operator"`
-	Passenger User   `json:"passenger"`
-
-	// String representing the drop-off address.
-	PassengerDropAddress *string `json:"passengerDropAddress,omitempty"`
-
-	// Latitude of the passenger drop-off point.
-	PassengerDropLat float64 `json:"passengerDropLat"`
-
-	// Longitude of the passenger drop-off point.
-	PassengerDropLng float64 `json:"passengerDropLng"`
-
-	// String representing the pickup-up address.
-	PassengerPickupAddress *string `json:"passengerPickupAddress,omitempty"`
-
-	// Latitude of the passenger pick-up point.
-	PassengerPickupLat float64 `json:"passengerPickupLat"`
-
-	// Longitude of the passenger pick-up point.
-	PassengerPickupLng float64      `json:"passengerPickupLng"`
-	Preferences        *Preferences `json:"preferences,omitempty"`
-
-	// URL of the trip on the webservice provider platform.
-	WebUrl *string `json:"webUrl,omitempty"`
+	// Embedded struct due to allOf(#/components/schemas/Trip)
+	Trip `yaml:",inline"`
+	// Embedded fields due to inline allOf schema
+	Passenger User `json:"passenger"`
 }
 
 // Preferences defines model for Preferences.
@@ -2466,88 +2113,10 @@ type GetDriverRegularTripsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *[]struct {
-		Car *Car `json:"car,omitempty"`
-
-		// Walking distance from the requested departure location
-		// to the pick-up location.
-		DepartureToPickupWalkingDistance *int `json:"departureToPickupWalkingDistance,omitempty"`
-
-		// Walking duration from the requested departure location
-		// to the pick-up location.
-		DepartureToPickupWalkingDuration *int `json:"departureToPickupWalkingDuration,omitempty"`
-
-		// Walking
-		// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm)
-		// from the requested departure location to the pick-up location.
-		DepartureToPickupWalkingPolyline *string `json:"departureToPickupWalkingPolyline,omitempty"`
-
-		// Carpooling distance in meters.
-		Distance *int `json:"distance,omitempty"`
-		Driver   User `json:"driver"`
-
-		// String representing the arrival address of the driver.
-		DriverArrivalAddress *string `json:"driverArrivalAddress,omitempty"`
-
-		// Latitude of the arrival.
-		DriverArrivalLat *float64 `json:"driverArrivalLat,omitempty"`
-
-		// Longitude of the arrival.
-		DriverArrivalLng *float64 `json:"driverArrivalLng,omitempty"`
-
-		// String representing the departure address of the driver.
-		DriverDepartureAddress *string `json:"driverDepartureAddress,omitempty"`
-
-		// Latitude of the departure.
-		DriverDepartureLat *float64 `json:"driverDepartureLat,omitempty"`
-
-		// Longitude of the departure.
-		DriverDepartureLng *float64 `json:"driverDepartureLng,omitempty"`
-
-		// Walking distance to the requested arrival location
-		// from the drop-off location.
-		DropoffToArrivalWalkingDistance *int `json:"dropoffToArrivalWalkingDistance,omitempty"`
-
-		// Walking duration to the requested arrival location
-		// from the drop-off location.
-		DropoffToArrivalWalkingDuration *int `json:"dropoffToArrivalWalkingDuration,omitempty"`
-
-		// Walking
-		// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm)
-		// to the requested arrival location from the drop-off location.
-		DropoffToArrivalWalkingPolyline *string `json:"dropoffToArrivalWalkingPolyline,omitempty"`
-
-		// Carpooling duration in seconds.
-		Duration int `json:"duration"`
-
-		// Carpooling journey itinerary as a
-		// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm), compressed at  level 5.
-		JourneyPolyline *string `json:"journeyPolyline,omitempty"`
-
-		// The operator identifier. MUST be a Root Domain (example operator.org) owned by the operator or a Fully Qualified Domain Name (example carpool.mycity.com) exclusively operated by the operator. A given operator SHOULD always send the same value.
-		Operator string `json:"operator"`
-
-		// String representing the drop-off address.
-		PassengerDropAddress *string `json:"passengerDropAddress,omitempty"`
-
-		// Latitude of the passenger drop-off point.
-		PassengerDropLat float64 `json:"passengerDropLat"`
-
-		// Longitude of the passenger drop-off point.
-		PassengerDropLng float64 `json:"passengerDropLng"`
-
-		// String representing the pickup-up address.
-		PassengerPickupAddress *string `json:"passengerPickupAddress,omitempty"`
-
-		// Latitude of the passenger pick-up point.
-		PassengerPickupLat float64 `json:"passengerPickupLat"`
-
-		// Longitude of the passenger pick-up point.
-		PassengerPickupLng float64      `json:"passengerPickupLng"`
-		Preferences        *Preferences `json:"preferences,omitempty"`
-		Schedules          *[]Schedule  `json:"schedules,omitempty"`
-
-		// URL of the trip on the webservice provider platform.
-		WebUrl *string `json:"webUrl,omitempty"`
+		// Embedded struct due to allOf(#/components/schemas/DriverTrip)
+		DriverTrip `yaml:",inline"`
+		// Embedded fields due to inline allOf schema
+		Schedules *[]Schedule `json:"schedules,omitempty"`
 	}
 	JSON400 *struct {
 		// Explain why the request couldn't be processed.
@@ -2626,60 +2195,10 @@ type GetPassengerRegularTripsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *[]struct {
-		// Carpooling distance in meters.
-		Distance *int `json:"distance,omitempty"`
-
-		// String representing the arrival address of the driver.
-		DriverArrivalAddress *string `json:"driverArrivalAddress,omitempty"`
-
-		// Latitude of the arrival.
-		DriverArrivalLat *float64 `json:"driverArrivalLat,omitempty"`
-
-		// Longitude of the arrival.
-		DriverArrivalLng *float64 `json:"driverArrivalLng,omitempty"`
-
-		// String representing the departure address of the driver.
-		DriverDepartureAddress *string `json:"driverDepartureAddress,omitempty"`
-
-		// Latitude of the departure.
-		DriverDepartureLat *float64 `json:"driverDepartureLat,omitempty"`
-
-		// Longitude of the departure.
-		DriverDepartureLng *float64 `json:"driverDepartureLng,omitempty"`
-
-		// Carpooling duration in seconds.
-		Duration int `json:"duration"`
-
-		// Carpooling journey itinerary as a
-		// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm), compressed at  level 5.
-		JourneyPolyline *string `json:"journeyPolyline,omitempty"`
-
-		// The operator identifier. MUST be a Root Domain (example operator.org) owned by the operator or a Fully Qualified Domain Name (example carpool.mycity.com) exclusively operated by the operator. A given operator SHOULD always send the same value.
-		Operator  string `json:"operator"`
-		Passenger User   `json:"passenger"`
-
-		// String representing the drop-off address.
-		PassengerDropAddress *string `json:"passengerDropAddress,omitempty"`
-
-		// Latitude of the passenger drop-off point.
-		PassengerDropLat float64 `json:"passengerDropLat"`
-
-		// Longitude of the passenger drop-off point.
-		PassengerDropLng float64 `json:"passengerDropLng"`
-
-		// String representing the pickup-up address.
-		PassengerPickupAddress *string `json:"passengerPickupAddress,omitempty"`
-
-		// Latitude of the passenger pick-up point.
-		PassengerPickupLat float64 `json:"passengerPickupLat"`
-
-		// Longitude of the passenger pick-up point.
-		PassengerPickupLng float64      `json:"passengerPickupLng"`
-		Preferences        *Preferences `json:"preferences,omitempty"`
-		Schedules          *[]Schedule  `json:"schedules,omitempty"`
-
-		// URL of the trip on the webservice provider platform.
-		WebUrl *string `json:"webUrl,omitempty"`
+		// Embedded struct due to allOf(#/components/schemas/PassengerTrip)
+		PassengerTrip `yaml:",inline"`
+		// Embedded fields due to inline allOf schema
+		Schedules *[]Schedule `json:"schedules,omitempty"`
 	}
 	JSON400 *struct {
 		// Explain why the request couldn't be processed.
@@ -3050,88 +2569,10 @@ func ParseGetDriverRegularTripsResponse(rsp *http.Response) (*GetDriverRegularTr
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest []struct {
-			Car *Car `json:"car,omitempty"`
-
-			// Walking distance from the requested departure location
-			// to the pick-up location.
-			DepartureToPickupWalkingDistance *int `json:"departureToPickupWalkingDistance,omitempty"`
-
-			// Walking duration from the requested departure location
-			// to the pick-up location.
-			DepartureToPickupWalkingDuration *int `json:"departureToPickupWalkingDuration,omitempty"`
-
-			// Walking
-			// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm)
-			// from the requested departure location to the pick-up location.
-			DepartureToPickupWalkingPolyline *string `json:"departureToPickupWalkingPolyline,omitempty"`
-
-			// Carpooling distance in meters.
-			Distance *int `json:"distance,omitempty"`
-			Driver   User `json:"driver"`
-
-			// String representing the arrival address of the driver.
-			DriverArrivalAddress *string `json:"driverArrivalAddress,omitempty"`
-
-			// Latitude of the arrival.
-			DriverArrivalLat *float64 `json:"driverArrivalLat,omitempty"`
-
-			// Longitude of the arrival.
-			DriverArrivalLng *float64 `json:"driverArrivalLng,omitempty"`
-
-			// String representing the departure address of the driver.
-			DriverDepartureAddress *string `json:"driverDepartureAddress,omitempty"`
-
-			// Latitude of the departure.
-			DriverDepartureLat *float64 `json:"driverDepartureLat,omitempty"`
-
-			// Longitude of the departure.
-			DriverDepartureLng *float64 `json:"driverDepartureLng,omitempty"`
-
-			// Walking distance to the requested arrival location
-			// from the drop-off location.
-			DropoffToArrivalWalkingDistance *int `json:"dropoffToArrivalWalkingDistance,omitempty"`
-
-			// Walking duration to the requested arrival location
-			// from the drop-off location.
-			DropoffToArrivalWalkingDuration *int `json:"dropoffToArrivalWalkingDuration,omitempty"`
-
-			// Walking
-			// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm)
-			// to the requested arrival location from the drop-off location.
-			DropoffToArrivalWalkingPolyline *string `json:"dropoffToArrivalWalkingPolyline,omitempty"`
-
-			// Carpooling duration in seconds.
-			Duration int `json:"duration"`
-
-			// Carpooling journey itinerary as a
-			// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm), compressed at  level 5.
-			JourneyPolyline *string `json:"journeyPolyline,omitempty"`
-
-			// The operator identifier. MUST be a Root Domain (example operator.org) owned by the operator or a Fully Qualified Domain Name (example carpool.mycity.com) exclusively operated by the operator. A given operator SHOULD always send the same value.
-			Operator string `json:"operator"`
-
-			// String representing the drop-off address.
-			PassengerDropAddress *string `json:"passengerDropAddress,omitempty"`
-
-			// Latitude of the passenger drop-off point.
-			PassengerDropLat float64 `json:"passengerDropLat"`
-
-			// Longitude of the passenger drop-off point.
-			PassengerDropLng float64 `json:"passengerDropLng"`
-
-			// String representing the pickup-up address.
-			PassengerPickupAddress *string `json:"passengerPickupAddress,omitempty"`
-
-			// Latitude of the passenger pick-up point.
-			PassengerPickupLat float64 `json:"passengerPickupLat"`
-
-			// Longitude of the passenger pick-up point.
-			PassengerPickupLng float64      `json:"passengerPickupLng"`
-			Preferences        *Preferences `json:"preferences,omitempty"`
-			Schedules          *[]Schedule  `json:"schedules,omitempty"`
-
-			// URL of the trip on the webservice provider platform.
-			WebUrl *string `json:"webUrl,omitempty"`
+			// Embedded struct due to allOf(#/components/schemas/DriverTrip)
+			DriverTrip `yaml:",inline"`
+			// Embedded fields due to inline allOf schema
+			Schedules *[]Schedule `json:"schedules,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -3234,60 +2675,10 @@ func ParseGetPassengerRegularTripsResponse(rsp *http.Response) (*GetPassengerReg
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest []struct {
-			// Carpooling distance in meters.
-			Distance *int `json:"distance,omitempty"`
-
-			// String representing the arrival address of the driver.
-			DriverArrivalAddress *string `json:"driverArrivalAddress,omitempty"`
-
-			// Latitude of the arrival.
-			DriverArrivalLat *float64 `json:"driverArrivalLat,omitempty"`
-
-			// Longitude of the arrival.
-			DriverArrivalLng *float64 `json:"driverArrivalLng,omitempty"`
-
-			// String representing the departure address of the driver.
-			DriverDepartureAddress *string `json:"driverDepartureAddress,omitempty"`
-
-			// Latitude of the departure.
-			DriverDepartureLat *float64 `json:"driverDepartureLat,omitempty"`
-
-			// Longitude of the departure.
-			DriverDepartureLng *float64 `json:"driverDepartureLng,omitempty"`
-
-			// Carpooling duration in seconds.
-			Duration int `json:"duration"`
-
-			// Carpooling journey itinerary as a
-			// [Google Encoded Polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm), compressed at  level 5.
-			JourneyPolyline *string `json:"journeyPolyline,omitempty"`
-
-			// The operator identifier. MUST be a Root Domain (example operator.org) owned by the operator or a Fully Qualified Domain Name (example carpool.mycity.com) exclusively operated by the operator. A given operator SHOULD always send the same value.
-			Operator  string `json:"operator"`
-			Passenger User   `json:"passenger"`
-
-			// String representing the drop-off address.
-			PassengerDropAddress *string `json:"passengerDropAddress,omitempty"`
-
-			// Latitude of the passenger drop-off point.
-			PassengerDropLat float64 `json:"passengerDropLat"`
-
-			// Longitude of the passenger drop-off point.
-			PassengerDropLng float64 `json:"passengerDropLng"`
-
-			// String representing the pickup-up address.
-			PassengerPickupAddress *string `json:"passengerPickupAddress,omitempty"`
-
-			// Latitude of the passenger pick-up point.
-			PassengerPickupLat float64 `json:"passengerPickupLat"`
-
-			// Longitude of the passenger pick-up point.
-			PassengerPickupLng float64      `json:"passengerPickupLng"`
-			Preferences        *Preferences `json:"preferences,omitempty"`
-			Schedules          *[]Schedule  `json:"schedules,omitempty"`
-
-			// URL of the trip on the webservice provider platform.
-			WebUrl *string `json:"webUrl,omitempty"`
+			// Embedded struct due to allOf(#/components/schemas/PassengerTrip)
+			PassengerTrip `yaml:",inline"`
+			// Embedded fields due to inline allOf schema
+			Schedules *[]Schedule `json:"schedules,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err

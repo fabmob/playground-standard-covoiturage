@@ -129,6 +129,9 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 		return string(bodyBytes)
 	}
 
+	invalidDJ := api.NewDriverJourney()
+	invalidDJ.Type = "Not allowed"
+
 	var (
 		// Test requests
 		driverJourneysRequest    = GetDriverJourneyEndpoint.emptyRequest()
@@ -136,9 +139,9 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 
 		// Test bodies
 		emptyDriverJourneysBody    = marshalBody([]api.DriverJourney{})
-		singleDriverJourneyBody    = marshalBody([]api.DriverJourney{{Type: "DYNAMIC"}})
-		singlePassengerJourneyBody = marshalBody([]api.PassengerJourney{{Type: "DYNAMIC"}})
-		notAllowedByEnum           = marshalBody([]api.DriverJourney{{Type: "Not allowed"}})
+		singleDriverJourneyBody    = marshalBody([]api.DriverJourney{api.NewDriverJourney()})
+		singlePassengerJourneyBody = marshalBody([]api.PassengerJourney{api.NewPassengerJourney()})
+		notAllowedByEnum           = marshalBody([]api.DriverJourney{invalidDJ})
 		missingProp                = `[
   {
     "duration": 0,
@@ -458,9 +461,13 @@ func TestAssertRadius(t *testing.T) {
 				for _, c := range tc.coordsResponse {
 					var dj api.DriverJourney
 					if tc.departureOrArrival == departure {
-						dj = api.DriverJourney{PassengerPickupLat: c.Lat, PassengerPickupLng: c.Lon}
+						dj = api.NewDriverJourney()
+						dj.PassengerPickupLat = c.Lat
+						dj.PassengerPickupLng = c.Lon
 					} else {
-						dj = api.DriverJourney{PassengerDropLat: c.Lat, PassengerDropLng: c.Lon}
+						dj = api.NewDriverJourney()
+						dj.PassengerDropLat = c.Lat
+						dj.PassengerDropLng = c.Lon
 					}
 					responseObj = append(responseObj, dj)
 				}
@@ -527,7 +534,9 @@ func TestAssertUniqueIDs(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			responseData := make([]api.DriverJourney, 0, len(tc.ids))
 			for _, id := range tc.ids {
-				responseData = append(responseData, api.DriverJourney{Id: id})
+				dj := api.NewDriverJourney()
+				dj.Id = id
+				responseData = append(responseData, dj)
 			}
 			response := mockBodyResponse(responseData)
 			err := singleAssertionError(t, assertUniqueIDs{response})
