@@ -74,6 +74,7 @@ func (p GetDriverJourneysParams) GetArrivalRadius() float64 {
 func NewDriverJourney() DriverJourney {
 	dj := DriverJourney{}
 	dj.Type = "DYNAMIC"
+	dj.Operator = "example.com"
 	return dj
 }
 

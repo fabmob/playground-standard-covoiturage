@@ -398,7 +398,7 @@ func validateOperator(operator string) error {
 	if err != nil {
 		return fmt.Errorf("wrong operator field format: %w", err)
 	}
-	if uri.Path != "" || uri.User != nil || uri.RawQuery != "" {
+	if uri.Host == "" || uri.Path != "" || uri.User != nil || uri.RawQuery != "" {
 		return fmt.Errorf("wrong operator field format")
 	}
 	return nil
