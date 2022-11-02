@@ -168,6 +168,19 @@ func getResponseCoord(departureOrArrival departureOrArrival, obj json.RawMessage
 	return coordResponse, nil
 }
 
+func getResponsePickupDate(obj json.RawMessage) (int, error) {
+	type WithPickupDate struct {
+		PassengerPickupDate int `json:"passengerPickupDate"`
+	}
+	var withPickupDate WithPickupDate
+	err := json.Unmarshal(obj, &withPickupDate)
+	if err != nil {
+		return 0, err
+	}
+	return withPickupDate.PassengerPickupDate, nil
+
+}
+
 // failedParsing wraps a parsing error with additional details
 func failedParsing(responseOrRequest string, err error) error {
 	return fmt.Errorf(

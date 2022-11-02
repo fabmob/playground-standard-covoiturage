@@ -287,13 +287,17 @@ func (a assertJourneysTimeDelta) Execute() error {
 		return failedParsing("request", err)
 	}
 
-	driverJourneys, err := api.ParseGetDriverJourneysOKResponse(a.response)
+	responseObjects, err := parseArrayResponse(a.response)
 	if err != nil {
-		return err
+		return failedParsing("response", err)
 	}
 
-	for _, dj := range driverJourneys {
-		if math.Abs(float64(dj.PassengerPickupDate)-float64(departureDate)) >
+	for _, obj := range responseObjects {
+		pickupDate, err := getResponsePickupDate(obj)
+		if err != nil {
+			return failedParsing("response", err)
+		}
+		if math.Abs(float64(pickupDate)-float64(departureDate)) >
 			float64(timeDelta) {
 			return errors.New("a driver journey does not comply to timeDelta query parameter")
 		}
