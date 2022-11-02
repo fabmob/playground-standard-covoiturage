@@ -68,22 +68,25 @@ func getQueryCoord(departureOrArrival departureOrArrival, request *http.Request)
 
 func parseQueryFloatParam(request *http.Request, paramName string) (float64, error) {
 	paramStr := request.URL.Query().Get(paramName)
-	param, err := strconv.ParseFloat(paramStr, 64)
-	if err != nil {
-		return 0, fmt.Errorf(
-			"%s could not be properly parsed as float in query (%w)",
-			paramStr,
-			err,
-		)
-	}
-	return param, nil
+	return auxParseFloat(paramStr)
 }
 
 func parseQueryFloatParamWithDefault(request *http.Request, paramName string, defaultValue float64) (float64, error) {
 	paramStr := request.URL.Query().Get(paramName)
-	if paramStr == "" {
-		return defaultValue, nil
-	}
+	return withDefaultFloat(auxParseFloat)(paramStr, defaultValue)
+}
+
+func parseQueryIntParam(request *http.Request, paramName string) (int, error) {
+	paramStr := request.URL.Query().Get(paramName)
+	return auxParseInt(paramStr)
+}
+
+func parseQueryIntParamWithDefault(request *http.Request, paramName string, defaultValue int) (int, error) {
+	paramStr := request.URL.Query().Get(paramName)
+	return withDefaultInt(auxParseInt)(paramStr, defaultValue)
+}
+
+func auxParseFloat(paramStr string) (float64, error) {
 	param, err := strconv.ParseFloat(paramStr, 64)
 	if err != nil {
 		return 0, fmt.Errorf(
@@ -95,8 +98,18 @@ func parseQueryFloatParamWithDefault(request *http.Request, paramName string, de
 	return param, nil
 }
 
-func parseQueryIntParam(request *http.Request, paramName string) (int, error) {
-	paramStr := request.URL.Query().Get(paramName)
+func withDefaultFloat(parser func(string) (float64,
+	error)) func(string, float64) (float64, error) {
+
+	return func(paramStr string, defaultValue float64) (float64, error) {
+		if paramStr == "" {
+			return defaultValue, nil
+		}
+		return parser(paramStr)
+	}
+}
+
+func auxParseInt(paramStr string) (int, error) {
 	param, err := strconv.Atoi(paramStr)
 	if err != nil {
 		return 0, fmt.Errorf(
@@ -108,20 +121,15 @@ func parseQueryIntParam(request *http.Request, paramName string) (int, error) {
 	return param, nil
 }
 
-func parseQueryIntParamWithDefault(request *http.Request, paramName string, defaultValue int) (int, error) {
-	paramStr := request.URL.Query().Get(paramName)
-	if paramStr == "" {
-		return defaultValue, nil
+func withDefaultInt(parser func(string) (int,
+	error)) func(string, int) (int, error) {
+
+	return func(paramStr string, defaultValue int) (int, error) {
+		if paramStr == "" {
+			return defaultValue, nil
+		}
+		return parser(paramStr)
 	}
-	param, err := strconv.Atoi(paramStr)
-	if err != nil {
-		return 0, fmt.Errorf(
-			"%s could not be properly parsed as int in query (%w)",
-			paramStr,
-			err,
-		)
-	}
-	return param, nil
 }
 
 /////////////////////////////////////////////////////////////
