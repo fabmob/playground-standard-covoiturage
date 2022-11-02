@@ -222,13 +222,13 @@ func (a assertJourneysRadius) Execute() error {
 	radius = radius * (1. + safetyMarginPercent/100)
 
 	// Parse response
-	responseObjects, err := parseArrayResponse(a.response)
+	objsWithRadius, err := parseArrayResponse(a.response)
 	if err != nil {
 		return failedParsing("response", err)
 	}
 
-	for _, obj := range responseObjects {
-		coordsResponse, err := getResponseCoord(a.departureOrArrival, obj)
+	for _, objWithRadius := range objsWithRadius {
+		coordsResponse, err := getResponseCoord(a.departureOrArrival, objWithRadius)
 		if err != nil {
 			return err
 		}
@@ -284,13 +284,13 @@ func (a assertJourneysTimeDelta) Execute() error {
 		return failedParsing("request", err)
 	}
 
-	responseObjects, err := parseArrayResponse(a.response)
+	objsWithTimeDelta, err := parseArrayResponse(a.response)
 	if err != nil {
 		return failedParsing("response", err)
 	}
 
-	for _, obj := range responseObjects {
-		pickupDate, err := getResponsePickupDate(obj)
+	for _, objWithTimeDelta := range objsWithTimeDelta {
+		pickupDate, err := getResponsePickupDate(objWithTimeDelta)
 		if err != nil {
 			return failedParsing("response", err)
 		}
@@ -319,12 +319,12 @@ func (a assertJourneysCount) Execute() error {
 	if err != nil {
 		return failedParsing("request", err)
 	}
-	objs, err := parseArrayResponse(a.response)
+	objsWithCount, err := parseArrayResponse(a.response)
 	if err != nil {
 		return err
 	}
 	if count != -1 {
-		if len(objs) > count {
+		if len(objsWithCount) > count {
 			return errors.New("the number of returned journeys exceeds the query count parameter")
 		}
 	}

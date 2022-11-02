@@ -143,34 +143,34 @@ func getResponseCoord(departureOrArrival departureOrArrival, obj json.RawMessage
 
 	switch departureOrArrival {
 	case departure:
-		type PassengerPickupCoord struct {
+		type WithPassengerPickupCoord struct {
 			PassengerPickupLat float64 `json:"passengerPickupLat"`
 			PassengerPickupLng float64 `json:"passengerPickupLng"`
 		}
-		var passengerPickupCoord PassengerPickupCoord
-		err := json.Unmarshal(obj, &passengerPickupCoord)
+		var withPassengerPickupCoord WithPassengerPickupCoord
+		err := json.Unmarshal(obj, &withPassengerPickupCoord)
 		if err != nil {
 			return util.Coord{}, err
 		}
 
 		coordResponse = util.Coord{
-			Lat: passengerPickupCoord.PassengerPickupLat,
-			Lon: passengerPickupCoord.PassengerPickupLng,
+			Lat: withPassengerPickupCoord.PassengerPickupLat,
+			Lon: withPassengerPickupCoord.PassengerPickupLng,
 		}
 	case arrival:
-		type PassengerDropCoord struct {
+		type WithPassengerDropCoord struct {
 			PassengerDropLat float64 `json:"passengerDropLat"`
 			PassengerDropLng float64 `json:"passengerDropLng"`
 		}
-		var passengerDropCoord PassengerDropCoord
-		err := json.Unmarshal(obj, &passengerDropCoord)
+		var withPassengerDropCoord WithPassengerDropCoord
+		err := json.Unmarshal(obj, &withPassengerDropCoord)
 		if err != nil {
 			return util.Coord{}, err
 		}
 
 		coordResponse = util.Coord{
-			Lat: passengerDropCoord.PassengerDropLat,
-			Lon: passengerDropCoord.PassengerDropLng,
+			Lat: withPassengerDropCoord.PassengerDropLat,
+			Lon: withPassengerDropCoord.PassengerDropLng,
 		}
 	}
 	return coordResponse, nil
