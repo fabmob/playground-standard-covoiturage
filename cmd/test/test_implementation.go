@@ -47,18 +47,6 @@ func testGetPassengerJourneys(
 	a AssertionAccumulator,
 	flags Flags,
 ) {
-	response.Body = ReusableReadCloser(response.Body)
-
-	AssertStatusCodeOK(a, response)
-	AssertHeaderContains(a, response, "Content-Type", "application/json")
-	if flags.DisallowEmpty {
-		CriticAssertArrayNotEmpty(a, response)
-	}
-	CriticAssertFormat(a, request, response)
-	AssertJourneysDepartureRadius(a, request, response)
-	AssertJourneysArrivalRadius(a, request, response)
-	AssertJourneysTimeDelta(a, request, response)
-	AssertJourneysCount(a, request, response)
-	AssertUniqueIDs(a, response)
-	AssertOperatorFieldFormat(a, response)
+	// Passenger journeys are very similar to driver journeys.
+	testGetDriverJourneys(request, response, a, flags)
 }
