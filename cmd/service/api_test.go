@@ -372,12 +372,12 @@ func testGetPassengerJourneyRequestWithData(
 	rec, c, handler := setupTest(testRequest, mockDB)
 
 	// Make API Call
-	err = handler.GetDriverJourneys(c, api.GetDriverJourneysParams(*params))
+	err = handler.GetPassengerJourneys(c, api.GetPassengerJourneysParams(*params))
 	panicIf(err)
 
 	response := rec.Result()
 	flags := test.Flags{DisallowEmpty: !expectEmpty}
-	assertionResults := test.TestGetDriverJourneysResponse(testRequest, response, flags)
+	assertionResults := test.TestGetPassengerJourneysResponse(testRequest, response, flags)
 	checkAssertionResults(t, assertionResults)
 }
 

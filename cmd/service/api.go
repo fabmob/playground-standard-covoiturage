@@ -117,12 +117,12 @@ func (*StdCovServerImpl) PostConnections(ctx echo.Context) error {
 
 // GetPassengerJourneys searches for matching punctual planned outward pasenger journeys.
 // (GET /passenger_journeys)
-func (*StdCovServerImpl) GetPassengerJourneys(
+func (s *StdCovServerImpl) GetPassengerJourneys(
 	ctx echo.Context,
 	params api.GetPassengerJourneysParams,
 ) error {
 	// Implement me
-	return nil
+	return ctx.JSON(200, s.mockDB.PassengerJourneys)
 }
 
 // GetPassengerRegularTrips searches for matching pasenger regular trips.
