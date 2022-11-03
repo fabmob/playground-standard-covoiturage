@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/labstack/echo/v4"
 	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
@@ -55,36 +56,6 @@ func NewGetPassengerJourneysParams(
 	}
 }
 
-// GetTimeDelta returns the value of TimeDelta if any, or its default value
-// otherwise.
-func (p GetDriverJourneysParams) GetTimeDelta() int {
-	defaultTimeDelta := 900
-	if p.TimeDelta == nil {
-		return defaultTimeDelta
-	}
-	return *p.TimeDelta
-}
-
-// GetDepartureRadius returns the value of DepartureRadius if any, or its default value
-// otherwise.
-func (p GetDriverJourneysParams) GetDepartureRadius() float64 {
-	defaultDepartureRadius := 1.
-	if p.DepartureRadius == nil {
-		return defaultDepartureRadius
-	}
-	return float64(*p.DepartureRadius)
-}
-
-// GetArrivalRadius returns the value of ArrivalRadius if any, or its default value
-// otherwise.
-func (p GetDriverJourneysParams) GetArrivalRadius() float64 {
-	defaultArrivalRadius := 1.
-	if p.ArrivalRadius == nil {
-		return defaultArrivalRadius
-	}
-	return float64(*p.ArrivalRadius)
-}
-
 // NewDriverJourney returns a valid DriverJourney
 func NewDriverJourney() DriverJourney {
 	dj := DriverJourney{}
@@ -103,16 +74,13 @@ func NewPassengerJourney() PassengerJourney {
 	return pj
 }
 
-// Make PassengerJourneys and DriverJourneys converge
-
-type RequestParams interface {
-	MakeRequest(server string) (*http.Request, error)
-}
-
-func (p *GetDriverJourneysParams) MakeRequest(server string) (*http.Request, error) {
-	return NewGetDriverJourneysRequest(server, p)
-}
-
-func (p *GetPassengerJourneysParams) MakeRequest(server string) (*http.Request, error) {
-	return NewGetPassengerJourneysRequest(server, p)
+func GetJourneys(s ServerInterface, ctx echo.Context, params GetJourneysParams) error {
+	switch v := params.(type) {
+	case *GetPassengerJourneysParams:
+		return s.GetPassengerJourneys(ctx, *params.(*GetPassengerJourneysParams))
+	case *GetDriverJourneysParams:
+		return s.GetDriverJourneys(ctx, *params.(*GetDriverJourneysParams))
+	default:
+		return fmt.Errorf("unknown journey type %v: only GetDriverJourneysParams and GetPassengerJourneys supported", v)
+	}
 }

@@ -178,14 +178,12 @@ func testGetDriverJourneyRequestWithData(
 	testData []api.DriverJourney,
 	expectEmpty bool,
 ) {
-
 	testRequest, err := params.MakeRequest(fakeServer)
 	panicIf(err)
 
 	mockDB := NewMockDB()
 	mockDB.DriverJourneys = testData
 
-	/* testServerResponse(t, testRequest, mockDB, responseTestFun) */
 	rec, ctx, handler := setupTest(testRequest, mockDB)
 
 	// Make API Call
@@ -359,7 +357,7 @@ func TestPassengerJourneys(t *testing.T) {
 
 func testGetPassengerJourneyRequestWithData(
 	t *testing.T,
-	params *api.GetPassengerJourneysParams,
+	params api.GetJourneysParams,
 	testData []api.PassengerJourney,
 	expectEmpty bool,
 ) {
@@ -369,10 +367,10 @@ func testGetPassengerJourneyRequestWithData(
 	mockDB := NewMockDB()
 	mockDB.PassengerJourneys = testData
 
-	rec, c, handler := setupTest(testRequest, mockDB)
+	rec, ctx, handler := setupTest(testRequest, mockDB)
 
 	// Make API Call
-	err = handler.GetPassengerJourneys(c, api.GetPassengerJourneysParams(*params))
+	err = api.GetJourneys(handler, ctx, params)
 	panicIf(err)
 
 	response := rec.Result()
