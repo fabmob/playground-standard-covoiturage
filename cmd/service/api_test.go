@@ -177,7 +177,7 @@ func TestPassengerJourneys(t *testing.T) {
 		coordsIgnore = util.Coord{Lat: 0, Lon: 0}
 		coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
 		coords900m   = util.Coord{Lat: 46.1613442, Lon: -1.2103736} // at ~900m from reference
-		/* coords1100m  = util.Coord{Lat: 46.1613679, Lon: -1.2086563} // at ~1100m from reference */
+		coords1100m  = util.Coord{Lat: 46.1613679, Lon: -1.2086563} // at ~1100m from reference
 	/* 	coords2100m  = util.Coord{Lat: 46.1649225, Lon: -1.1954497} // at ~2100m from reference */
 	)
 
@@ -192,22 +192,22 @@ func TestPassengerJourneys(t *testing.T) {
 
 		{
 			"Departure radius 0",
-			, "driver"makeParamsWithDepartureRadius(coordsRef, 1, "passenger"),
+			makeParamsWithDepartureRadius(coordsRef, 1, "passenger"),
 			[]api.PassengerJourney{
 				makePassengerJourneyAtCoords(coords900m, coordsIgnore),
 			},
 			false,
 		},
 
-		/* { */
-		/* 	"Departure radius 1", */
-		/* 	makeParamsWithDepartureRadius2(coordsRef, 1), */
-		/* 	[]api.PassengerJourney{ */
-		/* 		makePassengerJourneyAtCoords(coords900m, coordsIgnore), */
-		/* 		makePassengerJourneyAtCoords(coords1100m, coordsIgnore), */
-		/* 	}, */
-		/* 	false, */
-		/* }, */
+		{
+			"Departure radius 1",
+			makeParamsWithDepartureRadius(coordsRef, 1, "passenger"),
+			[]api.PassengerJourney{
+				makePassengerJourneyAtCoords(coords900m, coordsIgnore),
+				makePassengerJourneyAtCoords(coords1100m, coordsIgnore),
+			},
+			false,
+		},
 
 		/* { */
 		/* 	"Departure radius 2", */
