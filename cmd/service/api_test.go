@@ -1,6 +1,7 @@
 package service
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -184,26 +185,34 @@ func testGetDriverJourneyRequestWithData(
 	mockDB := NewMockDB()
 	mockDB.driverJourneys = testData
 
-	e := echo.New()
-	testRequest.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(testRequest, rec)
+	/* testServerResponse(t, testRequest, mockDB, responseTestFun) */
+	rec, ctx, handler := setupTest(testRequest, mockDB)
 
-	handler := &StdCovServerImpl{mockDB}
+	// Make API Call
+	err = handler.GetDriverJourneys(ctx, api.GetDriverJourneysParams(*params))
+	panicIf(err)
 
-	// Assertions
-	err = handler.GetDriverJourneys(c, api.GetDriverJourneysParams(*params))
-	if err != nil {
-		t.Fail()
-	}
 	response := rec.Result()
+
 	flags := test.Flags{DisallowEmpty: !expectEmpty}
 	assertionResults := test.TestGetDriverJourneysResponse(testRequest, response, flags)
+	checkAssertionResults(t, assertionResults)
+}
+
+func setupTest(request *http.Request, mockDB MockDB) (*httptest.ResponseRecorder, echo.Context, api.ServerInterface) {
+	e := echo.New()
+	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+	handler := &StdCovServerImpl{mockDB}
+	return rec, c, handler
+}
+
+func checkAssertionResults(t *testing.T, assertionResults []test.AssertionResult) {
 	assert.Greater(t, len(assertionResults), 0)
 	for _, ar := range assertionResults {
 		if err := ar.Unwrap(); err != nil {
-			t.Log(err)
-			t.Fail()
+			t.Error(err)
 		}
 	}
 }
@@ -385,6 +394,8 @@ func testGetPassengerJourneyRequestWithData(
 	mockDB := NewMockDB()
 	mockDB.passengerJourneys = testData
 
+	responseTestFun := test.TestGetPassengerJourneysResponse
+
 	e := echo.New()
 	testRequest.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
@@ -399,7 +410,7 @@ func testGetPassengerJourneyRequestWithData(
 	}
 	response := rec.Result()
 	flags := test.Flags{DisallowEmpty: !expectEmpty}
-	assertionResults := test.TestGetPassengerJourneysResponse(testRequest, response, flags)
+	assertionResults := responseTestFun(testRequest, response, flags)
 	assert.Greater(t, len(assertionResults), 0)
 	for _, ar := range assertionResults {
 		if err := ar.Unwrap(); err != nil {
