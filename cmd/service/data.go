@@ -20,6 +20,7 @@ type MockDB struct {
 func NewMockDB() MockDB {
 	m := MockDB{}
 	m.DriverJourneys = []api.DriverJourney{}
+	m.PassengerJourneys = []api.PassengerJourney{}
 	return m
 }
 

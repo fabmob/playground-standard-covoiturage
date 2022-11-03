@@ -1,7 +1,6 @@
 package service
 
 import (
-	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -172,31 +171,6 @@ func TestDriverJourneys(t *testing.T) {
 	}
 }
 
-func testGetDriverJourneyRequestWithData(
-	t *testing.T,
-	params *api.GetDriverJourneysParams,
-	testData []api.DriverJourney,
-	expectEmpty bool,
-) {
-	testRequest, err := params.MakeRequest(fakeServer)
-	panicIf(err)
-
-	mockDB := NewMockDB()
-	mockDB.DriverJourneys = testData
-
-	rec, ctx, handler := setupTest(testRequest, mockDB)
-
-	// Make API Call
-	err = handler.GetDriverJourneys(ctx, api.GetDriverJourneysParams(*params))
-	panicIf(err)
-
-	response := rec.Result()
-
-	flags := test.Flags{DisallowEmpty: !expectEmpty}
-	assertionResults := test.TestGetDriverJourneysResponse(testRequest, response, flags)
-	checkAssertionResults(t, assertionResults)
-}
-
 func TestPassengerJourneys(t *testing.T) {
 
 	var (
@@ -355,19 +329,44 @@ func TestPassengerJourneys(t *testing.T) {
 	}
 }
 
+func testGetDriverJourneyRequestWithData(
+	t *testing.T,
+	params api.GetJourneysParams,
+	testData []api.DriverJourney,
+	expectEmpty bool,
+) {
+
+	mockDB := NewMockDB()
+	mockDB.DriverJourneys = testData
+	testFunction := test.TestGetDriverJourneysResponse
+
+	testGetJourneys(t, params, mockDB, testFunction, expectEmpty)
+}
+
 func testGetPassengerJourneyRequestWithData(
 	t *testing.T,
 	params api.GetJourneysParams,
 	testData []api.PassengerJourney,
 	expectEmpty bool,
 ) {
-	testRequest, err := params.MakeRequest(fakeServer)
-	panicIf(err)
 
 	mockDB := NewMockDB()
 	mockDB.PassengerJourneys = testData
+	testFunction := test.TestGetPassengerJourneysResponse
 
-	rec, ctx, handler := setupTest(testRequest, mockDB)
+	testGetJourneys(t, params, mockDB, testFunction, expectEmpty)
+}
+
+func testGetJourneys(t *testing.T, params api.GetJourneysParams, mockDB MockDB, f test.ResponseTestFun, expectEmpty bool) {
+	t.Helper()
+	request, err := params.MakeRequest(fakeServer)
+	panicIf(err)
+
+	e := echo.New()
+	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	ctx := e.NewContext(request, rec)
+	handler := &StdCovServerImpl{mockDB}
 
 	// Make API Call
 	err = api.GetJourneys(handler, ctx, params)
@@ -375,20 +374,12 @@ func testGetPassengerJourneyRequestWithData(
 
 	response := rec.Result()
 	flags := test.Flags{DisallowEmpty: !expectEmpty}
-	assertionResults := test.TestGetPassengerJourneysResponse(testRequest, response, flags)
+	assertionResults := f(request, response, flags)
 	checkAssertionResults(t, assertionResults)
 }
 
-func setupTest(request *http.Request, mockDB MockDB) (*httptest.ResponseRecorder, echo.Context, api.ServerInterface) {
-	e := echo.New()
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(request, rec)
-	handler := &StdCovServerImpl{mockDB}
-	return rec, c, handler
-}
-
 func checkAssertionResults(t *testing.T, assertionResults []test.AssertionResult) {
+	t.Helper()
 	assert.Greater(t, len(assertionResults), 0)
 	for _, ar := range assertionResults {
 		if err := ar.Unwrap(); err != nil {
