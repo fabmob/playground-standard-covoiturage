@@ -12,7 +12,8 @@ import (
 
 // MockDB stores the data of the server in memory
 type MockDB struct {
-	driverJourneys []api.DriverJourney
+	driverJourneys    []api.DriverJourney
+	passengerJourneys []api.PassengerJourney
 }
 
 // NewMockDB initiates a MockDB with no data
