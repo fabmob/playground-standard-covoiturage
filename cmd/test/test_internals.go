@@ -66,6 +66,11 @@ type ResponseTestFun func(
 func wrapAssertionsFun(f testImplementation) ResponseTestFun {
 	return func(req *http.Request, resp *http.Response, flags Flags) []AssertionResult {
 		a := NewAssertionAccu()
+		var err error
+		resp.Body, err = ReusableReadCloser(resp.Body)
+		if err != nil {
+			return []AssertionResult{NewAssertionResult(err, "failure to read response")}
+		}
 		f(req, resp, a, flags)
 		a.ExecuteAll()
 		return a.GetAssertionResults()

@@ -24,6 +24,7 @@ func NewMockDB() *MockDB {
 	return &m
 }
 
+// NewMockDBWithDefaultData initiates a MockDB with default data
 func NewMockDBWithDefaultData() *MockDB {
 	return MustReadDefaultData()
 }

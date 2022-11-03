@@ -25,7 +25,6 @@ func testGetDriverJourneys(
 	a AssertionAccumulator,
 	flags Flags,
 ) {
-	response.Body = ReusableReadCloser(response.Body)
 
 	AssertStatusCodeOK(a, response)
 	AssertHeaderContains(a, response, "Content-Type", "application/json")

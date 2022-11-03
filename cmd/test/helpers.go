@@ -231,16 +231,19 @@ type reusableReadCloser struct {
 
 // ReusableReadCloser wraps a io.ReadCloser so that it can be read and closed as
 // many times as needed
-func ReusableReadCloser(r io.ReadCloser) io.ReadCloser {
+func ReusableReadCloser(r io.ReadCloser) (io.ReadCloser, error) {
 	readBuf := bytes.Buffer{}
-	readBuf.ReadFrom(r) // error handling ignored for brevity
+	_, err := readBuf.ReadFrom(r)
+	if err != nil {
+		return nil, err
+	}
 	backBuf := bytes.Buffer{}
 
 	return reusableReadCloser{
 		io.NopCloser(io.TeeReader(&readBuf, &backBuf)),
 		&readBuf,
 		&backBuf,
-	}
+	}, nil
 }
 
 func (r reusableReadCloser) Read(p []byte) (int, error) {
