@@ -121,8 +121,16 @@ func (s *StdCovServerImpl) GetPassengerJourneys(
 	ctx echo.Context,
 	params api.GetPassengerJourneysParams,
 ) error {
-	// Implement me
-	return ctx.JSON(200, s.mockDB.PassengerJourneys)
+	response := []api.PassengerJourney{}
+	for _, pj := range s.mockDB.PassengerJourneys {
+		if keepJourney(&params, pj.Trip, pj.JourneySchedule) {
+			response = append(response, pj)
+		}
+	}
+	if params.Count != nil {
+		response = response[0:*params.Count]
+	}
+	return ctx.JSON(http.StatusOK, response)
 }
 
 // GetPassengerRegularTrips searches for matching pasenger regular trips.
