@@ -102,3 +102,17 @@ func NewPassengerJourney() PassengerJourney {
 	pj.Type = "DYNAMIC"
 	return pj
 }
+
+// Make PassengerJourneys and DriverJourneys converge
+
+type RequestParams interface {
+	MakeRequest(server string) (*http.Request, error)
+}
+
+func (p *GetDriverJourneysParams) MakeRequest(server string) (*http.Request, error) {
+	return NewGetDriverJourneysRequest(server, p)
+}
+
+func (p *GetPassengerJourneysParams) MakeRequest(server string) (*http.Request, error) {
+	return NewGetPassengerJourneysRequest(server, p)
+}

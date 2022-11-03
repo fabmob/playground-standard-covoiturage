@@ -179,7 +179,7 @@ func testGetDriverJourneyRequestWithData(
 	expectEmpty bool,
 ) {
 
-	testRequest, err := api.NewGetDriverJourneysRequest(fakeServer, params)
+	testRequest, err := params.MakeRequest(fakeServer)
 	panicIf(err)
 
 	mockDB := NewMockDB()
@@ -363,7 +363,7 @@ func testGetPassengerJourneyRequestWithData(
 	testData []api.PassengerJourney,
 	expectEmpty bool,
 ) {
-	testRequest, err := api.NewGetPassengerJourneysRequest(fakeServer, params)
+	testRequest, err := params.MakeRequest(fakeServer)
 	panicIf(err)
 
 	mockDB := NewMockDB()

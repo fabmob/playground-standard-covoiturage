@@ -147,12 +147,11 @@ func makeJourneyRequestWithRadius(
 	var err error
 	switch driverOrPassenger {
 	case "driver":
-		request, err = api.NewGetDriverJourneysRequest("localhost:1323", &params)
+		request, err = params.MakeRequest("localhost:1323")
 		panicIf(err)
 	case "passenger":
 		castedParams := api.GetPassengerJourneysParams(params)
-		request, err = api.NewGetPassengerJourneysRequest("localhost:1323",
-			&castedParams)
+		request, err = castedParams.MakeRequest("localhost:1323")
 		panicIf(err)
 	case "default":
 		panic(errors.New("wrong value in test: driverOrPassenger"))
