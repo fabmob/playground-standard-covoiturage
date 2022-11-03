@@ -59,7 +59,7 @@ func (s *StdCovServerImpl) GetDriverJourneys(
 ) error {
 	response := []api.DriverJourney{}
 	for _, dj := range s.mockDB.DriverJourneys {
-		if keepDriverJourney(params, dj) {
+		if keepJourney(&params, dj.Trip, dj.JourneySchedule) {
 			response = append(response, dj)
 		}
 	}
@@ -69,31 +69,31 @@ func (s *StdCovServerImpl) GetDriverJourneys(
 	return ctx.JSON(http.StatusOK, response)
 }
 
-func keepDriverJourney(params api.GetDriverJourneysParams, dj api.DriverJourney) bool {
+func keepJourney(params api.GetJourneysParams, trip api.Trip, schedule api.JourneySchedule) bool {
 	coordsRequestDeparture := util.Coord{
-		Lat: float64(params.DepartureLat),
-		Lon: float64(params.DepartureLng),
+		Lat: float64(params.GetDepartureLat()),
+		Lon: float64(params.GetDepartureLng()),
 	}
 	coordsResponseDeparture := util.Coord{
-		Lat: dj.PassengerPickupLat,
-		Lon: dj.PassengerPickupLng,
+		Lat: trip.PassengerPickupLat,
+		Lon: trip.PassengerPickupLng,
 	}
 	departureRadiusOK := util.Distance(coordsRequestDeparture, coordsResponseDeparture) <=
 		params.GetDepartureRadius()
 
 	coordsRequestArrival := util.Coord{
-		Lat: float64(params.ArrivalLat),
-		Lon: float64(params.ArrivalLng),
+		Lat: float64(params.GetArrivalLat()),
+		Lon: float64(params.GetArrivalLng()),
 	}
 	coordsResponseArrival := util.Coord{
-		Lat: dj.PassengerDropLat,
-		Lon: dj.PassengerDropLng,
+		Lat: trip.PassengerDropLat,
+		Lon: trip.PassengerDropLng,
 	}
 	arrivalRadiusOK := util.Distance(coordsRequestArrival, coordsResponseArrival) <=
 		params.GetArrivalRadius()
 
 	timeDeltaOK :=
-		math.Abs(float64(dj.PassengerPickupDate)-float64(params.DepartureDate)) <
+		math.Abs(float64(schedule.PassengerPickupDate)-float64(params.GetDepartureDate())) <
 			float64(params.GetTimeDelta())
 	return departureRadiusOK && arrivalRadiusOK && timeDeltaOK
 }
