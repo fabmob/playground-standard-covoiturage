@@ -37,32 +37,46 @@ func makeDriverJourneyAtDate(date int64) api.DriverJourney {
 	return dj
 }
 
-func makeParamsWithDepartureRadius(departureCoord util.Coord, departureRadius float32) *api.GetDriverJourneysParams {
+func castDriverToPassenger(p *api.GetDriverJourneysParams) *api.GetPassengerJourneysParams {
+	if p == nil {
+		return nil
+	}
+	castedP := api.GetPassengerJourneysParams(*p)
+	return &castedP
+}
+
+func makeParamsWithDepartureRadius(departureCoord util.Coord, departureRadius float32, driverOrPassenger string) api.GetJourneysParams {
 	params := api.NewGetDriverJourneysParams(departureCoord, util.CoordIgnore, 0)
 	params.DepartureRadius = &departureRadius
+	if driverOrPassenger == "passenger" {
+		return castDriverToPassenger(params)
+	}
 	return params
 }
 
-func makeParamsWithDepartureRadius2(departureCoord util.Coord, departureRadius float32) *api.GetPassengerJourneysParams {
-	params := api.NewGetPassengerJourneysParams(departureCoord, util.CoordIgnore, 0)
-	params.DepartureRadius = &departureRadius
-	return params
-}
-
-func makeParamsWithArrivalRadius(arrivalCoord util.Coord, arrivalRadius float32) *api.GetDriverJourneysParams {
+func makeParamsWithArrivalRadius(arrivalCoord util.Coord, arrivalRadius float32, driverOrPassenger string) api.GetJourneysParams {
 	params := api.NewGetDriverJourneysParams(util.CoordIgnore, arrivalCoord, 0)
 	params.ArrivalRadius = &arrivalRadius
+	if driverOrPassenger == "passenger" {
+		return castDriverToPassenger(params)
+	}
 	return params
 }
 
-func makeParamsWithTimeDelta(date int) *api.GetDriverJourneysParams {
+func makeParamsWithTimeDelta(date int, driverOrPassenger string) api.GetJourneysParams {
 	params := &api.GetDriverJourneysParams{}
 	params.TimeDelta = &date
+	if driverOrPassenger == "passenger" {
+		return castDriverToPassenger(params)
+	}
 	return params
 }
 
-func makeParamsWithCount(count int) *api.GetDriverJourneysParams {
+func makeParamsWithCount(count int, driverOrPassenger string) api.GetJourneysParams {
 	params := &api.GetDriverJourneysParams{}
 	params.Count = &count
+	if driverOrPassenger == "passenger" {
+		return castDriverToPassenger(params)
+	}
 	return params
 }
