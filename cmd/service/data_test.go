@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestDefaultJourneyData(t *testing.T) {
-	_, err := ReadJourneyData(bytes.NewReader(DriverJourneyJSON))
+func TestDefaultData(t *testing.T) {
+	_, err := ReadData(bytes.NewReader(JSONData))
 	if err != nil {
 		t.Error(err)
 	}

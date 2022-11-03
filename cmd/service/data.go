@@ -12,42 +12,38 @@ import (
 
 // MockDB stores the data of the server in memory
 type MockDB struct {
-	DriverJourneys    []api.DriverJourney
-	PassengerJourneys []api.PassengerJourney
+	DriverJourneys    []api.DriverJourney    `json:"driverJourneys"`
+	PassengerJourneys []api.PassengerJourney `json:"passengerJourneys"`
 }
 
 // NewMockDB initiates a MockDB with no data
-func NewMockDB() MockDB {
+func NewMockDB() *MockDB {
 	m := MockDB{}
 	m.DriverJourneys = []api.DriverJourney{}
 	m.PassengerJourneys = []api.PassengerJourney{}
-	return m
+	return &m
 }
 
-// PopulateDBWithDefault populates the MockDB with default data
-func (db *MockDB) PopulateDBWithDefault() error {
-	var err error
-	db.DriverJourneys, err = ReadJourneyData(bytes.NewReader(DriverJourneyJSON))
-	return err
+func NewMockDBWithDefaultData() (*MockDB, error) {
+	return ReadData(bytes.NewReader(JSONData))
 }
 
-// DriverJourneyJSON stores default driver journey json data
+// JSONData stores default driver journey json data
 //
-//go:embed data/defaultJourneyData.json
-var DriverJourneyJSON []byte
+//go:embed data/defaultData.json
+var JSONData []byte
 
 // DriverJourneysData is the in-memory equivalent of the driver journeys
 // stored in a database
 
-// ReadJourneyData reads journey data from io.Reader with json data
-// It does not validate data
-func ReadJourneyData(r io.Reader) ([]api.DriverJourney, error) {
-	var journeyData []api.DriverJourney
+// ReadData reads journey data from io.Reader with json data.
+// It does not validate data.
+func ReadData(r io.Reader) (*MockDB, error) {
+	var data MockDB
 	bytes, readErr := io.ReadAll(r)
 	if readErr != nil {
 		return nil, readErr
 	}
-
-	err := json.Unmarshal(bytes, &journeyData)
-	return journeyData, err
+	err := json.Unmarshal(bytes, &data)
+	return &data, err
 }

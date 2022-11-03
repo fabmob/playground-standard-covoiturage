@@ -357,7 +357,7 @@ func testGetPassengerJourneyRequestWithData(
 	testGetJourneys(t, params, mockDB, testFunction, expectEmpty)
 }
 
-func testGetJourneys(t *testing.T, params api.GetJourneysParams, mockDB MockDB, f test.ResponseTestFun, expectEmpty bool) {
+func testGetJourneys(t *testing.T, params api.GetJourneysParams, mockDB *MockDB, f test.ResponseTestFun, expectEmpty bool) {
 	t.Helper()
 
 	// Build request
