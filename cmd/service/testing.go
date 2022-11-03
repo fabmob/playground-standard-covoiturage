@@ -22,6 +22,15 @@ func makeDriverJourneyAtCoords(coordPickup, coordDrop util.Coord) api.DriverJour
 	return dj
 }
 
+func makePassengerJourneyAtCoords(coordPickup, coordDrop util.Coord) api.PassengerJourney {
+	pj := api.NewPassengerJourney()
+	pj.PassengerPickupLat = coordPickup.Lat
+	pj.PassengerPickupLng = coordPickup.Lon
+	pj.PassengerDropLat = coordDrop.Lat
+	pj.PassengerDropLng = coordDrop.Lon
+	return pj
+}
+
 func makeDriverJourneyAtDate(date int64) api.DriverJourney {
 	dj := api.NewDriverJourney()
 	dj.PassengerPickupDate = date
@@ -30,6 +39,12 @@ func makeDriverJourneyAtDate(date int64) api.DriverJourney {
 
 func makeParamsWithDepartureRadius(departureCoord util.Coord, departureRadius float32) *api.GetDriverJourneysParams {
 	params := api.NewGetDriverJourneysParams(departureCoord, util.CoordIgnore, 0)
+	params.DepartureRadius = &departureRadius
+	return params
+}
+
+func makeParamsWithDepartureRadius2(departureCoord util.Coord, departureRadius float32) *api.GetPassengerJourneysParams {
+	params := api.NewGetPassengerJourneysParams(departureCoord, util.CoordIgnore, 0)
 	params.DepartureRadius = &departureRadius
 	return params
 }

@@ -40,6 +40,21 @@ func NewGetDriverJourneysParams(
 	}
 }
 
+// NewGetPassengerJourneysParams returns query parameters, looking for a trip
+// from "departure" to "arrival" at "departureDate".
+func NewGetPassengerJourneysParams(
+	departure, arrival util.Coord,
+	departureDate int,
+) *GetPassengerJourneysParams {
+	return &GetPassengerJourneysParams{
+		DepartureLat:  float32(departure.Lat),
+		DepartureLng:  float32(departure.Lon),
+		ArrivalLat:    float32(arrival.Lat),
+		ArrivalLng:    float32(arrival.Lon),
+		DepartureDate: departureDate,
+	}
+}
+
 // GetTimeDelta returns the value of TimeDelta if any, or its default value
 // otherwise.
 func (p GetDriverJourneysParams) GetTimeDelta() int {

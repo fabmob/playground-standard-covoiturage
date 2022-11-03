@@ -12,21 +12,21 @@ import (
 
 // MockDB stores the data of the server in memory
 type MockDB struct {
-	driverJourneys    []api.DriverJourney
-	passengerJourneys []api.PassengerJourney
+	DriverJourneys    []api.DriverJourney
+	PassengerJourneys []api.PassengerJourney
 }
 
 // NewMockDB initiates a MockDB with no data
 func NewMockDB() MockDB {
 	m := MockDB{}
-	m.driverJourneys = []api.DriverJourney{}
+	m.DriverJourneys = []api.DriverJourney{}
 	return m
 }
 
 // PopulateDBWithDefault populates the MockDB with default data
 func (db *MockDB) PopulateDBWithDefault() error {
 	var err error
-	db.driverJourneys, err = ReadJourneyData(bytes.NewReader(DriverJourneyJSON))
+	db.DriverJourneys, err = ReadJourneyData(bytes.NewReader(DriverJourneyJSON))
 	return err
 }
 

@@ -183,7 +183,7 @@ func testGetDriverJourneyRequestWithData(
 	panicIf(err)
 
 	mockDB := NewMockDB()
-	mockDB.driverJourneys = testData
+	mockDB.DriverJourneys = testData
 
 	/* testServerResponse(t, testRequest, mockDB, responseTestFun) */
 	rec, ctx, handler := setupTest(testRequest, mockDB)
@@ -199,39 +199,15 @@ func testGetDriverJourneyRequestWithData(
 	checkAssertionResults(t, assertionResults)
 }
 
-func setupTest(request *http.Request, mockDB MockDB) (*httptest.ResponseRecorder, echo.Context, api.ServerInterface) {
-	e := echo.New()
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(request, rec)
-	handler := &StdCovServerImpl{mockDB}
-	return rec, c, handler
-}
-
-func checkAssertionResults(t *testing.T, assertionResults []test.AssertionResult) {
-	assert.Greater(t, len(assertionResults), 0)
-	for _, ar := range assertionResults {
-		if err := ar.Unwrap(); err != nil {
-			t.Error(err)
-		}
-	}
-}
-
-func panicIf(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 func TestPassengerJourneys(t *testing.T) {
 
-	/* var ( */
-	/* 	coordsIgnore = util.Coord{Lat: 0, Lon: 0} */
-	/* 	coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference */
-	/* 	coords900m   = util.Coord{Lat: 46.1613442, Lon: -1.2103736} // at ~900m from reference */
-	/* 	coords1100m  = util.Coord{Lat: 46.1613679, Lon: -1.2086563} // at ~1100m from reference */
+	var (
+		coordsIgnore = util.Coord{Lat: 0, Lon: 0}
+		coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
+		coords900m   = util.Coord{Lat: 46.1613442, Lon: -1.2103736} // at ~900m from reference
+		/* coords1100m  = util.Coord{Lat: 46.1613679, Lon: -1.2086563} // at ~1100m from reference */
 	/* 	coords2100m  = util.Coord{Lat: 46.1649225, Lon: -1.1954497} // at ~2100m from reference */
-	/* ) */
+	)
 
 	testCases := []struct {
 		name              string
@@ -242,12 +218,21 @@ func TestPassengerJourneys(t *testing.T) {
 
 		{"No data", &api.GetPassengerJourneysParams{}, []api.PassengerJourney{}, true},
 
+		{
+			"Departure radius 0",
+			makeParamsWithDepartureRadius2(coordsRef, 1),
+			[]api.PassengerJourney{
+				makePassengerJourneyAtCoords(coords900m, coordsIgnore),
+			},
+			false,
+		},
+
 		/* { */
 		/* 	"Departure radius 1", */
-		/* 	makeParamsWithDepartureRadius(coordsRef, 1), */
-		/* 	[]api.DriverJourney{ */
-		/* 		makeDriverJourneyAtCoords(coords900m, coordsIgnore), */
-		/* 		makeDriverJourneyAtCoords(coords1100m, coordsIgnore), */
+		/* 	makeParamsWithDepartureRadius2(coordsRef, 1), */
+		/* 	[]api.PassengerJourney{ */
+		/* 		makePassengerJourneyAtCoords(coords900m, coordsIgnore), */
+		/* 		makePassengerJourneyAtCoords(coords1100m, coordsIgnore), */
 		/* 	}, */
 		/* 	false, */
 		/* }, */
@@ -269,15 +254,6 @@ func TestPassengerJourneys(t *testing.T) {
 		/* 		makeDriverJourneyAtCoords(coords1100m, coordsIgnore), */
 		/* 	}, */
 		/* 	true, */
-		/* }, */
-
-		/* { */
-		/* 	"Departure radius 3", */
-		/* 	makeParamsWithDepartureRadius(coordsRef, 1), */
-		/* 	[]api.DriverJourney{ */
-		/* 		makeDriverJourneyAtCoords(coords900m, coordsIgnore), */
-		/* 	}, */
-		/* 	false, */
 		/* }, */
 
 		/* { */
@@ -387,35 +363,44 @@ func testGetPassengerJourneyRequestWithData(
 	testData []api.PassengerJourney,
 	expectEmpty bool,
 ) {
-
 	testRequest, err := api.NewGetPassengerJourneysRequest(fakeServer, params)
 	panicIf(err)
 
 	mockDB := NewMockDB()
-	mockDB.passengerJourneys = testData
+	mockDB.PassengerJourneys = testData
 
-	responseTestFun := test.TestGetPassengerJourneysResponse
+	rec, c, handler := setupTest(testRequest, mockDB)
 
-	e := echo.New()
-	testRequest.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(testRequest, rec)
-
-	handler := &StdCovServerImpl{mockDB}
-
-	// Assertions
+	// Make API Call
 	err = handler.GetDriverJourneys(c, api.GetDriverJourneysParams(*params))
-	if err != nil {
-		t.Fail()
-	}
+	panicIf(err)
+
 	response := rec.Result()
 	flags := test.Flags{DisallowEmpty: !expectEmpty}
-	assertionResults := responseTestFun(testRequest, response, flags)
+	assertionResults := test.TestGetDriverJourneysResponse(testRequest, response, flags)
+	checkAssertionResults(t, assertionResults)
+}
+
+func setupTest(request *http.Request, mockDB MockDB) (*httptest.ResponseRecorder, echo.Context, api.ServerInterface) {
+	e := echo.New()
+	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+	handler := &StdCovServerImpl{mockDB}
+	return rec, c, handler
+}
+
+func checkAssertionResults(t *testing.T, assertionResults []test.AssertionResult) {
 	assert.Greater(t, len(assertionResults), 0)
 	for _, ar := range assertionResults {
 		if err := ar.Unwrap(); err != nil {
-			t.Log(err)
-			t.Fail()
+			t.Error(err)
 		}
+	}
+}
+
+func panicIf(err error) {
+	if err != nil {
+		panic(err)
 	}
 }

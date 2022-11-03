@@ -58,7 +58,7 @@ func (s *StdCovServerImpl) GetDriverJourneys(
 	params api.GetDriverJourneysParams,
 ) error {
 	response := []api.DriverJourney{}
-	for _, dj := range s.mockDB.driverJourneys {
+	for _, dj := range s.mockDB.DriverJourneys {
 		if keepDriverJourney(params, dj) {
 			response = append(response, dj)
 		}
