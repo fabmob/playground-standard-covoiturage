@@ -42,6 +42,7 @@
       "passengerDropLng":    2.3997529,
       "passengerPickupDate": 1665579951,
       "passengerPickupLat":  47.461737,
+      "driverDepartureDate":  1665576650,
       "type": "DYNAMIC"
     },
     {
@@ -56,6 +57,7 @@
       "passengerDropLng":    2.3997529,
       "passengerPickupDate": 1665579951,
       "passengerPickupLat":  47.461737,
+      "driverDepartureDate": 1665576650,
       "type": "DYNAMIC"
     }
   ]

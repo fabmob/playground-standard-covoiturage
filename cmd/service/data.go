@@ -24,8 +24,8 @@ func NewMockDB() *MockDB {
 	return &m
 }
 
-func NewMockDBWithDefaultData() (*MockDB, error) {
-	return ReadData(bytes.NewReader(JSONData))
+func NewMockDBWithDefaultData() *MockDB {
+	return MustReadDefaultData()
 }
 
 // JSONData stores default driver journey json data
@@ -35,6 +35,15 @@ var JSONData []byte
 
 // DriverJourneysData is the in-memory equivalent of the driver journeys
 // stored in a database
+
+// MustReadDefaultData reads default data, and panics if any error occurs
+func MustReadDefaultData() *MockDB {
+	mockDB, err := ReadData(bytes.NewReader(JSONData))
+	if err != nil {
+		panic(err)
+	}
+	return mockDB
+}
 
 // ReadData reads journey data from io.Reader with json data.
 // It does not validate data.

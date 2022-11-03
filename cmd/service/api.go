@@ -16,13 +16,9 @@ type StdCovServerImpl struct {
 
 // NewDefaultServer returns a server, and populates the associated DB with
 // default data
-func NewDefaultServer() (*StdCovServerImpl, error) {
-	db, err := NewMockDBWithDefaultData()
-	if err != nil {
-		return nil, err
-	}
-	server := StdCovServerImpl{db}
-	return &server, err
+func NewDefaultServer() *StdCovServerImpl {
+	server := StdCovServerImpl{NewMockDBWithDefaultData()}
+	return &server
 }
 
 // PostBookingEvents sends booking information of a user connected with a third-party provider back to the provider.
