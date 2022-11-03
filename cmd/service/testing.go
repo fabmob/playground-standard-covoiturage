@@ -13,28 +13,43 @@ func makeNDriverJourneys(n int) []api.DriverJourney {
 	return driverJourneys
 }
 
+func makeNPassengerJourneys(n int) []api.PassengerJourney {
+	passengerJourneys := make([]api.PassengerJourney, 0, n)
+	for i := 0; i < n; i++ {
+		passengerJourneys = append(passengerJourneys, api.NewPassengerJourney())
+	}
+	return passengerJourneys
+}
+
 func makeDriverJourneyAtCoords(coordPickup, coordDrop util.Coord) api.DriverJourney {
 	dj := api.NewDriverJourney()
-	dj.PassengerPickupLat = coordPickup.Lat
-	dj.PassengerPickupLng = coordPickup.Lon
-	dj.PassengerDropLat = coordDrop.Lat
-	dj.PassengerDropLng = coordDrop.Lon
+	updateTripCoords(&dj.Trip, coordPickup, coordDrop)
 	return dj
 }
 
 func makePassengerJourneyAtCoords(coordPickup, coordDrop util.Coord) api.PassengerJourney {
 	pj := api.NewPassengerJourney()
-	pj.PassengerPickupLat = coordPickup.Lat
-	pj.PassengerPickupLng = coordPickup.Lon
-	pj.PassengerDropLat = coordDrop.Lat
-	pj.PassengerDropLng = coordDrop.Lon
+	updateTripCoords(&pj.Trip, coordPickup, coordDrop)
 	return pj
+}
+
+func updateTripCoords(t *api.Trip, coordPickup, coordDrop util.Coord) {
+	t.PassengerPickupLat = coordPickup.Lat
+	t.PassengerPickupLng = coordPickup.Lon
+	t.PassengerDropLat = coordDrop.Lat
+	t.PassengerDropLng = coordDrop.Lon
 }
 
 func makeDriverJourneyAtDate(date int64) api.DriverJourney {
 	dj := api.NewDriverJourney()
 	dj.PassengerPickupDate = date
 	return dj
+}
+
+func makePassengerJourneyAtDate(date int64) api.PassengerJourney {
+	pj := api.NewPassengerJourney()
+	pj.PassengerPickupDate = date
+	return pj
 }
 
 func castDriverToPassenger(p *api.GetDriverJourneysParams) *api.GetPassengerJourneysParams {

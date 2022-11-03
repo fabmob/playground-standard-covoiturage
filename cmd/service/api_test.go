@@ -178,7 +178,7 @@ func TestPassengerJourneys(t *testing.T) {
 		coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
 		coords900m   = util.Coord{Lat: 46.1613442, Lon: -1.2103736} // at ~900m from reference
 		coords1100m  = util.Coord{Lat: 46.1613679, Lon: -1.2086563} // at ~1100m from reference
-	/* 	coords2100m  = util.Coord{Lat: 46.1649225, Lon: -1.1954497} // at ~2100m from reference */
+		coords2100m  = util.Coord{Lat: 46.1649225, Lon: -1.1954497} // at ~2100m from reference
 	)
 
 	testCases := []struct {
@@ -209,111 +209,111 @@ func TestPassengerJourneys(t *testing.T) {
 			false,
 		},
 
-		/* { */
-		/* 	"Departure radius 2", */
-		/* 	makeParamsWithDepartureRadius(coordsRef, 2), */
-		/* 	[]api.DriverJourney{ */
-		/* 		makeDriverJourneyAtCoords(coords900m, coordsIgnore), */
-		/* 		makeDriverJourneyAtCoords(coords2100m, coordsIgnore), */
-		/* 	}, */
-		/* 	false, */
-		/* }, */
+		{
+			"Departure radius 2",
+			makeParamsWithDepartureRadius(coordsRef, 2, "passenger"),
+			[]api.PassengerJourney{
+				makePassengerJourneyAtCoords(coords900m, coordsIgnore),
+				makePassengerJourneyAtCoords(coords2100m, coordsIgnore),
+			},
+			false,
+		},
 
-		/* { */
-		/* 	"Departure radius 3", */
-		/* 	makeParamsWithDepartureRadius(coordsRef, 1), */
-		/* 	[]api.DriverJourney{ */
-		/* 		makeDriverJourneyAtCoords(coords1100m, coordsIgnore), */
-		/* 	}, */
-		/* 	true, */
-		/* }, */
+		{
+			"Departure radius 3",
+			makeParamsWithDepartureRadius(coordsRef, 1, "passenger"),
+			[]api.PassengerJourney{
+				makePassengerJourneyAtCoords(coords1100m, coordsIgnore),
+			},
+			true,
+		},
 
-		/* { */
-		/* 	"Arrival radius 1", */
-		/* 	makeParamsWithArrivalRadius(coordsRef, 1), */
-		/* 	[]api.DriverJourney{ */
-		/* 		makeDriverJourneyAtCoords(coordsIgnore, coords900m), */
-		/* 		makeDriverJourneyAtCoords(coordsIgnore, coords1100m), */
-		/* 	}, */
-		/* 	false, */
-		/* }, */
+		{
+			"Arrival radius 1",
+			makeParamsWithArrivalRadius(coordsRef, 1, "passenger"),
+			[]api.PassengerJourney{
+				makePassengerJourneyAtCoords(coordsIgnore, coords900m),
+				makePassengerJourneyAtCoords(coordsIgnore, coords1100m),
+			},
+			false,
+		},
 
-		/* { */
-		/* 	"Arrival radius 2", */
-		/* 	makeParamsWithArrivalRadius(coordsRef, 2), */
-		/* 	[]api.DriverJourney{ */
-		/* 		makeDriverJourneyAtCoords(coordsIgnore, coords2100m), */
-		/* 		makeDriverJourneyAtCoords(coordsIgnore, coords900m), */
-		/* 	}, */
-		/* 	false, */
-		/* }, */
+		{
+			"Arrival radius 2",
+			makeParamsWithArrivalRadius(coordsRef, 2, "passenger"),
+			[]api.PassengerJourney{
+				makePassengerJourneyAtCoords(coordsIgnore, coords2100m),
+				makePassengerJourneyAtCoords(coordsIgnore, coords900m),
+			},
+			false,
+		},
 
-		/* { */
-		/* 	"Arrival radius 3", */
-		/* 	makeParamsWithArrivalRadius(coordsRef, 1), */
-		/* 	[]api.DriverJourney{ */
-		/* 		makeDriverJourneyAtCoords(coordsIgnore, coords1100m), */
-		/* 	}, */
-		/* 	true, */
-		/* }, */
+		{
+			"Arrival radius 3",
+			makeParamsWithArrivalRadius(coordsRef, 1, "passenger"),
+			[]api.PassengerJourney{
+				makePassengerJourneyAtCoords(coordsIgnore, coords1100m),
+			},
+			true,
+		},
 
-		/* { */
-		/* 	"Arrival radius 4", */
-		/* 	makeParamsWithArrivalRadius(coordsRef, 1), */
-		/* 	[]api.DriverJourney{ */
-		/* 		makeDriverJourneyAtCoords(coordsIgnore, coords900m), */
-		/* 	}, */
-		/* 	false, */
-		/* }, */
+		{
+			"Arrival radius 4",
+			makeParamsWithArrivalRadius(coordsRef, 1, "passenger"),
+			[]api.PassengerJourney{
+				makePassengerJourneyAtCoords(coordsIgnore, coords900m),
+			},
+			false,
+		},
 
-		/* { */
-		/* 	"TimeDelta 1", */
-		/* 	makeParamsWithTimeDelta(10), */
-		/* 	[]api.DriverJourney{ */
-		/* 		makeDriverJourneyAtDate(5), */
-		/* 	}, */
-		/* 	false, */
-		/* }, */
+		{
+			"TimeDelta 1",
+			makeParamsWithTimeDelta(10, "passenger"),
+			[]api.PassengerJourney{
+				makePassengerJourneyAtDate(5),
+			},
+			false,
+		},
 
-		/* { */
-		/* 	"TimeDelta 2", */
-		/* 	makeParamsWithTimeDelta(10), */
-		/* 	[]api.DriverJourney{ */
-		/* 		makeDriverJourneyAtDate(15), */
-		/* 	}, */
-		/* 	true, */
-		/* }, */
+		{
+			"TimeDelta 2",
+			makeParamsWithTimeDelta(10, "passenger"),
+			[]api.PassengerJourney{
+				makePassengerJourneyAtDate(15),
+			},
+			true,
+		},
 
-		/* { */
-		/* 	"TimeDelta 3", */
-		/* 	makeParamsWithTimeDelta(20), */
-		/* 	[]api.DriverJourney{ */
-		/* 		makeDriverJourneyAtDate(25), */
-		/* 		makeDriverJourneyAtDate(15), */
-		/* 	}, */
-		/* 	false, */
-		/* }, */
+		{
+			"TimeDelta 3",
+			makeParamsWithTimeDelta(20, "passenger"),
+			[]api.PassengerJourney{
+				makePassengerJourneyAtDate(25),
+				makePassengerJourneyAtDate(15),
+			},
+			false,
+		},
 
-		/* { */
-		/* 	"Count 1", */
-		/* 	makeParamsWithCount(1), */
-		/* 	makeNDriverJourneys(1), */
-		/* 	false, */
-		/* }, */
+		{
+			"Count 1",
+			makeParamsWithCount(1, "passenger"),
+			makeNPassengerJourneys(1),
+			false,
+		},
 
-		/* { */
-		/* 	"Count 2", */
-		/* 	makeParamsWithCount(0), */
-		/* 	makeNDriverJourneys(1), */
-		/* 	true, */
-		/* }, */
+		{
+			"Count 2",
+			makeParamsWithCount(0, "passenger"),
+			makeNPassengerJourneys(1),
+			true,
+		},
 
-		/* { */
-		/* 	"Count 3", */
-		/* 	makeParamsWithCount(2), */
-		/* 	makeNDriverJourneys(4), */
-		/* 	true, */
-		/* }, */
+		{
+			"Count 3",
+			makeParamsWithCount(2, "passenger"),
+			makeNPassengerJourneys(4),
+			true,
+		},
 	}
 
 	for _, tc := range testCases {
