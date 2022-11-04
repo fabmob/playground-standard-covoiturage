@@ -110,36 +110,14 @@ See below for assertions reference.
 
 ### Assertions reference
 
-### assert API call success
+| Assertion code                 | description                                                                             |
+| ------------------------------ | -------------------------------------------------------------                           |
+| assert API call success        | Checks that the response data has been succesfully collected                            |
+| assert response not empty      | Checks that the response is not an empty array.                                         |
+| assert response status code X  | Checks that the status code X is returned.                                              |
+| assert header X:Y              | Checks that the response has header X with value Y.                                     |
+| assert format                  | Checks that the format of the response complies to the standards openAPI specification. |
+| assert query parameter X       | Checks that the response complies to the expectations of the queryparameter X.          |
+| assert unique ids              | Checks that the response objects have no duplicated "id" field.                         |
+| assert response property X     | Checks that the response property X meets the expectations given by the standard.       |
 
-Checks that the response data has been succesfully collected
-
-### assert response not empty
-
-Checks that the response is not an empty array.
-
-### assert response status code X
-
-Checks that the status code X is returned.
-
-### assert header X:Y
-
-Checks that the response has header X with value Y.
-
-### assert format
-
-Checks that the format of the response complies to the standards openAPI 
-specification.
-
-### assert query parameter X
-
-Checks that the response complies to the expectations of the queryparameter X.
-
-### assert unique ids
-
-Checks that the response objects have no duplicated "id" field.
-
-### assert response property X
-
-Checks that the response property X meets the expectations given by the 
-standard.
