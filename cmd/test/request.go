@@ -11,6 +11,7 @@ type Query struct {
 	Params map[string]string
 }
 
+// NewQuery initializes an empty query
 func NewQuery() Query {
 	return Query{map[string]string{}}
 }

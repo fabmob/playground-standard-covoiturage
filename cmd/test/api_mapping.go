@@ -7,10 +7,11 @@ import (
 	"strings"
 )
 
-// apiMapping is the mapping between endpoint and the associated test
-// function that has been registered, if any
+// apiMapping stores api endpoint > test functions data
 var apiMapping = map[Endpoint]ResponseTestFun{}
 
+// GetAPIMapping returns the mapping between endpoint and the associated test
+// function
 func GetAPIMapping() map[Endpoint]ResponseTestFun {
 	if len(apiMapping) == 0 {
 		initAPIMapping()
