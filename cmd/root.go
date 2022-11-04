@@ -8,7 +8,7 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "stdcov-api-test",
+	Use:   "pscovoit",
 	Short: "Testing tool for the standard-covoiturage API",
 	Long: `This testing tool can be used to serve a test API enforcing the
   standard covoiturage specification, for exploration and experimentation, or to run a test
