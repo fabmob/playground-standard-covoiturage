@@ -22,6 +22,11 @@ var getCmd = &cobra.Command{
 	},
 }
 
+var (
+	server string
+)
+
 func init() {
+	getCmd.PersistentFlags().StringVar(&server, "server", "", "Server on which to run the query")
 	testCmd.AddCommand(getCmd)
 }
