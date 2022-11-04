@@ -8,14 +8,18 @@ import (
 
 // Query implements flag.Value interface to store query parameters
 type Query struct {
-	params map[string]string
+	Params map[string]string
+}
+
+func NewQuery() Query {
+	return Query{map[string]string{}}
 }
 
 // String implements pflag.Value.String (cobra flags)
 func (qp *Query) String() string {
 	var str = ""
 
-	for k, v := range qp.params {
+	for k, v := range qp.Params {
 		str += fmt.Sprintf("--%s:%s ", k, v)
 	}
 
@@ -32,11 +36,11 @@ func (qp *Query) Set(s string) error {
 		value = parts[1]
 	}
 
-	if qp.params == nil {
-		qp.params = make(map[string]string)
+	if qp.Params == nil {
+		qp.Params = make(map[string]string)
 	}
 
-	qp.params[key] = value
+	qp.Params[key] = value
 
 	return nil
 }
@@ -51,7 +55,7 @@ func (qp *Query) Type() string {
 func AddQueryParameters(query Query, req *http.Request) {
 	q := req.URL.Query()
 
-	for k, v := range query.params {
+	for k, v := range query.Params {
 		q.Add(k, v)
 	}
 

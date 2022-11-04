@@ -30,10 +30,12 @@ var (
 
 func init() {
 	rootCmd.AddCommand(testCmd)
+
 	testCmd.PersistentFlags().StringVarP(&server, "server", "s", "", "Server URL of the API under test")
-	testCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "API call URL")
 	testCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Make the operation more talkative")
-	testCmd.PersistentFlags().VarP(&query, "query", "q", "Query parameters in the form name=value")
 	testCmd.PersistentFlags().BoolVar(&disallowEmpty, "disallowEmpty", false,
 		"Should an empty request return an error")
+
+	testCmd.Flags().StringVarP(&url, "url", "u", "", "API call URL")
+	testCmd.Flags().VarP(&query, "query", "q", "Query parameters in the form name=value")
 }
