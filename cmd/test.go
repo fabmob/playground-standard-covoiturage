@@ -18,12 +18,12 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		test.Run(http.MethodGet, url, verbose, query, flags)
+		test.Run(http.MethodGet, URL, verbose, query, flags)
 	},
 }
 
 var (
-	url           string
+	URL           string
 	verbose       bool
 	query         test.Query
 	disallowEmpty bool
@@ -37,6 +37,6 @@ func init() {
 	testCmd.PersistentFlags().BoolVar(&disallowEmpty, "disallowEmpty", false,
 		"Should an empty request return an error")
 
-	testCmd.Flags().StringVarP(&url, "url", "u", "", "API call URL")
+	testCmd.Flags().StringVarP(&URL, "url", "u", "", "API call URL")
 	testCmd.Flags().VarP(&query, "query", "q", "Query parameters in the form name=value")
 }
