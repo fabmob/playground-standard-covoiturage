@@ -11,7 +11,8 @@
       "passengerDropLat":    48.8450234,
       "passengerDropLng":    2.3997529,
       "passengerPickupDate": 1665579951,
-      "passengerPickupLat":  47.461737,
+      "passengerPickupLat": 47.461737,
+      "passengerPickupLng": 1.061393,
       "type": "DYNAMIC"
     },
     {
@@ -26,6 +27,7 @@
       "passengerDropLng":    2.3997529,
       "passengerPickupDate": 1665579951,
       "passengerPickupLat":  47.461737,
+      "passengerPickupLng": 1.061393,
       "type": "DYNAMIC"
     }
   ],
@@ -42,6 +44,7 @@
       "passengerDropLng":    2.3997529,
       "passengerPickupDate": 1665579951,
       "passengerPickupLat":  47.461737,
+      "passengerPickupLng": 1.061393,
       "driverDepartureDate":  1665576650,
       "type": "DYNAMIC"
     },
@@ -57,6 +60,7 @@
       "passengerDropLng":    2.3997529,
       "passengerPickupDate": 1665579951,
       "passengerPickupLat":  47.461737,
+      "passengerPickupLng": 1.061393,
       "driverDepartureDate": 1665576650,
       "type": "DYNAMIC"
     }
