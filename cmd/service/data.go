@@ -21,6 +21,7 @@ func NewMockDB() *MockDB {
 	m := MockDB{}
 	m.DriverJourneys = []api.DriverJourney{}
 	m.PassengerJourneys = []api.PassengerJourney{}
+
 	return &m
 }
 
@@ -43,6 +44,7 @@ func MustReadDefaultData() *MockDB {
 	if err != nil {
 		panic(err)
 	}
+
 	return mockDB
 }
 
@@ -50,10 +52,13 @@ func MustReadDefaultData() *MockDB {
 // It does not validate data.
 func ReadData(r io.Reader) (*MockDB, error) {
 	var data MockDB
+
 	bytes, readErr := io.ReadAll(r)
 	if readErr != nil {
 		return nil, readErr
 	}
+
 	err := json.Unmarshal(bytes, &data)
+
 	return &data, err
 }

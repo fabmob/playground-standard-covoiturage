@@ -17,21 +17,13 @@ import (
 
 func getQueryRadius(departureOrArrival departureOrArrival, req *http.Request) (float64, error) {
 	const DefaultRadius float64 = 1
-	return parseQueryFloatParamWithDefault(
-		req,
-		string(departureOrArrival),
-		DefaultRadius,
-	)
+	return parseQueryFloatParamWithDefault(req, string(departureOrArrival), DefaultRadius)
 }
 
 // getQueryTimeDelta extracts timeDelta parameter from request
 func getQueryTimeDelta(req *http.Request) (int, error) {
 	const DefaultTimeDelta int = 900
-	return parseQueryIntParamWithDefault(
-		req,
-		"timeDelta",
-		DefaultTimeDelta,
-	)
+	return parseQueryIntParamWithDefault(req, "timeDelta", DefaultTimeDelta)
 }
 
 func getQueryDeparturDate(req *http.Request) (int, error) {
@@ -46,24 +38,28 @@ func getQueryCount(req *http.Request) (int, error) {
 // queryParameters
 func getQueryCoord(departureOrArrival departureOrArrival, request *http.Request) (util.Coord, error) {
 	var latParam, lonParam string
+
 	switch departureOrArrival {
 	case departure:
 		latParam = "departureLat"
 		lonParam = "departureLng"
+
 	case arrival:
 		latParam = "arrivalLat"
 		lonParam = "arrivalLng"
 	}
+
 	lat, err := parseQueryFloatParam(request, latParam)
 	if err != nil {
 		return util.Coord{}, err
 	}
+
 	lon, err := parseQueryFloatParam(request, lonParam)
 	if err != nil {
 		return util.Coord{}, err
 	}
-	coordQuery := util.Coord{Lat: lat, Lon: lon}
-	return coordQuery, nil
+
+	return util.Coord{Lat: lat, Lon: lon}, nil
 }
 
 func parseQueryFloatParam(request *http.Request, paramName string) (float64, error) {
@@ -95,6 +91,7 @@ func auxParseFloat(paramStr string) (float64, error) {
 			err,
 		)
 	}
+
 	return param, nil
 }
 
@@ -105,6 +102,7 @@ func withDefaultFloat(parser func(string) (float64,
 		if paramStr == "" {
 			return defaultValue, nil
 		}
+
 		return parser(paramStr)
 	}
 }
@@ -118,6 +116,7 @@ func auxParseInt(paramStr string) (int, error) {
 			err,
 		)
 	}
+
 	return param, nil
 }
 
@@ -128,6 +127,7 @@ func withDefaultInt(parser func(string) (int,
 		if paramStr == "" {
 			return defaultValue, nil
 		}
+
 		return parser(paramStr)
 	}
 }
@@ -147,7 +147,9 @@ func getResponseCoord(departureOrArrival departureOrArrival, obj json.RawMessage
 			PassengerPickupLat float64 `json:"passengerPickupLat"`
 			PassengerPickupLng float64 `json:"passengerPickupLng"`
 		}
+
 		var withPassengerPickupCoord WithPassengerPickupCoord
+
 		err := json.Unmarshal(obj, &withPassengerPickupCoord)
 		if err != nil {
 			return util.Coord{}, err
@@ -157,12 +159,15 @@ func getResponseCoord(departureOrArrival departureOrArrival, obj json.RawMessage
 			Lat: withPassengerPickupCoord.PassengerPickupLat,
 			Lon: withPassengerPickupCoord.PassengerPickupLng,
 		}
+
 	case arrival:
 		type WithPassengerDropCoord struct {
 			PassengerDropLat float64 `json:"passengerDropLat"`
 			PassengerDropLng float64 `json:"passengerDropLng"`
 		}
+
 		var withPassengerDropCoord WithPassengerDropCoord
+
 		err := json.Unmarshal(obj, &withPassengerDropCoord)
 		if err != nil {
 			return util.Coord{}, err
@@ -173,6 +178,7 @@ func getResponseCoord(departureOrArrival departureOrArrival, obj json.RawMessage
 			Lon: withPassengerDropCoord.PassengerDropLng,
 		}
 	}
+
 	return coordResponse, nil
 }
 
@@ -180,11 +186,14 @@ func getResponsePickupDate(obj json.RawMessage) (int, error) {
 	type WithPickupDate struct {
 		PassengerPickupDate int `json:"passengerPickupDate"`
 	}
+
 	var withPickupDate WithPickupDate
+
 	err := json.Unmarshal(obj, &withPickupDate)
 	if err != nil {
 		return 0, err
 	}
+
 	return withPickupDate.PassengerPickupDate, nil
 }
 
@@ -192,11 +201,14 @@ func getResponseID(obj json.RawMessage) (*string, error) {
 	type WithID struct {
 		ID *string `json:"id,omitempty"`
 	}
+
 	var withID WithID
+
 	err := json.Unmarshal(obj, &withID)
 	if err != nil {
 		return nil, err
 	}
+
 	return withID.ID, nil
 }
 
@@ -204,11 +216,14 @@ func getResponseOperator(obj json.RawMessage) (string, error) {
 	type WithOperator struct {
 		Operator string `json:"operator"`
 	}
+
 	var withOperator WithOperator
+
 	err := json.Unmarshal(obj, &withOperator)
 	if err != nil {
 		return "", err
 	}
+
 	return withOperator.Operator, nil
 }
 
@@ -232,11 +247,13 @@ type reusableReadCloser struct {
 // ReusableReadCloser wraps a io.ReadCloser so that it can be read and closed as
 // many times as needed
 func ReusableReadCloser(r io.ReadCloser) (io.ReadCloser, error) {
-	readBuf := bytes.Buffer{}
+	var readBuf = bytes.Buffer{}
+
 	_, err := readBuf.ReadFrom(r)
 	if err != nil {
 		return nil, err
 	}
+
 	backBuf := bytes.Buffer{}
 
 	return reusableReadCloser{
@@ -251,6 +268,7 @@ func (r reusableReadCloser) Read(p []byte) (int, error) {
 	if err == io.EOF {
 		r.reset()
 	}
+
 	return n, err
 }
 
@@ -268,13 +286,18 @@ func (r reusableReadCloser) Close() error {
 // json.RawMessage
 func parseArrayResponse(rsp *http.Response) ([]json.RawMessage, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
+
 	defer func() { _ = rsp.Body.Close() }()
+
 	if err != nil {
 		return nil, err
 	}
+
 	var dest []json.RawMessage
+
 	if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 		return nil, err
 	}
+
 	return dest, nil
 }

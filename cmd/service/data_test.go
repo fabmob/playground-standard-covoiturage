@@ -34,21 +34,29 @@ func TestDefaultPassengerJourneysValidity(t *testing.T) {
 
 func requestAll(t *testing.T, driverOrPassenger string) api.GetJourneysParams {
 	t.Helper()
-	largeTimeDelta := int(1e10)
-	largeRadius := float32(1e6)
+
+	var (
+		largeTimeDelta = int(1e10)
+		largeRadius    = float32(1e6)
+	)
+
 	switch driverOrPassenger {
 	case "driver":
 		params := api.GetDriverJourneysParams{}
 		params.TimeDelta = &largeTimeDelta
 		params.DepartureRadius = &largeRadius
 		params.ArrivalRadius = &largeRadius
+
 		return &params
+
 	case "passenger":
 		params := api.GetPassengerJourneysParams{}
 		params.TimeDelta = &largeTimeDelta
 		params.DepartureRadius = &largeRadius
 		params.ArrivalRadius = &largeRadius
+
 		return &params
+
 	default:
 		panic("invalid driverOrPassenger parameter")
 	}

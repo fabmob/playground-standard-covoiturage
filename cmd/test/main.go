@@ -15,7 +15,9 @@ func Run(server, URL string, verbose bool, query Query) int {
 	if err != nil {
 		panic(err)
 	}
+
 	fullURL, _ := url.JoinPath(server, URL)
+
 	req, err := http.NewRequest("GET", fullURL, nil)
 	if err != nil {
 		fmt.Println(err)
@@ -27,7 +29,9 @@ func Run(server, URL string, verbose bool, query Query) int {
 	flags := Flags{
 		DisallowEmpty: false,
 	}
+
 	registerAllTests()
+
 	report, err := Request(c, req, flags)
 	if err != nil {
 		fmt.Println(err)
@@ -36,8 +40,10 @@ func Run(server, URL string, verbose bool, query Query) int {
 
 	report.verbose = verbose
 	fmt.Println(report)
+
 	if report.hasErrors() {
 		return 1
 	}
+
 	return 0
 }

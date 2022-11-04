@@ -13,10 +13,12 @@ type Query struct {
 
 // String implements pflag.Value.String (cobra flags)
 func (qp *Query) String() string {
-	str := ""
+	var str = ""
+
 	for k, v := range qp.params {
 		str += fmt.Sprintf("--%s:%s ", k, v)
 	}
+
 	return str
 }
 
@@ -25,13 +27,17 @@ func (qp *Query) Set(s string) error {
 	parts := strings.SplitN(s, "=", 2)
 	key := parts[0]
 	value := ""
+
 	if len(parts) > 1 {
 		value = parts[1]
 	}
+
 	if qp.params == nil {
 		qp.params = make(map[string]string)
 	}
+
 	qp.params[key] = value
+
 	return nil
 }
 
@@ -44,8 +50,10 @@ func (qp *Query) Type() string {
 // existing request
 func AddQueryParameters(query Query, req *http.Request) {
 	q := req.URL.Query()
+
 	for k, v := range query.params {
 		q.Add(k, v)
 	}
+
 	req.URL.RawQuery = q.Encode()
 }

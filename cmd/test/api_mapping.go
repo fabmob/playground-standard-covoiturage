@@ -40,6 +40,7 @@ func SelectTestFuns(endpoint Endpoint) (ResponseTestFun, error) {
 	if !ok {
 		return nil, fmt.Errorf("request to an unknown endpoint: %s", endpoint)
 	}
+
 	return testFun, nil
 }
 
@@ -50,10 +51,13 @@ func ExtractEndpoint(request *http.Request, server string) (Endpoint, error) {
 	if err != nil {
 		return Endpoint{}, err
 	}
+
 	method := request.Method
+
 	path := strings.TrimPrefix(request.URL.Path, serverURL.Path)
 	if !strings.HasPrefix(path, "/") {
 		path = "/" + path
 	}
+
 	return Endpoint{method, path}, nil
 }

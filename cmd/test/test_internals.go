@@ -15,12 +15,15 @@ func Request(client APIClient, request *http.Request, flags Flags) (*Report, err
 	if err != nil {
 		return nil, err
 	}
+
 	selectedTestFun, err := SelectTestFuns(endpoint)
 	if err != nil {
 		return nil, err
 	}
+
 	report := executeTestFuns(client, request, selectedTestFun, flags)
 	report.endpoint = endpoint
+
 	return report, nil
 }
 
@@ -30,9 +33,11 @@ func executeTestFuns(
 	testFun ResponseTestFun,
 	flags Flags,
 ) *Report {
-	all := []AssertionResult{}
+	var all = []AssertionResult{}
+
 	all = append(all, wrapTestResponseFun(testFun)(client, request, flags)...)
 	report := NewReport(all...)
+
 	return &report
 }
 
@@ -49,6 +54,7 @@ func wrapTestResponseFun(f ResponseTestFun) requestTestFun {
 		if clientErr != nil {
 			return []AssertionResult{CheckAPICallSuccess(clientErr)}
 		}
+
 		return f(request, response, flags)
 	}
 }
@@ -65,14 +71,20 @@ type ResponseTestFun func(
 
 func wrapAssertionsFun(f testImplementation) ResponseTestFun {
 	return func(req *http.Request, resp *http.Response, flags Flags) []AssertionResult {
-		a := NewAssertionAccu()
-		var err error
+		var (
+			err error
+			a   = NewAssertionAccu()
+		)
+
 		resp.Body, err = ReusableReadCloser(resp.Body)
 		if err != nil {
 			return []AssertionResult{NewAssertionResult(err, "failure to read response")}
 		}
+
 		f(req, resp, a, flags)
+
 		a.ExecuteAll()
+
 		return a.GetAssertionResults()
 	}
 }

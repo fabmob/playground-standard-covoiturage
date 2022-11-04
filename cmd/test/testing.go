@@ -24,9 +24,11 @@ type MockClient struct {
 // HTTPRequestDoer
 func (m *MockClient) Do(req *http.Request) (*http.Response, error) {
 	m.Requests = append(m.Requests, req)
+
 	if m.Error != nil {
 		return nil, m.Error
 	}
+
 	return m.Response, nil
 }
 
@@ -86,6 +88,7 @@ func mockOKStatusResponse() *http.Response {
 func mockBodyResponse(responseObj interface{}) *http.Response {
 	responseJSON, err := json.Marshal(responseObj)
 	panicIf(err)
+
 	return mockResponse(200, string(responseJSON), nil)
 }
 
@@ -123,8 +126,8 @@ func makeJourneyRequestWithRadius(
 	t.Helper()
 
 	var params api.GetDriverJourneysParams
-	switch departureOrArrival {
 
+	switch departureOrArrival {
 	case departure:
 
 		params = api.GetDriverJourneysParams{
@@ -140,11 +143,14 @@ func makeJourneyRequestWithRadius(
 			ArrivalLat:    float32(coord.Lat),
 			ArrivalLng:    float32(coord.Lon),
 		}
+
 	default:
 		panic(errors.New("wrong value in test: departureOrArrival"))
 	}
+
 	var request *http.Request
 	var err error
+
 	switch driverOrPassenger {
 	case "driver":
 		request, err = params.MakeRequest("localhost:1323")
@@ -162,11 +168,16 @@ func makeJourneyRequestWithRadius(
 
 func makeJourneysResponse(t *testing.T, coords []util.Coord, departureOrArrival departureOrArrival, driverOrPassenger string) *http.Response {
 	t.Helper()
-	var response *http.Response
-	driverJourneyObjects := []api.DriverJourney{}
-	passengerJourneyObjects := []api.PassengerJourney{}
+
+	var (
+		response                *http.Response
+		driverJourneyObjects    = []api.DriverJourney{}
+		passengerJourneyObjects = []api.PassengerJourney{}
+	)
+
 	for _, c := range coords {
 		var trip api.Trip
+
 		if departureOrArrival == departure {
 			trip.PassengerPickupLat = c.Lat
 			trip.PassengerPickupLng = c.Lon
@@ -174,17 +185,20 @@ func makeJourneysResponse(t *testing.T, coords []util.Coord, departureOrArrival 
 			trip.PassengerDropLat = c.Lat
 			trip.PassengerDropLng = c.Lon
 		}
+
 		switch driverOrPassenger {
 		case "driver":
 			driverJourneyObjects = append(
 				driverJourneyObjects,
 				api.DriverJourney{DriverTrip: api.DriverTrip{Trip: trip}},
 			)
+
 		case "passenger":
 			passengerJourneyObjects = append(
 				passengerJourneyObjects,
 				api.PassengerJourney{PassengerTrip: api.PassengerTrip{Trip: trip}},
 			)
+
 		default:
 			panic(errors.New("wrong value in test: driverOrPassenger"))
 		}
@@ -193,8 +207,10 @@ func makeJourneysResponse(t *testing.T, coords []util.Coord, departureOrArrival 
 	switch driverOrPassenger {
 	case "driver":
 		response = mockBodyResponse(interface{}(driverJourneyObjects))
+
 	case "passenger":
 		response = mockBodyResponse(interface{}(passengerJourneyObjects))
+
 	default:
 		panic(errors.New("wrong value in test: driverOrPassenger"))
 	}

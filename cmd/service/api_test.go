@@ -14,7 +14,6 @@ import (
 var fakeServer = "https:localhost:1323"
 
 func TestDriverJourneys(t *testing.T) {
-
 	var (
 		coordsIgnore = util.Coord{Lat: 0, Lon: 0}
 		coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
@@ -159,7 +158,6 @@ func TestDriverJourneys(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-
 		t.Run(tc.name, func(t *testing.T) {
 			testGetDriverJourneyRequestWithData(
 				t,
@@ -172,7 +170,6 @@ func TestDriverJourneys(t *testing.T) {
 }
 
 func TestPassengerJourneys(t *testing.T) {
-
 	var (
 		coordsIgnore = util.Coord{Lat: 0, Lon: 0}
 		coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
@@ -363,10 +360,10 @@ func testGetJourneys(t *testing.T, params api.GetJourneysParams, mockDB *MockDB,
 	// Build request
 	request, err := params.MakeRequest(fakeServer)
 	panicIf(err)
+	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	// Setup testing server with response recorder
 	e := echo.New()
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	ctx := e.NewContext(request, rec)
 	handler := &StdCovServerImpl{mockDB}
@@ -379,12 +376,15 @@ func testGetJourneys(t *testing.T, params api.GetJourneysParams, mockDB *MockDB,
 	response := rec.Result()
 	flags := test.Flags{DisallowEmpty: !expectEmpty}
 	assertionResults := f(request, response, flags)
+
 	checkAssertionResults(t, assertionResults)
 }
 
 func checkAssertionResults(t *testing.T, assertionResults []test.AssertionResult) {
 	t.Helper()
+
 	assert.Greater(t, len(assertionResults), 0)
+
 	for _, ar := range assertionResults {
 		if err := ar.Unwrap(); err != nil {
 			t.Error(err)

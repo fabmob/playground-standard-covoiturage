@@ -131,5 +131,6 @@ func withDefaultValue[T int | float32 | float64](t *T, defaultValue T) T {
 	if t == nil {
 		return defaultValue
 	}
+
 	return *t
 }

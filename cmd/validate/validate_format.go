@@ -16,6 +16,7 @@ import (
 func Response(request *http.Request, response *http.Response) error {
 	ctx := context.Background()
 	loader := &openapi3.Loader{Context: ctx, IsExternalRefsAllowed: true}
+
 	doc, loadingErr := loader.LoadFromData(spec.OpenAPISpec)
 	if loadingErr != nil {
 		panic(loadingErr) // Error only if problem with module internals
@@ -49,6 +50,7 @@ func Response(request *http.Request, response *http.Response) error {
 		Status:                 response.StatusCode,
 		Header:                 response.Header,
 	}
+
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return err
@@ -56,5 +58,6 @@ func Response(request *http.Request, response *http.Response) error {
 
 	responseValidationInput.SetBodyBytes(body)
 	validationErr := openapi3filter.ValidateResponse(ctx, responseValidationInput)
+
 	return validationErr
 }

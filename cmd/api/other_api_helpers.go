@@ -16,14 +16,16 @@ func ParseGetDriverJourneysOKResponse(response *http.Response) ([]DriverJourney,
 	if err != nil {
 		return nil, err
 	}
+
 	if response.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("expected 200 status code, got %d", response.StatusCode)
 	}
+
 	if responseObj.JSON200 == nil {
 		return nil, errors.New("response with missing data")
 	}
-	return *responseObj.JSON200, nil
 
+	return *responseObj.JSON200, nil
 }
 
 // NewGetDriverJourneysParams returns query parameters, looking for a trip
@@ -47,6 +49,7 @@ func NewGetPassengerJourneysParams(
 	departure, arrival util.Coord,
 	departureDate int,
 ) *GetPassengerJourneysParams {
+
 	return &GetPassengerJourneysParams{
 		DepartureLat:  float32(departure.Lat),
 		DepartureLng:  float32(departure.Lon),
@@ -61,6 +64,7 @@ func NewDriverJourney() DriverJourney {
 	dj := DriverJourney{}
 	dj.Type = "DYNAMIC"
 	dj.Operator = "example.com"
+
 	return dj
 }
 
@@ -71,6 +75,7 @@ func NewPassengerJourney() PassengerJourney {
 	pj.Operator = "example.com"
 	pj.DriverDepartureDate = &departureDate
 	pj.Type = "DYNAMIC"
+
 	return pj
 }
 
@@ -78,8 +83,10 @@ func GetJourneys(s ServerInterface, ctx echo.Context, params GetJourneysParams) 
 	switch v := params.(type) {
 	case *GetPassengerJourneysParams:
 		return s.GetPassengerJourneys(ctx, *params.(*GetPassengerJourneysParams))
+
 	case *GetDriverJourneysParams:
 		return s.GetDriverJourneys(ctx, *params.(*GetDriverJourneysParams))
+
 	default:
 		return fmt.Errorf("unknown journey type %v: only GetDriverJourneysParams and GetPassengerJourneys supported", v)
 	}

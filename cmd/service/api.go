@@ -57,14 +57,17 @@ func (s *StdCovServerImpl) GetDriverJourneys(
 	params api.GetDriverJourneysParams,
 ) error {
 	response := []api.DriverJourney{}
+
 	for _, dj := range s.mockDB.DriverJourneys {
 		if keepJourney(&params, dj.Trip, dj.JourneySchedule) {
 			response = append(response, dj)
 		}
 	}
+
 	if params.Count != nil {
 		response = response[0:*params.Count]
 	}
+
 	return ctx.JSON(http.StatusOK, response)
 }
 
@@ -94,6 +97,7 @@ func keepJourney(params api.GetJourneysParams, trip api.Trip, schedule api.Journ
 	timeDeltaOK :=
 		math.Abs(float64(schedule.PassengerPickupDate)-float64(params.GetDepartureDate())) <
 			float64(params.GetTimeDelta())
+
 	return departureRadiusOK && arrivalRadiusOK && timeDeltaOK
 }
 
@@ -121,14 +125,17 @@ func (s *StdCovServerImpl) GetPassengerJourneys(
 	params api.GetPassengerJourneysParams,
 ) error {
 	response := []api.PassengerJourney{}
+
 	for _, pj := range s.mockDB.PassengerJourneys {
 		if keepJourney(&params, pj.Trip, pj.JourneySchedule) {
 			response = append(response, pj)
 		}
 	}
+
 	if params.Count != nil {
 		response = response[0:*params.Count]
 	}
+
 	return ctx.JSON(http.StatusOK, response)
 }
 
