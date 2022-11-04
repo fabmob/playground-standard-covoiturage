@@ -72,6 +72,11 @@ equivalent:
 By default, only the failed tests are reported. Use the `--verbose` flag to 
 see all tests. 
 
+## Use in CI
+
+The tool returns exit code 1 in case of an assertion failure. Examples to come 
+TODO.
+
 ## Autocompletion
 
 The last method may greatly benefit from autocompletion.
