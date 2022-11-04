@@ -21,7 +21,7 @@ of France" by IGN in 1993.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		query := makeQuery()
 		URL, _ := url.JoinPath(server, "/driver_journeys")
-		test.Run(http.MethodGet, URL, verbose, query, flags)
+		test.Run(http.MethodGet, URL, verbose, query, flags())
 	},
 }
 
