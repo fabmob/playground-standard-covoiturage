@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"net/http"
+
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/spf13/cobra"
 )
@@ -16,24 +18,25 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		test.Run(server, url, verbose, query)
+		test.Run(http.MethodGet, url, verbose, query, flags)
 	},
 }
 
 var (
-	server        string
 	url           string
 	verbose       bool
 	query         test.Query
 	disallowEmpty bool
+	flags         = test.Flags{DisallowEmpty: false}
 )
 
 func init() {
 	rootCmd.AddCommand(testCmd)
-	testCmd.PersistentFlags().StringVarP(&server, "server", "s", "", "Server URL of the API under test")
-	testCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "API call URL")
+
 	testCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Make the operation more talkative")
-	testCmd.PersistentFlags().VarP(&query, "query", "q", "Query parameters in the form name=value")
 	testCmd.PersistentFlags().BoolVar(&disallowEmpty, "disallowEmpty", false,
 		"Should an empty request return an error")
+
+	testCmd.Flags().StringVarP(&url, "url", "u", "", "API call URL")
+	testCmd.Flags().VarP(&query, "query", "q", "Query parameters in the form name=value")
 }

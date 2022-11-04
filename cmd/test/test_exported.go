@@ -2,8 +2,8 @@ package test
 
 import "net/http"
 
-// registerAllTests associates every available test to a given endpoint
-func registerAllTests() {
+// initAPIMapping associates every available test to a given endpoint
+func initAPIMapping() {
 	Register(TestGetStatusResponse, GetStatusEndpoint)
 	Register(TestGetDriverJourneysResponse, GetDriverJourneyEndpoint)
 	Register(TestGetPassengerJourneysResponse, GetPassengerJourneyEndpoint)

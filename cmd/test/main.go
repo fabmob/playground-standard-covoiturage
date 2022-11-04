@@ -3,22 +3,20 @@ package test
 import (
 	"fmt"
 	"net/http"
-	"net/url"
-
-	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 )
 
 // Run runs the cli validation and returns an exit code
-func Run(server, URL string, verbose bool, query Query) int {
+func Run(method, URL string, verbose bool, query Query, flags Flags) int {
 
-	c, err := api.NewClient(server)
+	initAPIMapping()
+
+	server, err := GuessServer(method, URL)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return 1
 	}
 
-	fullURL, _ := url.JoinPath(server, URL)
-
-	req, err := http.NewRequest("GET", fullURL, nil)
+	req, err := http.NewRequest(method, URL, nil)
 	if err != nil {
 		fmt.Println(err)
 		return 1
@@ -26,13 +24,7 @@ func Run(server, URL string, verbose bool, query Query) int {
 
 	AddQueryParameters(query, req)
 
-	flags := Flags{
-		DisallowEmpty: false,
-	}
-
-	registerAllTests()
-
-	report, err := Request(c, req, flags)
+	report, err := Request(server, req, flags)
 	if err != nil {
 		fmt.Println(err)
 		return 1

@@ -7,14 +7,22 @@ import (
 	"strings"
 )
 
-// APIMapping is the mapping between endpoint and the associated test
-// function that has been registered, if any
-var APIMapping = map[Endpoint]ResponseTestFun{}
+// apiMapping stores api endpoint > test functions data
+var apiMapping = map[Endpoint]ResponseTestFun{}
+
+// GetAPIMapping returns the mapping between endpoint and the associated test
+// function
+func GetAPIMapping() map[Endpoint]ResponseTestFun {
+	if len(apiMapping) == 0 {
+		initAPIMapping()
+	}
+	return apiMapping
+}
 
 // Register associates a test function to a given function. If any
 // TestFunction is already associated, it overwrites it.
 func Register(f ResponseTestFun, e Endpoint) {
-	APIMapping[e] = f
+	apiMapping[e] = f
 }
 
 // Endpoint describes an Endpoint
@@ -36,7 +44,7 @@ func (e Endpoint) emptyRequest() *http.Request {
 
 // SelectTestFuns returns the test functions related to a given request.
 func SelectTestFuns(endpoint Endpoint) (ResponseTestFun, error) {
-	testFun, ok := APIMapping[endpoint]
+	testFun, ok := GetAPIMapping()[endpoint]
 	if !ok {
 		return nil, fmt.Errorf("request to an unknown endpoint: %s", endpoint)
 	}
@@ -60,4 +68,31 @@ func ExtractEndpoint(request *http.Request, server string) (Endpoint, error) {
 	}
 
 	return Endpoint{method, path}, nil
+}
+
+// GuessServer try to guess the server, and returns server and path in case of
+// success.
+func GuessServer(method, URL string) (string, error) {
+	u, err := url.Parse(URL)
+	if err != nil {
+		return "", err
+	}
+
+	uWithoutQuery := u
+	uWithoutQuery.RawQuery = ""
+	uWithoutQuery.Fragment = ""
+
+	for endpoint := range GetAPIMapping() {
+		if endpoint.Method == method && strings.HasSuffix(uWithoutQuery.String(), endpoint.Path) {
+			fmt.Println("x")
+			server := strings.TrimSuffix(uWithoutQuery.String(), endpoint.Path)
+			return server, nil
+		}
+	}
+
+	return "", fmt.Errorf(
+		"did not recognize the endpoint with method %s in %s",
+		method,
+		uWithoutQuery,
+	)
 }
