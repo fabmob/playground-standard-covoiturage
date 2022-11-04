@@ -17,7 +17,7 @@ func Request(server string, request *http.Request, flags Flags) (*Report, error)
 		return nil, err
 	}
 
-	endpoint, err := ExtractEndpoint(request, client.Server)
+	endpoint, err := ExtractEndpoint(request, server)
 	if err != nil {
 		return nil, err
 	}

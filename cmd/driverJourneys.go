@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
@@ -18,7 +19,7 @@ Default query coordinates are placed on "Vesdun", a small town proclaimed "cente
 of France" by IGN in 1993.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		query := makeQuery()
-		test.Run(server, "/driver_journeys", verbose, query)
+		test.Run(http.MethodGet, "/driver_journeys", verbose, query, flags)
 	},
 }
 
