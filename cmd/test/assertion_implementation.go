@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
@@ -125,7 +124,7 @@ func (a assertAPICallSuccess) Execute() error {
 }
 
 func (a assertAPICallSuccess) Describe() string {
-	return "assertAPICallSuccess"
+	return "assert API call success"
 }
 
 /////////////////////////////////////////////////////////////
@@ -145,7 +144,7 @@ func (a assertStatusCode) Execute() error {
 }
 
 func (a assertStatusCode) Describe() string {
-	return "assertStatusCode " + strconv.Itoa(a.statusCode)
+	return fmt.Sprintf("assert status code %d", a.statusCode)
 }
 
 /////////////////////////////////////////////////////////////
@@ -171,7 +170,7 @@ func (a assertHeaderContains) Execute() error {
 }
 
 func (a assertHeaderContains) Describe() string {
-	return "assertheader " + a.key + ":" + a.value
+	return fmt.Sprintf("assert header %s:%s", a.key, a.value)
 }
 
 /////////////////////////////////////////////////////////////
@@ -187,7 +186,7 @@ func (a assertFormat) Execute() error {
 }
 
 func (a assertFormat) Describe() string {
-	return "assertFormat"
+	return "assert format"
 }
 
 /////////////////////////////////////////////////////////////
@@ -245,7 +244,7 @@ func (a assertJourneysRadius) Execute() error {
 }
 
 func (a assertJourneysRadius) Describe() string {
-	return fmt.Sprintf("assert %s", a.departureOrArrival)
+	return fmt.Sprintf("assert query parameter \"%s\"", a.departureOrArrival)
 }
 
 /////////////////////////////////////////////////////////////
@@ -310,7 +309,7 @@ func (a assertJourneysTimeDelta) Execute() error {
 }
 
 func (a assertJourneysTimeDelta) Describe() string {
-	return "assert timeDelta"
+	return "assert query parameter \"timeDelta\""
 }
 
 /////////////////////////////////////////////////////////////
@@ -341,7 +340,7 @@ func (a assertJourneysCount) Execute() error {
 }
 
 func (a assertJourneysCount) Describe() string {
-	return "assert count"
+	return "assert query parameter \"count\""
 }
 
 /////////////////////////////////////////////////////////////
@@ -423,5 +422,5 @@ func validateOperator(operator string) error {
 }
 
 func (a assertOperatorFieldFormat) Describe() string {
-	return "assert operator field format"
+	return "assert response property \"operator\""
 }
