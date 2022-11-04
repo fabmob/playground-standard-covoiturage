@@ -84,7 +84,6 @@ func GuessServer(method, URL string) (string, error) {
 
 	for endpoint := range GetAPIMapping() {
 		if endpoint.Method == method && strings.HasSuffix(uWithoutQuery.String(), endpoint.Path) {
-			fmt.Println("x")
 			server := strings.TrimSuffix(uWithoutQuery.String(), endpoint.Path)
 			return server, nil
 		}
