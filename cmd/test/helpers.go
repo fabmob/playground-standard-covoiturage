@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/util"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 )
 
 /////////////////////////////////////////////////////////////

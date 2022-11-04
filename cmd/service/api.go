@@ -4,9 +4,9 @@ import (
 	"math"
 	"net/http"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/labstack/echo/v4"
-	"gitlab.com/multi/stdcov-api-test/cmd/api"
-	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
 // StdCovServerImpl implements server.ServerInterface

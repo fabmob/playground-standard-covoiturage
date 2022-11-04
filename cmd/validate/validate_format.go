@@ -9,7 +9,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/getkin/kin-openapi/routers/gorillamux"
 
-	"gitlab.com/multi/stdcov-api-test/spec"
+	"github.com/fabmob/playground-standard-covoiturage/spec"
 )
 
 // Response validates a Response against the openapi specification.

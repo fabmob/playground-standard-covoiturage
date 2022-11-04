@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 )
 
 // Run runs the cli validation and returns an exit code

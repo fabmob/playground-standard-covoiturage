@@ -1,8 +1,8 @@
 package service
 
 import (
-	"gitlab.com/multi/stdcov-api-test/cmd/api"
-	"gitlab.com/multi/stdcov-api-test/cmd/util"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 )
 
 func makeNDriverJourneys(n int) []api.DriverJourney {

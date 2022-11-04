@@ -3,8 +3,8 @@ package service
 import (
 	"testing"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/api"
-	"gitlab.com/multi/stdcov-api-test/cmd/test"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 )
 
 func TestMustReadDefaultData(t *testing.T) {

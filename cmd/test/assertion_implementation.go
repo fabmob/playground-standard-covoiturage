@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/validate"
 	tld "github.com/jpillora/go-tld"
 	"github.com/pkg/errors"
-	"gitlab.com/multi/stdcov-api-test/cmd/util"
-	"gitlab.com/multi/stdcov-api-test/cmd/validate"
 )
 
 /////////////////////////////////////////////////////////////

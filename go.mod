@@ -1,4 +1,4 @@
-module gitlab.com/multi/stdcov-api-test
+module github.com/fabmob/playground-standard-covoiturage
 
 go 1.19
 

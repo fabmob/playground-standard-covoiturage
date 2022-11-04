@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"github.com/fabmob/playground-standard-covoiturage/cmd/service"
 	"github.com/spf13/cobra"
-	"gitlab.com/multi/stdcov-api-test/cmd/service"
 )
 
 // serveCmd represents the server command

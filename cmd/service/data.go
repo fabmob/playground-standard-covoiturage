@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"io"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 )
 
 // MockDB stores the data of the server in memory

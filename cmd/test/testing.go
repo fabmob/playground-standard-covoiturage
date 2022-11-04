@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/pkg/errors"
-	"gitlab.com/multi/stdcov-api-test/cmd/api"
-	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
 // MockClient is an HTTP client that returns always the same response or

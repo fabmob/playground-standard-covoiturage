@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/spf13/cobra"
-	"gitlab.com/multi/stdcov-api-test/cmd/test"
 )
 
 // testCmd represents the test command

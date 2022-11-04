@@ -3,7 +3,7 @@ package test
 import (
 	"net/http"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 )
 
 // APIClient is a client to the API standard covoiturage

@@ -4,11 +4,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/multi/stdcov-api-test/cmd/api"
-	"gitlab.com/multi/stdcov-api-test/cmd/test"
-	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
 var fakeServer = "https:localhost:1323"
