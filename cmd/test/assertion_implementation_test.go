@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"testing"
 
-	"gitlab.com/multi/stdcov-api-test/cmd/api"
-	"gitlab.com/multi/stdcov-api-test/cmd/util"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 )
 
 func TestExpectStatusCode(t *testing.T) {
@@ -40,6 +40,7 @@ func TestExpectStatusCode(t *testing.T) {
 
 	for _, tc := range testCases {
 		assertion := assertStatusCode{tc.response, tc.testedStatusCode}
+
 		assertionError := singleAssertionError(t, assertion)
 		if (assertionError == nil) != tc.expectNilError {
 			t.Logf("Response status code: %d", tc.response.StatusCode)
@@ -48,7 +49,6 @@ func TestExpectStatusCode(t *testing.T) {
 			t.Error("`expectStatusCode` has not expected behavior")
 		}
 	}
-
 }
 
 func TestExpectHeaders(t *testing.T) {
@@ -310,11 +310,14 @@ func singleAssertionError(
 	assertion Assertion,
 ) error {
 	t.Helper()
-	a := NewAssertionAccu()
+
+	var a = NewAssertionAccu()
+
 	a.Queue(assertion)
 	a.ExecuteAll()
 
 	shouldHaveSingleAssertionResult(t, a.GetAssertionResults())
+
 	return a.storedAssertionResults[0].err
 }
 
@@ -577,6 +580,7 @@ func TestAssertUniqueIDs(t *testing.T) {
 		id1duplicate = "1"
 		id2          = "2"
 	)
+
 	testCases := []struct {
 		name        string
 		ids         []*string
@@ -590,12 +594,15 @@ func TestAssertUniqueIDs(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			responseData := make([]api.DriverJourney, 0, len(tc.ids))
+
 			for _, id := range tc.ids {
 				dj := api.NewDriverJourney()
 				dj.Id = id
 				responseData = append(responseData, dj)
 			}
+
 			response := mockBodyResponse(responseData)
+
 			err := singleAssertionError(t, assertUniqueIDs{response})
 			if (err != nil) != tc.expectError {
 				t.Fail()
@@ -625,7 +632,6 @@ func TestValidateOperator(t *testing.T) {
 	for _, tc := range testCases {
 		if err := validateOperator(tc.operator); (tc.valid && err != nil) ||
 			(!tc.valid && err == nil) {
-
 			t.Logf("Operator: %s, Expected to be valid: %t", tc.operator, tc.valid)
 			t.Logf("Error: %s", err)
 			t.Fail()

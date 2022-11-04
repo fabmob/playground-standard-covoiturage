@@ -4,22 +4,21 @@ import (
 	"math"
 	"net/http"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/labstack/echo/v4"
-	"gitlab.com/multi/stdcov-api-test/cmd/api"
-	"gitlab.com/multi/stdcov-api-test/cmd/util"
 )
 
 // StdCovServerImpl implements server.ServerInterface
 type StdCovServerImpl struct {
-	mockDB MockDB
+	mockDB *MockDB
 }
 
 // NewDefaultServer returns a server, and populates the associated DB with
 // default data
-func NewDefaultServer() (*StdCovServerImpl, error) {
-	server := StdCovServerImpl{NewMockDB()}
-	err := server.mockDB.PopulateDBWithDefault()
-	return &server, err
+func NewDefaultServer() *StdCovServerImpl {
+	server := StdCovServerImpl{NewMockDBWithDefaultData()}
+	return &server
 }
 
 // PostBookingEvents sends booking information of a user connected with a third-party provider back to the provider.
@@ -58,43 +57,47 @@ func (s *StdCovServerImpl) GetDriverJourneys(
 	params api.GetDriverJourneysParams,
 ) error {
 	response := []api.DriverJourney{}
-	for _, dj := range s.mockDB.driverJourneys {
-		if keepDriverJourney(params, dj) {
+
+	for _, dj := range s.mockDB.DriverJourneys {
+		if keepJourney(&params, dj.Trip, dj.JourneySchedule) {
 			response = append(response, dj)
 		}
 	}
+
 	if params.Count != nil {
 		response = response[0:*params.Count]
 	}
+
 	return ctx.JSON(http.StatusOK, response)
 }
 
-func keepDriverJourney(params api.GetDriverJourneysParams, dj api.DriverJourney) bool {
+func keepJourney(params api.GetJourneysParams, trip api.Trip, schedule api.JourneySchedule) bool {
 	coordsRequestDeparture := util.Coord{
-		Lat: float64(params.DepartureLat),
-		Lon: float64(params.DepartureLng),
+		Lat: float64(params.GetDepartureLat()),
+		Lon: float64(params.GetDepartureLng()),
 	}
 	coordsResponseDeparture := util.Coord{
-		Lat: dj.PassengerPickupLat,
-		Lon: dj.PassengerPickupLng,
+		Lat: trip.PassengerPickupLat,
+		Lon: trip.PassengerPickupLng,
 	}
 	departureRadiusOK := util.Distance(coordsRequestDeparture, coordsResponseDeparture) <=
 		params.GetDepartureRadius()
 
 	coordsRequestArrival := util.Coord{
-		Lat: float64(params.ArrivalLat),
-		Lon: float64(params.ArrivalLng),
+		Lat: float64(params.GetArrivalLat()),
+		Lon: float64(params.GetArrivalLng()),
 	}
 	coordsResponseArrival := util.Coord{
-		Lat: dj.PassengerDropLat,
-		Lon: dj.PassengerDropLng,
+		Lat: trip.PassengerDropLat,
+		Lon: trip.PassengerDropLng,
 	}
 	arrivalRadiusOK := util.Distance(coordsRequestArrival, coordsResponseArrival) <=
 		params.GetArrivalRadius()
 
 	timeDeltaOK :=
-		math.Abs(float64(dj.PassengerPickupDate)-float64(params.DepartureDate)) <
+		math.Abs(float64(schedule.PassengerPickupDate)-float64(params.GetDepartureDate())) <
 			float64(params.GetTimeDelta())
+
 	return departureRadiusOK && arrivalRadiusOK && timeDeltaOK
 }
 
@@ -117,12 +120,23 @@ func (*StdCovServerImpl) PostConnections(ctx echo.Context) error {
 
 // GetPassengerJourneys searches for matching punctual planned outward pasenger journeys.
 // (GET /passenger_journeys)
-func (*StdCovServerImpl) GetPassengerJourneys(
+func (s *StdCovServerImpl) GetPassengerJourneys(
 	ctx echo.Context,
 	params api.GetPassengerJourneysParams,
 ) error {
-	// Implement me
-	return nil
+	response := []api.PassengerJourney{}
+
+	for _, pj := range s.mockDB.PassengerJourneys {
+		if keepJourney(&params, pj.Trip, pj.JourneySchedule) {
+			response = append(response, pj)
+		}
+	}
+
+	if params.Count != nil {
+		response = response[0:*params.Count]
+	}
+
+	return ctx.JSON(http.StatusOK, response)
 }
 
 // GetPassengerRegularTrips searches for matching pasenger regular trips.

@@ -18,6 +18,7 @@ func TestReport(t *testing.T) {
 		report.verbose = verbose
 		return report
 	}
+
 	shouldContain := func(t *testing.T, r Report, str string) {
 		t.Helper()
 		if !strings.Contains(r.String(), str) {
@@ -49,6 +50,7 @@ func TestReport(t *testing.T) {
 			shouldContain(t, r, endpoint.Method)
 			shouldContain(t, r, endpoint.Path)
 			shouldContain(t, r, assertStr)
+
 			if tc.err != nil {
 				shouldContain(t, r, errorDescription)
 			}
@@ -94,6 +96,7 @@ func TestReportSingle(t *testing.T) {
 			ar := NewAssertionResult(tc.err, "")
 			report := NewReport(ar)
 			report.verbose = tc.verbose
+
 			if (report.String() != "") != tc.shouldReport {
 				t.Logf("verbose: %t", tc.verbose)
 				t.Logf("hasError: %t", tc.err == nil)
@@ -116,11 +119,14 @@ func TestReportCountErrors(t *testing.T) {
 		{[]error{errors.New(""), errors.New("")}, 2},
 		{[]error{nil, errors.New(""), errors.New(""), nil}, 2},
 	}
+
 	for _, tc := range testCases {
-		assertionResults := []AssertionResult{}
+		var assertionResults = []AssertionResult{}
+
 		for _, err := range tc.allAssertionErr {
 			assertionResults = append(assertionResults, NewAssertionResult(err, ""))
 		}
+
 		report := NewReport(assertionResults...)
 
 		if report.countErrors() != tc.expectedNErr {

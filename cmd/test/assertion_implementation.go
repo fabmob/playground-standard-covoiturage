@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/validate"
 	tld "github.com/jpillora/go-tld"
 	"github.com/pkg/errors"
-	"gitlab.com/multi/stdcov-api-test/cmd/util"
-	"gitlab.com/multi/stdcov-api-test/cmd/validate"
 )
 
 /////////////////////////////////////////////////////////////
@@ -120,6 +120,7 @@ func (a assertAPICallSuccess) Execute() error {
 	if a.apiCallErr != nil {
 		return a.apiCallErr
 	}
+
 	return nil
 }
 
@@ -135,11 +136,11 @@ type assertStatusCode struct {
 }
 
 func (a assertStatusCode) Execute() error {
-	expected := a.statusCode
-	got := a.resp.StatusCode
+	expected, got := a.statusCode, a.resp.StatusCode
 	if expected != got {
 		return (errors.Errorf("Expected status code %d, got %d", expected, got))
 	}
+
 	return nil
 }
 
@@ -211,6 +212,7 @@ func (a assertJourneysRadius) Execute() error {
 	if err != nil {
 		return failedParsing("request", err)
 	}
+
 	radius, err := getQueryRadius(a.departureOrArrival, a.request)
 	if err != nil {
 		return failedParsing("request", err)
@@ -232,11 +234,13 @@ func (a assertJourneysRadius) Execute() error {
 		if err != nil {
 			return err
 		}
+
 		dist := util.Distance(coordsResponse, coordsQuery)
 		if dist > radius {
 			return fmt.Errorf("a journey does not comply to maximum '%s' distance to query parameters", a.departureOrArrival)
 		}
 	}
+
 	return nil
 }
 
@@ -255,9 +259,11 @@ func (a assertArrayNotEmpty) Execute() error {
 	if err != nil {
 		return failedParsing("response", err)
 	}
+
 	if len(array) == 0 {
 		return errors.New("empty response not accepted with \"disallowEmpty\" option")
 	}
+
 	return nil
 }
 
@@ -273,7 +279,6 @@ type assertJourneysTimeDelta struct {
 }
 
 func (a assertJourneysTimeDelta) Execute() error {
-
 	timeDelta, err := getQueryTimeDelta(a.request)
 	if err != nil {
 		return failedParsing("request", err)
@@ -294,16 +299,17 @@ func (a assertJourneysTimeDelta) Execute() error {
 		if err != nil {
 			return failedParsing("response", err)
 		}
+
 		if math.Abs(float64(pickupDate)-float64(departureDate)) >
 			float64(timeDelta) {
 			return errors.New("a journey does not comply to timeDelta query parameter")
 		}
 	}
+
 	return nil
 }
 
 func (a assertJourneysTimeDelta) Describe() string {
-
 	return "assert timeDelta"
 }
 
@@ -319,15 +325,18 @@ func (a assertJourneysCount) Execute() error {
 	if err != nil {
 		return failedParsing("request", err)
 	}
+
 	objsWithCount, err := parseArrayResponse(a.response)
 	if err != nil {
 		return err
 	}
+
 	if count != -1 {
 		if len(objsWithCount) > count {
 			return errors.New("the number of returned journeys exceeds the query count parameter")
 		}
 	}
+
 	return nil
 }
 
@@ -346,21 +355,27 @@ func (a assertUniqueIDs) Execute() error {
 	if err != nil {
 		return failedParsing("response", err)
 	}
+
 	ids := map[string]bool{}
+
 	for _, objWithID := range objsWithID {
 		idPtr, err := getResponseID(objWithID)
 		if err != nil {
 			return failedParsing("response", err)
 		}
+
 		if idPtr != nil {
 			id := *idPtr
+
 			_, idDuplicate := ids[id]
 			if idDuplicate {
 				return errors.New("IDs should be unique")
 			}
+
 			ids[id] = true
 		}
 	}
+
 	return nil
 }
 
@@ -379,15 +394,18 @@ func (a assertOperatorFieldFormat) Execute() error {
 	if err != nil {
 		return err
 	}
+
 	for _, objWithOperator := range objsWithOperator {
 		operator, err := getResponseOperator(objWithOperator)
 		if err != nil {
 			return failedParsing("response", err)
 		}
+
 		if err := validateOperator(operator); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -396,9 +414,11 @@ func validateOperator(operator string) error {
 	if err != nil {
 		return fmt.Errorf("wrong operator field format: %w", err)
 	}
+
 	if uri.Host == "" || uri.Path != "" || uri.User != nil || uri.RawQuery != "" {
 		return fmt.Errorf("wrong operator field format")
 	}
+
 	return nil
 }
 
