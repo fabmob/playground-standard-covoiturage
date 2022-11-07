@@ -41,6 +41,13 @@ func TestExtractEndpoint(t *testing.T) {
 			"https://localhost:1323/api/",
 			"/driver_journeys",
 		},
+		{
+			"/get bookings endpoint",
+			http.MethodGet,
+			"https://localhost:1323/bookings/1234",
+			"https://localhost:1323/api/",
+			"/bookings",
+		},
 	}
 
 	for _, tc := range testCases {
