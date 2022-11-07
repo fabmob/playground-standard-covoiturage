@@ -51,3 +51,11 @@ func testGetPassengerJourneys(
 	// Passenger journeys are very similar to driver journeys.
 	testGetDriverJourneys(request, response, a, flags)
 }
+
+func testGetBookings(
+	request *http.Request,
+	response *http.Response,
+	a AssertionAccumulator,
+	flags Flags,
+) {
+}
