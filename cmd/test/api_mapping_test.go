@@ -111,6 +111,14 @@ func TestGuessServer(t *testing.T) {
 			"http://example.com/a/b/c",
 			false,
 		},
+
+		{
+			"more complex case 3: path parameter",
+			http.MethodGet,
+			"http://example.com/bookings/1234",
+			"http://example.com",
+			false,
+		},
 	}
 
 	for _, tc := range testCases {
