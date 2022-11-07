@@ -31,11 +31,11 @@ var (
 
 var (
 	// GetStatusEndpoint is the Endpoint of GET /status
-	GetStatusEndpoint = Endpoint{http.MethodGet, "/status"}
+	GetStatusEndpoint = NewEndpoint(http.MethodGet, "/status")
 	// GetDriverJourneyEndpoint is the Endpoint of GET /driver_journeys
-	GetDriverJourneyEndpoint = Endpoint{http.MethodGet, "/driver_journeys"}
+	GetDriverJourneyEndpoint = NewEndpoint(http.MethodGet, "/driver_journeys")
 	// GetPassengerJourneysEndpoint is the Endpoint of GET /passenger_journeys
-	GetPassengerJourneysEndpoint = Endpoint{http.MethodGet, "/passenger_journeys"}
+	GetPassengerJourneysEndpoint = NewEndpoint(http.MethodGet, "/passenger_journeys")
 	// GetBookingsEndpoint is the Endpoint of GET /passenger_journeys
-	GetBookingsEndpoint = Endpoint{http.MethodGet, "/booking"}
+	GetBookingsEndpoint = NewEndpointWithParam(http.MethodGet, "/bookings")
 )

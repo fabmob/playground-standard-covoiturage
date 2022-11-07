@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 )
 
@@ -27,8 +28,17 @@ func Register(f ResponseTestFun, e Endpoint) {
 
 // Endpoint describes an Endpoint
 type Endpoint struct {
-	Method string
-	Path   string
+	Method       string
+	Path         string
+	HasPathParam bool
+}
+
+func NewEndpoint(method, path string) Endpoint {
+	return Endpoint{method, path, false}
+}
+
+func NewEndpointWithParam(method, path string) Endpoint {
+	return Endpoint{method, path, true}
 }
 
 // String implements the Stringer interface for Endpoint type
@@ -66,7 +76,7 @@ func ExtractEndpoint(request *http.Request, server string) (Endpoint, error) {
 	path = ensureLeadingSlash(path)
 	firstPathSegment := firstPathSegment(path)
 
-	return Endpoint{method, firstPathSegment}, nil
+	return NewEndpoint(method, firstPathSegment), nil
 }
 
 func ensureLeadingSlash(path string) string {
@@ -95,8 +105,8 @@ func GuessServer(method, URL string) (string, error) {
 	uWithoutQuery.Fragment = ""
 
 	for endpoint := range GetAPIMapping() {
-		if endpoint.Method == method && strings.HasSuffix(uWithoutQuery.String(), endpoint.Path) {
-			server := strings.TrimSuffix(uWithoutQuery.String(), endpoint.Path)
+		if suffix := knownEndpointSuffix(uWithoutQuery.String(), endpoint); endpoint.Method == method && suffix != "" {
+			server := strings.TrimSuffix(uWithoutQuery.String(), suffix)
 			return server, nil
 		}
 	}
@@ -106,4 +116,20 @@ func GuessServer(method, URL string) (string, error) {
 		method,
 		uWithoutQuery,
 	)
+}
+
+// knownEndpointSuffix returns the complete endpoint path (including path
+// parameters) if a suffix if the endpointPath is recognized, an empty string
+// otherwise.
+func knownEndpointSuffix(url string, endpoint Endpoint) string {
+	if endpoint.HasPathParam {
+		re := regexp.MustCompile(endpoint.Path + "/[^/]+$")
+		if re.MatchString(url) {
+			return re.FindString(url)
+		}
+	} else if strings.HasSuffix(url, endpoint.Path) {
+		return endpoint.Path
+	}
+
+	return ""
 }
