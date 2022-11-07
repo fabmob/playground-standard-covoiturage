@@ -63,11 +63,23 @@ func ExtractEndpoint(request *http.Request, server string) (Endpoint, error) {
 	method := request.Method
 
 	path := strings.TrimPrefix(request.URL.Path, serverURL.Path)
-	if !strings.HasPrefix(path, "/") {
-		path = "/" + path
+	path = ensureLeadingSlash(path)
+	firstPathSegment := firstPathSegment(path)
+
+	return Endpoint{method, firstPathSegment}, nil
+}
+
+func ensureLeadingSlash(path string) string {
+	if strings.HasPrefix(path, "/") {
+		return path
 	}
 
-	return Endpoint{method, path}, nil
+	return "/" + path
+}
+
+// firstPathSegment assumes without checking that path has a leading slash
+func firstPathSegment(path string) string {
+	return "/" + strings.Split(path, "/")[1]
 }
 
 // GuessServer try to guess the server, and returns server and path in case of
