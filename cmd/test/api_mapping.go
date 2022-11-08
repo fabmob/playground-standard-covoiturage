@@ -62,11 +62,6 @@ func SelectTestFuns(endpoint Endpoint) (ResponseTestFun, error) {
 	return testFun, nil
 }
 
-// firstPathSegment assumes without checking that path has a leading slash
-func firstPathSegment(path string) string {
-	return "/" + strings.Split(path, "/")[1]
-}
-
 // SplitServerEndpoint try to guess the server, and returns server and path in case of
 // success.
 func SplitServerEndpoint(method, URL string) (string, Endpoint, error) {
