@@ -8,7 +8,7 @@ import (
 )
 
 func TestReport(t *testing.T) {
-	endpoint := Endpoint{http.MethodGet, "/endpoint_path"}
+	endpoint := NewEndpoint(http.MethodGet, "/endpoint_path")
 	assertStr := "test assertion"
 	errorDescription := "Error description"
 

@@ -49,6 +49,6 @@ jobs:
           go-version: 1.19
       - name: run server
         run: go run main.go serve &
-      - name: test server
-        run: go run main.go test ./stdcov-cli --verbose --url "http://localhost:1323/driver_journeys" -q departureLat=0 -q departureLng=0 -q arrivalLat=0 -q arrivalLng=0 -q departureDate=1665500000 -q timeDelta=2000000000 -q departureRadius=500000 -q arrivalRadius=50000
+      - name: test commands
+        run: bash cmd/test/test_commands.sh
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"path"
 	"strings"
 )
 
@@ -27,8 +28,17 @@ func Register(f ResponseTestFun, e Endpoint) {
 
 // Endpoint describes an Endpoint
 type Endpoint struct {
-	Method string
-	Path   string
+	Method       string
+	Path         string
+	HasPathParam bool
+}
+
+func NewEndpoint(method, path string) Endpoint {
+	return Endpoint{method, path, false}
+}
+
+func NewEndpointWithParam(method, path string) Endpoint {
+	return Endpoint{method, path, true}
 }
 
 // String implements the Stringer interface for Endpoint type
@@ -52,46 +62,63 @@ func SelectTestFuns(endpoint Endpoint) (ResponseTestFun, error) {
 	return testFun, nil
 }
 
-// ExtractEndpoint extracts the endpoint from a request, given server
-// information
-func ExtractEndpoint(request *http.Request, server string) (Endpoint, error) {
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return Endpoint{}, err
-	}
-
-	method := request.Method
-
-	path := strings.TrimPrefix(request.URL.Path, serverURL.Path)
-	if !strings.HasPrefix(path, "/") {
-		path = "/" + path
-	}
-
-	return Endpoint{method, path}, nil
-}
-
-// GuessServer try to guess the server, and returns server and path in case of
+// SplitServerEndpoint try to guess the server, and returns server and path in case of
 // success.
-func GuessServer(method, URL string) (string, error) {
+func SplitServerEndpoint(method, URL string) (string, Endpoint, error) {
 	u, err := url.Parse(URL)
 	if err != nil {
-		return "", err
+		return "", Endpoint{}, err
 	}
 
-	uWithoutQuery := u
-	uWithoutQuery.RawQuery = ""
-	uWithoutQuery.Fragment = ""
+	removeQuery(u)
 
 	for endpoint := range GetAPIMapping() {
-		if endpoint.Method == method && strings.HasSuffix(uWithoutQuery.String(), endpoint.Path) {
-			server := strings.TrimSuffix(uWithoutQuery.String(), endpoint.Path)
-			return server, nil
+
+		suffix := knownEndpointSuffix(u.String(), endpoint)
+		if endpoint.Method == method && suffix != "" {
+			server := strings.TrimSuffix(u.String(), suffix)
+			return server, endpoint, nil
 		}
 	}
 
-	return "", fmt.Errorf(
+	return "", Endpoint{}, fmt.Errorf(
 		"did not recognize the endpoint with method %s in %s",
 		method,
-		uWithoutQuery,
+		u,
 	)
+}
+
+func removeQuery(u *url.URL) {
+	u.RawQuery = ""
+	u.Fragment = ""
+}
+
+// knownEndpointSuffix returns the complete endpoint suffix (including path
+// parameter) if the endpoint path is recognized, an empty string
+// otherwise.
+func knownEndpointSuffix(url string, endpoint Endpoint) string {
+	var param string
+	if endpoint.HasPathParam {
+		url, param = path.Split(url)
+		url = ensureNoTrailingSlash(url)
+		param = ensureLeadingSlash(param)
+	}
+
+	if strings.HasSuffix(url, endpoint.Path) {
+		return endpoint.Path + param
+	}
+
+	return ""
+}
+
+func ensureNoTrailingSlash(s string) string {
+	return strings.TrimSuffix(s, "/")
+}
+
+func ensureLeadingSlash(path string) string {
+	if strings.HasPrefix(path, "/") {
+		return path
+	}
+
+	return "/" + path
 }

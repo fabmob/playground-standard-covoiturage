@@ -5,8 +5,9 @@ import "net/http"
 // initAPIMapping associates every available test to a given endpoint
 func initAPIMapping() {
 	Register(TestGetStatusResponse, GetStatusEndpoint)
-	Register(TestGetDriverJourneysResponse, GetDriverJourneyEndpoint)
-	Register(TestGetPassengerJourneysResponse, GetPassengerJourneyEndpoint)
+	Register(TestGetDriverJourneysResponse, GetDriverJourneysEndpoint)
+	Register(TestGetPassengerJourneysResponse, GetPassengerJourneysEndpoint)
+	Register(TestGetBookingsResponse, GetBookingsEndpoint)
 }
 
 //////////////////////////////////////////////////////////////
@@ -20,6 +21,8 @@ var (
 	TestGetDriverJourneysResponse = wrapAssertionsFun(testGetDriverJourneys)
 	// TestGetPassengerJourneysResponse tests response of GET /passenger_journeys
 	TestGetPassengerJourneysResponse = wrapAssertionsFun(testGetPassengerJourneys)
+	// TestGetBookingsResponse tests response of GET /bookings/{booking_id}
+	TestGetBookingsResponse = wrapAssertionsFun(testGetBookings)
 )
 
 //////////////////////////////////////////////////////////////
@@ -28,9 +31,11 @@ var (
 
 var (
 	// GetStatusEndpoint is the Endpoint of GET /status
-	GetStatusEndpoint = Endpoint{http.MethodGet, "/status"}
-	// GetDriverJourneyEndpoint is the Endpoint of GET /driver_journeys
-	GetDriverJourneyEndpoint = Endpoint{http.MethodGet, "/driver_journeys"}
-	// GetPassengerJourneyEndpoint is the Endpoint of GET /passenger_journeys
-	GetPassengerJourneyEndpoint = Endpoint{http.MethodGet, "/passenger_journeys"}
+	GetStatusEndpoint = NewEndpoint(http.MethodGet, "/status")
+	// GetDriverJourneysEndpoint is the Endpoint of GET /driver_journeys
+	GetDriverJourneysEndpoint = NewEndpoint(http.MethodGet, "/driver_journeys")
+	// GetPassengerJourneysEndpoint is the Endpoint of GET /passenger_journeys
+	GetPassengerJourneysEndpoint = NewEndpoint(http.MethodGet, "/passenger_journeys")
+	// GetBookingsEndpoint is the Endpoint of GET /passenger_journeys
+	GetBookingsEndpoint = NewEndpointWithParam(http.MethodGet, "/bookings")
 )
