@@ -3,21 +3,12 @@
 # Testing different testing commands. To be run inside the project root
 # directory. The commands are not expected to test any data.
 
+# The fake server must run on http://localhost:1323 for the tests to pass
+
 # exit when any command fails
 set -e
 set -o pipefail
 
-
-echo "Run fake server"
-go run main.go serve > /dev/null &
-pid=$!
-
-# Clean up subprocesses on exit
-# Do not use builtin bash `kill` command
-enable -n kill
-trap 'trap - SIGTERM && kill $pid' SIGINT SIGTERM EXIT
-
-sleep 2
 
 echo "Test GET /driver_journeys with url"
 go run main.go test \
@@ -41,4 +32,3 @@ go run main.go test get passengerJourneys --server "http://localhost:1323" --dep
 
 # echo "Test GET /bookings/{bookingId} with short command"
 # go run main.go test get bookings --server "http://localhost:1323" --bookingId="42"
-
