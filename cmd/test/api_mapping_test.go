@@ -37,7 +37,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 			http.MethodPost,
 			"https://localhost:1323/api/driver_journeys",
 			"",
-			GetDriverJourneysEndpoint,
+			Endpoint{},
 			true,
 		},
 
@@ -71,13 +71,18 @@ func TestSplitServerEndpoint(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			guessedServer, _, err := SplitServerEndpoint(tc.method, tc.requestURL)
+			guessedServer, guessedEndpoint, err := SplitServerEndpoint(tc.method, tc.requestURL)
 			if tc.expectError != (err != nil) {
 				t.Fail()
 			}
 			if guessedServer != tc.expectedServer {
 				t.Logf("Expected server: %s", tc.expectedServer)
 				t.Logf("Got: %s (error %s)", guessedServer, err)
+				t.Fail()
+			}
+			if guessedEndpoint != tc.expectedEndpoint {
+				t.Logf("Expected endpoint: %s", tc.expectedEndpoint)
+				t.Logf("Got: %s (error %s)", guessedEndpoint, err)
 				t.Fail()
 			}
 		})
