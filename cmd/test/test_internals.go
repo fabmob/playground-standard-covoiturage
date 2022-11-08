@@ -10,14 +10,14 @@ import (
 type APIClient = *api.Client
 
 // Request tests a request
-func Request(server string, request *http.Request, flags Flags) (*Report, error) {
+func Request(request *http.Request, flags Flags) (*Report, error) {
 
-	client, err := api.NewClient(server)
+	server, endpoint, err := SplitServerEndpoint(request.Method, request.URL.String())
 	if err != nil {
 		return nil, err
 	}
 
-	endpoint, err := ExtractEndpoint(request, server)
+	client, err := api.NewClient(server)
 	if err != nil {
 		return nil, err
 	}

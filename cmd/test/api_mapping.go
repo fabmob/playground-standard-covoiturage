@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"regexp"
+	"path"
 	"strings"
 )
 
@@ -92,44 +92,55 @@ func firstPathSegment(path string) string {
 	return "/" + strings.Split(path, "/")[1]
 }
 
-// GuessServer try to guess the server, and returns server and path in case of
+// SplitServerEndpoint try to guess the server, and returns server and path in case of
 // success.
-func GuessServer(method, URL string) (string, error) {
+func SplitServerEndpoint(method, URL string) (string, Endpoint, error) {
 	u, err := url.Parse(URL)
 	if err != nil {
-		return "", err
+		return "", Endpoint{}, err
 	}
 
-	uWithoutQuery := u
-	uWithoutQuery.RawQuery = ""
-	uWithoutQuery.Fragment = ""
+	removeQuery(u)
 
 	for endpoint := range GetAPIMapping() {
-		if suffix := knownEndpointSuffix(uWithoutQuery.String(), endpoint); endpoint.Method == method && suffix != "" {
-			server := strings.TrimSuffix(uWithoutQuery.String(), suffix)
-			return server, nil
+
+		suffix := knownEndpointSuffix(u.String(), endpoint)
+		if endpoint.Method == method && suffix != "" {
+			server := strings.TrimSuffix(u.String(), suffix)
+			return server, endpoint, nil
 		}
 	}
 
-	return "", fmt.Errorf(
+	return "", Endpoint{}, fmt.Errorf(
 		"did not recognize the endpoint with method %s in %s",
 		method,
-		uWithoutQuery,
+		u,
 	)
 }
 
-// knownEndpointSuffix returns the complete endpoint path (including path
-// parameters) if a suffix if the endpointPath is recognized, an empty string
+func removeQuery(u *url.URL) {
+	u.RawQuery = ""
+	u.Fragment = ""
+}
+
+// knownEndpointSuffix returns the complete endpoint suffix (including path
+// parameter) if the endpoint path is recognized, an empty string
 // otherwise.
 func knownEndpointSuffix(url string, endpoint Endpoint) string {
+	var param string
 	if endpoint.HasPathParam {
-		re := regexp.MustCompile(endpoint.Path + "/[^/]+$")
-		if re.MatchString(url) {
-			return re.FindString(url)
-		}
-	} else if strings.HasSuffix(url, endpoint.Path) {
-		return endpoint.Path
+		url, param = path.Split(url)
+		url = removeTrailingSlash(url)
+		param = ensureLeadingSlash(param)
+	}
+
+	if strings.HasSuffix(url, endpoint.Path) {
+		return endpoint.Path + param
 	}
 
 	return ""
+}
+
+func removeTrailingSlash(s string) string {
+	return strings.TrimSuffix(s, "/")
 }

@@ -64,7 +64,7 @@ func TestExtractEndpoint(t *testing.T) {
 	}
 }
 
-func TestGuessServer(t *testing.T) {
+func TestSplitServerEndpoint(t *testing.T) {
 	testCases := []struct {
 		name           string
 		method         string
@@ -123,7 +123,7 @@ func TestGuessServer(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			guessedServer, err := GuessServer(tc.method, tc.requestURL)
+			guessedServer, _, err := SplitServerEndpoint(tc.method, tc.requestURL)
 			if tc.expectError != (err != nil) {
 				t.Fail()
 			}
