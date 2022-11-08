@@ -62,31 +62,6 @@ func SelectTestFuns(endpoint Endpoint) (ResponseTestFun, error) {
 	return testFun, nil
 }
 
-// ExtractEndpoint extracts the endpoint from a request, given server
-// information
-func ExtractEndpoint(request *http.Request, server string) (Endpoint, error) {
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return Endpoint{}, err
-	}
-
-	method := request.Method
-
-	path := strings.TrimPrefix(request.URL.Path, serverURL.Path)
-	path = ensureLeadingSlash(path)
-	firstPathSegment := firstPathSegment(path)
-
-	return NewEndpoint(method, firstPathSegment), nil
-}
-
-func ensureLeadingSlash(path string) string {
-	if strings.HasPrefix(path, "/") {
-		return path
-	}
-
-	return "/" + path
-}
-
 // firstPathSegment assumes without checking that path has a leading slash
 func firstPathSegment(path string) string {
 	return "/" + strings.Split(path, "/")[1]
@@ -130,7 +105,7 @@ func knownEndpointSuffix(url string, endpoint Endpoint) string {
 	var param string
 	if endpoint.HasPathParam {
 		url, param = path.Split(url)
-		url = removeTrailingSlash(url)
+		url = ensureNoTrailingSlash(url)
 		param = ensureLeadingSlash(param)
 	}
 
@@ -141,6 +116,14 @@ func knownEndpointSuffix(url string, endpoint Endpoint) string {
 	return ""
 }
 
-func removeTrailingSlash(s string) string {
+func ensureNoTrailingSlash(s string) string {
 	return strings.TrimSuffix(s, "/")
+}
+
+func ensureLeadingSlash(path string) string {
+	if strings.HasPrefix(path, "/") {
+		return path
+	}
+
+	return "/" + path
 }

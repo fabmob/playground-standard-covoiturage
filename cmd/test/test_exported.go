@@ -5,7 +5,7 @@ import "net/http"
 // initAPIMapping associates every available test to a given endpoint
 func initAPIMapping() {
 	Register(TestGetStatusResponse, GetStatusEndpoint)
-	Register(TestGetDriverJourneysResponse, GetDriverJourneyEndpoint)
+	Register(TestGetDriverJourneysResponse, GetDriverJourneysEndpoint)
 	Register(TestGetPassengerJourneysResponse, GetPassengerJourneysEndpoint)
 	Register(TestGetBookingsResponse, GetBookingsEndpoint)
 }
@@ -32,8 +32,8 @@ var (
 var (
 	// GetStatusEndpoint is the Endpoint of GET /status
 	GetStatusEndpoint = NewEndpoint(http.MethodGet, "/status")
-	// GetDriverJourneyEndpoint is the Endpoint of GET /driver_journeys
-	GetDriverJourneyEndpoint = NewEndpoint(http.MethodGet, "/driver_journeys")
+	// GetDriverJourneysEndpoint is the Endpoint of GET /driver_journeys
+	GetDriverJourneysEndpoint = NewEndpoint(http.MethodGet, "/driver_journeys")
 	// GetPassengerJourneysEndpoint is the Endpoint of GET /passenger_journeys
 	GetPassengerJourneysEndpoint = NewEndpoint(http.MethodGet, "/passenger_journeys")
 	// GetBookingsEndpoint is the Endpoint of GET /passenger_journeys
