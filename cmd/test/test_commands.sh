@@ -7,6 +7,11 @@
 set -e
 set -o pipefail
 
+# Clean up subprocesses on exit
+# Do not use builtin bash `kill` command
+enable -n kill
+trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
+
 echo "Run fake server"
 go run main.go serve > /dev/null &
 sleep 1
@@ -34,5 +39,3 @@ go run main.go test get passengerJourneys --server "http://localhost:1323" --dep
 # echo "Test GET /bookings/{bookingId} with short command"
 # go run main.go test get bookings --server "http://localhost:1323" --bookingId="42"
 
-# Clean up subprocesses on exit
-trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
