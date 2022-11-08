@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -19,19 +20,14 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
-	}
+	exitWithError(err)
 }
 
-func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
+func init() {}
 
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.stdcov-api-test.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	/* rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle") */
+func exitWithError(err error) {
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

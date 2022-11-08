@@ -3,31 +3,31 @@ package test
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
 
 // Run runs the cli validation and returns an exit code
-func Run(method, URL string, verbose bool, query Query, flags Flags) int {
+func Run(method, URL string, verbose bool, query Query, flags Flags) error {
 
 	req, err := http.NewRequest(method, URL, nil)
 	if err != nil {
-		fmt.Println(err)
-		return 1
+		return err
 	}
 
 	AddQueryParameters(query, req)
 
 	report, err := Request(req, flags)
 	if err != nil {
-		fmt.Println(err)
-		return 1
+		return err
 	}
 
 	report.verbose = verbose
 	fmt.Println(report)
 
 	if report.hasErrors() {
-		return 1
+		return errors.New(report.String())
 	}
 
-	return 0
+	return nil
 }

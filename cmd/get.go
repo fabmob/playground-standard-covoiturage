@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -18,6 +19,7 @@ var getCmd = &cobra.Command{
 			if err != nil {
 				panic(err)
 			}
+
 			os.Exit(0)
 		}
 	},
@@ -33,5 +35,9 @@ func init() {
 }
 
 func checkGetCmdFlags(cmd *cobra.Command, args []string) error {
+	if server == "" {
+		return errors.New("missing required --server information")
+	}
+
 	return nil
 }
