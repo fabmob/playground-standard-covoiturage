@@ -8,13 +8,21 @@ Server:
 - Validate request with OapiRequestValidator middleware
 
 Possible assertions driver journeys:
-- "All returned results MUST match the query parameters"
 - "the carpooling operator SHOULD return in priority the most relevant 
   results. The measure of relevance is left to the discretion of the 
   carpooling operator."
 - unique ids, same operator fields, operator fields format
 - weburl required if deeplink supported.
 - long-lat in France ?
+
+Possible assertions booking object:
+- 404 if missing, 200 otherwise
+- PAYING = amount required
+- Booking by API = PAYING required
+- driverJourneyID, passengerJourneyId (how to check ? "If the booking is made 
+  after a search, the MaaS platform SHOULD recall the journey IDs.")
+- Unique (no way to test) and UUID format ID 
+- Driver and passenger operator formats
 
 Ideas:
 - Each unit test data set is on a separate day. It is therefore possible to 
@@ -27,6 +35,9 @@ Validation:
 - Validate response data from file on import ! 
 - Options : do not allow undocumented status code 
   (options.IncludeResponseStatus)
+  
+Issues:
+- price "type" should be required
 
 Vocabulary :
 
