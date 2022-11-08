@@ -374,7 +374,8 @@ func testGetJourneys(t *testing.T, params api.GetJourneysParams, mockDB *MockDB,
 
 	// Check response
 	response := rec.Result()
-	flags := test.Flags{DisallowEmpty: !expectEmpty}
+	flags := test.NewFlags()
+	flags.DisallowEmpty = !expectEmpty
 	assertionResults := f(request, response, flags)
 
 	checkAssertionResults(t, assertionResults)

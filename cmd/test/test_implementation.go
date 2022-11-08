@@ -26,14 +26,14 @@ func testGetDriverJourneys(
 	flags Flags,
 ) {
 
-	AssertStatusCodeOK(a, response)
+	CriticAssertFormat(a, request, response)
+	AssertStatusCode(a, response, flags.ExpectedStatusCode)
 	AssertHeaderContains(a, response, "Content-Type", "application/json")
 
 	if flags.DisallowEmpty {
 		CriticAssertArrayNotEmpty(a, response)
 	}
 
-	CriticAssertFormat(a, request, response)
 	AssertJourneysDepartureRadius(a, request, response)
 	AssertJourneysArrivalRadius(a, request, response)
 	AssertJourneysTimeDelta(a, request, response)
@@ -52,10 +52,21 @@ func testGetPassengerJourneys(
 	testGetDriverJourneys(request, response, a, flags)
 }
 
+// testGetBookings currently assumes that the request returns a 200 response.
 func testGetBookings(
 	request *http.Request,
 	response *http.Response,
 	a AssertionAccumulator,
 	flags Flags,
 ) {
+
+	CriticAssertFormat(a, request, response)
+	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+
+	switch flags.ExpectedStatusCode {
+	case 200:
+
+	case 404:
+
+	}
 }
