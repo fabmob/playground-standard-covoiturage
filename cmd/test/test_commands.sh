@@ -30,5 +30,5 @@ go run main.go test get passengerJourneys --server "http://localhost:1323" --dep
 echo "Test GET /passenger_journeys with short command, all optional query parameter"
 go run main.go test get passengerJourneys --server "http://localhost:1323" --departureLat=0 --departureLng=0 --arrivalLat=0 --arrivalLng=0 --departureDate=0
 
-# echo "Test GET /bookings/{bookingId} with short command"
-# go run main.go test get bookings --server "http://localhost:1323" --bookingId="42"
+echo "Test GET /bookings/{bookingId} with short command"
+go run main.go test get bookings --server "http://localhost:1323" --bookingId="42"
