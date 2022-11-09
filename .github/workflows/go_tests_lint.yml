@@ -49,6 +49,8 @@ jobs:
           go-version: 1.19
       - name: run server
         run: go run main.go serve &
+      - name: wait for server
+        run: sleep 2
       - name: test commands
         run: bash cmd/test/test_commands.sh
 
