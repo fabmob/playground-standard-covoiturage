@@ -38,6 +38,7 @@ Validation:
   
 Issues:
 - price "type" should be required
+- no error code field while message says "Error code can be among". 
 
 Vocabulary :
 
