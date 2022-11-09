@@ -1,12 +1,14 @@
 package service
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -324,6 +326,30 @@ func TestPassengerJourneys(t *testing.T) {
 			)
 		})
 	}
+}
+
+func TestGetBookings(t *testing.T) {
+	var bookingID = uuid.New()
+
+	request, err := api.NewGetBookingsRequest("", bookingID)
+	panicIf(err)
+
+	// Setup testing server with response recorder
+	e := echo.New()
+	rec := httptest.NewRecorder()
+	ctx := e.NewContext(request, rec)
+	handler := &StdCovServerImpl{}
+
+	// Make API Call
+	err = handler.GetBookings(ctx, bookingID)
+	panicIf(err)
+
+	response := rec.Result()
+	flags := test.NewFlags()
+	flags.ExpectedStatusCode = http.StatusNotFound
+	assertionResults := test.TestGetBookingsResponse(request, response, flags)
+
+	checkAssertionResults(t, assertionResults)
 }
 
 func testGetDriverJourneyRequestWithData(

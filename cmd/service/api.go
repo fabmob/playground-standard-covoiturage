@@ -39,7 +39,7 @@ func (*StdCovServerImpl) PostBookings(ctx echo.Context) error {
 // (GET /bookings/{bookingId})
 func (*StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId) error {
 	// Implement me
-	return nil
+	return ctx.JSON(http.StatusNotFound, nil)
 }
 
 // PatchBookings updates status of an existing Booking request.
