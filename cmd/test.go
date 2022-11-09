@@ -41,15 +41,15 @@ func init() {
 		test.DefaultDisallowEmptyFlag,
 		"Should an empty request return an error",
 	)
-
-	testCmd.Flags().StringVarP(&URL, "url", "u", "", "API call URL")
-	testCmd.Flags().VarP(&query, "query", "q", "Query parameters in the form name=value")
-	testCmd.Flags().IntVar(
+	testCmd.PersistentFlags().IntVar(
 		&expectStatus,
 		"expectStatus",
 		test.DefaultExpectedStatusCode,
 		"Expected status code",
 	)
+
+	testCmd.Flags().StringVarP(&URL, "url", "u", "", "API call URL")
+	testCmd.Flags().VarP(&query, "query", "q", "Query parameters in the form name=value")
 }
 
 func flags() test.Flags {
