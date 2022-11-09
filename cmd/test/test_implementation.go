@@ -62,11 +62,4 @@ func testGetBookings(
 
 	CriticAssertFormat(a, request, response)
 	AssertStatusCode(a, response, flags.ExpectedStatusCode)
-
-	switch flags.ExpectedStatusCode {
-	case 200:
-
-	case 404:
-
-	}
 }
