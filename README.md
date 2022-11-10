@@ -73,7 +73,7 @@ A request body can be read from standard input, e.g.:
 - Read from file
 
 ```sh
-`pscovoit test post bookings <file_with_body.txt`
+pscovoit test post bookings <file_with_body.txt
 ```
 
 - Passed as string
