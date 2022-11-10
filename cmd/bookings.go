@@ -74,8 +74,8 @@ func init() {
 }
 
 // readBodyFromStdin reads stdin stream until it is closed, and returns its
-// content. If it is not closed before `timeout`, the function returns an
-// error.
+// content. The function returns an error if it is not closed before `timeout`, or if an error occurs while
+// reading.
 func readBodyFromStdin(cmd *cobra.Command, timeout time.Duration) ([]byte,
 	error) {
 

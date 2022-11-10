@@ -12,8 +12,8 @@ import (
 var getCmd = &cobra.Command{
 	Use:               "get",
 	Short:             "Interface for testing endpoints with method GET",
-	Long:              "",
-	PersistentPreRunE: checkGetCmdFlags,
+	Long:              "Interface for testing endpoints with method GET",
+	PersistentPreRunE: checkCmdFlags,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			err := cmd.Help()
@@ -39,7 +39,7 @@ func initGetCmd() {
 	testCmd.AddCommand(getCmd)
 }
 
-func checkGetCmdFlags(cmd *cobra.Command, args []string) error {
+func checkCmdFlags(cmd *cobra.Command, args []string) error {
 	if server == "" {
 		return errors.New("missing required --server information")
 	}
@@ -49,14 +49,10 @@ func checkGetCmdFlags(cmd *cobra.Command, args []string) error {
 
 // postCmd represents the post command
 var postCmd = &cobra.Command{
-	Use:   "post",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:               "post",
+	Short:             "Interface for testing endpoints with method POST",
+	Long:              "Interface for testing endpoints with method POST",
+	PersistentPreRunE: checkCmdFlags,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("post called")
 	},
