@@ -18,7 +18,6 @@ for linux (may not be the latest development version), and make it executable,
 or clone the repo and enter `go build -o pscovoit` in the root folder.
 
 
-
 ## Run the fake server
 
 The `serve` subcommand runs the server on http://localhost:1323 (port not 
@@ -67,6 +66,20 @@ equivalent:
   --departureDate=1665579951 \
   --departureLat=47.461737 \
   --departureLng=1.061393
+```
+
+A request body can be read from standard input, e.g.:
+ 
+- Read from file
+
+```sh
+`pscovoit test post bookings <file_with_body.txt`
+```
+
+- Passed as string
+
+```sh
+pscovoit test post bookings <<< "{body}"
 ```
 
 By default, only the failed tests are reported. Use the `--verbose` flag to 
