@@ -10,7 +10,7 @@ import (
 )
 
 // bookingsCmd represents the bookings command
-var bookingsCmd = &cobra.Command{
+var getBookingsCmd = &cobra.Command{
 	Use:     "bookings",
 	Short:   "Test the GET /bookings endpoint",
 	Long:    `Test the GET /bookings endpoint`,
@@ -26,11 +26,11 @@ var (
 	bookingID string
 )
 
-func init() {
-	bookingsCmd.Flags().StringVar(
+func initGetBookings() {
+	getBookingsCmd.Flags().StringVar(
 		&bookingID, "bookingId", "", "bookingId path parameter",
 	)
-	getCmd.AddCommand(bookingsCmd)
+	getCmd.AddCommand(getBookingsCmd)
 }
 
 func checkGetBookingsCmdFlags(cmd *cobra.Command, args []string) error {
@@ -39,4 +39,26 @@ func checkGetBookingsCmdFlags(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+// bookingsCmd represents the bookings command
+var postBookingsCmd = &cobra.Command{
+	Use:     "bookings",
+	Short:   "Test the GET /bookings endpoint",
+	Long:    `Test the GET /bookings endpoint`,
+	PreRunE: checkGetBookingsCmdFlags,
+	Run: func(cmd *cobra.Command, args []string) {
+		url.JoinPath(server, "/bookings")
+		err := test.Run(http.MethodPost, URL, verbose, test.NewQuery(), flags())
+		exitWithError(err)
+	},
+}
+
+func initPostBookings() {
+	postCmd.AddCommand(postBookingsCmd)
+}
+
+func init() {
+	initGetBookings()
+	initPostBookings()
 }

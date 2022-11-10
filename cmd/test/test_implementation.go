@@ -63,3 +63,13 @@ func testGetBookings(
 	CriticAssertFormat(a, request, response)
 	AssertStatusCode(a, response, flags.ExpectedStatusCode)
 }
+
+func testPostBookings(
+	request *http.Request,
+	response *http.Response,
+	a AssertionAccumulator,
+	flags Flags,
+) {
+	CriticAssertFormat(a, request, response)
+	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+}
