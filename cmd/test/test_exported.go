@@ -8,6 +8,7 @@ func initAPIMapping() {
 	Register(TestGetDriverJourneysResponse, GetDriverJourneysEndpoint)
 	Register(TestGetPassengerJourneysResponse, GetPassengerJourneysEndpoint)
 	Register(TestGetBookingsResponse, GetBookingsEndpoint)
+	Register(TestPostBookingsResponse, PostBookingsEndpoint)
 }
 
 //////////////////////////////////////////////////////////////
@@ -23,6 +24,8 @@ var (
 	TestGetPassengerJourneysResponse = wrapAssertionsFun(testGetPassengerJourneys)
 	// TestGetBookingsResponse tests response of GET /bookings/{booking_id}
 	TestGetBookingsResponse = wrapAssertionsFun(testGetBookings)
+	// TestPostBookingsResponse tests response of POST /bookings/{booking_id}
+	TestPostBookingsResponse = wrapAssertionsFun(testPostBookings)
 )
 
 //////////////////////////////////////////////////////////////
@@ -38,4 +41,6 @@ var (
 	GetPassengerJourneysEndpoint = NewEndpoint(http.MethodGet, "/passenger_journeys")
 	// GetBookingsEndpoint is the Endpoint of GET /passenger_journeys
 	GetBookingsEndpoint = NewEndpointWithParam(http.MethodGet, "/bookings")
+	// PostBookingsEndpoint is the Endpoint of POST /passenger_journeys
+	PostBookingsEndpoint = NewEndpoint(http.MethodPost, "/bookings")
 )

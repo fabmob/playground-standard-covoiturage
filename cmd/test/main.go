@@ -8,7 +8,7 @@ import (
 )
 
 // Run runs the cli validation and returns an exit code
-func Run(method, URL string, verbose bool, query Query, flags Flags) error {
+func Run(method, URL string, verbose bool, query Query, body []byte, flags Flags) error {
 
 	req, err := http.NewRequest(method, URL, nil)
 	if err != nil {

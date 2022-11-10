@@ -32,7 +32,7 @@ func (*StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
 // (POST /bookings)
 func (*StdCovServerImpl) PostBookings(ctx echo.Context) error {
 	// Implement me
-	return nil
+	return ctx.JSON(http.StatusCreated, makeValidBooking())
 }
 
 type Error struct {
