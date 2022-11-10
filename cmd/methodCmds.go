@@ -2,40 +2,48 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
-// getCmd represents the get command
-var getCmd = &cobra.Command{
-	Use:               "get",
-	Short:             "Interface for testing endpoints with method GET",
-	Long:              "Interface for testing endpoints with method GET",
-	PersistentPreRunE: checkCmdFlags,
-	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
-			err := cmd.Help()
-			if err != nil {
-				panic(err)
-			}
+func methodCmdHelper(method string) *cobra.Command {
+	description := "Interface for testing endpoints with method " + strings.ToUpper(method)
+	return &cobra.Command{
+		Use:               method,
+		Short:             description,
+		Long:              description,
+		PersistentPreRunE: checkCmdFlags,
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) == 0 {
+				err := cmd.Help()
+				if err != nil {
+					panic(err)
+				}
 
-			os.Exit(0)
-		}
-	},
+				os.Exit(0)
+			}
+		},
+	}
 }
+
+var (
+	getCmd  = methodCmdHelper("get")
+	postCmd = methodCmdHelper("post")
+)
 
 var (
 	server string
 )
 
-func initMethodFlags(cmd *cobra.Command) {
-	cmd.PersistentFlags().StringVar(&server, "server", "", "Server on which torun the query")
+func init() {
+	initMethodCmd(getCmd)
+	initMethodCmd(postCmd)
 }
 
-func initGetCmd() {
-	initMethodFlags(getCmd)
+func initMethodCmd(cmd *cobra.Command) {
+	cmd.PersistentFlags().StringVar(&server, "server", "", "Server on which torun the query")
 	testCmd.AddCommand(getCmd)
 }
 
@@ -45,25 +53,4 @@ func checkCmdFlags(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
-}
-
-// postCmd represents the post command
-var postCmd = &cobra.Command{
-	Use:               "post",
-	Short:             "Interface for testing endpoints with method POST",
-	Long:              "Interface for testing endpoints with method POST",
-	PersistentPreRunE: checkCmdFlags,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("post called")
-	},
-}
-
-func initPostCmd() {
-	initMethodFlags(postCmd)
-	testCmd.AddCommand(postCmd)
-}
-
-func init() {
-	initGetCmd()
-	initPostCmd()
 }
