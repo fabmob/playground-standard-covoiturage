@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"time"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
@@ -52,27 +51,16 @@ var postBookingsCmd = &cobra.Command{
 	Long:  `Test the GET /bookings endpoint`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		body := cmd.InOrStdin()
-		stdinChannel := make(chan []byte, 1)
-
-		go func() {
-			b, _ := io.ReadAll(body)
-			stdinChannel <- b
-		}()
-
 		var timeout = 100 * time.Millisecond
 
-		select {
-		case <-time.After(timeout):
-			fmt.Println("body is required but missing")
-			os.Exit(1)
+		body, err := readBodyFromStdin(cmd, timeout)
+		exitWithError(err)
 
-		case body := <-stdinChannel:
-			URL, _ := url.JoinPath(server, "/bookings")
-			fmt.Println(URL)
-			err := test.Run(http.MethodPost, URL, verbose, test.NewQuery(), body, flags(http.StatusCreated))
-			exitWithError(err)
-		}
+		URL, _ := url.JoinPath(server, "/bookings")
+		fmt.Println(URL)
+		err = test.Run(http.MethodPost, URL, verbose, test.NewQuery(), body, flags(http.StatusCreated))
+		exitWithError(err)
+
 	},
 }
 
@@ -83,4 +71,37 @@ func initPostBookings() {
 func init() {
 	initGetBookings()
 	initPostBookings()
+}
+
+// readBodyFromStdin reads stdin stream until it is closed, and returns its
+// content. If it is not closed before `timeout`, the function returns an
+// error.
+func readBodyFromStdin(cmd *cobra.Command, timeout time.Duration) ([]byte,
+	error) {
+
+	var (
+		stdinStreamReader = cmd.InOrStdin()
+		stdinChannel      = make(chan []byte, 1)
+		errChannel        = make(chan error, 1)
+	)
+
+	go func() {
+		b, err := io.ReadAll(stdinStreamReader)
+		if err != nil {
+			errChannel <- err
+		} else {
+			stdinChannel <- b
+		}
+	}()
+
+	select {
+	case <-time.After(timeout):
+		return nil, errors.New("body is required but missing")
+
+	case err := <-errChannel:
+		return nil, err
+
+	case body := <-stdinChannel:
+		return body, nil
+	}
 }
