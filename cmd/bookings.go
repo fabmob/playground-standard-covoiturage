@@ -17,7 +17,7 @@ var getBookingsCmd = &cobra.Command{
 	PreRunE: checkGetBookingsCmdFlags,
 	Run: func(cmd *cobra.Command, args []string) {
 		URL, _ := url.JoinPath(server, "/bookings", bookingID)
-		err := test.Run(http.MethodGet, URL, verbose, test.NewQuery(), flags())
+		err := test.Run(http.MethodGet, URL, verbose, test.NewQuery(), flags(http.StatusOK))
 		exitWithError(err)
 	},
 }
@@ -49,7 +49,7 @@ var postBookingsCmd = &cobra.Command{
 	PreRunE: checkGetBookingsCmdFlags,
 	Run: func(cmd *cobra.Command, args []string) {
 		url.JoinPath(server, "/bookings")
-		err := test.Run(http.MethodPost, URL, verbose, test.NewQuery(), flags())
+		err := test.Run(http.MethodPost, URL, verbose, test.NewQuery(), flags(http.StatusCreated))
 		exitWithError(err)
 	},
 }

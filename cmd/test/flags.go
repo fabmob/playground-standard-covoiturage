@@ -16,7 +16,6 @@ type Flags struct {
 const (
 	DefaultDisallowEmptyFlag   = false
 	DefaultSupportDeepLinkFlag = false
-	DefaultExpectedStatusCode  = http.StatusOK
 )
 
 // NewFlags return a set of default flags

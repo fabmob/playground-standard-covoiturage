@@ -18,7 +18,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := test.Run(http.MethodGet, URL, verbose, query, flags())
+		err := test.Run(http.MethodGet, URL, verbose, query, flags(http.StatusOK))
 		exitWithError(err)
 	},
 }
@@ -44,17 +44,21 @@ func init() {
 	testCmd.PersistentFlags().IntVar(
 		&expectStatus,
 		"expectStatus",
-		test.DefaultExpectedStatusCode,
-		"Expected status code",
+		0,
+		"Expected status code. Defaults to success, 2xx, status code - exact default depends on endpoint",
 	)
 
 	testCmd.Flags().StringVarP(&URL, "url", "u", "", "API call URL")
 	testCmd.Flags().VarP(&query, "query", "q", "Query parameters in the form name=value")
 }
 
-func flags() test.Flags {
+func flags(defaultStatus int) test.Flags {
 	flags := test.NewFlags()
 	flags.DisallowEmpty = disallowEmpty
-	flags.ExpectedStatusCode = expectStatus
+	if expectStatus == 0 { //not set
+		flags.ExpectedStatusCode = defaultStatus
+	} else {
+		flags.ExpectedStatusCode = expectStatus
+	}
 	return flags
 }
