@@ -112,3 +112,7 @@ func makeParamsWithCount(count int, driverOrPassenger string) api.GetJourneysPar
 
 	return params
 }
+
+func makeValidBooking() api.Booking {
+	return api.Booking{Status: "CONFIRMED"}
+}
