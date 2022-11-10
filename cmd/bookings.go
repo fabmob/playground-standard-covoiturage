@@ -2,8 +2,12 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"time"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/spf13/cobra"
@@ -17,7 +21,7 @@ var getBookingsCmd = &cobra.Command{
 	PreRunE: checkGetBookingsCmdFlags,
 	Run: func(cmd *cobra.Command, args []string) {
 		URL, _ := url.JoinPath(server, "/bookings", bookingID)
-		err := test.Run(http.MethodGet, URL, verbose, test.NewQuery(), flags(http.StatusOK))
+		err := test.Run(http.MethodGet, URL, verbose, test.NewQuery(), nil, flags(http.StatusOK))
 		exitWithError(err)
 	},
 }
@@ -43,14 +47,32 @@ func checkGetBookingsCmdFlags(cmd *cobra.Command, args []string) error {
 
 // bookingsCmd represents the bookings command
 var postBookingsCmd = &cobra.Command{
-	Use:     "bookings",
-	Short:   "Test the GET /bookings endpoint",
-	Long:    `Test the GET /bookings endpoint`,
-	PreRunE: checkGetBookingsCmdFlags,
+	Use:   "bookings",
+	Short: "Test the GET /bookings endpoint",
+	Long:  `Test the GET /bookings endpoint`,
 	Run: func(cmd *cobra.Command, args []string) {
-		url.JoinPath(server, "/bookings")
-		err := test.Run(http.MethodPost, URL, verbose, test.NewQuery(), flags(http.StatusCreated))
-		exitWithError(err)
+
+		body := cmd.InOrStdin()
+		stdinChannel := make(chan []byte, 1)
+
+		go func() {
+			b, _ := io.ReadAll(body)
+			stdinChannel <- b
+		}()
+
+		var timeout = 100 * time.Millisecond
+
+		select {
+		case <-time.After(timeout):
+			fmt.Println("body is required but missing")
+			os.Exit(1)
+
+		case body := <-stdinChannel:
+			URL, _ := url.JoinPath(server, "/bookings")
+			fmt.Println(URL)
+			err := test.Run(http.MethodPost, URL, verbose, test.NewQuery(), body, flags(http.StatusCreated))
+			exitWithError(err)
+		}
 	},
 }
 
