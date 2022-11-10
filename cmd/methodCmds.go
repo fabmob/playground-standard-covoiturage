@@ -44,7 +44,7 @@ func init() {
 
 func initMethodCmd(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringVar(&server, "server", "", "Server on which torun the query")
-	testCmd.AddCommand(getCmd)
+	testCmd.AddCommand(cmd)
 }
 
 func checkCmdFlags(cmd *cobra.Command, args []string) error {
