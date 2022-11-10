@@ -347,6 +347,31 @@ func TestGetBookings(t *testing.T) {
 	response := rec.Result()
 	flags := test.NewFlags()
 	flags.ExpectedStatusCode = http.StatusNotFound
+
+	assertionResults := test.TestGetBookingsResponse(request, response, flags)
+
+	checkAssertionResults(t, assertionResults)
+}
+
+func TestPostBookings(t *testing.T) {
+
+	request, err := api.NewPostBookingsRequest("", api.Booking{})
+	panicIf(err)
+
+	// Setup testing server with response recorder
+	e := echo.New()
+	rec := httptest.NewRecorder()
+	ctx := e.NewContext(request, rec)
+	handler := &StdCovServerImpl{}
+
+	// Make API Call
+	err = handler.PostBookings(ctx)
+	panicIf(err)
+
+	response := rec.Result()
+	flags := test.NewFlags()
+	flags.ExpectedStatusCode = http.StatusCreated
+
 	assertionResults := test.TestGetBookingsResponse(request, response, flags)
 
 	checkAssertionResults(t, assertionResults)
