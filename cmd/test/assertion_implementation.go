@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
-	"github.com/fabmob/playground-standard-covoiturage/cmd/validate"
 	tld "github.com/jpillora/go-tld"
 	"github.com/pkg/errors"
 )
@@ -181,7 +180,7 @@ type assertFormat struct {
 }
 
 func (a assertFormat) Execute() error {
-	err := validate.Response(a.request, a.response)
+	err := validateResponse(a.request, a.response)
 	return err
 }
 

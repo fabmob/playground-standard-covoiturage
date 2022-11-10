@@ -1,4 +1,4 @@
-package validate
+package test
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 )
 
 // Response validates a Response against the openapi specification.
-func Response(request *http.Request, response *http.Response) error {
+func validateResponse(request *http.Request, response *http.Response) error {
 	ctx := context.Background()
 	loader := &openapi3.Loader{Context: ctx, IsExternalRefsAllowed: true}
 
@@ -49,6 +49,7 @@ func Response(request *http.Request, response *http.Response) error {
 		RequestValidationInput: requestValidationInput,
 		Status:                 response.StatusCode,
 		Header:                 response.Header,
+		Options:                &openapi3filter.Options{IncludeResponseStatus: true},
 	}
 
 	body, err := io.ReadAll(response.Body)

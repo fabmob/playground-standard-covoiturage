@@ -28,19 +28,33 @@ var (
 	verbose       bool
 	query         test.Query
 	disallowEmpty bool
+	expectStatus  int
 )
 
 func init() {
 	rootCmd.AddCommand(testCmd)
 
 	testCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Make the operation more talkative")
-	testCmd.PersistentFlags().BoolVar(&disallowEmpty, "disallowEmpty", false,
-		"Should an empty request return an error")
+	testCmd.PersistentFlags().BoolVar(
+		&disallowEmpty,
+		"disallowEmpty",
+		test.DefaultDisallowEmptyFlag,
+		"Should an empty request return an error",
+	)
+	testCmd.PersistentFlags().IntVar(
+		&expectStatus,
+		"expectStatus",
+		test.DefaultExpectedStatusCode,
+		"Expected status code",
+	)
 
 	testCmd.Flags().StringVarP(&URL, "url", "u", "", "API call URL")
 	testCmd.Flags().VarP(&query, "query", "q", "Query parameters in the form name=value")
 }
 
 func flags() test.Flags {
-	return test.Flags{DisallowEmpty: disallowEmpty}
+	flags := test.NewFlags()
+	flags.DisallowEmpty = disallowEmpty
+	flags.ExpectedStatusCode = expectStatus
+	return flags
 }

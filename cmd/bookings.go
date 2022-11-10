@@ -28,7 +28,7 @@ var (
 
 func init() {
 	bookingsCmd.Flags().StringVar(
-		&bookingID, "bookingId", "", "bookingIdpath parameter",
+		&bookingID, "bookingId", "", "bookingId path parameter",
 	)
 	getCmd.AddCommand(bookingsCmd)
 }
