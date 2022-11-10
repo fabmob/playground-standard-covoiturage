@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -57,7 +56,6 @@ var postBookingsCmd = &cobra.Command{
 		exitWithError(err)
 
 		URL, _ := url.JoinPath(server, "/bookings")
-		fmt.Println(URL)
 		err = test.Run(http.MethodPost, URL, verbose, test.NewQuery(), body, flags(http.StatusCreated))
 		exitWithError(err)
 
