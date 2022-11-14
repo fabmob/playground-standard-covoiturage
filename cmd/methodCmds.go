@@ -29,8 +29,9 @@ func methodCmdHelper(method string) *cobra.Command {
 }
 
 var (
-	getCmd  = methodCmdHelper("get")
-	postCmd = methodCmdHelper("post")
+	getCmd   = methodCmdHelper("get")
+	postCmd  = methodCmdHelper("post")
+	patchCmd = methodCmdHelper("patch")
 )
 
 var (

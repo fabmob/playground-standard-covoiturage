@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -11,11 +12,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	bookingID string
+	status    string
+	message   string
+)
+
+//////////////////////////////////////////////////////////////
+// GET /bookings/{bookingId}
+//////////////////////////////////////////////////////////////
+
 // bookingsCmd represents the bookings command
 var getBookingsCmd = &cobra.Command{
 	Use:     "bookings",
-	Short:   "Test the GET /bookings endpoint",
-	Long:    `Test the GET /bookings endpoint`,
+	Short:   "Test the GET /bookings/{bookingID} endpoint",
+	Long:    `Test the GET /bookings/{bookingID} endpoint`,
 	PreRunE: checkGetBookingsCmdFlags,
 	Run: func(cmd *cobra.Command, args []string) {
 		URL, _ := url.JoinPath(server, "/bookings", bookingID)
@@ -23,10 +34,6 @@ var getBookingsCmd = &cobra.Command{
 		exitWithError(err)
 	},
 }
-
-var (
-	bookingID string
-)
 
 func initGetBookings() {
 	getBookingsCmd.Flags().StringVar(
@@ -36,18 +43,18 @@ func initGetBookings() {
 }
 
 func checkGetBookingsCmdFlags(cmd *cobra.Command, args []string) error {
-	if bookingID == "" {
-		return errors.New("missing required --bookingId information")
-	}
-
-	return nil
+	return checkRequiredBookingID(bookingID)
 }
+
+//////////////////////////////////////////////////////////////
+// POST /bookings
+//////////////////////////////////////////////////////////////
 
 // bookingsCmd represents the bookings command
 var postBookingsCmd = &cobra.Command{
 	Use:   "bookings",
-	Short: "Test the GET /bookings endpoint",
-	Long:  `Test the GET /bookings endpoint`,
+	Short: "Test the POST /bookings endpoint",
+	Long:  `Test the POST /bookings endpoint`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var timeout = 100 * time.Millisecond
@@ -66,10 +73,82 @@ func initPostBookings() {
 	postCmd.AddCommand(postBookingsCmd)
 }
 
+//////////////////////////////////////////////////////////////
+// PATCH /bookings/{bookingId}
+//////////////////////////////////////////////////////////////
+
+// bookingsCmd represents the bookings command
+var patchBookingsCmd = &cobra.Command{
+	Use:     "bookings",
+	Short:   "Test the PATCH /bookings/{bookingID} endpoint",
+	Long:    `Test the PATCH /bookings/{bookingID} endpoint`,
+	PreRunE: checkPatchBookingsCmdFlags,
+	Run:     patchBookingsRun,
+}
+
+func patchBookingsRun(cmd *cobra.Command, args []string) {
+
+	query := test.NewQuery()
+	query.Params["status"] = status
+	query.Params["message"] = message
+
+	URL, _ := url.JoinPath(server, "/bookings", bookingID)
+	err := test.Run(http.MethodPost, URL, verbose, query, nil, flags(http.StatusCreated))
+	exitWithError(err)
+
+}
+
+func initPatchBookings() {
+	getBookingsCmd.Flags().StringVar(
+		&bookingID, "bookingId", "", "bookingId path parameter",
+	)
+	getBookingsCmd.Flags().StringVar(
+		&status, "status", "", "status query parameter",
+	)
+	getBookingsCmd.Flags().StringVar(
+		&message, "message", "", "message query parameter",
+	)
+	patchCmd.AddCommand(patchBookingsCmd)
+}
+
+func checkPatchBookingsCmdFlags(cmd *cobra.Command, args []string) error {
+	errRequiredBookingID := checkRequiredBookingID(bookingID)
+	if errRequiredBookingID != nil {
+		return errRequiredBookingID
+	}
+
+	errRequiredStatus := checkRequiredStatus(status)
+	if errRequiredStatus != nil {
+		return errRequiredStatus
+	}
+
+	return nil
+}
+
+//////////////////////////////////////////////////////////////
+// Other related stuff
+//////////////////////////////////////////////////////////////
+
 func init() {
 	initGetBookings()
 	initPostBookings()
+	initPatchBookings()
 }
+
+func checkRequired(description string) func(string) error {
+	return func(obj string) error {
+		if obj == "" {
+			return fmt.Errorf("missing required --%s information", description)
+		}
+
+		return nil
+	}
+}
+
+var (
+	checkRequiredBookingID = checkRequired("bookingId")
+	checkRequiredStatus    = checkRequired("status")
+)
 
 // readBodyFromStdin reads stdin stream until it is closed, and returns its
 // content. The function returns an error if it is not closed before `timeout`, or if an error occurs while
