@@ -19,7 +19,7 @@ var passengerJourneysCmd = &cobra.Command{
 Default query coordinates are placed on "Vesdun", a small town proclaimed "center
 of France" by IGN in 1993.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		query := makeQuery()
+		query := makeJourneyQuery()
 		URL, _ := url.JoinPath(server, "/passenger_journeys")
 		err := test.RunTest(http.MethodGet, URL, verbose, query, nil, flags(http.StatusOK))
 		exitWithError(err)

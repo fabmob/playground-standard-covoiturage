@@ -1,12 +1,27 @@
 package cmd
 
 import (
-	"errors"
 	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
 )
+
+var (
+	server string
+)
+
+var (
+	getCmd   = methodCmdHelper("get")
+	postCmd  = methodCmdHelper("post")
+	patchCmd = methodCmdHelper("patch")
+)
+
+func init() {
+	initMethodCmd(getCmd)
+	initMethodCmd(postCmd)
+	initMethodCmd(patchCmd)
+}
 
 func methodCmdHelper(method string) *cobra.Command {
 	description := "Interface for testing endpoints with method " + strings.ToUpper(method)
@@ -28,30 +43,11 @@ func methodCmdHelper(method string) *cobra.Command {
 	}
 }
 
-var (
-	getCmd   = methodCmdHelper("get")
-	postCmd  = methodCmdHelper("post")
-	patchCmd = methodCmdHelper("patch")
-)
-
-var (
-	server string
-)
-
-func init() {
-	initMethodCmd(getCmd)
-	initMethodCmd(postCmd)
-}
-
 func initMethodCmd(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringVar(&server, "server", "", "Server on which torun the query")
 	testCmd.AddCommand(cmd)
 }
 
 func checkCmdFlags(cmd *cobra.Command, args []string) error {
-	if server == "" {
-		return errors.New("missing required --server information")
-	}
-
-	return nil
+	return checkRequiredServer(server)
 }
