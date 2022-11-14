@@ -8,58 +8,68 @@ import (
 )
 
 func TestPatchBookingsCmd(t *testing.T) {
-	mockRunner := test.NewMockRunner()
 
 	var (
-		server    = "https://localhost:9999"
-		bookingID = "9999"
-		status    = "CONFIRMED"
-		message   = "test message"
+		server         = "https://localhost:9999"
+		bookingID      = "9999"
+		status         = "CONFIRMED"
+		message        = "test message"
+		expectedURL    = "https://localhost:9999/bookings/9999"
+		expectedMethod = http.MethodPatch
 	)
 
-	err := patchBookingsRun(mockRunner, server, bookingID, status, message, test.NewFlags())
-	if err != nil {
-		panic(err)
-	}
+	mockRunner := test.NewMockRunner()
+	err := patchBookingsRun(
+		mockRunner,
+		server,
+		bookingID,
+		status,
+		message,
+		test.NewFlags(),
+	)
+	panicIf(err)
 
-	testStringArg(t, http.MethodPatch, mockRunner.Method, "method")
+	// Test Assertions
+	testStringArg(t, expectedMethod, mockRunner.Method, "method")
 
+	// Nil or empty body
 	if mockRunner.Body != nil {
 		testStringArg(t, string(mockRunner.Body), "", "body")
 	}
 
-	testStringArg(t, "https://localhost:9999/bookings/9999", mockRunner.URL, "URL")
+	testStringArg(t, expectedURL, mockRunner.URL, "URL")
 
 	gotStatus, ok := mockRunner.Query.Params["status"]
 	if !ok {
 		t.Error("Missing query parameter status")
 	}
 
-	testStringArg(t, gotStatus, "CONFIRMED", "status")
+	testStringArg(t, gotStatus, status, "status")
 
 	gotMessage, ok := mockRunner.Query.Params["message"]
 	if !ok {
 		t.Error("Missing query parameter message")
 	}
 
-	testStringArg(t, gotMessage, "test message", "message")
+	testStringArg(t, gotMessage, message, "message")
 }
 
-func TestGetMessages(t *testing.T) {
-	mockRunner := test.NewMockRunner()
+func TestPostMessages(t *testing.T) {
 
 	var (
-		server    = "https://localhost:9999"
-		body      = "body"
-		bodyBytes = []byte(body)
+		server         = "https://localhost:9999"
+		expectedBody   = "body"
+		bodyBytes      = []byte(expectedBody)
+		expectedMethod = http.MethodPost
 	)
 
+	mockRunner := test.NewMockRunner()
 	err := getMessagesRun(mockRunner, server, bodyBytes)
-	if err != nil {
-		panic(err)
-	}
+	panicIf(err)
 
-	testStringArg(t, mockRunner.Method, http.MethodPost, "method")
+	// Test Assertions
+
+	testStringArg(t, mockRunner.Method, expectedMethod, "method")
 
 	testStringArg(t, mockRunner.URL, "https://localhost:9999/messages", "URL")
 
@@ -67,7 +77,7 @@ func TestGetMessages(t *testing.T) {
 		t.Error("Missing required body")
 	}
 
-	testStringArg(t, string(mockRunner.Body), body, "body")
+	testStringArg(t, string(mockRunner.Body), expectedBody, "body")
 
 }
 
@@ -78,5 +88,11 @@ func testStringArg(t *testing.T, got, expected, argumentName string) {
 		t.Logf("Expected %s", expected)
 		t.Logf("Got %s", got)
 		t.Fail()
+	}
+}
+
+func panicIf(err error) {
+	if err != nil {
+		panic(err)
 	}
 }
