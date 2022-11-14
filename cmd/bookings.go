@@ -30,7 +30,7 @@ var getBookingsCmd = &cobra.Command{
 	PreRunE: checkGetBookingsCmdFlags,
 	Run: func(cmd *cobra.Command, args []string) {
 		URL, _ := url.JoinPath(server, "/bookings", bookingID)
-		err := test.Run(http.MethodGet, URL, verbose, test.NewQuery(), nil, flags(http.StatusOK))
+		err := test.RunTest(http.MethodGet, URL, verbose, test.NewQuery(), nil, flags(http.StatusOK))
 		exitWithError(err)
 	},
 }
@@ -63,7 +63,7 @@ var postBookingsCmd = &cobra.Command{
 		exitWithError(err)
 
 		URL, _ := url.JoinPath(server, "/bookings")
-		err = test.Run(http.MethodPost, URL, verbose, test.NewQuery(), body, flags(http.StatusCreated))
+		err = test.RunTest(http.MethodPost, URL, verbose, test.NewQuery(), body, flags(http.StatusCreated))
 		exitWithError(err)
 
 	},
@@ -93,19 +93,19 @@ func patchBookingsRun(cmd *cobra.Command, args []string) {
 	query.Params["message"] = message
 
 	URL, _ := url.JoinPath(server, "/bookings", bookingID)
-	err := test.Run(http.MethodPost, URL, verbose, query, nil, flags(http.StatusCreated))
+	err := test.RunTest(http.MethodPost, URL, verbose, query, nil, flags(http.StatusCreated))
 	exitWithError(err)
 
 }
 
 func initPatchBookings() {
-	getBookingsCmd.Flags().StringVar(
+	patchBookingsCmd.Flags().StringVar(
 		&bookingID, "bookingId", "", "bookingId path parameter",
 	)
-	getBookingsCmd.Flags().StringVar(
+	patchBookingsCmd.Flags().StringVar(
 		&status, "status", "", "status query parameter",
 	)
-	getBookingsCmd.Flags().StringVar(
+	patchBookingsCmd.Flags().StringVar(
 		&message, "message", "", "message query parameter",
 	)
 	patchCmd.AddCommand(patchBookingsCmd)
