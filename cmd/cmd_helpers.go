@@ -6,6 +6,7 @@ import (
 	"io"
 	"time"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/spf13/cobra"
 )
 
@@ -58,4 +59,8 @@ func readBodyFromStdin(cmd *cobra.Command, timeout time.Duration) ([]byte,
 	case body := <-stdinChannel:
 		return body, nil
 	}
+}
+
+func cmdDescription(endpoint test.Endpoint) string {
+	return fmt.Sprintf("Test the %s endpoint", endpoint)
 }

@@ -10,9 +10,9 @@ import (
 )
 
 var postBookingEventsCmd = &cobra.Command{
-	Use:   "bookings",
-	Short: "Test the POST /bookings endpoint",
-	Long:  `Test the POST /bookings endpoint`,
+	Use:   "bookingEvents",
+	Short: cmdDescription(test.PostBookingEventsEndpoint),
+	Long:  cmdDescription(test.PostBookingEventsEndpoint),
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var timeout = 100 * time.Millisecond

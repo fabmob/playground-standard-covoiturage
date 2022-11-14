@@ -17,8 +17,8 @@ var getBookingID string
 // bookingsCmd represents the bookings command
 var getBookingsCmd = &cobra.Command{
 	Use:     "bookings",
-	Short:   "Test the GET /bookings/{bookingID} endpoint",
-	Long:    `Test the GET /bookings/{bookingID} endpoint`,
+	Short:   cmdDescription(test.GetBookingsEndpoint),
+	Long:    cmdDescription(test.GetBookingsEndpoint),
 	PreRunE: checkGetBookingsCmdFlags,
 	Run: func(cmd *cobra.Command, args []string) {
 		URL, _ := url.JoinPath(server, "/bookings", getBookingID)

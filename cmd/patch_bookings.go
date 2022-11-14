@@ -16,8 +16,8 @@ var (
 
 var patchBookingsCmd = &cobra.Command{
 	Use:     "bookings",
-	Short:   "Test the PATCH /bookings/{bookingID} endpoint",
-	Long:    `Test the PATCH /bookings/{bookingID} endpoint`,
+	Short:   cmdDescription(test.PatchBookingsEndpoint),
+	Long:    cmdDescription(test.PatchBookingsEndpoint),
 	PreRunE: checkPatchBookingsCmdFlags,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := patchBookingsRun(

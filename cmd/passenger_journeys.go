@@ -13,9 +13,9 @@ import (
 // passengerJourneysCmd represents the passengerJourneys command
 var passengerJourneysCmd = &cobra.Command{
 	Use:   "passengerJourneys",
-	Short: "Test the GET /passenger_journeys endpoint",
-	Long: `Test the GET /passenger_journeys endpoint
-
+	Short: cmdDescription(test.GetPassengerJourneysEndpoint),
+	Long: cmdDescription(test.GetPassengerJourneysEndpoint) +
+		`
 Default query coordinates are placed on "Vesdun", a small town proclaimed "center
 of France" by IGN in 1993.`,
 	Run: func(cmd *cobra.Command, args []string) {

@@ -12,8 +12,8 @@ import (
 // bookingsCmd represents the bookings command
 var getMessagesCmd = &cobra.Command{
 	Use:     "bookings",
-	Short:   "Test the POST /messages endpoint",
-	Long:    `Test the POST /messages endpoint`,
+	Short:   cmdDescription(test.PostMessagesEndpoint),
+	Long:    cmdDescription(test.PostMessagesEndpoint),
 	PreRunE: checkGetBookingsCmdFlags,
 	Run: func(cmd *cobra.Command, args []string) {
 		var timeout = 100 * time.Millisecond
