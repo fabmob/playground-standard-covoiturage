@@ -26,13 +26,12 @@ var patchBookingsCmd = &cobra.Command{
 			patchBookingID,
 			status,
 			message,
-			flags(http.StatusCreated),
 		)
 		exitWithError(err)
 	},
 }
 
-func patchBookingsRun(runner test.TestRunner, server, bookingID, status, message string, flags test.Flags) error {
+func patchBookingsRun(runner test.TestRunner, server, bookingID, status, message string) error {
 
 	query := test.NewQuery()
 	query.Params["status"] = status
@@ -43,7 +42,7 @@ func patchBookingsRun(runner test.TestRunner, server, bookingID, status, message
 		return err
 	}
 
-	return runner.Run(http.MethodPatch, URL, verbose, query, nil, flags)
+	return runner.Run(http.MethodPatch, URL, verbose, query, nil, flags(http.StatusOK))
 }
 
 func init() {
