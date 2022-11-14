@@ -49,15 +49,23 @@ func TestGetMessages(t *testing.T) {
 	mockRunner := test.NewMockRunner()
 
 	var (
-		server = "https://localhost:9999"
+		server    = "https://localhost:9999"
+		body      = "body"
+		bodyBytes = []byte(body)
 	)
 
-	err := getMessagesRun(mockRunner, server)
+	err := getMessagesRun(mockRunner, server, bodyBytes)
 	if err != nil {
 		panic(err)
 	}
 
 	testStringArg(t, mockRunner.URL, "https://localhost:9999/messages", "URL")
+
+	if mockRunner.Body == nil {
+		t.Error("Missing required body")
+	}
+
+	testStringArg(t, string(mockRunner.Body), body, "body")
 
 }
 
