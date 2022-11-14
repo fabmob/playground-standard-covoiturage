@@ -50,14 +50,7 @@ func TestPatchBookingsCmd(t *testing.T) {
 	)
 
 	mockRunner := test.NewMockRunner()
-	err := patchBookingsRun(
-		mockRunner,
-		server,
-		bookingID,
-		status,
-		message,
-		test.NewFlags(),
-	)
+	err := patchBookingsRun(mockRunner, server, bookingID, status, message)
 	panicIf(err)
 
 	// Test Assertions
@@ -81,22 +74,41 @@ func TestPatchBookingsCmd(t *testing.T) {
 func TestPostMessages(t *testing.T) {
 
 	var (
-		server       = "https://localhost:9999"
-		expectedBody = "body"
-		bodyBytes    = []byte(expectedBody)
-		expected     = expectedData{
+		server   = "https://localhost:9999"
+		body     = []byte("body")
+		expected = expectedData{
 			method:            http.MethodPost,
 			url:               "https://localhost:9999/messages",
 			defaultStatusCode: http.StatusCreated,
-			body:              bodyBytes,
+			body:              body,
 		}
 	)
 
 	mockRunner := test.NewMockRunner()
-	err := getMessagesRun(mockRunner, server, bodyBytes)
+	err := getMessagesRun(mockRunner, server, body)
 	panicIf(err)
 
 	// Test Assertions
+	expected.testArgs(t, mockRunner)
+}
+
+func TestPostBookingEvents(t *testing.T) {
+
+	var (
+		server   = "https://localhost:9999"
+		body     = []byte("body")
+		expected = expectedData{
+			method:            http.MethodPost,
+			url:               "https://localhost:9999/booking_events",
+			defaultStatusCode: http.StatusOK,
+			body:              body,
+		}
+	)
+
+	mockRunner := test.NewMockRunner()
+	err := postBookingEventsRun(mockRunner, server, body)
+	panicIf(err)
+
 	expected.testArgs(t, mockRunner)
 }
 
