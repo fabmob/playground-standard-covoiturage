@@ -33,7 +33,7 @@ var getMessagesCmd = &cobra.Command{
 func getMessagesRun(runner test.TestRunner, server string, body []byte) error {
 	URL, _ := url.JoinPath(server, "/messages")
 
-	return runner.Run(http.MethodGet, URL, verbose, test.NewQuery(), body, flags(http.StatusOK))
+	return runner.Run(http.MethodPost, URL, verbose, test.NewQuery(), body, flags(http.StatusOK))
 }
 
 func init() {
