@@ -59,6 +59,8 @@ func TestGetMessages(t *testing.T) {
 		panic(err)
 	}
 
+	testStringArg(t, mockRunner.Method, http.MethodPost, "method")
+
 	testStringArg(t, mockRunner.URL, "https://localhost:9999/messages", "URL")
 
 	if mockRunner.Body == nil {
