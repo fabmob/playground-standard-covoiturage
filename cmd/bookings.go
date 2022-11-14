@@ -83,19 +83,30 @@ var patchBookingsCmd = &cobra.Command{
 	Short:   "Test the PATCH /bookings/{bookingID} endpoint",
 	Long:    `Test the PATCH /bookings/{bookingID} endpoint`,
 	PreRunE: checkPatchBookingsCmdFlags,
-	Run:     patchBookingsRun,
+	Run: func(cmd *cobra.Command, args []string) {
+		err := patchBookingsRun(
+			test.NewDefaultRunner(),
+			server,
+			bookingID,
+			status,
+			message,
+			flags(http.StatusCreated),
+		)
+		exitWithError(err)
+	},
 }
 
-func patchBookingsRun(cmd *cobra.Command, args []string) {
+func patchBookingsRun(runner test.TestRunner, server, bookingID, status, message string, flags test.Flags) error {
 
 	query := test.NewQuery()
 	query.Params["status"] = status
 	query.Params["message"] = message
 
-	URL, _ := url.JoinPath(server, "/bookings", bookingID)
-	err := test.RunTest(http.MethodPost, URL, verbose, query, nil, flags(http.StatusCreated))
-	exitWithError(err)
-
+	URL, err := url.JoinPath(server, "/bookings", bookingID)
+	if err != nil {
+		return err
+	}
+	return runner.Run(http.MethodPatch, URL, verbose, query, nil, flags)
 }
 
 func initPatchBookings() {

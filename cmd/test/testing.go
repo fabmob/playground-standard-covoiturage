@@ -217,3 +217,41 @@ func makeJourneysResponse(t *testing.T, coords []util.Coord, departureOrArrival 
 
 	return response
 }
+
+//////////////////////////////////////////////////////////////
+// Mock Runner
+//////////////////////////////////////////////////////////////
+
+// A MockRunner implements TestRunner interface
+type MockRunner struct {
+	Method  string
+	URL     string
+	Verbose bool
+	Query   Query
+	Body    []byte
+	Flags   Flags
+}
+
+// Run stores arguments and returns nil
+func (mr *MockRunner) Run(
+	method,
+	URL string,
+	verbose bool,
+	query Query,
+	body []byte,
+	flags Flags,
+) error {
+
+	mr.Method = method
+	mr.URL = URL
+	mr.Verbose = verbose
+	mr.Query = query
+	mr.Body = body
+	mr.Flags = flags
+
+	return nil
+}
+
+func NewMockRunner() *MockRunner {
+	return &MockRunner{}
+}
