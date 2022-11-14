@@ -7,15 +7,46 @@ import (
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 )
 
+type expectedData struct {
+	method            string
+	url               string
+	defaultStatusCode int
+	body              []byte
+}
+
+func (expected expectedData) testArgs(t *testing.T, mockRunner *test.MockRunner) {
+	testStringArg(t, mockRunner.Method, expected.method, "method")
+
+	testStringArg(t, mockRunner.URL, expected.url, "URL")
+
+	testIntArg(t, mockRunner.Flags.ExpectedStatusCode,
+		expected.defaultStatusCode, "status code")
+
+	nilBodyExpected := expected.body == nil
+	nilBodyProvided := mockRunner.Body == nil
+
+	if nilBodyExpected && !nilBodyProvided {
+		t.Error("Body provided while none expected")
+	} else if !nilBodyExpected && nilBodyProvided {
+		t.Error("Required body is missing")
+	} else if !nilBodyExpected && !nilBodyProvided {
+		testStringArg(t, string(mockRunner.Body), string(expected.body), "body")
+	}
+}
+
 func TestPatchBookingsCmd(t *testing.T) {
 
 	var (
-		server         = "https://localhost:9999"
-		bookingID      = "9999"
-		status         = "CONFIRMED"
-		message        = "test message"
-		expectedURL    = "https://localhost:9999/bookings/9999"
-		expectedMethod = http.MethodPatch
+		server    = "https://localhost:9999"
+		bookingID = "9999"
+		status    = "CONFIRMED"
+		message   = "test message"
+		expected  = expectedData{
+			method:            http.MethodPatch,
+			url:               "https://localhost:9999/bookings/9999",
+			defaultStatusCode: http.StatusOK,
+			body:              nil,
+		}
 	)
 
 	mockRunner := test.NewMockRunner()
@@ -30,14 +61,7 @@ func TestPatchBookingsCmd(t *testing.T) {
 	panicIf(err)
 
 	// Test Assertions
-	testStringArg(t, expectedMethod, mockRunner.Method, "method")
-
-	// Nil or empty body
-	if mockRunner.Body != nil {
-		testStringArg(t, string(mockRunner.Body), "", "body")
-	}
-
-	testStringArg(t, expectedURL, mockRunner.URL, "URL")
+	expected.testArgs(t, mockRunner)
 
 	gotStatus, ok := mockRunner.Query.Params["status"]
 	if !ok {
@@ -57,11 +81,15 @@ func TestPatchBookingsCmd(t *testing.T) {
 func TestPostMessages(t *testing.T) {
 
 	var (
-		server             = "https://localhost:9999"
-		expectedBody       = "body"
-		bodyBytes          = []byte(expectedBody)
-		expectedMethod     = http.MethodPost
-		expectedStatusCode = http.StatusCreated
+		server       = "https://localhost:9999"
+		expectedBody = "body"
+		bodyBytes    = []byte(expectedBody)
+		expected     = expectedData{
+			method:            http.MethodPost,
+			url:               "https://localhost:9999/messages",
+			defaultStatusCode: http.StatusCreated,
+			body:              bodyBytes,
+		}
 	)
 
 	mockRunner := test.NewMockRunner()
@@ -69,21 +97,7 @@ func TestPostMessages(t *testing.T) {
 	panicIf(err)
 
 	// Test Assertions
-
-	testStringArg(t, mockRunner.Method, expectedMethod, "method")
-
-	testStringArg(t, mockRunner.URL, "https://localhost:9999/messages", "URL")
-
-	if mockRunner.Body == nil {
-		t.Error("Missing required body")
-	}
-
-	testStringArg(t, string(mockRunner.Body), expectedBody, "body")
-
-	if mockRunner.Flags.ExpectedStatusCode != expectedStatusCode {
-		t.Error("Wrong default status code")
-	}
-
+	expected.testArgs(t, mockRunner)
 }
 
 func testStringArg(t *testing.T, got, expected, argumentName string) {
@@ -92,6 +106,16 @@ func testStringArg(t *testing.T, got, expected, argumentName string) {
 		t.Logf("Unexpected %s in command.", argumentName)
 		t.Logf("Expected %s", expected)
 		t.Logf("Got %s", got)
+		t.Fail()
+	}
+}
+
+func testIntArg(t *testing.T, got, expected int, argumentName string) {
+	t.Helper()
+	if expected != got {
+		t.Logf("Unexpected %s in command.", argumentName)
+		t.Logf("Expected %d", expected)
+		t.Logf("Got %d", got)
 		t.Fail()
 	}
 }

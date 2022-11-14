@@ -106,6 +106,7 @@ func patchBookingsRun(runner test.TestRunner, server, bookingID, status, message
 	if err != nil {
 		return err
 	}
+
 	return runner.Run(http.MethodPatch, URL, verbose, query, nil, flags)
 }
 
