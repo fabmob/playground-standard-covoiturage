@@ -57,10 +57,11 @@ func TestPatchBookingsCmd(t *testing.T) {
 func TestPostMessages(t *testing.T) {
 
 	var (
-		server         = "https://localhost:9999"
-		expectedBody   = "body"
-		bodyBytes      = []byte(expectedBody)
-		expectedMethod = http.MethodPost
+		server             = "https://localhost:9999"
+		expectedBody       = "body"
+		bodyBytes          = []byte(expectedBody)
+		expectedMethod     = http.MethodPost
+		expectedStatusCode = http.StatusCreated
 	)
 
 	mockRunner := test.NewMockRunner()
@@ -78,6 +79,10 @@ func TestPostMessages(t *testing.T) {
 	}
 
 	testStringArg(t, string(mockRunner.Body), expectedBody, "body")
+
+	if mockRunner.Flags.ExpectedStatusCode != expectedStatusCode {
+		t.Error("Wrong default status code")
+	}
 
 }
 
