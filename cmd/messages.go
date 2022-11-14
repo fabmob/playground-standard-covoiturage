@@ -35,7 +35,14 @@ func getMessagesRun(runner test.TestRunner, server string, body []byte) error {
 	if err != nil {
 		return err
 	}
-	return runner.Run(http.MethodPost, URL, verbose, test.NewQuery(), body, flags(http.StatusOK))
+	return runner.Run(
+		http.MethodPost,
+		URL,
+		verbose,
+		test.NewQuery(),
+		body,
+		flags(http.StatusCreated),
+	)
 }
 
 func init() {
