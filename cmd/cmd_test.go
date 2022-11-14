@@ -57,7 +57,7 @@ func TestGetMessages(t *testing.T) {
 		panic(err)
 	}
 
-	testStringArg(t, mockRunner.URL, "https://localhost:9999", "URL")
+	testStringArg(t, mockRunner.URL, "https://localhost:9999/messages", "URL")
 
 }
 
