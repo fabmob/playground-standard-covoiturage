@@ -130,6 +130,24 @@ func TestGetDriverRegularTripsCmd(t *testing.T) {
 	expected.testArgs(t, mockRunner)
 }
 
+func TestGetPassengerRegularTripsCmd(t *testing.T) {
+	var (
+		server   = "https://localhost:9999"
+		expected = expectedData{
+			method:            http.MethodGet,
+			url:               "https://localhost:9999/passenger_regular_trips",
+			defaultStatusCode: http.StatusOK,
+			body:              nil,
+		}
+	)
+
+	mockRunner := test.NewMockRunner()
+	err := getPassengerRegularTripsRun(mockRunner, server)
+	panicIf(err)
+
+	expected.testArgs(t, mockRunner)
+}
+
 func testStringArg(t *testing.T, got, expected, argumentName string) {
 	t.Helper()
 	if expected != got {
