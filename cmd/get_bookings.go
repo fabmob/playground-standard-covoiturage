@@ -14,23 +14,22 @@ import (
 
 var getBookingID string
 
-// bookingsCmd represents the bookings command
-var getBookingsCmd = &cobra.Command{
-	Use:     "bookings",
-	Short:   cmdDescription(test.GetBookingsEndpoint),
-	Long:    cmdDescription(test.GetBookingsEndpoint),
-	PreRunE: checkGetBookingsCmdFlags,
-	Run: func(cmd *cobra.Command, args []string) {
+var getBookingsCmd = makeEndpointCommand(test.GetBookingsEndpoint)
+
+func init() {
+
+	getBookingsCmd.PreRunE = checkGetBookingsCmdFlags
+
+	getBookingsCmd.Run = func(cmd *cobra.Command, args []string) {
 		URL, _ := url.JoinPath(server, "/bookings", getBookingID)
 		err := test.RunTest(http.MethodGet, URL, verbose, test.NewQuery(), nil, flags(http.StatusOK))
 		exitWithError(err)
-	},
-}
+	}
 
-func init() {
 	getBookingsCmd.Flags().StringVar(
 		&getBookingID, "bookingId", "", "bookingId path parameter",
 	)
+
 	getCmd.AddCommand(getBookingsCmd)
 }
 

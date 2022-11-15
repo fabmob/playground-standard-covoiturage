@@ -9,13 +9,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// bookingsCmd represents the bookings command
-var getMessagesCmd = &cobra.Command{
-	Use:     "bookings",
-	Short:   cmdDescription(test.PostMessagesEndpoint),
-	Long:    cmdDescription(test.PostMessagesEndpoint),
-	PreRunE: checkGetBookingsCmdFlags,
-	Run: func(cmd *cobra.Command, args []string) {
+var postMessagesCmd = makeEndpointCommand(test.PostMessagesEndpoint)
+
+func init() {
+	postMessagesCmd.PreRunE = checkGetBookingsCmdFlags
+
+	postMessagesCmd.Run = func(cmd *cobra.Command, args []string) {
 		var timeout = 100 * time.Millisecond
 
 		body, err := readBodyFromStdin(cmd, timeout)
@@ -27,7 +26,9 @@ var getMessagesCmd = &cobra.Command{
 			body,
 		)
 		exitWithError(err)
-	},
+	}
+
+	postCmd.AddCommand(postBookingsCmd)
 }
 
 func getMessagesRun(runner test.TestRunner, server string, body []byte) error {
@@ -43,8 +44,4 @@ func getMessagesRun(runner test.TestRunner, server string, body []byte) error {
 		body,
 		flags(http.StatusCreated),
 	)
-}
-
-func init() {
-	postCmd.AddCommand(postBookingsCmd)
 }

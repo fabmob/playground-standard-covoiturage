@@ -9,12 +9,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var postBookingsCmd = &cobra.Command{
-	Use:   "bookings",
-	Short: cmdDescription(test.PostBookingsEndpoint),
-	Long:  cmdDescription(test.PostBookingsEndpoint),
-	Run: func(cmd *cobra.Command, args []string) {
+var postBookingsCmd = makeEndpointCommand(test.PostBookingsEndpoint)
 
+func init() {
+	postBookingsCmd.Run = func(cmd *cobra.Command, args []string) {
 		var timeout = 100 * time.Millisecond
 
 		body, err := readBodyFromStdin(cmd, timeout)
@@ -23,10 +21,7 @@ var postBookingsCmd = &cobra.Command{
 		URL, _ := url.JoinPath(server, "/bookings")
 		err = test.RunTest(http.MethodPost, URL, verbose, test.NewQuery(), body, flags(http.StatusCreated))
 		exitWithError(err)
+	}
 
-	},
-}
-
-func init() {
 	postCmd.AddCommand(postBookingsCmd)
 }
