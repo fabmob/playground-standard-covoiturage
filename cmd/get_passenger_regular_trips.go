@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// passengerJourneysCmd represents the passengerJourneys command
 var passengerRegularTripsCmd = makeEndpointCommand(test.GetPassengerRegularTripsEndpoint)
 
 func init() {
@@ -18,6 +17,8 @@ func init() {
 		err := getPassengerRegularTripsRun(
 			test.NewDefaultRunner(),
 			server,
+			departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
+			timeDelta, departureRadius, arrivalRadius, count,
 		)
 		exitWithError(err)
 	}
@@ -50,8 +51,13 @@ func init() {
 	getCmd.AddCommand(passengerRegularTripsCmd)
 }
 
-func getPassengerRegularTripsRun(runner test.TestRunner, server string) error {
-	query := makeJourneyQuery()
+func getPassengerRegularTripsRun(
+	runner test.TestRunner,
+	server,
+	departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
+	timeDelta, departureRadius, arrivalRadius, count string,
+) error {
+	query := makeRegularTripQuery(departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay, timeDelta, departureRadius, arrivalRadius, count)
 	URL, _ := url.JoinPath(server, "/passenger_regular_trips")
 
 	return runner.Run(http.MethodGet, URL, verbose, query, nil, flags(http.StatusOK))

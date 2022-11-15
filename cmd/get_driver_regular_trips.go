@@ -25,6 +25,8 @@ func init() {
 		err := getDriverRegularTripsRun(
 			test.NewDefaultRunner(),
 			server,
+			departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
+			timeDelta, departureRadius, arrivalRadius, count,
 		)
 		exitWithError(err)
 	}
@@ -38,7 +40,7 @@ func init() {
 	driverRegularTripsCmd.Flags().StringVar(
 		&arrivalLng, "arrivalLng", "", "arrivalLng query parameter")
 	driverRegularTripsCmd.Flags().StringVar(
-		&departureDate, "departureTimeOfDay", "", "departureTimeOfDay query parameter")
+		&departureTimeOfDay, "departureTimeOfDay", "", "departureTimeOfDay query parameter")
 	driverRegularTripsCmd.Flags().StringSliceVar(
 		&departureWeekdays, "departureWeekdays", []string{}, "departureWeekdays query parameter")
 	driverRegularTripsCmd.Flags().StringVar(
@@ -57,32 +59,36 @@ func init() {
 	getCmd.AddCommand(driverRegularTripsCmd)
 }
 
-func getDriverRegularTripsRun(runner test.TestRunner, server string) error {
-	query := makeJourneyQuery()
+func getDriverRegularTripsRun(
+	runner test.TestRunner,
+	server string,
+	departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
+	timeDelta, departureRadius, arrivalRadius, count string,
+) error {
+	query := makeRegularTripQuery(departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay, timeDelta, departureRadius, arrivalRadius, count)
 	URL, _ := url.JoinPath(server, "/driver_regular_trips")
 
 	return runner.Run(http.MethodGet, URL, verbose, query, nil, flags(http.StatusOK))
 }
 
-func makeRegularTripQuery() test.Query {
+func makeRegularTripQuery(
+	departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
+	timeDelta, departureRadius, arrivalRadius, count string,
+) test.Query {
+
 	var query = test.NewQuery()
-	query.Params["departureLat"] = departureLat
-	query.Params["departureLng"] = departureLng
-	query.Params["arrivalLat"] = arrivalLat
-	query.Params["arrivalLng"] = arrivalLng
-	query.Params["departureDate"] = departureDate
-	if timeDelta != "" {
-		query.Params["timeDelta"] = timeDelta
-	}
-	if departureRadius != "" {
-		query.Params["departureRadius"] = departureRadius
-	}
-	if arrivalRadius != "" {
-		query.Params["arrivalRadius"] = arrivalRadius
-	}
-	if count != "" {
-		query.Params["count"] = count
-	}
+
+	query.SetParam("departureLat", departureLat)
+	query.SetParam("departureLng", departureLng)
+	query.SetParam("arrivalLat", arrivalLat)
+	query.SetParam("arrivalLng", arrivalLng)
+	query.SetParam("departureTimeOfDay", departureTimeOfDay)
+
+	query.SetOptionalParam("timeDelta", timeDelta)
+	query.SetOptionalParam("departureRadius", departureRadius)
+	query.SetOptionalParam("arrivalRadius", arrivalRadius)
+	query.SetOptionalParam("count", count)
+
 	return query
 }
 

@@ -14,7 +14,10 @@ var passengerJourneysCmd = makeEndpointCommand(test.GetPassengerJourneysEndpoint
 func init() {
 	passengerJourneysCmd.PreRunE = checkGetJourneysCmdFlags
 	passengerJourneysCmd.Run = func(cmd *cobra.Command, args []string) {
-		query := makeJourneyQuery()
+		query := makeJourneyQuery(
+			departureLat, departureLng, arrivalLat, arrivalLng, departureDate,
+			timeDelta, departureRadius, arrivalRadius, count,
+		)
 		URL, _ := url.JoinPath(server, "/passenger_journeys")
 		err := test.RunTest(http.MethodGet, URL, verbose, query, nil, flags(http.StatusOK))
 		exitWithError(err)

@@ -114,8 +114,17 @@ func TestPostBookingEventsCmd(t *testing.T) {
 
 func TestGetDriverRegularTripsCmd(t *testing.T) {
 	var (
-		server   = "https://localhost:9999"
-		expected = expectedData{
+		server             = "https://localhost:9999"
+		departureLat       = "0"
+		departureLng       = "1"
+		arrivalLat         = "2"
+		arrivalLng         = "3"
+		departureTimeOfDay = "4"
+		timeDelta          = "5"
+		departureRadius    = "6"
+		arrivalRadius      = "7"
+		count              = "8"
+		expected           = expectedData{
 			method:            http.MethodGet,
 			url:               "https://localhost:9999/driver_regular_trips",
 			defaultStatusCode: http.StatusOK,
@@ -124,7 +133,12 @@ func TestGetDriverRegularTripsCmd(t *testing.T) {
 	)
 
 	mockRunner := test.NewMockRunner()
-	err := getDriverRegularTripsRun(mockRunner, server)
+	err := getDriverRegularTripsRun(
+		mockRunner,
+		server,
+		departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
+		timeDelta, departureRadius, arrivalRadius, count,
+	)
 	panicIf(err)
 
 	expected.testArgs(t, mockRunner)
@@ -133,7 +147,15 @@ func TestGetDriverRegularTripsCmd(t *testing.T) {
 func TestGetPassengerRegularTripsCmd(t *testing.T) {
 	var (
 		server             = "https://localhost:9999"
-		departureTimeOfDay = "departureTimeOfDay"
+		departureLat       = "0"
+		departureLng       = "1"
+		arrivalLat         = "2"
+		arrivalLng         = "3"
+		departureTimeOfDay = "4"
+		timeDelta          = "5"
+		departureRadius    = "6"
+		arrivalRadius      = "7"
+		count              = "8"
 		expected           = expectedData{
 			method:            http.MethodGet,
 			url:               "https://localhost:9999/passenger_regular_trips",
@@ -143,7 +165,12 @@ func TestGetPassengerRegularTripsCmd(t *testing.T) {
 	)
 
 	mockRunner := test.NewMockRunner()
-	err := getPassengerRegularTripsRun(mockRunner, server)
+	err := getPassengerRegularTripsRun(
+		mockRunner,
+		server,
+		departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
+		timeDelta, departureRadius, arrivalRadius, count,
+	)
 	panicIf(err)
 
 	expected.testArgs(t, mockRunner)

@@ -28,7 +28,7 @@ func init() {
 	driverJourneysCmd.PreRunE = checkGetJourneysCmdFlags
 
 	driverJourneysCmd.Run = func(cmd *cobra.Command, args []string) {
-		query := makeJourneyQuery()
+		query := makeJourneyQuery(departureLat, departureLng, arrivalLat, arrivalLng, departureDate, timeDelta, departureRadius, arrivalRadius, count)
 		URL, _ := url.JoinPath(server, "/driver_journeys")
 		err := test.RunTest(http.MethodGet, URL, verbose, query, nil, flags(http.StatusOK))
 		exitWithError(err)
@@ -56,25 +56,20 @@ func init() {
 	getCmd.AddCommand(driverJourneysCmd)
 }
 
-func makeJourneyQuery() test.Query {
+func makeJourneyQuery(departureLat, departureLng, arrivalLat, arrivalLng, departureDate, timeDelta, departureRadius, arrivalRadius, count string) test.Query {
 	var query = test.NewQuery()
-	query.Params["departureLat"] = departureLat
-	query.Params["departureLng"] = departureLng
-	query.Params["arrivalLat"] = arrivalLat
-	query.Params["arrivalLng"] = arrivalLng
-	query.Params["departureDate"] = departureDate
-	if timeDelta != "" {
-		query.Params["timeDelta"] = timeDelta
-	}
-	if departureRadius != "" {
-		query.Params["departureRadius"] = departureRadius
-	}
-	if arrivalRadius != "" {
-		query.Params["arrivalRadius"] = arrivalRadius
-	}
-	if count != "" {
-		query.Params["count"] = count
-	}
+
+	query.SetParam("departureLat", departureLat)
+	query.SetParam("departureLng", departureLng)
+	query.SetParam("arrivalLat", arrivalLat)
+	query.SetParam("arrivalLng", arrivalLng)
+	query.SetParam("departureDate", departureDate)
+
+	query.SetOptionalParam("timeDelta", timeDelta)
+	query.SetOptionalParam("departureRadius", departureRadius)
+	query.SetOptionalParam("arrivalRadius", arrivalRadius)
+	query.SetOptionalParam("count", count)
+
 	return query
 }
 
