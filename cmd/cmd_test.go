@@ -71,7 +71,7 @@ func TestPatchBookingsCmd(t *testing.T) {
 	testStringArg(t, gotMessage, message, "message")
 }
 
-func TestPostMessages(t *testing.T) {
+func TestPostMessagesCmd(t *testing.T) {
 
 	var (
 		server   = "https://localhost:9999"
@@ -92,7 +92,7 @@ func TestPostMessages(t *testing.T) {
 	expected.testArgs(t, mockRunner)
 }
 
-func TestPostBookingEvents(t *testing.T) {
+func TestPostBookingEventsCmd(t *testing.T) {
 
 	var (
 		server   = "https://localhost:9999"
@@ -107,6 +107,24 @@ func TestPostBookingEvents(t *testing.T) {
 
 	mockRunner := test.NewMockRunner()
 	err := postBookingEventsRun(mockRunner, server, body)
+	panicIf(err)
+
+	expected.testArgs(t, mockRunner)
+}
+
+func TestGetDriverRegularTripsCmd(t *testing.T) {
+	var (
+		server   = "https://localhost:9999"
+		expected = expectedData{
+			method:            http.MethodGet,
+			url:               "https://localhost:9999/driver_regular_trips",
+			defaultStatusCode: http.StatusOK,
+			body:              nil,
+		}
+	)
+
+	mockRunner := test.NewMockRunner()
+	err := getDriverRegularTripsRun(mockRunner, server)
 	panicIf(err)
 
 	expected.testArgs(t, mockRunner)
