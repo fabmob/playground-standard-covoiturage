@@ -7,33 +7,6 @@ import (
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 )
 
-type expectedData struct {
-	method            string
-	url               string
-	defaultStatusCode int
-	body              []byte
-}
-
-func (expected expectedData) testArgs(t *testing.T, mockRunner *test.MockRunner) {
-	testStringArg(t, mockRunner.Method, expected.method, "method")
-
-	testStringArg(t, mockRunner.URL, expected.url, "URL")
-
-	testIntArg(t, mockRunner.Flags.ExpectedStatusCode,
-		expected.defaultStatusCode, "status code")
-
-	nilBodyExpected := expected.body == nil
-	nilBodyProvided := mockRunner.Body == nil
-
-	if nilBodyExpected && !nilBodyProvided {
-		t.Error("Body provided while none expected")
-	} else if !nilBodyExpected && nilBodyProvided {
-		t.Error("Required body is missing")
-	} else if !nilBodyExpected && !nilBodyProvided {
-		testStringArg(t, string(mockRunner.Body), string(expected.body), "body")
-	}
-}
-
 func TestPatchBookingsCmd(t *testing.T) {
 
 	var (
@@ -56,19 +29,8 @@ func TestPatchBookingsCmd(t *testing.T) {
 	// Test Assertions
 	expected.testArgs(t, mockRunner)
 
-	gotStatus, ok := mockRunner.Query.Params["status"]
-	if !ok {
-		t.Error("Missing query parameter status")
-	} else {
-		testStringArg(t, gotStatus, status, "status")
-	}
-
-	gotMessage, ok := mockRunner.Query.Params["message"]
-	if !ok {
-		t.Error("Missing query parameter message")
-	} else {
-		testStringArg(t, gotMessage, message, "message")
-	}
+	testQueryParam(t, mockRunner.Query, "status", status)
+	testQueryParam(t, mockRunner.Query, "message", message)
 }
 
 func TestPostMessagesCmd(t *testing.T) {
@@ -152,6 +114,7 @@ func TestGetPassengerRegularTripsCmd(t *testing.T) {
 		arrivalLat         = "2"
 		arrivalLng         = "3"
 		departureTimeOfDay = "4"
+		departureWeekdays  = "4"
 		timeDelta          = "5"
 		departureRadius    = "6"
 		arrivalRadius      = "7"
@@ -175,12 +138,10 @@ func TestGetPassengerRegularTripsCmd(t *testing.T) {
 
 	expected.testArgs(t, mockRunner)
 
-	gotDepartureTimeOfDay, ok := mockRunner.Query.Params["departureTimeOfDay"]
-	if !ok {
-		t.Error("Missing query parameter departureTimeOfDay")
-	} else {
-		testStringArg(t, gotDepartureTimeOfDay, departureTimeOfDay, "departureTimeOfDay")
-	}
+	testQueryParam(t, mockRunner.Query, "departureTimeOfDay", departureTimeOfDay)
+	testQueryParam(t, mockRunner.Query, "departureWeekdays", departureWeekdays)
+	/* testQueryParam(t, mockRunner.Query, "minDepartureDate", minDepartureDate) */
+	/* testQueryParam(t, mockRunner.Query, "maxDepartureDate", maxDepartureDate) */
 }
 
 func testStringArg(t *testing.T, got, expected, argumentName string) {
@@ -203,8 +164,44 @@ func testIntArg(t *testing.T, got, expected int, argumentName string) {
 	}
 }
 
+func testQueryParam(t *testing.T, query test.Query, param, value string) {
+	gotValue, ok := query.Params[param]
+	if !ok {
+		t.Errorf("Missing query parameter %s", param)
+	} else {
+		testStringArg(t, gotValue, value, param)
+	}
+}
+
 func panicIf(err error) {
 	if err != nil {
 		panic(err)
+	}
+}
+
+type expectedData struct {
+	method            string
+	url               string
+	defaultStatusCode int
+	body              []byte
+}
+
+func (expected expectedData) testArgs(t *testing.T, mockRunner *test.MockRunner) {
+	testStringArg(t, mockRunner.Method, expected.method, "method")
+
+	testStringArg(t, mockRunner.URL, expected.url, "URL")
+
+	testIntArg(t, mockRunner.Flags.ExpectedStatusCode,
+		expected.defaultStatusCode, "status code")
+
+	nilBodyExpected := expected.body == nil
+	nilBodyProvided := mockRunner.Body == nil
+
+	if nilBodyExpected && !nilBodyProvided {
+		t.Error("Body provided while none expected")
+	} else if !nilBodyExpected && nilBodyProvided {
+		t.Error("Required body is missing")
+	} else if !nilBodyExpected && !nilBodyProvided {
+		testStringArg(t, string(mockRunner.Body), string(expected.body), "body")
 	}
 }
