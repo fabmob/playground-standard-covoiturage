@@ -59,16 +59,16 @@ func TestPatchBookingsCmd(t *testing.T) {
 	gotStatus, ok := mockRunner.Query.Params["status"]
 	if !ok {
 		t.Error("Missing query parameter status")
+	} else {
+		testStringArg(t, gotStatus, status, "status")
 	}
-
-	testStringArg(t, gotStatus, status, "status")
 
 	gotMessage, ok := mockRunner.Query.Params["message"]
 	if !ok {
 		t.Error("Missing query parameter message")
+	} else {
+		testStringArg(t, gotMessage, message, "message")
 	}
-
-	testStringArg(t, gotMessage, message, "message")
 }
 
 func TestPostMessagesCmd(t *testing.T) {
@@ -132,8 +132,9 @@ func TestGetDriverRegularTripsCmd(t *testing.T) {
 
 func TestGetPassengerRegularTripsCmd(t *testing.T) {
 	var (
-		server   = "https://localhost:9999"
-		expected = expectedData{
+		server             = "https://localhost:9999"
+		departureTimeOfDay = "departureTimeOfDay"
+		expected           = expectedData{
 			method:            http.MethodGet,
 			url:               "https://localhost:9999/passenger_regular_trips",
 			defaultStatusCode: http.StatusOK,
@@ -146,6 +147,13 @@ func TestGetPassengerRegularTripsCmd(t *testing.T) {
 	panicIf(err)
 
 	expected.testArgs(t, mockRunner)
+
+	gotDepartureTimeOfDay, ok := mockRunner.Query.Params["departureTimeOfDay"]
+	if !ok {
+		t.Error("Missing query parameter departureTimeOfDay")
+	} else {
+		testStringArg(t, gotDepartureTimeOfDay, departureTimeOfDay, "departureTimeOfDay")
+	}
 }
 
 func testStringArg(t *testing.T, got, expected, argumentName string) {
