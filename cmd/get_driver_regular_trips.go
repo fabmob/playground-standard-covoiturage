@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/url"
 
@@ -41,6 +42,7 @@ func init() {
 		&arrivalLng, "arrivalLng", "", "arrivalLng query parameter")
 	driverRegularTripsCmd.Flags().StringVar(
 		&departureTimeOfDay, "departureTimeOfDay", "", "departureTimeOfDay query parameter")
+
 	driverRegularTripsCmd.Flags().StringSliceVar(
 		&departureWeekdays, "departureWeekdays", []string{}, "departureWeekdays query parameter")
 	driverRegularTripsCmd.Flags().StringVar(
@@ -65,15 +67,21 @@ func getDriverRegularTripsRun(
 	departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
 	timeDelta, departureRadius, arrivalRadius, count string,
 ) error {
-	query := makeRegularTripQuery(departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay, timeDelta, departureRadius, arrivalRadius, count)
+	query := makeRegularTripQuery(
+		departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
+		departureWeekdays, timeDelta, departureRadius, arrivalRadius, count,
+		minDepartureDate, maxDepartureDate,
+	)
 	URL, _ := url.JoinPath(server, "/driver_regular_trips")
 
 	return runner.Run(http.MethodGet, URL, verbose, query, nil, flags(http.StatusOK))
 }
 
 func makeRegularTripQuery(
-	departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
-	timeDelta, departureRadius, arrivalRadius, count string,
+	departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay string,
+	departureWeekdays []string,
+	timeDelta, departureRadius, arrivalRadius, count, minDepartureDate,
+	maxDepartureDate string,
 ) test.Query {
 
 	var query = test.NewQuery()
@@ -84,10 +92,14 @@ func makeRegularTripQuery(
 	query.SetParam("arrivalLng", arrivalLng)
 	query.SetParam("departureTimeOfDay", departureTimeOfDay)
 
+	departureWeekdaysBytes, _ := json.Marshal(departureWeekdays)
+	query.SetOptionalParam("departureWeekdays", string(departureWeekdaysBytes))
 	query.SetOptionalParam("timeDelta", timeDelta)
 	query.SetOptionalParam("departureRadius", departureRadius)
 	query.SetOptionalParam("arrivalRadius", arrivalRadius)
 	query.SetOptionalParam("count", count)
+	query.SetOptionalParam("minDepartureDate", minDepartureDate)
+	query.SetOptionalParam("maxDepartureDate", maxDepartureDate)
 
 	return query
 }

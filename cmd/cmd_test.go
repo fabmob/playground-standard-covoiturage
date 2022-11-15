@@ -108,18 +108,21 @@ func TestGetDriverRegularTripsCmd(t *testing.T) {
 
 func TestGetPassengerRegularTripsCmd(t *testing.T) {
 	var (
-		server             = "https://localhost:9999"
-		departureLat       = "0"
-		departureLng       = "1"
-		arrivalLat         = "2"
-		arrivalLng         = "3"
-		departureTimeOfDay = "4"
-		departureWeekdays  = "4"
-		timeDelta          = "5"
-		departureRadius    = "6"
-		arrivalRadius      = "7"
-		count              = "8"
-		expected           = expectedData{
+		server                    = "https://localhost:9999"
+		departureLat              = "0"
+		departureLng              = "1"
+		arrivalLat                = "2"
+		arrivalLng                = "3"
+		departureTimeOfDay        = "4"
+		departureWeekdays         = []string{"MON", "TUE"}
+		expectedDepartureWeekdays = "[\"MON\",\"TUE\"]"
+		timeDelta                 = "5"
+		departureRadius           = "6"
+		arrivalRadius             = "7"
+		count                     = "8"
+		minDepartureDate          = "9"
+		maxDepartureDate          = "10"
+		expected                  = expectedData{
 			method:            http.MethodGet,
 			url:               "https://localhost:9999/passenger_regular_trips",
 			defaultStatusCode: http.StatusOK,
@@ -132,16 +135,27 @@ func TestGetPassengerRegularTripsCmd(t *testing.T) {
 		mockRunner,
 		server,
 		departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
+		departureWeekdays,
 		timeDelta, departureRadius, arrivalRadius, count,
+		minDepartureDate, maxDepartureDate,
 	)
 	panicIf(err)
 
 	expected.testArgs(t, mockRunner)
 
+	testQueryParam(t, mockRunner.Query, "departureLat", departureLat)
+	testQueryParam(t, mockRunner.Query, "departureLat", departureLat)
+	testQueryParam(t, mockRunner.Query, "arrivalLng", arrivalLng)
+	testQueryParam(t, mockRunner.Query, "arrivalLng", arrivalLng)
 	testQueryParam(t, mockRunner.Query, "departureTimeOfDay", departureTimeOfDay)
-	testQueryParam(t, mockRunner.Query, "departureWeekdays", departureWeekdays)
-	/* testQueryParam(t, mockRunner.Query, "minDepartureDate", minDepartureDate) */
-	/* testQueryParam(t, mockRunner.Query, "maxDepartureDate", maxDepartureDate) */
+
+	testQueryParam(t, mockRunner.Query, "departureWeekdays", expectedDepartureWeekdays)
+	testQueryParam(t, mockRunner.Query, "timeDelta", timeDelta)
+	testQueryParam(t, mockRunner.Query, "departureRadius", departureRadius)
+	testQueryParam(t, mockRunner.Query, "arrivalRadius", arrivalRadius)
+	testQueryParam(t, mockRunner.Query, "count", count)
+	testQueryParam(t, mockRunner.Query, "minDepartureDate", minDepartureDate)
+	testQueryParam(t, mockRunner.Query, "maxDepartureDate", maxDepartureDate)
 }
 
 func testStringArg(t *testing.T, got, expected, argumentName string) {

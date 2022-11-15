@@ -18,7 +18,8 @@ func init() {
 			test.NewDefaultRunner(),
 			server,
 			departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
-			timeDelta, departureRadius, arrivalRadius, count,
+			departureWeekdays, timeDelta, departureRadius, arrivalRadius, count,
+			minDepartureDate, maxDepartureDate,
 		)
 		exitWithError(err)
 	}
@@ -54,10 +55,16 @@ func init() {
 func getPassengerRegularTripsRun(
 	runner test.TestRunner,
 	server,
-	departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
-	timeDelta, departureRadius, arrivalRadius, count string,
+	departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay string,
+	departureWeekdays []string,
+	timeDelta, departureRadius, arrivalRadius, count, minDepartureDate,
+	maxDepartureDate string,
 ) error {
-	query := makeRegularTripQuery(departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay, timeDelta, departureRadius, arrivalRadius, count)
+	query := makeRegularTripQuery(
+		departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
+		departureWeekdays, timeDelta, departureRadius, arrivalRadius, count,
+		minDepartureDate, maxDepartureDate,
+	)
 	URL, _ := url.JoinPath(server, "/passenger_regular_trips")
 
 	return runner.Run(http.MethodGet, URL, verbose, query, nil, flags(http.StatusOK))
