@@ -9,14 +9,9 @@ type testImplementation func(
 	Flags,
 )
 
-func testGetStatus(
-	request *http.Request,
-	response *http.Response,
-	a AssertionAccumulator,
-	flags Flags,
-) {
-	AssertStatusCodeOK(a, response)
-}
+//////////////////////////////////////////////////////////////
+// Tag "Search"
+//////////////////////////////////////////////////////////////
 
 // TestGetDriverJourneys .. Assumes non empty response.
 func testGetDriverJourneys(
@@ -52,14 +47,50 @@ func testGetPassengerJourneys(
 	testGetDriverJourneys(request, response, a, flags)
 }
 
-// testGetBookings currently assumes that the request returns a 200 response.
-func testGetBookings(
+func testGetDriverRegularTrips(
 	request *http.Request,
 	response *http.Response,
 	a AssertionAccumulator,
 	flags Flags,
 ) {
+	CriticAssertFormat(a, request, response)
+	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+}
 
+func testGetPassengerRegularTrips(
+	request *http.Request,
+	response *http.Response,
+	a AssertionAccumulator,
+	flags Flags,
+) {
+	CriticAssertFormat(a, request, response)
+	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+}
+
+//////////////////////////////////////////////////////////////
+// Tag "Webhooks"
+//////////////////////////////////////////////////////////////
+
+func testPostBookingEvents(
+	request *http.Request,
+	response *http.Response,
+	a AssertionAccumulator,
+	flags Flags,
+) {
+	CriticAssertFormat(a, request, response)
+	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+}
+
+//////////////////////////////////////////////////////////////
+// Tag "Interact"
+//////////////////////////////////////////////////////////////
+
+func testPostMessages(
+	request *http.Request,
+	response *http.Response,
+	a AssertionAccumulator,
+	flags Flags,
+) {
 	CriticAssertFormat(a, request, response)
 	AssertStatusCode(a, response, flags.ExpectedStatusCode)
 }
@@ -72,4 +103,39 @@ func testPostBookings(
 ) {
 	CriticAssertFormat(a, request, response)
 	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+}
+
+func testPatchBookings(
+	request *http.Request,
+	response *http.Response,
+	a AssertionAccumulator,
+	flags Flags,
+) {
+	CriticAssertFormat(a, request, response)
+	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+}
+
+// testGetBookings currently assumes that the request returns a 200 response.
+func testGetBookings(
+	request *http.Request,
+	response *http.Response,
+	a AssertionAccumulator,
+	flags Flags,
+) {
+
+	CriticAssertFormat(a, request, response)
+	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+}
+
+//////////////////////////////////////////////////////////////
+// Tag "status"
+//////////////////////////////////////////////////////////////
+
+func testGetStatus(
+	request *http.Request,
+	response *http.Response,
+	a AssertionAccumulator,
+	flags Flags,
+) {
+	AssertStatusCodeOK(a, response)
 }

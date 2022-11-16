@@ -6,10 +6,12 @@ require (
 	github.com/deepmap/oapi-codegen v1.12.2
 	github.com/getkin/kin-openapi v0.107.0
 	github.com/google/go-cmp v0.5.9
+	github.com/google/uuid v1.3.0
 	github.com/jpillora/go-tld v1.2.1
 	github.com/labstack/echo/v4 v4.9.1
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.6.1
+	github.com/stoewer/go-strcase v1.2.0
 	github.com/stretchr/testify v1.8.1
 	github.com/umahmood/haversine v0.0.0-20151105152445-808ab04add26
 )
@@ -19,7 +21,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/swag v0.21.1 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/invopop/yaml v0.1.0 // indirect

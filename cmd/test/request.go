@@ -27,6 +27,19 @@ func (qp *Query) String() string {
 	return str
 }
 
+// SetParam sets a query parameter. If key already exists, it is overwritten.
+func (qp *Query) SetParam(key, value string) {
+	qp.Params[key] = value
+}
+
+// SetOptionalParam sets a query parameter, only if the value is not "". If
+// key already exists, it may be overwritten.
+func (qp *Query) SetOptionalParam(key, value string) {
+	if value != "" {
+		qp.Params[key] = value
+	}
+}
+
 // Set implements pflag.Value.Set (cobra flags)
 func (qp *Query) Set(s string) error {
 	parts := strings.SplitN(s, "=", 2)
