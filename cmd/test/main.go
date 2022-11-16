@@ -23,6 +23,7 @@ func (*DefaultRunner) Run(method, URL string, verbose bool, query Query, body []
 	if err != nil {
 		return nil
 	}
+	fmt.Println(req)
 
 	AddQueryParameters(query, req)
 
