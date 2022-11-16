@@ -11,10 +11,17 @@ var serveCmd = &cobra.Command{
 	Short: "Serves a test API enforcing the standard covoitrage specification",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		service.Run()
+		if backgroundProcess {
+			go service.Run()
+		} else {
+			service.Run()
+		}
 	},
 }
 
+var backgroundProcess bool
+
 func init() {
+	serveCmd.Flags().BoolVar(&backgroundProcess, "bg", false, "Run the server in a background process")
 	rootCmd.AddCommand(serveCmd)
 }

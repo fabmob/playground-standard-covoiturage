@@ -29,7 +29,7 @@ func init() {
 	driverJourneysCmd.Run = func(cmd *cobra.Command, args []string) {
 		query := makeJourneyQuery(departureLat, departureLng, arrivalLat, arrivalLng, departureDate, timeDelta, departureRadius, arrivalRadius, count)
 		URL, _ := url.JoinPath(server, "/driver_journeys")
-		err := test.RunTest(http.MethodGet, URL, verbose, query, nil, flags(http.StatusOK))
+		err := test.RunTest(http.MethodGet, URL, verbose, query, nil, apiKey, flags(http.StatusOK))
 		exitWithError(err)
 	}
 

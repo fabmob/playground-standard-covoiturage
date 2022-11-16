@@ -18,7 +18,8 @@ func init() {
 
 	getBookingsCmd.Run = func(cmd *cobra.Command, args []string) {
 		URL, _ := url.JoinPath(server, "/bookings", getBookingID)
-		err := test.RunTest(http.MethodGet, URL, verbose, test.NewQuery(), nil, flags(http.StatusOK))
+		err := test.RunTest(http.MethodGet, URL, verbose, test.NewQuery(), nil,
+			apiKey, flags(http.StatusOK))
 		exitWithError(err)
 	}
 
