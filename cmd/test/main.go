@@ -2,7 +2,6 @@ package test
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/pkg/errors"
 )
@@ -45,16 +44,4 @@ func (*DefaultRunner) Run(method, URL string, verbose bool, query Query, body []
 func RunTest(method, URL string, verbose bool, query Query, body []byte, apiKey string, flags Flags) error {
 	runner := DefaultRunner{}
 	return runner.Run(method, URL, verbose, query, body, apiKey, flags)
-}
-
-const authentificationHeader = "X-API-Key"
-
-func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request, error) {
-	req, err := http.NewRequest(method, URL, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set(authentificationHeader, apiKey)
-	return req, err
 }
