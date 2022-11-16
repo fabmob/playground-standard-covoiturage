@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// driverJourneysCmd represents the driverJourneys command
 var driverRegularTripsCmd = makeEndpointCommand(test.GetDriverRegularTripsEndpoint)
 
 var (

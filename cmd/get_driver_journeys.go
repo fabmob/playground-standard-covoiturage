@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// driverJourneysCmd represents the driverJourneys command
 var driverJourneysCmd = makeEndpointCommand(test.GetDriverJourneysEndpoint)
 
 var (

@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// passengerJourneysCmd represents the passengerJourneys command
 var passengerJourneysCmd = makeEndpointCommand(test.GetPassengerJourneysEndpoint)
 
 func init() {
