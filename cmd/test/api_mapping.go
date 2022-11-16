@@ -14,9 +14,6 @@ var apiMapping = map[Endpoint]ResponseTestFun{}
 // GetAPIMapping returns the mapping between endpoint and the associated test
 // function
 func GetAPIMapping() map[Endpoint]ResponseTestFun {
-	if len(apiMapping) == 0 {
-		initAPIMapping()
-	}
 	return apiMapping
 }
 

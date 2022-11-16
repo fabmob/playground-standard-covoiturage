@@ -2,8 +2,7 @@ package test
 
 import "net/http"
 
-// initAPIMapping associates every available test to a given endpoint
-func initAPIMapping() {
+func init() {
 	// Tag "Search"
 
 	Register(TestGetDriverJourneysResponse, GetDriverJourneysEndpoint)
