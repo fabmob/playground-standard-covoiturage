@@ -20,9 +20,9 @@ func NewDefaultRunner() *DefaultRunner {
 // Run runs the cli validation and returns an exit code
 func (*DefaultRunner) Run(method, URL string, verbose bool, query Query, body []byte, apiKey string, flags Flags) error {
 
-	req, err := http.NewRequest(method, URL, nil)
+	req, err := makeRequest(method, URL, body, apiKey)
 	if err != nil {
-		return err
+		return nil
 	}
 
 	AddQueryParameters(query, req)
@@ -45,4 +45,8 @@ func (*DefaultRunner) Run(method, URL string, verbose bool, query Query, body []
 func RunTest(method, URL string, verbose bool, query Query, body []byte, apiKey string, flags Flags) error {
 	runner := DefaultRunner{}
 	return runner.Run(method, URL, verbose, query, body, apiKey, flags)
+}
+
+func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request, error) {
+	return http.NewRequest(method, URL, nil)
 }
