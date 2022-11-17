@@ -7,6 +7,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
+	"github.com/getkin/kin-openapi/routers"
 	"github.com/getkin/kin-openapi/routers/gorillamux"
 
 	"github.com/fabmob/playground-standard-covoiturage/spec"
@@ -14,26 +15,14 @@ import (
 
 // Response validates a Response against the openapi specification.
 func validateResponse(request *http.Request, response *http.Response) error {
+	server, _, err := SplitServerEndpoint(request.Method, request.URL.String())
+	if err != nil {
+		return err
+	}
+
 	ctx := context.Background()
-	loader := &openapi3.Loader{Context: ctx, IsExternalRefsAllowed: true}
 
-	doc, loadingErr := loader.LoadFromData(spec.OpenAPISpec)
-	if loadingErr != nil {
-		panic(loadingErr) // Error only if problem with module internals
-	}
-
-	specValidationErr := doc.Validate(ctx)
-	if specValidationErr != nil {
-		panic(specValidationErr) // Error only if problem with module internals
-	}
-
-	router, routerErr := gorillamux.NewRouter(doc)
-	if routerErr != nil {
-		panic(routerErr) // Error only if problem with module internals
-	}
-
-	// Find route
-	route, pathParams, err := router.FindRoute(request)
+	route, pathParams, err := findRoute(ctx, request, server)
 	if err != nil {
 		return err
 	}
@@ -61,4 +50,27 @@ func validateResponse(request *http.Request, response *http.Response) error {
 	validationErr := openapi3filter.ValidateResponse(ctx, responseValidationInput)
 
 	return validationErr
+}
+
+func findRoute(ctx context.Context, request *http.Request, server string) (route *routers.Route, pathParams map[string]string, err error) {
+	loader := &openapi3.Loader{Context: ctx, IsExternalRefsAllowed: true}
+
+	doc, loadingErr := loader.LoadFromData(spec.OpenAPISpec)
+	if loadingErr != nil {
+		panic(loadingErr) // Error only if problem with module internals
+	}
+
+	doc.Servers = openapi3.Servers{&openapi3.Server{URL: server}}
+
+	specValidationErr := doc.Validate(ctx)
+	if specValidationErr != nil {
+		panic(specValidationErr) // Error only if problem with module internals
+	}
+
+	router, routerErr := gorillamux.NewRouter(doc)
+	if routerErr != nil {
+		panic(routerErr) // Error only if problem with module internals
+	}
+
+	return router.FindRoute(request)
 }

@@ -5,6 +5,8 @@ import (
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 )
 
+const fakeServer = "http://localhost:1323"
+
 func makeNDriverJourneys(n int) []api.DriverJourney {
 	driverJourneys := make([]api.DriverJourney, 0, n)
 

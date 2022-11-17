@@ -12,6 +12,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+const fakeServer = "https://localhost:1323"
+
 // MockClient is an HTTP client that returns always the same response or
 // error, and stores the requests that are made.
 type MockClient struct {
@@ -254,4 +256,10 @@ func (mr *MockRunner) Run(
 
 func NewMockRunner() *MockRunner {
 	return &MockRunner{}
+}
+
+// emptyRequest returns an empty *http.Request to the endpoint
+func emptyRequest(e Endpoint) *http.Request {
+	request, _ := http.NewRequest(e.Method, fakeServer+e.Path, nil)
+	return request
 }
