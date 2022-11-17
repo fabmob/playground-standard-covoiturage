@@ -70,7 +70,8 @@ func (s *StdCovServerImpl) GetDriverJourneys(
 	}
 
 	if params.Count != nil {
-		response = response[0:*params.Count]
+		maxNResponses := Min(len(response), *params.Count)
+		response = response[0:maxNResponses]
 	}
 
 	return ctx.JSON(http.StatusOK, response)
