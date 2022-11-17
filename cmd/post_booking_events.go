@@ -36,6 +36,5 @@ func postBookingEventsRun(runner test.TestRunner, server string, body []byte) er
 		return err
 	}
 
-	return runner.Run(http.MethodPost, URL, verbose, query, body,
-		flags(http.StatusOK))
+	return runner.Run(http.MethodPost, URL, verbose, query, body, apiKey, flags(http.StatusOK))
 }

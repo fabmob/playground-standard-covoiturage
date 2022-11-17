@@ -231,6 +231,7 @@ type MockRunner struct {
 	Verbose bool
 	Query   Query
 	Body    []byte
+	APIKey  string
 	Flags   Flags
 }
 
@@ -241,6 +242,7 @@ func (mr *MockRunner) Run(
 	verbose bool,
 	query Query,
 	body []byte,
+	apiKey string,
 	flags Flags,
 ) error {
 
@@ -249,6 +251,7 @@ func (mr *MockRunner) Run(
 	mr.Verbose = verbose
 	mr.Query = query
 	mr.Body = body
+	mr.APIKey = apiKey
 	mr.Flags = flags
 
 	return nil

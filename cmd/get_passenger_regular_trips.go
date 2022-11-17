@@ -67,5 +67,5 @@ func getPassengerRegularTripsRun(
 	)
 	URL, _ := url.JoinPath(server, "/passenger_regular_trips")
 
-	return runner.Run(http.MethodGet, URL, verbose, query, nil, flags(http.StatusOK))
+	return runner.Run(http.MethodGet, URL, verbose, query, nil, apiKey, flags(http.StatusOK))
 }

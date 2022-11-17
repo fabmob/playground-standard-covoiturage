@@ -2,13 +2,10 @@ package test
 
 import (
 	"fmt"
-	"net/http"
-
-	"github.com/pkg/errors"
 )
 
 type TestRunner interface {
-	Run(method, URL string, verbose bool, query Query, body []byte, flags Flags) error
+	Run(method, URL string, verbose bool, query Query, body []byte, apiKey string, flags Flags) error
 }
 
 type DefaultRunner struct{}
@@ -18,9 +15,9 @@ func NewDefaultRunner() *DefaultRunner {
 }
 
 // Run runs the cli validation and returns an exit code
-func (*DefaultRunner) Run(method, URL string, verbose bool, query Query, body []byte, flags Flags) error {
+func (*DefaultRunner) Run(method, URL string, verbose bool, query Query, body []byte, apiKey string, flags Flags) error {
 
-	req, err := http.NewRequest(method, URL, nil)
+	req, err := makeRequest(method, URL, body, apiKey)
 	if err != nil {
 		return err
 	}
@@ -36,13 +33,13 @@ func (*DefaultRunner) Run(method, URL string, verbose bool, query Query, body []
 	fmt.Println(report)
 
 	if report.hasErrors() {
-		return errors.New(report.String())
+		return fmt.Errorf("❌ %d failed assertion(s) ", report.countErrors())
 	}
 
 	return nil
 }
 
-func RunTest(method, URL string, verbose bool, query Query, body []byte, flags Flags) error {
+func RunTest(method, URL string, verbose bool, query Query, body []byte, apiKey string, flags Flags) error {
 	runner := DefaultRunner{}
-	return runner.Run(method, URL, verbose, query, body, flags)
+	return runner.Run(method, URL, verbose, query, body, apiKey, flags)
 }

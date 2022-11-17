@@ -55,7 +55,7 @@ func patchBookingsRun(runner test.TestRunner, server, bookingID, status, message
 		return err
 	}
 
-	return runner.Run(http.MethodPatch, URL, verbose, query, nil, flags(http.StatusOK))
+	return runner.Run(http.MethodPatch, URL, verbose, query, nil, apiKey, flags(http.StatusOK))
 }
 
 func checkPatchBookingsCmdFlags(cmd *cobra.Command, args []string) error {

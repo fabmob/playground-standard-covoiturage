@@ -73,7 +73,7 @@ func getDriverRegularTripsRun(
 	)
 	URL, _ := url.JoinPath(server, "/driver_regular_trips")
 
-	return runner.Run(http.MethodGet, URL, verbose, query, nil, flags(http.StatusOK))
+	return runner.Run(http.MethodGet, URL, verbose, query, nil, apiKey, flags(http.StatusOK))
 }
 
 func makeRegularTripQuery(

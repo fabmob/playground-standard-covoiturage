@@ -6,6 +6,18 @@ import (
 	"strings"
 )
 
+const authentificationHeader = "X-API-Key"
+
+func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request, error) {
+	req, err := http.NewRequest(method, URL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set(authentificationHeader, apiKey)
+	return req, err
+}
+
 // Query implements flag.Value interface to store query parameters
 type Query struct {
 	Params map[string]string
