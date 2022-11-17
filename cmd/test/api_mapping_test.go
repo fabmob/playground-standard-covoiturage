@@ -67,6 +67,15 @@ func TestSplitServerEndpoint(t *testing.T) {
 			GetBookingsEndpoint,
 			false,
 		},
+
+		{
+			"more complex case 4: real example",
+			http.MethodGet,
+			"https://api-host.preprod-ab.some-domain.fr/api/path/1ab2c34-56d-343e21-f0g/other_stuff/driver_journeys?departureLat=48.8588548&departureLng=2.264463&arrivalLat=47.8733876&arrivalLng=1.8296428&departureDate=1668608335&timeDelta=100000&departureRadius=10&arrivalRadius=10",
+			"https://api-host.preprod-ab.some-domain.fr/api/path/1ab2c34-56d-343e21-f0g/other_stuff",
+			GetDriverJourneysEndpoint,
+			false,
+		},
 	}
 
 	for _, tc := range testCases {
