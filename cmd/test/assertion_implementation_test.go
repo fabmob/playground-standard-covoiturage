@@ -134,8 +134,8 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 
 	var (
 		// Test requests
-		driverJourneysRequest    = GetDriverJourneysEndpoint.emptyRequest()
-		passengerJourneysRequest = GetPassengerJourneysEndpoint.emptyRequest()
+		driverJourneysRequest    = emptyRequest(GetDriverJourneysEndpoint)
+		passengerJourneysRequest = emptyRequest(GetPassengerJourneysEndpoint)
 
 		// Test bodies
 		emptyDriverJourneysBody    = marshalBody([]api.DriverJourney{})

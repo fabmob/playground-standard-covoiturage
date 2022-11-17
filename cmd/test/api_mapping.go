@@ -2,7 +2,6 @@ package test
 
 import (
 	"fmt"
-	"net/http"
 	"net/url"
 	"path"
 	"strings"
@@ -41,12 +40,6 @@ func NewEndpointWithParam(method, path string) Endpoint {
 // String implements the Stringer interface for Endpoint type
 func (e Endpoint) String() string {
 	return e.Method + " " + e.Path
-}
-
-// emptyRequest returns an empty *http.Request to the endpoint
-func (e Endpoint) emptyRequest() *http.Request {
-	request, _ := http.NewRequest(e.Method, e.Path, nil)
-	return request
 }
 
 // SelectTestFuns returns the test functions related to a given request.

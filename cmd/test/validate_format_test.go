@@ -1,15 +1,15 @@
 package test
 
 import (
+	"context"
 	"net/http"
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 )
 
-func TestWrongStatusCode(t *testing.T) {
+func TestUndocumentedStatusCode(t *testing.T) {
 	var (
-		fakeServer    = ""
 		invalidStatus = http.StatusLoopDetected
 	)
 	request, err := api.NewGetDriverJourneysRequest(fakeServer, &api.GetDriverJourneysParams{})
@@ -20,6 +20,23 @@ func TestWrongStatusCode(t *testing.T) {
 	validationErr := validateResponse(request, response)
 	if validationErr == nil {
 		t.Error("Format validation is expected to fail for undocumented status code")
+	}
+
+}
+
+func TestFindRoute(t *testing.T) {
+	server := "https://abc.fr/abc"
+	url := server + "/driver_journeys"
+
+	request, err := http.NewRequest("GET", url, nil)
+	panicIf(err)
+
+	ctx := context.Background()
+
+	_, _, err = findRoute(ctx, request, server)
+	if err != nil {
+		t.Log(server)
+		t.Error("Format validation with kin-openapi does not find route properly")
 	}
 
 }

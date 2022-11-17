@@ -13,8 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var fakeServer = "https:localhost:1323"
-
 func TestDriverJourneys(t *testing.T) {
 	var (
 		coordsIgnore = util.Coord{Lat: 0, Lon: 0}
@@ -355,7 +353,7 @@ func TestPassengerJourneys(t *testing.T) {
 func TestGetBookings(t *testing.T) {
 	var bookingID = uuid.New()
 
-	request, err := api.NewGetBookingsRequest("", bookingID)
+	request, err := api.NewGetBookingsRequest(fakeServer, bookingID)
 	panicIf(err)
 
 	// Setup testing server with response recorder
@@ -379,7 +377,7 @@ func TestGetBookings(t *testing.T) {
 
 func TestPostBookings(t *testing.T) {
 
-	request, err := api.NewPostBookingsRequest("", api.Booking{})
+	request, err := api.NewPostBookingsRequest(fakeServer, api.Booking{})
 	panicIf(err)
 
 	// Setup testing server with response recorder
