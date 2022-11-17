@@ -25,13 +25,18 @@ func TestDriverJourneys(t *testing.T) {
 	)
 
 	testCases := []struct {
-		name              string
-		testParams        api.GetJourneysParams
-		testData          []api.DriverJourney
-		expectEmptyResult bool
+		name                 string
+		testParams           api.GetJourneysParams
+		testData             []api.DriverJourney
+		expectNonEmptyResult bool
 	}{
 
-		{"No data", &api.GetDriverJourneysParams{}, []api.DriverJourney{}, true},
+		{
+			"No data",
+			&api.GetDriverJourneysParams{},
+			[]api.DriverJourney{},
+			false,
+		},
 
 		{
 			"Departure radius 1",
@@ -40,7 +45,7 @@ func TestDriverJourneys(t *testing.T) {
 				makeDriverJourneyAtCoords(coords900m, coordsIgnore),
 				makeDriverJourneyAtCoords(coords1100m, coordsIgnore),
 			},
-			false,
+			true,
 		},
 
 		{
@@ -50,7 +55,7 @@ func TestDriverJourneys(t *testing.T) {
 				makeDriverJourneyAtCoords(coords900m, coordsIgnore),
 				makeDriverJourneyAtCoords(coords2100m, coordsIgnore),
 			},
-			false,
+			true,
 		},
 
 		{
@@ -59,7 +64,7 @@ func TestDriverJourneys(t *testing.T) {
 			[]api.DriverJourney{
 				makeDriverJourneyAtCoords(coords1100m, coordsIgnore),
 			},
-			true,
+			false,
 		},
 
 		{
@@ -68,7 +73,7 @@ func TestDriverJourneys(t *testing.T) {
 			[]api.DriverJourney{
 				makeDriverJourneyAtCoords(coords900m, coordsIgnore),
 			},
-			false,
+			true,
 		},
 
 		{
@@ -78,7 +83,7 @@ func TestDriverJourneys(t *testing.T) {
 				makeDriverJourneyAtCoords(coordsIgnore, coords900m),
 				makeDriverJourneyAtCoords(coordsIgnore, coords1100m),
 			},
-			false,
+			true,
 		},
 
 		{
@@ -88,7 +93,7 @@ func TestDriverJourneys(t *testing.T) {
 				makeDriverJourneyAtCoords(coordsIgnore, coords2100m),
 				makeDriverJourneyAtCoords(coordsIgnore, coords900m),
 			},
-			false,
+			true,
 		},
 
 		{
@@ -97,7 +102,7 @@ func TestDriverJourneys(t *testing.T) {
 			[]api.DriverJourney{
 				makeDriverJourneyAtCoords(coordsIgnore, coords1100m),
 			},
-			true,
+			false,
 		},
 
 		{
@@ -106,7 +111,7 @@ func TestDriverJourneys(t *testing.T) {
 			[]api.DriverJourney{
 				makeDriverJourneyAtCoords(coordsIgnore, coords900m),
 			},
-			false,
+			true,
 		},
 
 		{
@@ -115,7 +120,7 @@ func TestDriverJourneys(t *testing.T) {
 			[]api.DriverJourney{
 				makeDriverJourneyAtDate(5),
 			},
-			false,
+			true,
 		},
 
 		{
@@ -124,7 +129,7 @@ func TestDriverJourneys(t *testing.T) {
 			[]api.DriverJourney{
 				makeDriverJourneyAtDate(15),
 			},
-			true,
+			false,
 		},
 
 		{
@@ -134,35 +139,35 @@ func TestDriverJourneys(t *testing.T) {
 				makeDriverJourneyAtDate(25),
 				makeDriverJourneyAtDate(15),
 			},
-			false,
+			true,
 		},
 
 		{
 			"Count 1",
 			makeParamsWithCount(1, "driver"),
 			makeNDriverJourneys(1),
-			false,
+			true,
 		},
 
 		{
 			"Count 2",
 			makeParamsWithCount(0, "driver"),
 			makeNDriverJourneys(1),
-			true,
+			false,
 		},
 
 		{
 			"Count 3",
 			makeParamsWithCount(2, "driver"),
 			makeNDriverJourneys(4),
-			false,
+			true,
 		},
 
 		{
 			"Count 4 - count > n driver journeys",
 			makeParamsWithCount(1, "driver"),
 			makeNDriverJourneys(0),
-			true,
+			false,
 		},
 	}
 
@@ -172,7 +177,7 @@ func TestDriverJourneys(t *testing.T) {
 				t,
 				tc.testParams,
 				tc.testData,
-				tc.expectEmptyResult,
+				tc.expectNonEmptyResult,
 			)
 		})
 	}
@@ -188,13 +193,18 @@ func TestPassengerJourneys(t *testing.T) {
 	)
 
 	testCases := []struct {
-		name              string
-		testParams        api.GetJourneysParams
-		testData          []api.PassengerJourney
-		expectEmptyResult bool
+		name                 string
+		testParams           api.GetJourneysParams
+		testData             []api.PassengerJourney
+		expectNonEmptyResult bool
 	}{
 
-		{"No data", &api.GetPassengerJourneysParams{}, []api.PassengerJourney{}, true},
+		{
+			"No data",
+			&api.GetPassengerJourneysParams{},
+			[]api.PassengerJourney{},
+			false,
+		},
 
 		{
 			"Departure radius 0",
@@ -202,7 +212,7 @@ func TestPassengerJourneys(t *testing.T) {
 			[]api.PassengerJourney{
 				makePassengerJourneyAtCoords(coords900m, coordsIgnore),
 			},
-			false,
+			true,
 		},
 
 		{
@@ -212,7 +222,7 @@ func TestPassengerJourneys(t *testing.T) {
 				makePassengerJourneyAtCoords(coords900m, coordsIgnore),
 				makePassengerJourneyAtCoords(coords1100m, coordsIgnore),
 			},
-			false,
+			true,
 		},
 
 		{
@@ -222,7 +232,7 @@ func TestPassengerJourneys(t *testing.T) {
 				makePassengerJourneyAtCoords(coords900m, coordsIgnore),
 				makePassengerJourneyAtCoords(coords2100m, coordsIgnore),
 			},
-			false,
+			true,
 		},
 
 		{
@@ -231,7 +241,7 @@ func TestPassengerJourneys(t *testing.T) {
 			[]api.PassengerJourney{
 				makePassengerJourneyAtCoords(coords1100m, coordsIgnore),
 			},
-			true,
+			false,
 		},
 
 		{
@@ -241,7 +251,7 @@ func TestPassengerJourneys(t *testing.T) {
 				makePassengerJourneyAtCoords(coordsIgnore, coords900m),
 				makePassengerJourneyAtCoords(coordsIgnore, coords1100m),
 			},
-			false,
+			true,
 		},
 
 		{
@@ -251,7 +261,7 @@ func TestPassengerJourneys(t *testing.T) {
 				makePassengerJourneyAtCoords(coordsIgnore, coords2100m),
 				makePassengerJourneyAtCoords(coordsIgnore, coords900m),
 			},
-			false,
+			true,
 		},
 
 		{
@@ -260,7 +270,7 @@ func TestPassengerJourneys(t *testing.T) {
 			[]api.PassengerJourney{
 				makePassengerJourneyAtCoords(coordsIgnore, coords1100m),
 			},
-			true,
+			false,
 		},
 
 		{
@@ -269,7 +279,7 @@ func TestPassengerJourneys(t *testing.T) {
 			[]api.PassengerJourney{
 				makePassengerJourneyAtCoords(coordsIgnore, coords900m),
 			},
-			false,
+			true,
 		},
 
 		{
@@ -278,7 +288,7 @@ func TestPassengerJourneys(t *testing.T) {
 			[]api.PassengerJourney{
 				makePassengerJourneyAtDate(5),
 			},
-			false,
+			true,
 		},
 
 		{
@@ -287,7 +297,7 @@ func TestPassengerJourneys(t *testing.T) {
 			[]api.PassengerJourney{
 				makePassengerJourneyAtDate(15),
 			},
-			true,
+			false,
 		},
 
 		{
@@ -297,35 +307,35 @@ func TestPassengerJourneys(t *testing.T) {
 				makePassengerJourneyAtDate(25),
 				makePassengerJourneyAtDate(15),
 			},
-			false,
+			true,
 		},
 
 		{
 			"Count 1",
 			makeParamsWithCount(1, "passenger"),
 			makeNPassengerJourneys(1),
-			false,
+			true,
 		},
 
 		{
 			"Count 2",
 			makeParamsWithCount(0, "passenger"),
 			makeNPassengerJourneys(1),
-			true,
+			false,
 		},
 
 		{
 			"Count 3",
 			makeParamsWithCount(2, "passenger"),
 			makeNPassengerJourneys(4),
-			false,
+			true,
 		},
 
 		{
 			"Count 4 - count > n passenger journeys",
 			makeParamsWithCount(1, "passenger"),
 			makeNPassengerJourneys(0),
-			true,
+			false,
 		},
 	}
 
@@ -336,7 +346,7 @@ func TestPassengerJourneys(t *testing.T) {
 				t,
 				tc.testParams,
 				tc.testData,
-				tc.expectEmptyResult,
+				tc.expectNonEmptyResult,
 			)
 		})
 	}
@@ -395,31 +405,31 @@ func testGetDriverJourneyRequestWithData(
 	t *testing.T,
 	params api.GetJourneysParams,
 	testData []api.DriverJourney,
-	expectEmpty bool,
+	expectNonEmpty bool,
 ) {
 
 	mockDB := NewMockDB()
 	mockDB.DriverJourneys = testData
 	testFunction := test.TestGetDriverJourneysResponse
 
-	testGetJourneys(t, params, mockDB, testFunction, expectEmpty)
+	testGetJourneys(t, params, mockDB, testFunction, expectNonEmpty)
 }
 
 func testGetPassengerJourneyRequestWithData(
 	t *testing.T,
 	params api.GetJourneysParams,
 	testData []api.PassengerJourney,
-	expectEmpty bool,
+	expectNonEmpty bool,
 ) {
 
 	mockDB := NewMockDB()
 	mockDB.PassengerJourneys = testData
 	testFunction := test.TestGetPassengerJourneysResponse
 
-	testGetJourneys(t, params, mockDB, testFunction, expectEmpty)
+	testGetJourneys(t, params, mockDB, testFunction, expectNonEmpty)
 }
 
-func testGetJourneys(t *testing.T, params api.GetJourneysParams, mockDB *MockDB, f test.ResponseTestFun, expectEmpty bool) {
+func testGetJourneys(t *testing.T, params api.GetJourneysParams, mockDB *MockDB, f test.ResponseTestFun, expectNonEmpty bool) {
 	t.Helper()
 
 	// Build request
@@ -440,7 +450,7 @@ func testGetJourneys(t *testing.T, params api.GetJourneysParams, mockDB *MockDB,
 	// Check response
 	response := rec.Result()
 	flags := test.NewFlags()
-	flags.DisallowEmpty = !expectEmpty
+	flags.DisallowEmpty = expectNonEmpty
 	assertionResults := f(request, response, flags)
 
 	checkAssertionResults(t, assertionResults)
