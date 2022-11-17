@@ -136,3 +136,15 @@ In alphabetic order:
 | assert response status code X  | Checks that the status code X is returned.                                              |
 | assert unique ids              | Checks that the response objects have no duplicated "id" property.                         |
 
+
+## Roadmap until first release
+
+* [ ] Fix issue #25
+* [ ] Implement server with unit tests
+* [ ] Export unit test data and generate make unit test commands for reuse
+* [ ] Cross platform release with goreleaser
+* [ ] Add new custom assertions to current tests
+* [ ] Update documentation
+* [ ] Add license
+* [ ] Add Changelog
+* [ ] Tag and release in github 
