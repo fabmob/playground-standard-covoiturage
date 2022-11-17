@@ -70,7 +70,7 @@ func (s *StdCovServerImpl) GetDriverJourneys(
 	}
 
 	if params.Count != nil {
-		response = response[0:*params.Count]
+		response = keepNFirst(response, *params.Count)
 	}
 
 	return ctx.JSON(http.StatusOK, response)
@@ -138,7 +138,7 @@ func (s *StdCovServerImpl) GetPassengerJourneys(
 	}
 
 	if params.Count != nil {
-		response = response[0:*params.Count]
+		response = keepNFirst(response, *params.Count)
 	}
 
 	return ctx.JSON(http.StatusOK, response)
