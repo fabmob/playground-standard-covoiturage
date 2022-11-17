@@ -155,6 +155,13 @@ func TestDriverJourneys(t *testing.T) {
 			"Count 3",
 			makeParamsWithCount(2, "driver"),
 			makeNDriverJourneys(4),
+			false,
+		},
+
+		{
+			"Count 4 - count > n driver journeys",
+			makeParamsWithCount(1, "driver"),
+			makeNDriverJourneys(0),
 			true,
 		},
 	}
