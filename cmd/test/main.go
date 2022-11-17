@@ -19,7 +19,7 @@ func (*DefaultRunner) Run(method, URL string, verbose bool, query Query, body []
 
 	req, err := makeRequest(method, URL, body, apiKey)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	AddQueryParameters(query, req)
