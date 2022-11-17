@@ -2,8 +2,6 @@ package test
 
 import (
 	"fmt"
-
-	"github.com/pkg/errors"
 )
 
 type TestRunner interface {
@@ -35,7 +33,7 @@ func (*DefaultRunner) Run(method, URL string, verbose bool, query Query, body []
 	fmt.Println(report)
 
 	if report.hasErrors() {
-		return errors.New(report.String())
+		return fmt.Errorf("❌ %d failed assertion(s) ", report.countErrors())
 	}
 
 	return nil
