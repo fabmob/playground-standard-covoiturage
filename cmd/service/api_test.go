@@ -318,6 +318,13 @@ func TestPassengerJourneys(t *testing.T) {
 			"Count 3",
 			makeParamsWithCount(2, "passenger"),
 			makeNPassengerJourneys(4),
+			false,
+		},
+
+		{
+			"Count 4 - count > n passenger journeys",
+			makeParamsWithCount(1, "passenger"),
+			makeNPassengerJourneys(0),
 			true,
 		},
 	}
