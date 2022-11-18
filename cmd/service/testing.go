@@ -122,7 +122,8 @@ func makeBooking(bookingID uuid.UUID) api.Booking {
 	return api.Booking{Id: bookingID, Status: "CONFIRMED"}
 }
 
-func reproducibleUUID(seed int64) uuid.UUID {
+// repUUID creates a reproducible UUID
+func repUUID(seed int64) uuid.UUID {
 	rand.Seed(seed)
 	randBytes := make([]byte, 16)
 	rand.Read(randBytes)

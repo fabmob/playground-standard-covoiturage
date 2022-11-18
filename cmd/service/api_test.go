@@ -351,57 +351,56 @@ func TestPassengerJourneys(t *testing.T) {
 }
 
 func TestGetBookings(t *testing.T) {
-	var bookingID = reproducibleUUID(23)
 
-	request, err := api.NewGetBookingsRequest(fakeServer, bookingID)
-	panicIf(err)
+	testCases := []struct {
+		bookings           []api.Booking
+		queryBookingID     uuid.UUID
+		disallowEmpty      bool
+		expectedStatusCode int
+	}{
+		{
+			[]api.Booking{},
+			repUUID(1),
+			false,
+			http.StatusNotFound,
+		},
+		{
+			[]api.Booking{makeBooking(repUUID(2))},
+			repUUID(2),
+			true,
+			http.StatusOK,
+		},
+	}
 
-	// Setup testing server with response recorder
-	e := echo.New()
-	rec := httptest.NewRecorder()
-	ctx := e.NewContext(request, rec)
-	handler := NewServer()
+	for _, tc := range testCases {
 
-	// Make API Call
-	err = handler.GetBookings(ctx, bookingID)
-	panicIf(err)
+		t.Run("test case", func(t *testing.T) {
+			mockDB := NewMockDB()
+			mockDB.Bookings = tc.bookings
 
-	response := rec.Result()
-	flags := test.NewFlags()
-	flags.ExpectedStatusCode = http.StatusNotFound
+			request, err := api.NewGetBookingsRequest(fakeServer, tc.queryBookingID)
+			panicIf(err)
 
-	assertionResults := test.TestGetBookingsResponse(request, response, flags)
+			// Setup testing server with response recorder
+			e := echo.New()
+			rec := httptest.NewRecorder()
+			ctx := e.NewContext(request, rec)
+			handler := NewServerWithDB(mockDB)
 
-	checkAssertionResults(t, assertionResults)
-}
+			// Make API Call
+			err = handler.GetBookings(ctx, tc.queryBookingID)
+			panicIf(err)
 
-func TestGetBookings2(t *testing.T) {
-	var bookingID = uuid.New()
+			response := rec.Result()
+			flags := test.NewFlags()
+			flags.DisallowEmpty = tc.disallowEmpty
+			flags.ExpectedStatusCode = tc.expectedStatusCode
 
-	mockDB := NewMockDB()
-	mockDB.Bookings = []api.Booking{makeBooking(bookingID)}
+			assertionResults := test.TestGetBookingsResponse(request, response, flags)
 
-	request, err := api.NewGetBookingsRequest(fakeServer, bookingID)
-	panicIf(err)
-
-	// Setup testing server with response recorder
-	e := echo.New()
-	rec := httptest.NewRecorder()
-	ctx := e.NewContext(request, rec)
-	handler := NewServerWithDB(mockDB)
-
-	// Make API Call
-	err = handler.GetBookings(ctx, bookingID)
-	panicIf(err)
-
-	response := rec.Result()
-	flags := test.NewFlags()
-	flags.DisallowEmpty = true
-	flags.ExpectedStatusCode = http.StatusOK
-
-	assertionResults := test.TestGetBookingsResponse(request, response, flags)
-
-	checkAssertionResults(t, assertionResults)
+			checkAssertionResults(t, assertionResults)
+		})
+	}
 }
 
 func TestPostBookings(t *testing.T) {
