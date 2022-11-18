@@ -42,8 +42,13 @@ type Error struct {
 
 // GetBookings retrieves an existing Booking request.
 // (GET /bookings/{bookingId})
-func (*StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId) error {
-	// Implement me
+func (s *StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId) error {
+
+	bookings := s.mockDB.Bookings
+	if len(bookings) >= 1 && bookings[0].Id == bookingID {
+		return ctx.JSON(http.StatusOK, bookings[0])
+	}
+
 	errReturn := Error{"missing_booking"}
 	return ctx.JSON(http.StatusNotFound, errReturn)
 }

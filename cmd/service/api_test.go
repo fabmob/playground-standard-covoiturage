@@ -360,7 +360,7 @@ func TestGetBookings(t *testing.T) {
 	e := echo.New()
 	rec := httptest.NewRecorder()
 	ctx := e.NewContext(request, rec)
-	handler := &StdCovServerImpl{}
+	handler := &StdCovServerImpl{NewMockDB()}
 
 	// Make API Call
 	err = handler.GetBookings(ctx, bookingID)
