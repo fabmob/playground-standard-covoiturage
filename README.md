@@ -134,15 +134,20 @@ In alphabetic order:
 | assert response not empty      | Checks that the response is not an empty array.                                         |
 | assert response property X     | Checks that the response property X meets the expectations given by the standard.       |
 | assert response status code X  | Checks that the status code X is returned.                                              |
-| assert unique ids              | Checks that the response objects have no duplicated "id" property.                         |
+| assert unique ids              | Checks that the response objects have no 
+duplicated "id" property.                         |
 
+
+## Release
+
+Releases are made with [goreleaser](https://goreleaser.com/quick-start/). 
 
 ## Roadmap until first release
 
 * [ ] Fix issue #25
 * [ ] Implement server with unit tests
 * [ ] Export unit test data and generate make unit test commands for reuse
-* [ ] Cross platform release with goreleaser
+* [X] Cross platform release with goreleaser
 * [ ] Add new custom assertions to current tests
 * [ ] Update documentation
 * [X] Add license
