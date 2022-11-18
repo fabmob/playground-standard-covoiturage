@@ -351,7 +351,7 @@ func TestPassengerJourneys(t *testing.T) {
 }
 
 func TestGetBookings(t *testing.T) {
-	var bookingID = uuid.New()
+	var bookingID = reproducibleUUID(23)
 
 	request, err := api.NewGetBookingsRequest(fakeServer, bookingID)
 	panicIf(err)

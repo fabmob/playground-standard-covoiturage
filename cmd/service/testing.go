@@ -1,6 +1,8 @@
 package service
 
 import (
+	"math/rand"
+
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/google/uuid"
@@ -118,4 +120,12 @@ func makeParamsWithCount(count int, driverOrPassenger string) api.GetJourneysPar
 
 func makeBooking(bookingID uuid.UUID) api.Booking {
 	return api.Booking{Id: bookingID, Status: "CONFIRMED"}
+}
+
+func reproducibleUUID(seed int64) uuid.UUID {
+	rand.Seed(seed)
+	randBytes := make([]byte, 16)
+	rand.Read(randBytes)
+	uuid, _ := uuid.FromBytes(randBytes)
+	return uuid
 }
