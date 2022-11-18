@@ -370,6 +370,15 @@ func TestGetBookings(t *testing.T) {
 			true,
 			http.StatusOK,
 		},
+		{
+			[]api.Booking{
+				makeBooking(repUUID(3)),
+				makeBooking(repUUID(4)),
+			},
+			repUUID(4),
+			true,
+			http.StatusOK,
+		},
 	}
 
 	for _, tc := range testCases {
