@@ -6,6 +6,7 @@ import (
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -32,7 +33,7 @@ func (*StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
 // (POST /bookings)
 func (*StdCovServerImpl) PostBookings(ctx echo.Context) error {
 	// Implement me
-	return ctx.JSON(http.StatusCreated, makeValidBooking())
+	return ctx.JSON(http.StatusCreated, makeBooking(uuid.New()))
 }
 
 type Error struct {

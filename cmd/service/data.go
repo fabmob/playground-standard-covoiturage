@@ -14,6 +14,7 @@ import (
 type MockDB struct {
 	DriverJourneys    []api.DriverJourney    `json:"driverJourneys"`
 	PassengerJourneys []api.PassengerJourney `json:"passengerJourneys"`
+	Bookings          []api.Booking          `json:"bookings"`
 }
 
 // NewMockDB initiates a MockDB with no data
@@ -21,6 +22,7 @@ func NewMockDB() *MockDB {
 	m := MockDB{}
 	m.DriverJourneys = []api.DriverJourney{}
 	m.PassengerJourneys = []api.PassengerJourney{}
+	m.Bookings = []api.Booking{}
 
 	return &m
 }

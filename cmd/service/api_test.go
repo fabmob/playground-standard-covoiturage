@@ -375,6 +375,35 @@ func TestGetBookings(t *testing.T) {
 	checkAssertionResults(t, assertionResults)
 }
 
+func TestGetBookings2(t *testing.T) {
+	var bookingID = uuid.New()
+
+	mockDB := NewMockDB()
+	mockDB.Bookings = []api.Booking{makeBooking(bookingID)}
+
+	request, err := api.NewGetBookingsRequest(fakeServer, bookingID)
+	panicIf(err)
+
+	// Setup testing server with response recorder
+	e := echo.New()
+	rec := httptest.NewRecorder()
+	ctx := e.NewContext(request, rec)
+	handler := &StdCovServerImpl{mockDB}
+
+	// Make API Call
+	err = handler.GetBookings(ctx, bookingID)
+	panicIf(err)
+
+	response := rec.Result()
+	flags := test.NewFlags()
+	flags.DisallowEmpty = true
+	flags.ExpectedStatusCode = http.StatusOK
+
+	assertionResults := test.TestGetBookingsResponse(request, response, flags)
+
+	checkAssertionResults(t, assertionResults)
+}
+
 func TestPostBookings(t *testing.T) {
 
 	request, err := api.NewPostBookingsRequest(fakeServer, api.Booking{})

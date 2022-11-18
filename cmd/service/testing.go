@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
+	"github.com/google/uuid"
 )
 
 const fakeServer = "http://localhost:1323"
@@ -115,6 +116,6 @@ func makeParamsWithCount(count int, driverOrPassenger string) api.GetJourneysPar
 	return params
 }
 
-func makeValidBooking() api.Booking {
-	return api.Booking{Status: "CONFIRMED"}
+func makeBooking(bookingID uuid.UUID) api.Booking {
+	return api.Booking{Id: bookingID, Status: "CONFIRMED"}
 }
