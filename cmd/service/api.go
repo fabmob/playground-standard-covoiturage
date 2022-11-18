@@ -54,9 +54,10 @@ type Error struct {
 // (GET /bookings/{bookingId})
 func (s *StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId) error {
 
-	bookings := s.mockDB.Bookings
-	if len(bookings) >= 1 && bookings[0].Id == bookingID {
-		return ctx.JSON(http.StatusOK, bookings[0])
+	for _, booking := range s.mockDB.Bookings {
+		if booking.Id == bookingID {
+			return ctx.JSON(http.StatusOK, booking)
+		}
 	}
 
 	errReturn := Error{"missing_booking"}
