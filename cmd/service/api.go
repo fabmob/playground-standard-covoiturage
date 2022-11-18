@@ -15,6 +15,16 @@ type StdCovServerImpl struct {
 	mockDB *MockDB
 }
 
+func NewServer() *StdCovServerImpl {
+	server := StdCovServerImpl{NewMockDB()}
+	return &server
+}
+
+func NewServerWithDB(mockDB *MockDB) *StdCovServerImpl {
+	server := StdCovServerImpl{mockDB}
+	return &server
+}
+
 // NewDefaultServer returns a server, and populates the associated DB with
 // default data
 func NewDefaultServer() *StdCovServerImpl {

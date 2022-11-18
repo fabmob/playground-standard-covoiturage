@@ -360,7 +360,7 @@ func TestGetBookings(t *testing.T) {
 	e := echo.New()
 	rec := httptest.NewRecorder()
 	ctx := e.NewContext(request, rec)
-	handler := &StdCovServerImpl{NewMockDB()}
+	handler := NewServer()
 
 	// Make API Call
 	err = handler.GetBookings(ctx, bookingID)
@@ -388,7 +388,7 @@ func TestGetBookings2(t *testing.T) {
 	e := echo.New()
 	rec := httptest.NewRecorder()
 	ctx := e.NewContext(request, rec)
-	handler := &StdCovServerImpl{mockDB}
+	handler := NewServerWithDB(mockDB)
 
 	// Make API Call
 	err = handler.GetBookings(ctx, bookingID)
@@ -413,7 +413,7 @@ func TestPostBookings(t *testing.T) {
 	e := echo.New()
 	rec := httptest.NewRecorder()
 	ctx := e.NewContext(request, rec)
-	handler := &StdCovServerImpl{}
+	handler := NewServer()
 
 	// Make API Call
 	err = handler.PostBookings(ctx)
@@ -468,7 +468,7 @@ func testGetJourneys(t *testing.T, params api.GetJourneysParams, mockDB *MockDB,
 	e := echo.New()
 	rec := httptest.NewRecorder()
 	ctx := e.NewContext(request, rec)
-	handler := &StdCovServerImpl{mockDB}
+	handler := NewServerWithDB(mockDB)
 
 	// Make API Call
 	err = api.GetJourneys(handler, ctx, params)
