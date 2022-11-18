@@ -145,6 +145,6 @@ In alphabetic order:
 * [ ] Cross platform release with goreleaser
 * [ ] Add new custom assertions to current tests
 * [ ] Update documentation
-* [ ] Add license
+* [X] Add license
 * [ ] Add Changelog
 * [ ] Tag and release in github 
