@@ -6,7 +6,6 @@ import (
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -41,9 +40,16 @@ func (*StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
 
 // PostBookings creates a punctual outward Booking requet.
 // (POST /bookings)
-func (*StdCovServerImpl) PostBookings(ctx echo.Context) error {
-	// Implement me
-	return ctx.JSON(http.StatusCreated, makeBooking(uuid.New()))
+func (s *StdCovServerImpl) PostBookings(ctx echo.Context) error {
+	var booking api.Booking
+	err := ctx.Bind(&booking)
+	if err != nil {
+		return nil
+	}
+
+	s.mockDB.Bookings = append(s.mockDB.Bookings, booking)
+
+	return ctx.JSON(http.StatusCreated, booking)
 }
 
 type Error struct {
