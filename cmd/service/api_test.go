@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -410,11 +411,15 @@ func TestGetBookings(t *testing.T) {
 
 func TestPostBookings(t *testing.T) {
 
-	request, err := api.NewPostBookingsRequest(fakeServer, api.Booking{})
+	bookingID := repUUID(10)
+	booking := makeBooking(bookingID)
+	request, err := api.NewPostBookingsRequest(fakeServer, booking)
 	panicIf(err)
 
+	mockDB := NewMockDB()
+
 	// Setup testing server with response recorder
-	handler, ctx, rec := setupTestServer(NewMockDB(), request)
+	handler, ctx, rec := setupTestServer(mockDB, request)
 
 	// Make API Call
 	err = handler.PostBookings(ctx)
@@ -424,8 +429,27 @@ func TestPostBookings(t *testing.T) {
 	flags := test.NewFlags()
 	flags.ExpectedStatusCode = http.StatusCreated
 
-	assertionResults := test.TestGetBookingsResponse(request, response, flags)
+	assertionResults := test.TestPostBookingsResponse(request, response, flags)
+	checkAssertionResults(t, assertionResults)
 
+	// Setup testing server with response recorder
+	handler, ctx, rec = setupTestServer(mockDB, request)
+
+	// Make API Call
+	request, err = api.NewGetBookingsRequest(fakeServer, bookingID)
+	panicIf(err)
+	err = handler.GetBookings(ctx, bookingID)
+	panicIf(err)
+	checkAssertionResults(t, assertionResults)
+
+	response = rec.Result()
+	flags = test.NewFlags()
+	flags.DisallowEmpty = true
+	flags.ExpectedStatusCode = http.StatusOK
+
+	fmt.Println(response)
+
+	assertionResults = test.TestGetBookingsResponse(request, response, flags)
 	checkAssertionResults(t, assertionResults)
 }
 
