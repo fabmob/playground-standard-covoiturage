@@ -412,10 +412,31 @@ func TestPostBookings(t *testing.T) {
 
 	bookingID := repUUID(10)
 	booking := makeBooking(bookingID)
-	request, err := api.NewPostBookingsRequest(fakeServer, booking)
-	panicIf(err)
 
 	mockDB := NewMockDB()
+
+	flagsPost := test.NewFlags()
+	flagsPost.ExpectedStatusCode = http.StatusCreated
+
+	testPostBookingsHelper(t, mockDB, booking, flagsPost)
+
+	flagsGet := test.NewFlags()
+	flagsGet.DisallowEmpty = true
+	flagsGet.ExpectedStatusCode = http.StatusOK
+
+	testGetBookingsHelper(t, mockDB, bookingID, flagsGet)
+}
+
+func testPostBookingsHelper(
+	t *testing.T,
+	mockDB *MockDB,
+	booking api.Booking,
+	flags test.Flags,
+) {
+	t.Helper()
+
+	request, err := api.NewPostBookingsRequest(fakeServer, booking)
+	panicIf(err)
 
 	// Setup testing server with response recorder
 	handler, ctx, rec := setupTestServer(mockDB, request)
@@ -425,16 +446,9 @@ func TestPostBookings(t *testing.T) {
 	panicIf(err)
 
 	response := rec.Result()
-	flags := test.NewFlags()
-	flags.ExpectedStatusCode = http.StatusCreated
 
 	assertionResults := test.TestPostBookingsResponse(request, response, flags)
 	checkAssertionResults(t, assertionResults)
-
-	flagsGet := test.NewFlags()
-	flagsGet.DisallowEmpty = true
-	flagsGet.ExpectedStatusCode = http.StatusOK
-	testGetBookingsHelper(t, mockDB, bookingID, flagsGet)
 }
 
 func testGetBookingsHelper(
@@ -443,6 +457,7 @@ func testGetBookingsHelper(
 	bookingID api.BookingId,
 	flags test.Flags,
 ) {
+	t.Helper()
 
 	// Make Request
 	request, err := api.NewGetBookingsRequest(fakeServer, bookingID)
