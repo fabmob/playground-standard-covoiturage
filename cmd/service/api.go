@@ -38,7 +38,7 @@ func (*StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
 	return nil
 }
 
-// PostBookings creates a punctual outward Booking requet.
+// PostBookings creates a punctual outward Booking request.
 // (POST /bookings)
 func (s *StdCovServerImpl) PostBookings(ctx echo.Context) error {
 	var booking api.Booking

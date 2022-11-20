@@ -20,16 +20,22 @@ func TestDefaultDriverJourneysValidity(t *testing.T) {
 	params := requestAll(t, "driver")
 	mockDB := NewMockDBWithDefaultData()
 	testFun := test.TestGetDriverJourneysResponse
-	expectEmpty := false
-	testGetJourneys(t, params, mockDB, testFun, expectEmpty)
+
+	flags := test.NewFlags()
+	flags.DisallowEmpty = true
+
+	testGetJourneysHelper(t, params, mockDB, testFun, flags)
 }
 
 func TestDefaultPassengerJourneysValidity(t *testing.T) {
 	params := requestAll(t, "passenger")
 	mockDB := NewMockDBWithDefaultData()
 	testFun := test.TestGetPassengerJourneysResponse
-	expectEmpty := false
-	testGetJourneys(t, params, mockDB, testFun, expectEmpty)
+
+	flags := test.NewFlags()
+	flags.DisallowEmpty = true
+
+	testGetJourneysHelper(t, params, mockDB, testFun, flags)
 }
 
 func requestAll(t *testing.T, driverOrPassenger string) api.GetJourneysParams {

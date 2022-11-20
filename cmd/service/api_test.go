@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -171,11 +170,18 @@ func TestDriverJourneys(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			testGetDriverJourneyRequestWithData(
+
+			mockDB := NewMockDB()
+			mockDB.DriverJourneys = tc.testData
+
+			flags := test.NewFlags()
+			flags.DisallowEmpty = tc.expectNonEmptyResult
+
+			testGetDriverJourneyHelper(
 				t,
 				tc.testParams,
-				tc.testData,
-				tc.expectNonEmptyResult,
+				mockDB,
+				flags,
 			)
 		})
 	}
@@ -340,11 +346,17 @@ func TestPassengerJourneys(t *testing.T) {
 	for _, tc := range testCases {
 
 		t.Run(tc.name, func(t *testing.T) {
-			testGetPassengerJourneyRequestWithData(
+			mockDB := NewMockDB()
+			mockDB.PassengerJourneys = tc.testData
+
+			flags := test.NewFlags()
+			flags.DisallowEmpty = tc.expectNonEmptyResult
+
+			testGetPassengerJourneyHelper(
 				t,
 				tc.testParams,
-				tc.testData,
-				tc.expectNonEmptyResult,
+				mockDB,
+				flags,
 			)
 		})
 	}
@@ -387,24 +399,11 @@ func TestGetBookings(t *testing.T) {
 			mockDB := NewMockDB()
 			mockDB.Bookings = tc.bookings
 
-			request, err := api.NewGetBookingsRequest(fakeServer, tc.queryBookingID)
-			panicIf(err)
-
-			// Setup testing server with response recorder
-			handler, ctx, rec := setupTestServer(mockDB, request)
-
-			// Make API Call
-			err = handler.GetBookings(ctx, tc.queryBookingID)
-			panicIf(err)
-
-			response := rec.Result()
 			flags := test.NewFlags()
 			flags.DisallowEmpty = tc.disallowEmpty
 			flags.ExpectedStatusCode = tc.expectedStatusCode
 
-			assertionResults := test.TestGetBookingsResponse(request, response, flags)
-
-			checkAssertionResults(t, assertionResults)
+			testGetBookingsHelper(t, mockDB, tc.queryBookingID, flags)
 		})
 	}
 }
@@ -432,56 +431,64 @@ func TestPostBookings(t *testing.T) {
 	assertionResults := test.TestPostBookingsResponse(request, response, flags)
 	checkAssertionResults(t, assertionResults)
 
-	// Setup testing server with response recorder
-	handler, ctx, rec = setupTestServer(mockDB, request)
+	flagsGet := test.NewFlags()
+	flagsGet.DisallowEmpty = true
+	flagsGet.ExpectedStatusCode = http.StatusOK
+	testGetBookingsHelper(t, mockDB, bookingID, flagsGet)
+}
 
-	// Make API Call
-	request, err = api.NewGetBookingsRequest(fakeServer, bookingID)
+func testGetBookingsHelper(
+	t *testing.T,
+	mockDB *MockDB,
+	bookingID api.BookingId,
+	flags test.Flags,
+) {
+
+	// Make Request
+	request, err := api.NewGetBookingsRequest(fakeServer, bookingID)
 	panicIf(err)
+
+	// Setup testing server with response recorder
+	handler, ctx, rec := setupTestServer(mockDB, request)
+
+	// Make API call
 	err = handler.GetBookings(ctx, bookingID)
 	panicIf(err)
+
+	// Test results
+	response := rec.Result()
+
+	assertionResults := test.TestGetBookingsResponse(request, response, flags)
+
 	checkAssertionResults(t, assertionResults)
 
-	response = rec.Result()
-	flags = test.NewFlags()
-	flags.DisallowEmpty = true
-	flags.ExpectedStatusCode = http.StatusOK
-
-	fmt.Println(response)
-
-	assertionResults = test.TestGetBookingsResponse(request, response, flags)
-	checkAssertionResults(t, assertionResults)
 }
 
-func testGetDriverJourneyRequestWithData(
+func testGetDriverJourneyHelper(
 	t *testing.T,
 	params api.GetJourneysParams,
-	testData []api.DriverJourney,
-	expectNonEmpty bool,
+	mockDB *MockDB,
+	flags test.Flags,
 ) {
 
-	mockDB := NewMockDB()
-	mockDB.DriverJourneys = testData
 	testFunction := test.TestGetDriverJourneysResponse
 
-	testGetJourneys(t, params, mockDB, testFunction, expectNonEmpty)
+	testGetJourneysHelper(t, params, mockDB, testFunction, flags)
 }
 
-func testGetPassengerJourneyRequestWithData(
+func testGetPassengerJourneyHelper(
 	t *testing.T,
 	params api.GetJourneysParams,
-	testData []api.PassengerJourney,
-	expectNonEmpty bool,
+	mockDB *MockDB,
+	flags test.Flags,
 ) {
 
-	mockDB := NewMockDB()
-	mockDB.PassengerJourneys = testData
 	testFunction := test.TestGetPassengerJourneysResponse
 
-	testGetJourneys(t, params, mockDB, testFunction, expectNonEmpty)
+	testGetJourneysHelper(t, params, mockDB, testFunction, flags)
 }
 
-func testGetJourneys(t *testing.T, params api.GetJourneysParams, mockDB *MockDB, f test.ResponseTestFun, expectNonEmpty bool) {
+func testGetJourneysHelper(t *testing.T, params api.GetJourneysParams, mockDB *MockDB, f test.ResponseTestFun, flags test.Flags) {
 	t.Helper()
 
 	// Build request
@@ -498,8 +505,6 @@ func testGetJourneys(t *testing.T, params api.GetJourneysParams, mockDB *MockDB,
 
 	// Check response
 	response := rec.Result()
-	flags := test.NewFlags()
-	flags.DisallowEmpty = expectNonEmpty
 	assertionResults := f(request, response, flags)
 
 	checkAssertionResults(t, assertionResults)
