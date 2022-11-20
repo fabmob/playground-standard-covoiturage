@@ -411,13 +411,21 @@ func TestGetBookings(t *testing.T) {
 func TestPostBookings(t *testing.T) {
 
 	testCases := []struct {
-		booking           api.Booking
-		existingBookings  []api.Booking
-		expectNonEmptyGet bool
+		booking              api.Booking
+		existingBookings     []api.Booking
+		expectPostStatusCode int
+		expectGetNonEmpty    bool
 	}{
 		{
 			makeBooking(repUUID(10)),
 			[]api.Booking{},
+			http.StatusCreated,
+			true,
+		},
+		{
+			makeBooking(repUUID(11)),
+			[]api.Booking{makeBooking(repUUID(11))},
+			http.StatusBadRequest,
 			true,
 		},
 	}
@@ -429,10 +437,10 @@ func TestPostBookings(t *testing.T) {
 		mockDB.Bookings = tc.existingBookings
 
 		flagsPost := test.NewFlags()
-		flagsPost.ExpectedStatusCode = http.StatusCreated
+		flagsPost.ExpectedStatusCode = tc.expectPostStatusCode
 
 		flagsGet := test.NewFlags()
-		flagsGet.DisallowEmpty = tc.expectNonEmptyGet
+		flagsGet.DisallowEmpty = tc.expectGetNonEmpty
 
 		testPostBookingsHelper(t, mockDB, tc.booking, flagsPost)
 
