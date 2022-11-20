@@ -2,7 +2,6 @@ package service
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
@@ -391,10 +390,7 @@ func TestGetBookings(t *testing.T) {
 			panicIf(err)
 
 			// Setup testing server with response recorder
-			e := echo.New()
-			rec := httptest.NewRecorder()
-			ctx := e.NewContext(request, rec)
-			handler := NewServerWithDB(mockDB)
+			handler, ctx, rec := setupTestServer(mockDB, request)
 
 			// Make API Call
 			err = handler.GetBookings(ctx, tc.queryBookingID)
@@ -418,10 +414,7 @@ func TestPostBookings(t *testing.T) {
 	panicIf(err)
 
 	// Setup testing server with response recorder
-	e := echo.New()
-	rec := httptest.NewRecorder()
-	ctx := e.NewContext(request, rec)
-	handler := NewServer()
+	handler, ctx, rec := setupTestServer(NewMockDB(), request)
 
 	// Make API Call
 	err = handler.PostBookings(ctx)
@@ -473,10 +466,7 @@ func testGetJourneys(t *testing.T, params api.GetJourneysParams, mockDB *MockDB,
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	// Setup testing server with response recorder
-	e := echo.New()
-	rec := httptest.NewRecorder()
-	ctx := e.NewContext(request, rec)
-	handler := NewServerWithDB(mockDB)
+	handler, ctx, rec := setupTestServer(mockDB, request)
 
 	// Make API Call
 	err = api.GetJourneys(handler, ctx, params)

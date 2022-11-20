@@ -2,13 +2,30 @@ package service
 
 import (
 	"math/rand"
+	"net/http"
+	"net/http/httptest"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 )
 
 const fakeServer = "http://localhost:1323"
+
+func setupTestServer(
+	db *MockDB,
+	request *http.Request,
+) (*StdCovServerImpl, echo.Context, *httptest.ResponseRecorder) {
+
+	e := echo.New()
+	rec := httptest.NewRecorder()
+	ctx := e.NewContext(request, rec)
+	handler := NewServerWithDB(db)
+
+	return handler, ctx, rec
+
+}
 
 func makeNDriverJourneys(n int) []api.DriverJourney {
 	driverJourneys := make([]api.DriverJourney, 0, n)
