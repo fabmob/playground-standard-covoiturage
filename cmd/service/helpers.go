@@ -48,3 +48,9 @@ func statusRank(status api.BookingStatus) (int, error) {
 
 	return statusRank, nil
 }
+
+// errorBody creates an api.BadRequest body from a go error
+func errorBody(err error) api.BadRequest {
+	errStr := err.Error()
+	return api.BadRequest{Error: &errStr}
+}

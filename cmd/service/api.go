@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"math"
 	"net/http"
 
@@ -46,14 +47,12 @@ func (s *StdCovServerImpl) PostBookings(ctx echo.Context) error {
 	// Unmarshal request body into newBooking
 	bodyUnmarshallingErr := ctx.Bind(&newBooking)
 	if bodyUnmarshallingErr != nil {
-		errStr := bodyUnmarshallingErr.Error()
-		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errStr})
+		return ctx.JSON(http.StatusBadRequest, errorBody(bodyUnmarshallingErr))
 	}
 
 	alreadyExistsErr := s.mockDB.AddBooking(newBooking)
 	if alreadyExistsErr != nil {
-		errStr := alreadyExistsErr.Error()
-		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errStr})
+		return ctx.JSON(http.StatusBadRequest, errorBody(alreadyExistsErr))
 	}
 
 	return ctx.JSON(http.StatusCreated, newBooking)
@@ -72,8 +71,8 @@ func (s *StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId
 	booking, found := bookings[bookingID]
 
 	if !found {
-		errStr := "missing_booking"
-		return ctx.JSON(http.StatusNotFound, api.BadRequest{Error: &errStr})
+		err := errors.New("missing_booking")
+		return ctx.JSON(http.StatusNotFound, errorBody(err))
 	}
 
 	return ctx.JSON(http.StatusOK, booking)
@@ -86,19 +85,17 @@ func (s *StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.Booking
 
 	booking, missingErr := s.mockDB.GetBooking(bookingID)
 	if missingErr != nil {
-		errStr := missingErr.Error()
-		return ctx.JSON(http.StatusNotFound, api.BadRequest{Error: &errStr})
+		return ctx.JSON(http.StatusNotFound, errorBody(missingErr))
 	}
 
 	statusAfter, err := statusIsAfter(params.Status, booking.Status)
 	if err != nil {
-		errStr := err.Error()
-		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errStr})
+		return ctx.JSON(http.StatusBadRequest, errorBody(err))
 	}
 
 	if !statusAfter {
-		errStr := "status_already_set"
-		return ctx.JSON(http.StatusConflict, api.BadRequest{Error: &errStr})
+		err := errors.New("status_already_set")
+		return ctx.JSON(http.StatusConflict, errorBody(err))
 	}
 
 	booking.Status = params.Status
