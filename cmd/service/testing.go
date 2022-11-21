@@ -135,6 +135,7 @@ func makeParamsWithCount(count int, driverOrPassenger string) api.GetJourneysPar
 	return params
 }
 
+// makeBooking sets status to "WAITING_CONFIRMATION" by default
 func makeBooking(bookingID uuid.UUID) *api.Booking {
 	return makeBookingWithStatus(bookingID, api.BookingStatusWAITINGCONFIRMATION)
 }

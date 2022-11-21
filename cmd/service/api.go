@@ -90,9 +90,19 @@ func (s *StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.Booking
 		return ctx.JSON(http.StatusNotFound, api.BadRequest{Error: &errorStr})
 	}
 
-	booking.Status = params.Status
+	statusAfter, err := statusIsAfter(params.Status, booking.Status)
+	if err != nil {
+		errorStr := err.Error()
+		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errorStr})
+	}
 
-	return nil
+	if !statusAfter {
+		errorStr := "status_already_set"
+		return ctx.JSON(http.StatusConflict, api.BadRequest{Error: &errorStr})
+	}
+
+	booking.Status = params.Status
+	return ctx.NoContent(http.StatusOK)
 }
 
 // GetDriverJourneys searches for matching punctual planned outward driver journeys.
