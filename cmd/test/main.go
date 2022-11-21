@@ -22,8 +22,6 @@ func (*DefaultRunner) Run(method, URL string, verbose bool, query Query, body []
 		return err
 	}
 
-	fmt.Printf("Request headers:\n %+v\n", req.Header)
-
 	AddQueryParameters(query, req)
 
 	report, err := Request(req, flags)

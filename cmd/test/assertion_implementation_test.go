@@ -54,7 +54,7 @@ func TestExpectStatusCode(t *testing.T) {
 func TestExpectHeaders(t *testing.T) {
 
 	headerContentTypeJSON := http.Header{
-		"Content-Type": {"application/json"},
+		HeaderContentType: {MIMEApplicationJSON},
 	}
 	headerContentTypeJSONWithCharset := http.Header{
 		"Content-Type": {"application/json; charset=UTF-8"},

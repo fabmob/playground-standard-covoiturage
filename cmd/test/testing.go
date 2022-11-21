@@ -64,7 +64,7 @@ func mockResponse(
 
 	if header == nil {
 		header = make(http.Header)
-		header["Content-Type"] = []string{"json"}
+		header.Set(HeaderContentType, MIMEApplicationJSON)
 	}
 
 	return &http.Response{

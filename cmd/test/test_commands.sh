@@ -47,8 +47,9 @@ go run main.go test post bookings \
   "id": "123e4567-e89b-12d3-a456-426614174000",
   "passenger": {
     "alias": "cde69",
-    "id": "67890",
+    "id": "67890"
   },
   "passengerDropLat": 45.8275,
-  "passengerDropLng":  1.25987
+  "passengerDropLng":  1.25987,
+  "status": "WAITING_CONFIRMATION"
 }'
