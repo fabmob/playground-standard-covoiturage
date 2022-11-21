@@ -485,12 +485,23 @@ func TestPatchBookings(t *testing.T) {
 		},
 
 		{
-			repUUID(21),
+			repUUID(22),
 			api.BookingStatusCANCELLED,
 			BookingByID{},
 			404,
 			404,
 			"",
+		},
+
+		{
+			repUUID(23),
+			api.BookingStatusVALIDATED,
+			BookingByID{
+				repUUID(23): makeBookingWithStatus(repUUID(23), api.BookingStatusVALIDATED),
+			},
+			409,
+			200,
+			api.BookingStatusVALIDATED,
 		},
 	}
 

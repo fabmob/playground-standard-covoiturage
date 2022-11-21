@@ -136,7 +136,11 @@ func makeParamsWithCount(count int, driverOrPassenger string) api.GetJourneysPar
 }
 
 func makeBooking(bookingID uuid.UUID) *api.Booking {
-	return &api.Booking{Id: bookingID, Status: "CONFIRMED"}
+	return makeBookingWithStatus(bookingID, api.BookingStatusWAITINGCONFIRMATION)
+}
+
+func makeBookingWithStatus(bookingID uuid.UUID, status api.BookingStatus) *api.Booking {
+	return &api.Booking{Id: bookingID, Status: status}
 }
 
 // repUUID creates a reproducible UUID
