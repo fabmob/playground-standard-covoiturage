@@ -46,14 +46,14 @@ func (s *StdCovServerImpl) PostBookings(ctx echo.Context) error {
 	// Unmarshal request body into newBooking
 	bodyUnmarshallingErr := ctx.Bind(&newBooking)
 	if bodyUnmarshallingErr != nil {
-		errorStr := bodyUnmarshallingErr.Error()
-		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errorStr})
+		errStr := bodyUnmarshallingErr.Error()
+		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errStr})
 	}
 
 	alreadyExistsErr := s.mockDB.AddBooking(newBooking)
 	if alreadyExistsErr != nil {
-		errorStr := alreadyExistsErr.Error()
-		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errorStr})
+		errStr := alreadyExistsErr.Error()
+		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errStr})
 	}
 
 	return ctx.JSON(http.StatusCreated, newBooking)
@@ -67,14 +67,16 @@ type Error struct {
 // (GET /bookings/{bookingId})
 func (s *StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId) error {
 
-	for _, booking := range s.mockDB.GetBookings() {
-		if booking.Id == bookingID {
-			return ctx.JSON(http.StatusOK, booking)
-		}
+	bookings := s.mockDB.GetBookings()
+
+	booking, found := bookings[bookingID]
+
+	if !found {
+		errStr := "missing_booking"
+		return ctx.JSON(http.StatusNotFound, api.BadRequest{Error: &errStr})
 	}
 
-	errReturn := Error{"missing_booking"}
-	return ctx.JSON(http.StatusNotFound, errReturn)
+	return ctx.JSON(http.StatusOK, booking)
 }
 
 // PatchBookings updates status of an existing Booking request.
@@ -84,19 +86,19 @@ func (s *StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.Booking
 
 	booking, ok := s.mockDB.Bookings[bookingID]
 	if !ok {
-		errorStr := "missing_booking"
-		return ctx.JSON(http.StatusNotFound, api.BadRequest{Error: &errorStr})
+		errStr := "missing_booking"
+		return ctx.JSON(http.StatusNotFound, api.BadRequest{Error: &errStr})
 	}
 
 	statusAfter, err := statusIsAfter(params.Status, booking.Status)
 	if err != nil {
-		errorStr := err.Error()
-		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errorStr})
+		errStr := err.Error()
+		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errStr})
 	}
 
 	if !statusAfter {
-		errorStr := "status_already_set"
-		return ctx.JSON(http.StatusConflict, api.BadRequest{Error: &errorStr})
+		errStr := "status_already_set"
+		return ctx.JSON(http.StatusConflict, api.BadRequest{Error: &errStr})
 	}
 
 	booking.Status = params.Status
