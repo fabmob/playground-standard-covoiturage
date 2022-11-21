@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"strings"
@@ -9,7 +10,7 @@ import (
 const authentificationHeader = "X-API-Key"
 
 func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request, error) {
-	req, err := http.NewRequest(method, URL, nil)
+	req, err := http.NewRequest(method, URL, bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
