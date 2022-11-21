@@ -638,3 +638,29 @@ func TestValidateOperator(t *testing.T) {
 		}
 	}
 }
+
+func TestExpectedBookingStatus(t *testing.T) {
+	statusStr := string(api.BookingStatusCANCELLED)
+	expectedStatutStr := string(api.BookingStatusCANCELLED)
+	statusObj := struct{ Status string }{statusStr}
+	response := mockBodyResponse(statusObj)
+
+	err := singleAssertionError(t, assertBookingStatus{response, expectedStatutStr})
+	if err != nil {
+		t.Logf("Expected status %s, got %s", statusStr, statusStr)
+		t.Fail()
+	}
+
+	statusStr = string(api.BookingStatusCANCELLED)
+	expectedStatutStr = string(api.BookingStatusVALIDATED)
+	statusObj = struct{ Status string }{statusStr}
+	response = mockBodyResponse(statusObj)
+
+	err = singleAssertionError(t, assertBookingStatus{response, expectedStatutStr})
+	if err == nil {
+		t.Log(err)
+		t.Logf("Expected status %s, got %s", statusStr, statusStr)
+		t.Fail()
+	}
+
+}
