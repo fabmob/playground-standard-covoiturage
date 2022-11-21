@@ -640,27 +640,32 @@ func TestValidateOperator(t *testing.T) {
 }
 
 func TestExpectedBookingStatus(t *testing.T) {
-	statusStr := string(api.BookingStatusCANCELLED)
-	expectedStatutStr := string(api.BookingStatusCANCELLED)
-	statusObj := struct{ Status string }{statusStr}
-	response := mockBodyResponse(statusObj)
-
-	err := singleAssertionError(t, assertBookingStatus{response, expectedStatutStr})
-	if err != nil {
-		t.Logf("Expected status %s, got %s", statusStr, statusStr)
-		t.Fail()
+	testCases := []struct {
+		bookingStatus  api.BookingStatus
+		expectedStatus api.BookingStatus
+		expectError    bool
+	}{
+		{
+			api.BookingStatusCANCELLED,
+			api.BookingStatusCANCELLED,
+			false,
+		}, {
+			api.BookingStatusCANCELLED,
+			api.BookingStatusVALIDATED,
+			true,
+		},
 	}
 
-	statusStr = string(api.BookingStatusCANCELLED)
-	expectedStatutStr = string(api.BookingStatusVALIDATED)
-	statusObj = struct{ Status string }{statusStr}
-	response = mockBodyResponse(statusObj)
+	for _, tc := range testCases {
+		t.Run("Test case", func(t *testing.T) {
+			statusObj := struct{ Status string }{string(tc.bookingStatus)}
+			response := mockBodyResponse(statusObj)
 
-	err = singleAssertionError(t, assertBookingStatus{response, expectedStatutStr})
-	if err == nil {
-		t.Log(err)
-		t.Logf("Expected status %s, got %s", statusStr, statusStr)
-		t.Fail()
+			err := singleAssertionError(t, assertBookingStatus{response, string(tc.expectedStatus)})
+			if (err != nil) != tc.expectError {
+				t.Logf("Expected status %s, got %s", tc.expectedStatus, tc.bookingStatus)
+				t.Fail()
+			}
+		})
 	}
-
 }
