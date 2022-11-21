@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"math"
 	"net/http"
 
@@ -12,6 +13,16 @@ import (
 // StdCovServerImpl implements server.ServerInterface
 type StdCovServerImpl struct {
 	mockDB *MockDB
+}
+
+func NewServer() *StdCovServerImpl {
+	server := StdCovServerImpl{NewMockDB()}
+	return &server
+}
+
+func NewServerWithDB(mockDB *MockDB) *StdCovServerImpl {
+	server := StdCovServerImpl{mockDB}
+	return &server
 }
 
 // NewDefaultServer returns a server, and populates the associated DB with
@@ -28,11 +39,23 @@ func (*StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
 	return nil
 }
 
-// PostBookings creates a punctual outward Booking requet.
+// PostBookings creates a punctual outward Booking request.
 // (POST /bookings)
-func (*StdCovServerImpl) PostBookings(ctx echo.Context) error {
-	// Implement me
-	return ctx.JSON(http.StatusCreated, makeValidBooking())
+func (s *StdCovServerImpl) PostBookings(ctx echo.Context) error {
+	var newBooking api.Booking
+
+	// Unmarshal request body into newBooking
+	bodyUnmarshallingErr := ctx.Bind(&newBooking)
+	if bodyUnmarshallingErr != nil {
+		return ctx.JSON(http.StatusBadRequest, errorBody(bodyUnmarshallingErr))
+	}
+
+	alreadyExistsErr := s.mockDB.AddBooking(newBooking)
+	if alreadyExistsErr != nil {
+		return ctx.JSON(http.StatusBadRequest, errorBody(alreadyExistsErr))
+	}
+
+	return ctx.JSON(http.StatusCreated, newBooking)
 }
 
 type Error struct {
@@ -41,18 +64,39 @@ type Error struct {
 
 // GetBookings retrieves an existing Booking request.
 // (GET /bookings/{bookingId})
-func (*StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId) error {
-	// Implement me
-	errReturn := Error{"missing_booking"}
-	return ctx.JSON(http.StatusNotFound, errReturn)
+func (s *StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId) error {
+
+	booking, missingErr := s.mockDB.GetBooking(bookingID)
+
+	if missingErr != nil {
+		return ctx.JSON(http.StatusNotFound, errorBody(missingErr))
+	}
+
+	return ctx.JSON(http.StatusOK, booking)
 }
 
 // PatchBookings updates status of an existing Booking request.
 // (PATCH /bookings/{bookingId})
-func (*StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.BookingId,
+func (s *StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.BookingId,
 	params api.PatchBookingsParams) error {
-	// Implement me
-	return nil
+
+	booking, missingErr := s.mockDB.GetBooking(bookingID)
+	if missingErr != nil {
+		return ctx.JSON(http.StatusNotFound, errorBody(missingErr))
+	}
+
+	statusAfter, err := statusIsAfter(params.Status, booking.Status)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, errorBody(err))
+	}
+
+	if !statusAfter {
+		err := errors.New("status_already_set")
+		return ctx.JSON(http.StatusConflict, errorBody(err))
+	}
+
+	booking.Status = params.Status
+	return ctx.NoContent(http.StatusOK)
 }
 
 // GetDriverJourneys searches for matching punctual planned outward driver journeys.
@@ -63,7 +107,7 @@ func (s *StdCovServerImpl) GetDriverJourneys(
 ) error {
 	response := []api.DriverJourney{}
 
-	for _, dj := range s.mockDB.DriverJourneys {
+	for _, dj := range s.mockDB.GetDriverJourneys() {
 		if keepJourney(&params, dj.Trip, dj.JourneySchedule) {
 			response = append(response, dj)
 		}
@@ -131,7 +175,7 @@ func (s *StdCovServerImpl) GetPassengerJourneys(
 ) error {
 	response := []api.PassengerJourney{}
 
-	for _, pj := range s.mockDB.PassengerJourneys {
+	for _, pj := range s.mockDB.GetPassengerJourneys() {
 		if keepJourney(&params, pj.Trip, pj.JourneySchedule) {
 			response = append(response, pj)
 		}

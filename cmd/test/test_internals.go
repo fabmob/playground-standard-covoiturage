@@ -84,7 +84,7 @@ func wrapAssertionsFun(f testImplementation) ResponseTestFun {
 
 		resp.Body, err = ReusableReadCloser(resp.Body)
 		if err != nil {
-			return []AssertionResult{NewAssertionResult(err, "failure to read response")}
+			return []AssertionResult{NewAssertionResult(err, "failure to read response body")}
 		}
 
 		f(req, resp, a, flags)

@@ -1,6 +1,10 @@
 package test
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/labstack/echo/v4"
+)
 
 type testImplementation func(
 	*http.Request,
@@ -23,7 +27,7 @@ func testGetDriverJourneys(
 
 	CriticAssertFormat(a, request, response)
 	AssertStatusCode(a, response, flags.ExpectedStatusCode)
-	AssertHeaderContains(a, response, "Content-Type", "application/json")
+	AssertHeaderContains(a, response, echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	if flags.DisallowEmpty {
 		CriticAssertArrayNotEmpty(a, response)
@@ -125,6 +129,10 @@ func testGetBookings(
 
 	CriticAssertFormat(a, request, response)
 	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+
+	if flags.ExpectedBookingStatus != "" {
+		AssertBookingStatus(a, response, string(flags.ExpectedBookingStatus))
+	}
 }
 
 //////////////////////////////////////////////////////////////

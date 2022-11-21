@@ -1,20 +1,26 @@
 package test
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/labstack/echo/v4"
 )
 
-const authentificationHeader = "X-API-Key"
+const (
+	HeaderXAPIKey = "X-API-Key"
+)
 
 func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request, error) {
-	req, err := http.NewRequest(method, URL, nil)
+	req, err := http.NewRequest(method, URL, bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set(authentificationHeader, apiKey)
+	req.Header.Set(HeaderXAPIKey, apiKey)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	return req, err
 }
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
+	"github.com/labstack/echo/v4"
 )
 
 func TestExpectStatusCode(t *testing.T) {
@@ -54,13 +55,13 @@ func TestExpectStatusCode(t *testing.T) {
 func TestExpectHeaders(t *testing.T) {
 
 	headerContentTypeJSON := http.Header{
-		"Content-Type": {"application/json"},
+		echo.HeaderContentType: {echo.MIMEApplicationJSON},
 	}
 	headerContentTypeJSONWithCharset := http.Header{
-		"Content-Type": {"application/json; charset=UTF-8"},
+		echo.HeaderContentType: {echo.MIMEApplicationJSONCharsetUTF8},
 	}
 	headerContentTypeForm := http.Header{
-		"Content-Type": {"multipart/form-data"},
+		echo.HeaderContentType: {echo.MIMEMultipartForm},
 	}
 
 	testCases := []struct {
@@ -73,36 +74,36 @@ func TestExpectHeaders(t *testing.T) {
 		{
 			"No Content-Type header",
 			make(http.Header),
-			"Content-Type",
-			"application/json",
+			echo.HeaderContentType,
+			echo.MIMEApplicationJSON,
 			false,
 		},
 		{
 			"json Content-Type header",
 			headerContentTypeJSON,
-			"Content-Type",
-			"application/json",
+			echo.HeaderContentType,
+			echo.MIMEApplicationJSON,
 			true,
 		},
 		{
 			"json Content-Type header with charset",
 			headerContentTypeJSONWithCharset,
-			"Content-Type",
-			"application/json",
+			echo.HeaderContentType,
+			echo.MIMEApplicationJSON,
 			true,
 		},
 		{
 			"json Content-Type header",
 			headerContentTypeJSON,
 			"Server",
-			"application/json",
+			echo.MIMEApplicationJSON,
 			false,
 		},
 		{
 			"wrong Content-Type header",
 			headerContentTypeForm,
-			"Content-Type",
-			"application/json",
+			echo.HeaderContentType,
+			echo.MIMEApplicationJSON,
 			false,
 		},
 	}
@@ -157,7 +158,7 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 `
 	)
 
-	jsonContentTypeHeader := http.Header{"Content-Type": []string{"application/json"}}
+	jsonContentTypeHeader := http.Header{echo.HeaderContentType: []string{echo.MIMEApplicationJSON}}
 
 	testCases := []struct {
 		name           string
@@ -198,7 +199,7 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 			"Other content type",
 			driverJourneysRequest,
 			"Hello, world!",
-			http.Header{"Content-Type": []string{"text/plain"}},
+			http.Header{echo.HeaderContentType: []string{echo.MIMETextPlain}},
 			false,
 		},
 		{
@@ -543,8 +544,7 @@ func TestAssertRadius(t *testing.T) {
 				assertJourneysRadius{request, response, tc.departureOrArrival},
 			)
 
-			anyError := err != nil
-			if anyError != tc.expectError {
+			if !errAsExpected(err, tc.expectError) {
 				t.Log(err)
 				t.Error("Wrong behavior when asserting *radius query parameters")
 			}
@@ -567,7 +567,7 @@ func TestAssertNotEmpty(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			response := mockBodyResponse(tc.responseData)
 			err := singleAssertionError(t, assertArrayNotEmpty{response})
-			if (err != nil) != tc.expectError {
+			if !errAsExpected(err, tc.expectError) {
 				t.Fail()
 			}
 		})
@@ -604,7 +604,7 @@ func TestAssertUniqueIDs(t *testing.T) {
 			response := mockBodyResponse(responseData)
 
 			err := singleAssertionError(t, assertUniqueIDs{response})
-			if (err != nil) != tc.expectError {
+			if !errAsExpected(err, tc.expectError) {
 				t.Fail()
 			}
 		})
@@ -630,11 +630,41 @@ func TestValidateOperator(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		if err := validateOperator(tc.operator); (tc.valid && err != nil) ||
-			(!tc.valid && err == nil) {
+		if err := validateOperator(tc.operator); !errAsExpected(err, !tc.valid) {
 			t.Logf("Operator: %s, Expected to be valid: %t", tc.operator, tc.valid)
 			t.Logf("Error: %s", err)
 			t.Fail()
 		}
+	}
+}
+
+func TestExpectedBookingStatus(t *testing.T) {
+	testCases := []struct {
+		bookingStatus  api.BookingStatus
+		expectedStatus api.BookingStatus
+		expectError    bool
+	}{
+		{
+			api.BookingStatusCANCELLED,
+			api.BookingStatusCANCELLED,
+			false,
+		}, {
+			api.BookingStatusCANCELLED,
+			api.BookingStatusVALIDATED,
+			true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run("Test case", func(t *testing.T) {
+			statusObj := struct{ Status string }{string(tc.bookingStatus)}
+			response := mockBodyResponse(statusObj)
+
+			err := singleAssertionError(t, assertBookingStatus{response, string(tc.expectedStatus)})
+			if !errAsExpected(err, tc.expectError) {
+				t.Logf("Expected status %s, got %s", tc.expectedStatus, tc.bookingStatus)
+				t.Fail()
+			}
+		})
 	}
 }

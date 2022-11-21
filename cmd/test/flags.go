@@ -1,6 +1,10 @@
 package test
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+)
 
 // Flags stores validation options
 type Flags struct {
@@ -11,6 +15,8 @@ type Flags struct {
 	SupportDeepLink bool
 
 	ExpectedStatusCode int
+
+	ExpectedBookingStatus api.BookingStatus
 }
 
 const (
@@ -21,8 +27,9 @@ const (
 // NewFlags return a set of default flags
 func NewFlags() Flags {
 	return Flags{
-		DisallowEmpty:      false,
-		SupportDeepLink:    false,
-		ExpectedStatusCode: http.StatusOK,
+		DisallowEmpty:         false,
+		SupportDeepLink:       false,
+		ExpectedStatusCode:    http.StatusOK,
+		ExpectedBookingStatus: "",
 	}
 }

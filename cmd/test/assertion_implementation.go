@@ -1,7 +1,9 @@
 package test
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"math"
 	"net/http"
 	"strings"
@@ -105,6 +107,11 @@ func AssertUniqueIDs(a AssertionAccumulator, response *http.Response) {
 // "operator" field
 func AssertOperatorFieldFormat(a AssertionAccumulator, response *http.Response) {
 	assertion := assertOperatorFieldFormat{response}
+	a.Queue(assertion)
+}
+
+func AssertBookingStatus(a AssertionAccumulator, response *http.Response, expectedStatus string) {
+	assertion := assertBookingStatus{response, expectedStatus}
 	a.Queue(assertion)
 }
 
@@ -422,4 +429,35 @@ func validateOperator(operator string) error {
 
 func (a assertOperatorFieldFormat) Describe() string {
 	return "assert response property \"operator\""
+}
+
+/////////////////////////////////////////////////////////////
+
+type assertBookingStatus struct {
+	response       *http.Response
+	expectedStatus string
+}
+
+func (a assertBookingStatus) Execute() error {
+	bodyBytes, err := io.ReadAll(a.response.Body)
+	if err != nil {
+		return err
+	}
+
+	status, err := getResponseStatus(json.RawMessage(bodyBytes))
+	if err != nil {
+		return err
+	}
+
+	if status != a.expectedStatus {
+		return fmt.Errorf(
+			"expected booking status %s, got %s", a.expectedStatus, status,
+		)
+	}
+
+	return nil
+}
+
+func (a assertBookingStatus) Describe() string {
+	return fmt.Sprintf("assert booking status %s", a.expectedStatus)
 }

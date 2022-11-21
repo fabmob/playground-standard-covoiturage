@@ -9,6 +9,7 @@ import (
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
+	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 )
 
@@ -64,7 +65,7 @@ func mockResponse(
 
 	if header == nil {
 		header = make(http.Header)
-		header["Content-Type"] = []string{"json"}
+		header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	}
 
 	return &http.Response{
@@ -265,4 +266,11 @@ func NewMockRunner() *MockRunner {
 func emptyRequest(e Endpoint) *http.Request {
 	request, _ := http.NewRequest(e.Method, fakeServer+e.Path, nil)
 	return request
+}
+
+// errAsExpected returns if the error is as expected.
+// (expectError = false <=> err == nil)
+func errAsExpected(err error, expectError bool) bool {
+	hasError := (err != nil)
+	return hasError == expectError
 }

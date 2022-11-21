@@ -1,11 +1,33 @@
 package service
 
 import (
+	"errors"
+	"math/rand"
+	"net/http"
+	"net/http/httptest"
+
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 )
 
 const fakeServer = "http://localhost:1323"
+
+func setupTestServer(
+	db *MockDB,
+	request *http.Request,
+) (*StdCovServerImpl, echo.Context, *httptest.ResponseRecorder) {
+
+	var (
+		e       = echo.New()
+		rec     = httptest.NewRecorder()
+		ctx     = e.NewContext(request, rec)
+		handler = NewServerWithDB(db)
+	)
+
+	return handler, ctx, rec
+}
 
 func makeNDriverJourneys(n int) []api.DriverJourney {
 	driverJourneys := make([]api.DriverJourney, 0, n)
@@ -115,6 +137,46 @@ func makeParamsWithCount(count int, driverOrPassenger string) api.GetJourneysPar
 	return params
 }
 
-func makeValidBooking() api.Booking {
-	return api.Booking{Status: "CONFIRMED"}
+// makeBooking sets status to "WAITING_CONFIRMATION" by default
+func makeBooking(bookingID uuid.UUID) *api.Booking {
+	return makeBookingWithStatus(bookingID, api.BookingStatusWAITINGCONFIRMATION)
+}
+
+func makeBookingWithStatus(bookingID uuid.UUID, status api.BookingStatus) *api.Booking {
+	return &api.Booking{Id: bookingID, Status: status}
+}
+
+// repUUID creates a reproducible UUID
+func repUUID(seed int64) uuid.UUID {
+	// generate random bytes
+	rand.Seed(seed)
+	randBytes := make([]byte, 16)
+	rand.Read(randBytes)
+
+	uuid, err := uuid.FromBytes(randBytes)
+	panicIf(err)
+
+	return uuid
+}
+
+// NewBookingsByID populates a BookingsByID with given bookings. It does not
+// test if booking is already set.
+func NewBookingsByID(bookings ...*api.Booking) BookingsByID {
+	var bookingsByID = BookingsByID{}
+
+	for _, booking := range bookings {
+		if booking == nil {
+			panic(errors.New("attempt to insert nil booking"))
+		}
+
+		bookingsByID[booking.Id] = booking
+	}
+
+	return bookingsByID
+}
+
+func panicIf(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
