@@ -543,8 +543,7 @@ func TestAssertRadius(t *testing.T) {
 				assertJourneysRadius{request, response, tc.departureOrArrival},
 			)
 
-			anyError := err != nil
-			if anyError != tc.expectError {
+			if !errAsExpected(err, tc.expectError) {
 				t.Log(err)
 				t.Error("Wrong behavior when asserting *radius query parameters")
 			}
@@ -567,7 +566,7 @@ func TestAssertNotEmpty(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			response := mockBodyResponse(tc.responseData)
 			err := singleAssertionError(t, assertArrayNotEmpty{response})
-			if (err != nil) != tc.expectError {
+			if !errAsExpected(err, tc.expectError) {
 				t.Fail()
 			}
 		})
@@ -604,7 +603,7 @@ func TestAssertUniqueIDs(t *testing.T) {
 			response := mockBodyResponse(responseData)
 
 			err := singleAssertionError(t, assertUniqueIDs{response})
-			if (err != nil) != tc.expectError {
+			if !errAsExpected(err, tc.expectError) {
 				t.Fail()
 			}
 		})
@@ -630,8 +629,7 @@ func TestValidateOperator(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		if err := validateOperator(tc.operator); (tc.valid && err != nil) ||
-			(!tc.valid && err == nil) {
+		if err := validateOperator(tc.operator); !errAsExpected(err, !tc.valid) {
 			t.Logf("Operator: %s, Expected to be valid: %t", tc.operator, tc.valid)
 			t.Logf("Error: %s", err)
 			t.Fail()
@@ -662,7 +660,7 @@ func TestExpectedBookingStatus(t *testing.T) {
 			response := mockBodyResponse(statusObj)
 
 			err := singleAssertionError(t, assertBookingStatus{response, string(tc.expectedStatus)})
-			if (err != nil) != tc.expectError {
+			if !errAsExpected(err, tc.expectError) {
 				t.Logf("Expected status %s, got %s", tc.expectedStatus, tc.bookingStatus)
 				t.Fail()
 			}

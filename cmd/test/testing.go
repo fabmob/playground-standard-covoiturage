@@ -266,3 +266,11 @@ func emptyRequest(e Endpoint) *http.Request {
 	request, _ := http.NewRequest(e.Method, fakeServer+e.Path, nil)
 	return request
 }
+
+// errAsExpected returns if the error is as expected.
+// (expectError = false <=> err == nil)
+func errAsExpected(err error, expectError bool) bool {
+	hasError := (err != nil)
+	return hasError == expectError
+
+}
