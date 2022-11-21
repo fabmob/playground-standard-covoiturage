@@ -19,13 +19,14 @@ func setupTestServer(
 	request *http.Request,
 ) (*StdCovServerImpl, echo.Context, *httptest.ResponseRecorder) {
 
-	e := echo.New()
-	rec := httptest.NewRecorder()
-	ctx := e.NewContext(request, rec)
-	handler := NewServerWithDB(db)
+	var (
+		e       = echo.New()
+		rec     = httptest.NewRecorder()
+		ctx     = e.NewContext(request, rec)
+		handler = NewServerWithDB(db)
+	)
 
 	return handler, ctx, rec
-
 }
 
 func makeNDriverJourneys(n int) []api.DriverJourney {
@@ -147,10 +148,13 @@ func makeBookingWithStatus(bookingID uuid.UUID, status api.BookingStatus) *api.B
 
 // repUUID creates a reproducible UUID
 func repUUID(seed int64) uuid.UUID {
+	// generate random bytes
 	rand.Seed(seed)
 	randBytes := make([]byte, 16)
 	rand.Read(randBytes)
-	uuid, _ := uuid.FromBytes(randBytes)
+
+	uuid, err := uuid.FromBytes(randBytes)
+	panicIf(err)
 
 	return uuid
 }
@@ -169,4 +173,10 @@ func NewBookingsByID(bookings ...*api.Booking) BookingsByID {
 	}
 
 	return bookingsByID
+}
+
+func panicIf(err error) {
+	if err != nil {
+		panic(err)
+	}
 }

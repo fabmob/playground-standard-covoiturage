@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/labstack/echo/v4"
 )
 
 const (
-	HeaderXAPIKey       = "X-API-Key"
-	HeaderContentType   = "Content-Type"
-	MIMEApplicationJSON = "application/json"
+	HeaderXAPIKey = "X-API-Key"
 )
 
 func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request, error) {
@@ -20,7 +20,7 @@ func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request,
 	}
 
 	req.Header.Set(HeaderXAPIKey, apiKey)
-	req.Header.Set(HeaderContentType, MIMEApplicationJSON)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	return req, err
 }
 

@@ -9,6 +9,7 @@ import (
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
+	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 )
 
@@ -64,7 +65,7 @@ func mockResponse(
 
 	if header == nil {
 		header = make(http.Header)
-		header.Set(HeaderContentType, MIMEApplicationJSON)
+		header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	}
 
 	return &http.Response{

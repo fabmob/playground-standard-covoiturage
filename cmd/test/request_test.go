@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+
+	"github.com/labstack/echo/v4"
 )
 
 func TestMakeRequestHeader(t *testing.T) {
@@ -55,7 +57,7 @@ func TestMakeRequestHeader2(t *testing.T) {
 	req, err := makeRequest(http.MethodGet, fakeServer, bodyBytes, "")
 	panicIf(err)
 
-	if !strings.HasPrefix(req.Header.Get("Content-Type"), MIMEApplicationJSON) {
+	if !strings.HasPrefix(req.Header.Get(echo.HeaderContentType), echo.MIMEApplicationJSON) {
 		t.Fail()
 	}
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
+	"github.com/labstack/echo/v4"
 )
 
 func TestExpectStatusCode(t *testing.T) {
@@ -54,13 +55,13 @@ func TestExpectStatusCode(t *testing.T) {
 func TestExpectHeaders(t *testing.T) {
 
 	headerContentTypeJSON := http.Header{
-		HeaderContentType: {MIMEApplicationJSON},
+		echo.HeaderContentType: {echo.MIMEApplicationJSON},
 	}
 	headerContentTypeJSONWithCharset := http.Header{
-		"Content-Type": {"application/json; charset=UTF-8"},
+		echo.HeaderContentType: {echo.MIMEApplicationJSONCharsetUTF8},
 	}
 	headerContentTypeForm := http.Header{
-		"Content-Type": {"multipart/form-data"},
+		echo.HeaderContentType: {echo.MIMEMultipartForm},
 	}
 
 	testCases := []struct {
@@ -73,36 +74,36 @@ func TestExpectHeaders(t *testing.T) {
 		{
 			"No Content-Type header",
 			make(http.Header),
-			HeaderContentType,
-			MIMEApplicationJSON,
+			echo.HeaderContentType,
+			echo.MIMEApplicationJSON,
 			false,
 		},
 		{
 			"json Content-Type header",
 			headerContentTypeJSON,
-			HeaderContentType,
-			MIMEApplicationJSON,
+			echo.HeaderContentType,
+			echo.MIMEApplicationJSON,
 			true,
 		},
 		{
 			"json Content-Type header with charset",
 			headerContentTypeJSONWithCharset,
-			HeaderContentType,
-			MIMEApplicationJSON,
+			echo.HeaderContentType,
+			echo.MIMEApplicationJSON,
 			true,
 		},
 		{
 			"json Content-Type header",
 			headerContentTypeJSON,
 			"Server",
-			MIMEApplicationJSON,
+			echo.MIMEApplicationJSON,
 			false,
 		},
 		{
 			"wrong Content-Type header",
 			headerContentTypeForm,
-			HeaderContentType,
-			MIMEApplicationJSON,
+			echo.HeaderContentType,
+			echo.MIMEApplicationJSON,
 			false,
 		},
 	}
@@ -157,7 +158,7 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 `
 	)
 
-	jsonContentTypeHeader := http.Header{"Content-Type": []string{"application/json"}}
+	jsonContentTypeHeader := http.Header{echo.HeaderContentType: []string{echo.MIMEApplicationJSON}}
 
 	testCases := []struct {
 		name           string
@@ -198,7 +199,7 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 			"Other content type",
 			driverJourneysRequest,
 			"Hello, world!",
-			http.Header{"Content-Type": []string{"text/plain"}},
+			http.Header{echo.HeaderContentType: []string{echo.MIMETextPlain}},
 			false,
 		},
 		{
