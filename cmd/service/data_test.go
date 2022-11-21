@@ -67,3 +67,16 @@ func requestAll(t *testing.T, driverOrPassenger string) api.GetJourneysParams {
 		panic("invalid driverOrPassenger parameter")
 	}
 }
+
+func TestMockDB_GetBookings(t *testing.T) {
+	db := NewMockDB()
+
+	// GetBookings is non-nil if bookings is nil
+	db.Bookings = nil
+	if db.GetBookings() == nil {
+		t.Error("GetBookings should never return nil")
+	}
+	if db.Bookings == nil {
+		t.Error("GetBookings should have as side effect to initialize `Booking` property")
+	}
+}

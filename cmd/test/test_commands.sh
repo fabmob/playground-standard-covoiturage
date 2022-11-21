@@ -39,4 +39,16 @@ go run main.go test get bookings \
 echo "Test POST /bookings with body"
 go run main.go test post bookings \
   --server "http://localhost:1323" \
-  <<< "{}"
+  <<< '{
+  "driver": {
+    "alias": "abc87",
+    "id": "12345"
+  },
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "passenger": {
+    "alias": "cde69",
+    "id": "67890",
+  },
+  "passengerDropLat": 45.8275,
+  "passengerDropLng":  1.25987
+}'

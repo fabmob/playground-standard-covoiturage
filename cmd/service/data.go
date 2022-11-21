@@ -15,7 +15,7 @@ import (
 type MockDB struct {
 	DriverJourneys    []api.DriverJourney    `json:"driverJourneys"`
 	PassengerJourneys []api.PassengerJourney `json:"passengerJourneys"`
-	Bookings          BookingByID            `json:"bookings"`
+	Bookings          BookingsByID           `json:"bookings"`
 }
 
 // NewMockDB initiates a MockDB with no data
@@ -23,12 +23,36 @@ func NewMockDB() *MockDB {
 	m := MockDB{}
 	m.DriverJourneys = []api.DriverJourney{}
 	m.PassengerJourneys = []api.PassengerJourney{}
-	m.Bookings = BookingByID{}
+	m.Bookings = BookingsByID{}
 
 	return &m
 }
 
-type BookingByID map[uuid.UUID]*api.Booking
+func (m *MockDB) GetDriverJourneys() []api.DriverJourney {
+	if m.DriverJourneys == nil {
+		m.DriverJourneys = []api.DriverJourney{}
+	}
+
+	return m.DriverJourneys
+}
+
+func (m *MockDB) GetPassengerJourneys() []api.PassengerJourney {
+	if m.PassengerJourneys == nil {
+		m.PassengerJourneys = []api.PassengerJourney{}
+	}
+
+	return m.PassengerJourneys
+}
+
+func (m *MockDB) GetBookings() BookingsByID {
+	if m.Bookings == nil {
+		m.Bookings = BookingsByID{}
+	}
+
+	return m.Bookings
+}
+
+type BookingsByID map[uuid.UUID]*api.Booking
 
 // NewMockDBWithDefaultData initiates a MockDB with default data
 func NewMockDBWithDefaultData() *MockDB {

@@ -1,6 +1,7 @@
 package test
 
 import (
+	"io"
 	"net/http"
 	"testing"
 )
@@ -8,7 +9,7 @@ import (
 func TestMakeRequestHeader(t *testing.T) {
 	var (
 		method        = http.MethodGet
-		URL           = "http://localhost:9999"
+		URL           = fakeServer
 		body   []byte = nil
 	)
 
@@ -26,4 +27,22 @@ func TestMakeRequestHeader(t *testing.T) {
 		}
 	}
 
+}
+
+func TestMakeRequestBody(t *testing.T) {
+	bodyStr := "test body"
+	bodyBytes := []byte(bodyStr)
+
+	req, err := makeRequest(http.MethodGet, fakeServer, bodyBytes, "")
+	panicIf(err)
+
+	if req.Body == nil {
+		t.Fatal("makeRequest does not initializes the body properly")
+	}
+
+	body, err := io.ReadAll(req.Body)
+
+	if err != nil || string(body) != bodyStr {
+		t.Error("makeRequest does not initializes the body properly")
+	}
 }

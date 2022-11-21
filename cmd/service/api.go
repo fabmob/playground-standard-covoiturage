@@ -42,21 +42,27 @@ func (*StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
 // (POST /bookings)
 func (s *StdCovServerImpl) PostBookings(ctx echo.Context) error {
 	var newBooking *api.Booking
-	err := ctx.Bind(&newBooking)
+
+	err := ctx.Bind(newBooking)
+
 	if err != nil {
 		errorStr := err.Error()
-		return ctx.JSON(
-			http.StatusBadRequest,
-			api.BadRequest{Error: &errorStr},
-		)
+		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errorStr})
 	}
 
-	if _, idExists := s.mockDB.Bookings[newBooking.Id]; idExists {
+	if newBooking == nil {
+		errorStr := "could not parse body correctly"
+		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errorStr})
+	}
+
+	bookings := s.mockDB.GetBookings()
+
+	if _, idExists := bookings[newBooking.Id]; idExists {
 		errorStr := "booking ID already exists"
 		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errorStr})
 	}
 
-	s.mockDB.Bookings[newBooking.Id] = newBooking
+	bookings[newBooking.Id] = newBooking
 
 	return ctx.JSON(http.StatusCreated, newBooking)
 }
