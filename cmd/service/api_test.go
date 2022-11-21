@@ -459,6 +459,7 @@ func TestPatchBookings(t *testing.T) {
 		newStatus               api.BookingStatus
 		existingBookings        BookingByID
 		expectedPatchStatusCode int
+		expectedStatus          api.BookingStatus
 	}{
 		{
 			repUUID(20),
@@ -467,6 +468,7 @@ func TestPatchBookings(t *testing.T) {
 				repUUID(20): makeBooking(repUUID(20)),
 			},
 			200,
+			api.BookingStatusVALIDATED,
 		},
 	}
 
@@ -480,7 +482,13 @@ func TestPatchBookings(t *testing.T) {
 		flagsPatch := test.NewFlags()
 		flagsPatch.ExpectedStatusCode = tc.expectedPatchStatusCode
 
+		flagsGet := test.NewFlags()
+		flagsGet.ExpectedStatusCode = http.StatusOK
+		flagsGet.ExpectedBookingStatus = tc.expectedStatus
+
 		testPatchBookingsHelper(t, mockDB, tc.bookingID, params, flagsPatch)
+
+		testGetBookingsHelper(t, mockDB, tc.bookingID, flagsGet)
 	}
 }
 

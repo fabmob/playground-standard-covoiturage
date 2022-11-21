@@ -1,6 +1,8 @@
 package test
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type testImplementation func(
 	*http.Request,
@@ -125,6 +127,10 @@ func testGetBookings(
 
 	CriticAssertFormat(a, request, response)
 	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+
+	if flags.ExpectedBookingStatus != "" {
+		AssertBookingStatus(a, response, string(flags.ExpectedBookingStatus))
+	}
 }
 
 //////////////////////////////////////////////////////////////
