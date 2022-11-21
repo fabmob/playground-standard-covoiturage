@@ -2,6 +2,8 @@ package service
 
 import (
 	"bytes"
+	"errors"
+
 	// for the go:embed directive
 	_ "embed"
 	"encoding/json"
@@ -50,6 +52,20 @@ func (m *MockDB) GetBookings() BookingsByID {
 	}
 
 	return m.Bookings
+}
+
+// AddBooking adds a new booking to the data. Returns an error if a booking
+// with same ID already exists
+func (m *MockDB) AddBooking(booking api.Booking) error {
+	bookings := m.GetBookings()
+
+	if _, bookingExists := bookings[booking.Id]; bookingExists {
+		return errors.New("booking already exists")
+	}
+
+	bookings[booking.Id] = &booking
+
+	return nil
 }
 
 type BookingsByID map[uuid.UUID]*api.Booking

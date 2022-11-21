@@ -556,7 +556,6 @@ func testPostBookingsHelper(
 	booking api.Booking,
 	flags test.Flags,
 ) {
-	t.Helper()
 
 	request, err := api.NewPostBookingsRequest(fakeServer, booking)
 	panicIf(err)
