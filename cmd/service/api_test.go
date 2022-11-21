@@ -452,6 +452,38 @@ func TestPostBookings(t *testing.T) {
 	}
 }
 
+func TestPatchBookings(t *testing.T) {
+
+	testCases := []struct {
+		bookingID               uuid.UUID
+		newStatus               api.BookingStatus
+		existingBookings        BookingByID
+		expectedPatchStatusCode int
+	}{
+		{
+			repUUID(20),
+			api.BookingStatusVALIDATED,
+			BookingByID{
+				repUUID(20): makeBooking(repUUID(20)),
+			},
+			200,
+		},
+	}
+
+	for _, tc := range testCases {
+
+		mockDB := NewMockDB()
+		mockDB.Bookings = tc.existingBookings
+
+		params := api.PatchBookingsParams{Status: tc.newStatus}
+
+		flagsPatch := test.NewFlags()
+		flagsPatch.ExpectedStatusCode = tc.expectedPatchStatusCode
+
+		testPatchBookingsHelper(t, mockDB, tc.bookingID, params, flagsPatch)
+	}
+}
+
 func testPostBookingsHelper(
 	t *testing.T,
 	mockDB *MockDB,
@@ -501,7 +533,34 @@ func testGetBookingsHelper(
 	assertionResults := test.TestGetBookingsResponse(request, response, flags)
 
 	checkAssertionResults(t, assertionResults)
+}
 
+func testPatchBookingsHelper(
+	t *testing.T,
+	mockDB *MockDB,
+	bookingID api.BookingId,
+	params api.PatchBookingsParams,
+	flags test.Flags,
+) {
+	t.Helper()
+
+	// Make Request
+	request, err := api.NewPatchBookingsRequest(fakeServer, bookingID, &params)
+	panicIf(err)
+
+	// Setup testing server with response recorder
+	handler, ctx, rec := setupTestServer(mockDB, request)
+
+	// Make API call
+	err = handler.PatchBookings(ctx, bookingID, params)
+	panicIf(err)
+
+	// Test results
+	response := rec.Result()
+
+	assertionResults := test.TestPatchBookingsResponse(request, response, flags)
+
+	checkAssertionResults(t, assertionResults)
 }
 
 func testGetDriverJourneyHelper(

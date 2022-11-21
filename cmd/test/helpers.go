@@ -227,6 +227,21 @@ func getResponseOperator(obj json.RawMessage) (string, error) {
 	return withOperator.Operator, nil
 }
 
+func getResponseStatus(obj json.RawMessage) (string, error) {
+	type WithStatus struct {
+		Status string `json:"status"`
+	}
+
+	var withStatus WithStatus
+
+	err := json.Unmarshal(obj, &withStatus)
+	if err != nil {
+		return "", err
+	}
+
+	return withStatus.Status, nil
+}
+
 // failedParsing wraps a parsing error with additional details
 func failedParsing(responseOrRequest string, err error) error {
 	return fmt.Errorf(
