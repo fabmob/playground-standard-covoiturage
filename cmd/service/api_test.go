@@ -371,24 +371,24 @@ func TestGetBookings(t *testing.T) {
 		expectedStatusCode int
 	}{
 		{
-			BookingsByID{},
+			NewBookingsByID(),
 			repUUID(1),
 			false,
 			http.StatusNotFound,
 		},
 		{
-			BookingsByID{
-				repUUID(2): makeBooking(repUUID(2)),
-			},
+			NewBookingsByID(
+				makeBooking(repUUID(2)),
+			),
 			repUUID(2),
 			true,
 			http.StatusOK,
 		},
 		{
-			BookingsByID{
-				repUUID(3): makeBooking(repUUID(3)),
-				repUUID(4): makeBooking(repUUID(4)),
-			},
+			NewBookingsByID(
+				makeBooking(repUUID(3)),
+				makeBooking(repUUID(4)),
+			),
 			repUUID(4),
 			true,
 			http.StatusOK,
@@ -420,16 +420,16 @@ func TestPostBookings(t *testing.T) {
 	}{
 		{
 			makeBooking(repUUID(10)),
-			BookingsByID{},
+			NewBookingsByID(),
 			http.StatusCreated,
 			true,
 		},
 
 		{
 			makeBooking(repUUID(11)),
-			BookingsByID{
-				repUUID(11): makeBooking(repUUID(11)),
-			},
+			NewBookingsByID(
+				makeBooking(repUUID(11)),
+			),
 			http.StatusBadRequest,
 			true,
 		},
@@ -467,9 +467,9 @@ func TestPatchBookings(t *testing.T) {
 		{
 			repUUID(20),
 			api.BookingStatusVALIDATED,
-			BookingsByID{
-				repUUID(20): makeBooking(repUUID(20)),
-			},
+			NewBookingsByID(
+				makeBooking(repUUID(20)),
+			),
 			200,
 			200,
 			api.BookingStatusVALIDATED,
@@ -478,9 +478,9 @@ func TestPatchBookings(t *testing.T) {
 		{
 			repUUID(21),
 			api.BookingStatusCOMPLETEDPENDINGVALIDATION,
-			BookingsByID{
-				repUUID(21): makeBooking(repUUID(21)),
-			},
+			NewBookingsByID(
+				makeBooking(repUUID(21)),
+			),
 			200,
 			200,
 			api.BookingStatusCOMPLETEDPENDINGVALIDATION,
@@ -489,7 +489,7 @@ func TestPatchBookings(t *testing.T) {
 		{
 			repUUID(22),
 			api.BookingStatusCANCELLED,
-			BookingsByID{},
+			NewBookingsByID(),
 			404,
 			404,
 			"",
@@ -498,9 +498,9 @@ func TestPatchBookings(t *testing.T) {
 		{
 			repUUID(23),
 			api.BookingStatusVALIDATED,
-			BookingsByID{
-				repUUID(23): makeBookingWithStatus(repUUID(23), api.BookingStatusVALIDATED),
-			},
+			NewBookingsByID(
+				makeBookingWithStatus(repUUID(23), api.BookingStatusVALIDATED),
+			),
 			409,
 			200,
 			api.BookingStatusVALIDATED,
@@ -509,10 +509,10 @@ func TestPatchBookings(t *testing.T) {
 		{
 			repUUID(24),
 			api.BookingStatusVALIDATED,
-			BookingsByID{
-				repUUID(24): makeBookingWithStatus(repUUID(24),
+			NewBookingsByID(
+				makeBookingWithStatus(repUUID(24),
 					api.BookingStatusCANCELLED),
-			},
+			),
 			409,
 			200,
 			api.BookingStatusCANCELLED,
@@ -521,9 +521,9 @@ func TestPatchBookings(t *testing.T) {
 		{
 			repUUID(25),
 			"INVALID_STATUS",
-			BookingsByID{
-				repUUID(25): makeBooking(repUUID(25)),
-			},
+			NewBookingsByID(
+				makeBooking(repUUID(25)),
+			),
 			400,
 			200,
 			api.BookingStatusWAITINGCONFIRMATION,
@@ -556,6 +556,7 @@ func testPostBookingsHelper(
 	booking api.Booking,
 	flags test.Flags,
 ) {
+	t.Helper()
 
 	request, err := api.NewPostBookingsRequest(fakeServer, booking)
 	panicIf(err)

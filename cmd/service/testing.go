@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
@@ -150,5 +151,22 @@ func repUUID(seed int64) uuid.UUID {
 	randBytes := make([]byte, 16)
 	rand.Read(randBytes)
 	uuid, _ := uuid.FromBytes(randBytes)
+
 	return uuid
+}
+
+// NewBookingsByID populates a BookingsByID with given bookings. It does not
+// test if booking is already set.
+func NewBookingsByID(bookings ...*api.Booking) BookingsByID {
+	var bookingsByID = BookingsByID{}
+
+	for _, booking := range bookings {
+		if booking == nil {
+			panic(errors.New("attempt to insert nil booking"))
+		}
+
+		bookingsByID[booking.Id] = booking
+	}
+
+	return bookingsByID
 }
