@@ -20,6 +20,7 @@ func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request,
 	}
 
 	req.Header.Set(HeaderXAPIKey, apiKey)
+	req.Header.Set(HeaderContentType, MIMEApplicationJSON)
 	return req, err
 }
 
