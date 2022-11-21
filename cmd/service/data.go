@@ -54,6 +54,17 @@ func (m *MockDB) GetBookings() BookingsByID {
 	return m.Bookings
 }
 
+func (m *MockDB) GetBooking(bookingID uuid.UUID) (*api.Booking, error) {
+	bookings := m.GetBookings()
+
+	booking, ok := bookings[bookingID]
+	if !ok {
+		return nil, errors.New("missing_booking")
+	}
+
+	return booking, nil
+}
+
 // AddBooking adds a new booking to the data. Returns an error if a booking
 // with same ID already exists
 func (m *MockDB) AddBooking(booking api.Booking) error {

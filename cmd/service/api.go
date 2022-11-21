@@ -84,9 +84,9 @@ func (s *StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId
 func (s *StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.BookingId,
 	params api.PatchBookingsParams) error {
 
-	booking, ok := s.mockDB.Bookings[bookingID]
-	if !ok {
-		errStr := "missing_booking"
+	booking, missingErr := s.mockDB.GetBooking(bookingID)
+	if missingErr != nil {
+		errStr := missingErr.Error()
 		return ctx.JSON(http.StatusNotFound, api.BadRequest{Error: &errStr})
 	}
 
