@@ -89,7 +89,7 @@ func (s *StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.Booking
 		return nil
 	}
 
-	booking.Status = api.BookingStatusVALIDATED
+	booking.Status = params.Status
 
 	return nil
 }

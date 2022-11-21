@@ -470,6 +470,16 @@ func TestPatchBookings(t *testing.T) {
 			200,
 			api.BookingStatusVALIDATED,
 		},
+
+		{
+			repUUID(20),
+			api.BookingStatusCOMPLETEDPENDINGVALIDATION,
+			BookingByID{
+				repUUID(20): makeBooking(repUUID(20)),
+			},
+			200,
+			api.BookingStatusCOMPLETEDPENDINGVALIDATION,
+		},
 	}
 
 	for _, tc := range testCases {
