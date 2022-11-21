@@ -8,13 +8,14 @@ import (
 	"io"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/google/uuid"
 )
 
 // MockDB stores the data of the server in memory
 type MockDB struct {
 	DriverJourneys    []api.DriverJourney    `json:"driverJourneys"`
 	PassengerJourneys []api.PassengerJourney `json:"passengerJourneys"`
-	Bookings          []api.Booking          `json:"bookings"`
+	Bookings          BookingByID            `json:"bookings"`
 }
 
 // NewMockDB initiates a MockDB with no data
@@ -22,10 +23,12 @@ func NewMockDB() *MockDB {
 	m := MockDB{}
 	m.DriverJourneys = []api.DriverJourney{}
 	m.PassengerJourneys = []api.PassengerJourney{}
-	m.Bookings = []api.Booking{}
+	m.Bookings = BookingByID{}
 
 	return &m
 }
+
+type BookingByID map[uuid.UUID]api.Booking
 
 // NewMockDBWithDefaultData initiates a MockDB with default data
 func NewMockDBWithDefaultData() *MockDB {

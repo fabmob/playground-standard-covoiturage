@@ -365,27 +365,29 @@ func TestPassengerJourneys(t *testing.T) {
 func TestGetBookings(t *testing.T) {
 
 	testCases := []struct {
-		bookings           []api.Booking
+		bookings           map[uuid.UUID]api.Booking
 		queryBookingID     uuid.UUID
 		disallowEmpty      bool
 		expectedStatusCode int
 	}{
 		{
-			[]api.Booking{},
+			BookingByID{},
 			repUUID(1),
 			false,
 			http.StatusNotFound,
 		},
 		{
-			[]api.Booking{makeBooking(repUUID(2))},
+			BookingByID{
+				repUUID(2): makeBooking(repUUID(2)),
+			},
 			repUUID(2),
 			true,
 			http.StatusOK,
 		},
 		{
-			[]api.Booking{
-				makeBooking(repUUID(3)),
-				makeBooking(repUUID(4)),
+			BookingByID{
+				repUUID(3): makeBooking(repUUID(3)),
+				repUUID(4): makeBooking(repUUID(4)),
 			},
 			repUUID(4),
 			true,
@@ -412,19 +414,21 @@ func TestPostBookings(t *testing.T) {
 
 	testCases := []struct {
 		booking              api.Booking
-		existingBookings     []api.Booking
+		existingBookings     BookingByID
 		expectPostStatusCode int
 		expectGetNonEmpty    bool
 	}{
 		{
 			makeBooking(repUUID(10)),
-			[]api.Booking{},
+			BookingByID{},
 			http.StatusCreated,
 			true,
 		},
 		{
 			makeBooking(repUUID(11)),
-			[]api.Booking{makeBooking(repUUID(11))},
+			BookingByID{
+				repUUID(11): makeBooking(repUUID(11)),
+			},
 			http.StatusBadRequest,
 			true,
 		},
