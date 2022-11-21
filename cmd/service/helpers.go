@@ -26,7 +26,6 @@ var statusToIntMap = map[api.BookingStatus]int{
 
 // statusIsAfter checks if status1 is strictly after status2
 func statusIsAfter(status1, status2 api.BookingStatus) (bool, error) {
-
 	status1Rank, err := statusRank(status1)
 	if err != nil {
 		return false, err

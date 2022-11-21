@@ -80,13 +80,13 @@ func TestMockDB_GetBookings(t *testing.T) {
 	})
 
 	t.Run("GetBookings initialize `Bookings` property as a side effect", func(t *testing.T) {
-
 		db := NewMockDB()
 		db.Bookings = nil
+
 		_ = db.GetBookings()
 
 		if db.Bookings == nil {
-			t.Error("GetBookings should have as side effect to initialize `Booking` property")
+			t.Error("GetBookings should have as side effect to initialize `Bookings` property")
 		}
 	})
 }

@@ -272,5 +272,4 @@ func emptyRequest(e Endpoint) *http.Request {
 func errAsExpected(err error, expectError bool) bool {
 	hasError := (err != nil)
 	return hasError == expectError
-
 }
