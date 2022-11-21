@@ -44,10 +44,27 @@ func (s *StdCovServerImpl) PostBookings(ctx echo.Context) error {
 	var booking api.Booking
 	err := ctx.Bind(&booking)
 	if err != nil {
-		return nil
+		errorStr := err.Error()
+		return ctx.JSON(
+			http.StatusBadRequest,
+			api.BadRequest{Error: &errorStr},
+		)
 	}
 
-	s.mockDB.Bookings = append(s.mockDB.Bookings, booking)
+	bookingWithSameID := false
+
+	for _, existingBooking := range s.mockDB.Bookings {
+		if existingBooking.Id == booking.Id {
+			bookingWithSameID = true
+		}
+	}
+
+	if bookingWithSameID {
+		errorStr := "booking ID already exists"
+		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errorStr})
+	} else {
+		s.mockDB.Bookings = append(s.mockDB.Bookings, booking)
+	}
 
 	return ctx.JSON(http.StatusCreated, booking)
 }
