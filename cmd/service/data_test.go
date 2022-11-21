@@ -69,14 +69,24 @@ func requestAll(t *testing.T, driverOrPassenger string) api.GetJourneysParams {
 }
 
 func TestMockDB_GetBookings(t *testing.T) {
-	db := NewMockDB()
 
-	// GetBookings is non-nil if bookings is nil
-	db.Bookings = nil
-	if db.GetBookings() == nil {
-		t.Error("GetBookings should never return nil")
-	}
-	if db.Bookings == nil {
-		t.Error("GetBookings should have as side effect to initialize `Booking` property")
-	}
+	t.Run("GetBookings is non-nil even if bookings is nil", func(t *testing.T) {
+		db := NewMockDB()
+		db.Bookings = nil
+
+		if db.GetBookings() == nil {
+			t.Error("GetBookings should never return nil")
+		}
+	})
+
+	t.Run("GetBookings initialize `Bookings` property as a side effect", func(t *testing.T) {
+
+		db := NewMockDB()
+		db.Bookings = nil
+		_ = db.GetBookings()
+
+		if db.Bookings == nil {
+			t.Error("GetBookings should have as side effect to initialize `Booking` property")
+		}
+	})
 }
