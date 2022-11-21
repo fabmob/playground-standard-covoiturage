@@ -459,5 +459,5 @@ func (a assertBookingStatus) Execute() error {
 }
 
 func (a assertBookingStatus) Describe() string {
-	return "assert expected booking status"
+	return fmt.Sprintf("assert booking status %s", a.expectedStatus)
 }
