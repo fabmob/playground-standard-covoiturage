@@ -66,13 +66,10 @@ type Error struct {
 // (GET /bookings/{bookingId})
 func (s *StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId) error {
 
-	bookings := s.mockDB.GetBookings()
+	booking, missingErr := s.mockDB.GetBooking(bookingID)
 
-	booking, found := bookings[bookingID]
-
-	if !found {
-		err := errors.New("missing_booking")
-		return ctx.JSON(http.StatusNotFound, errorBody(err))
+	if missingErr != nil {
+		return ctx.JSON(http.StatusNotFound, errorBody(missingErr))
 	}
 
 	return ctx.JSON(http.StatusOK, booking)
@@ -110,7 +107,7 @@ func (s *StdCovServerImpl) GetDriverJourneys(
 ) error {
 	response := []api.DriverJourney{}
 
-	for _, dj := range s.mockDB.DriverJourneys {
+	for _, dj := range s.mockDB.GetDriverJourneys() {
 		if keepJourney(&params, dj.Trip, dj.JourneySchedule) {
 			response = append(response, dj)
 		}
@@ -178,7 +175,7 @@ func (s *StdCovServerImpl) GetPassengerJourneys(
 ) error {
 	response := []api.PassengerJourney{}
 
-	for _, pj := range s.mockDB.PassengerJourneys {
+	for _, pj := range s.mockDB.GetPassengerJourneys() {
 		if keepJourney(&params, pj.Trip, pj.JourneySchedule) {
 			response = append(response, pj)
 		}
