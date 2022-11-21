@@ -41,7 +41,7 @@ func (*StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
 // PostBookings creates a punctual outward Booking request.
 // (POST /bookings)
 func (s *StdCovServerImpl) PostBookings(ctx echo.Context) error {
-	var newBooking api.Booking
+	var newBooking *api.Booking
 	err := ctx.Bind(&newBooking)
 	if err != nil {
 		errorStr := err.Error()
@@ -81,9 +81,16 @@ func (s *StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId
 
 // PatchBookings updates status of an existing Booking request.
 // (PATCH /bookings/{bookingId})
-func (*StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.BookingId,
+func (s *StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.BookingId,
 	params api.PatchBookingsParams) error {
-	// Implement me
+
+	booking, ok := s.mockDB.Bookings[bookingID]
+	if !ok {
+		return nil
+	}
+
+	booking.Status = api.BookingStatusVALIDATED
+
 	return nil
 }
 

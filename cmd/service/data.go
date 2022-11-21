@@ -28,7 +28,7 @@ func NewMockDB() *MockDB {
 	return &m
 }
 
-type BookingByID map[uuid.UUID]api.Booking
+type BookingByID map[uuid.UUID]*api.Booking
 
 // NewMockDBWithDefaultData initiates a MockDB with default data
 func NewMockDBWithDefaultData() *MockDB {

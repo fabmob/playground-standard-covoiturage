@@ -365,7 +365,7 @@ func TestPassengerJourneys(t *testing.T) {
 func TestGetBookings(t *testing.T) {
 
 	testCases := []struct {
-		bookings           map[uuid.UUID]api.Booking
+		bookings           BookingByID
 		queryBookingID     uuid.UUID
 		disallowEmpty      bool
 		expectedStatusCode int
@@ -413,7 +413,7 @@ func TestGetBookings(t *testing.T) {
 func TestPostBookings(t *testing.T) {
 
 	testCases := []struct {
-		booking              api.Booking
+		booking              *api.Booking
 		existingBookings     BookingByID
 		expectPostStatusCode int
 		expectGetNonEmpty    bool
@@ -446,7 +446,7 @@ func TestPostBookings(t *testing.T) {
 		flagsGet := test.NewFlags()
 		flagsGet.DisallowEmpty = tc.expectGetNonEmpty
 
-		testPostBookingsHelper(t, mockDB, tc.booking, flagsPost)
+		testPostBookingsHelper(t, mockDB, *tc.booking, flagsPost)
 
 		testGetBookingsHelper(t, mockDB, bookingID, flagsGet)
 	}
