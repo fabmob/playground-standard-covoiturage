@@ -41,17 +41,12 @@ func (*StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
 // PostBookings creates a punctual outward Booking request.
 // (POST /bookings)
 func (s *StdCovServerImpl) PostBookings(ctx echo.Context) error {
-	var newBooking *api.Booking
+	var newBooking api.Booking
 
-	err := ctx.Bind(newBooking)
+	err := ctx.Bind(&newBooking)
 
 	if err != nil {
 		errorStr := err.Error()
-		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errorStr})
-	}
-
-	if newBooking == nil {
-		errorStr := "could not parse body correctly"
 		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errorStr})
 	}
 
@@ -62,7 +57,7 @@ func (s *StdCovServerImpl) PostBookings(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, api.BadRequest{Error: &errorStr})
 	}
 
-	bookings[newBooking.Id] = newBooking
+	bookings[newBooking.Id] = &newBooking
 
 	return ctx.JSON(http.StatusCreated, newBooking)
 }

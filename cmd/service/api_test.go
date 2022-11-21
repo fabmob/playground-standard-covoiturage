@@ -424,6 +424,7 @@ func TestPostBookings(t *testing.T) {
 			http.StatusCreated,
 			true,
 		},
+
 		{
 			makeBooking(repUUID(11)),
 			BookingsByID{
@@ -446,6 +447,7 @@ func TestPostBookings(t *testing.T) {
 		flagsGet := test.NewFlags()
 		flagsGet.DisallowEmpty = tc.expectGetNonEmpty
 
+		t.Log(*tc.booking)
 		testPostBookingsHelper(t, mockDB, *tc.booking, flagsPost)
 
 		testGetBookingsHelper(t, mockDB, bookingID, flagsGet)

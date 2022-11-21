@@ -7,7 +7,11 @@ import (
 	"strings"
 )
 
-const authentificationHeader = "X-API-Key"
+const (
+	HeaderXAPIKey       = "X-API-Key"
+	HeaderContentType   = "Content-Type"
+	MIMEApplicationJSON = "application/json"
+)
 
 func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request, error) {
 	req, err := http.NewRequest(method, URL, bytes.NewReader(body))
@@ -15,7 +19,7 @@ func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request,
 		return nil, err
 	}
 
-	req.Header.Set(authentificationHeader, apiKey)
+	req.Header.Set(HeaderXAPIKey, apiKey)
 	return req, err
 }
 

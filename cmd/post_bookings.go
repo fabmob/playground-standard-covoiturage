@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -18,8 +17,6 @@ func init() {
 
 		body, err := readBodyFromStdin(cmd, timeout)
 		exitWithError(err)
-
-		fmt.Println(string(body))
 
 		URL, _ := url.JoinPath(server, "/bookings")
 		err = test.RunTest(http.MethodPost, URL, verbose, test.NewQuery(), body, apiKey, flags(http.StatusCreated))

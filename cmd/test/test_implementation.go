@@ -1,6 +1,8 @@
 package test
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -103,6 +105,10 @@ func testPostBookings(
 	a AssertionAccumulator,
 	flags Flags,
 ) {
+	fmt.Println("-----------------")
+	fmt.Printf("%+v\n", response)
+	body, _ := io.ReadAll(response.Body)
+	fmt.Printf("Body:\n %+v\n", string(body))
 	CriticAssertFormat(a, request, response)
 	AssertStatusCode(a, response, flags.ExpectedStatusCode)
 }

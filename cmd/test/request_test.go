@@ -3,6 +3,7 @@ package test
 import (
 	"io"
 	"net/http"
+	"strings"
 	"testing"
 )
 
@@ -45,4 +46,17 @@ func TestMakeRequestBody(t *testing.T) {
 	if err != nil || string(body) != bodyStr {
 		t.Error("makeRequest does not initializes the body properly")
 	}
+}
+
+func TestMakeRequestHeader2(t *testing.T) {
+	bodyStr := "test body"
+	bodyBytes := []byte(bodyStr)
+
+	req, err := makeRequest(http.MethodGet, fakeServer, bodyBytes, "")
+	panicIf(err)
+
+	if !strings.HasPrefix(req.Header.Get("Content-Type"), MIMEApplicationJSON) {
+		t.Fail()
+	}
+
 }
