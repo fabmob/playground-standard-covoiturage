@@ -42,12 +42,12 @@ func (s *StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, errorBody(bodyUnmarshallingErr))
 	}
 
-	var booking api.Booking
+	var newBooking api.Booking
 
 	if driverCarpoolBooking, err := newEvent.Data.AsDriverCarpoolBooking(); err == nil {
-		booking = *driverCarpoolBooking.ToBooking()
+		newBooking = *driverCarpoolBooking.ToBooking()
 	} else if passengerCarpoolBooking, err := newEvent.Data.AsPassengerCarpoolBooking(); err == nil {
-		booking = *passengerCarpoolBooking.ToBooking()
+		newBooking = *passengerCarpoolBooking.ToBooking()
 	} else {
 		return ctx.JSON(
 			http.StatusBadRequest,
@@ -55,12 +55,31 @@ func (s *StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
 		)
 	}
 
-	alreadyExistsErr := s.mockDB.AddBooking(booking)
+	alreadyExistsErr := s.mockDB.AddBooking(newBooking)
 	if alreadyExistsErr != nil {
-		return ctx.JSON(http.StatusBadRequest, errorBody(alreadyExistsErr))
+
+		booking, missingErr := s.mockDB.GetBooking(newBooking.Id)
+		if missingErr != nil {
+			// should never happen as booking already exists
+			return ctx.NoContent(http.StatusInternalServerError)
+		}
+
+		newStatus := newBooking.Status
+
+		statusAfter, err := statusIsAfter(newStatus, booking.Status)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, errorBody(err))
+		}
+
+		if !statusAfter {
+			err := errors.New("status_already_set")
+			return ctx.JSON(http.StatusBadRequest, errorBody(err))
+		}
+
+		booking.Status = newStatus
 	}
 
-	return ctx.JSON(http.StatusOK, booking)
+	return ctx.NoContent(http.StatusOK)
 }
 
 // PostBookings creates a punctual outward Booking request.
@@ -109,7 +128,9 @@ func (s *StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.Booking
 		return ctx.JSON(http.StatusNotFound, errorBody(missingErr))
 	}
 
-	statusAfter, err := statusIsAfter(params.Status, booking.Status)
+	newStatus := params.Status
+
+	statusAfter, err := statusIsAfter(newStatus, booking.Status)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, errorBody(err))
 	}
@@ -119,7 +140,7 @@ func (s *StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.Booking
 		return ctx.JSON(http.StatusConflict, errorBody(err))
 	}
 
-	booking.Status = params.Status
+	booking.Status = newStatus
 	return ctx.NoContent(http.StatusOK)
 }
 
