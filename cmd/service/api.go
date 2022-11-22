@@ -55,28 +55,23 @@ func (s *StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
 		)
 	}
 
+	// Try to add booking
 	alreadyExistsErr := s.mockDB.AddBooking(newBooking)
+
+	// If booking exists, try to update status
 	if alreadyExistsErr != nil {
+		err := s.mockDB.UpdateBookingStatus(newBooking.Id, newBooking.Status)
 
-		booking, missingErr := s.mockDB.GetBooking(newBooking.Id)
-		if missingErr != nil {
-			// should never happen as booking already exists
-			return ctx.NoContent(http.StatusInternalServerError)
-		}
-
-		newStatus := newBooking.Status
-
-		statusAfter, err := statusIsAfter(newStatus, booking.Status)
 		if err != nil {
-			return ctx.JSON(http.StatusBadRequest, errorBody(err))
-		}
+			switch err.(type) {
+			case MissingBookingErr:
+				// should not happen
+				return ctx.NoContent(http.StatusInternalServerError)
 
-		if !statusAfter {
-			err := errors.New("status_already_set")
-			return ctx.JSON(http.StatusBadRequest, errorBody(err))
+			default:
+				return ctx.JSON(http.StatusBadRequest, errorBody(err))
+			}
 		}
-
-		booking.Status = newStatus
 	}
 
 	return ctx.NoContent(http.StatusOK)
@@ -123,24 +118,21 @@ func (s *StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId
 func (s *StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.BookingId,
 	params api.PatchBookingsParams) error {
 
-	booking, missingErr := s.mockDB.GetBooking(bookingID)
-	if missingErr != nil {
-		return ctx.JSON(http.StatusNotFound, errorBody(missingErr))
-	}
+	err := s.mockDB.UpdateBookingStatus(bookingID, params.Status)
 
-	newStatus := params.Status
-
-	statusAfter, err := statusIsAfter(newStatus, booking.Status)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, errorBody(err))
+		switch err.(type) {
+		case MissingBookingErr:
+			return ctx.JSON(http.StatusNotFound, errorBody(err))
+
+		case StatusAlreadySetErr:
+			return ctx.JSON(http.StatusConflict, errorBody(err))
+
+		default:
+			return ctx.JSON(http.StatusBadRequest, errorBody(err))
+		}
 	}
 
-	if !statusAfter {
-		err := errors.New("status_already_set")
-		return ctx.JSON(http.StatusConflict, errorBody(err))
-	}
-
-	booking.Status = newStatus
 	return ctx.NoContent(http.StatusOK)
 }
 
