@@ -550,6 +550,46 @@ func TestPatchBookings(t *testing.T) {
 	}
 }
 
+func TestPostBookingEvents(t *testing.T) {
+
+	mockDB := NewMockDB()
+	mockDB.Bookings = NewBookingsByID()
+
+	eventID := repUUID(30)
+	bookingID := repUUID(31)
+	carpoolBookingEvent := makeCarpoolBookingEvent(eventID, bookingID)
+
+	flagsPost := test.NewFlags()
+	flagsPost.ExpectedStatusCode = http.StatusOK
+
+	flagsGet := test.NewFlags()
+	flagsGet.ExpectedStatusCode = http.StatusOK
+	flagsGet.DisallowEmpty = true
+
+	testPostBookingEventsHelper(t, mockDB, carpoolBookingEvent, flagsPost)
+
+	testGetBookingsHelper(t, mockDB, bookingID, flagsGet)
+}
+
+func testPostBookingEventsHelper(t *testing.T, mockDB *MockDB,
+	carpoolBookingEvent *api.CarpoolBookingEvent, flags test.Flags) {
+
+	request, err := api.NewPostBookingEventsRequest(fakeServer, *carpoolBookingEvent)
+	panicIf(err)
+
+	// Setup testing server with response recorder
+	handler, ctx, rec := setupTestServer(mockDB, request)
+
+	// Make API Call
+	err = handler.PostBookingEvents(ctx)
+	panicIf(err)
+
+	response := rec.Result()
+
+	assertionResults := test.TestPostBookingEventsResponse(request, response, flags)
+	checkAssertionResults(t, assertionResults)
+}
+
 func testPostBookingsHelper(
 	t *testing.T,
 	mockDB *MockDB,
