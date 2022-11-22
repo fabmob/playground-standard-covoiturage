@@ -155,7 +155,8 @@ func makeCarpoolBookingEventWithStatus(eventID, bookingID uuid.UUID, status api.
 	booking := makeBookingWithStatus(bookingID, status)
 
 	carpoolBookingEventData := api.CarpoolBookingEvent_Data{}
-	carpoolBookingEventData.FromDriverCarpoolBooking(*booking.ToDriverCarpoolBooking())
+	err := carpoolBookingEventData.FromDriverCarpoolBooking(*booking.ToDriverCarpoolBooking())
+	panicIf(err)
 
 	carpoolBookingEvent := &api.CarpoolBookingEvent{
 		Data:    carpoolBookingEventData,
