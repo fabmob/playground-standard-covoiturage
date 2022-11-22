@@ -46,3 +46,4 @@ Issues:
 - Tags should separate MaaS from operator endpoints in openapi Spec
 - Reuse CarpoolBooking object in Booking object
 - DriverCarpoolBooking / FormatCarpoolBooking id format uuid
+- postConnections as operationId

@@ -197,9 +197,9 @@ func (*StdCovServerImpl) GetDriverRegularTrips(
 	return nil
 }
 
-// PostConnections sends a mesage to the owner of a retrieved journey.
+// PostMessages sends a mesage to the owner of a retrieved journey.
 // (POST /messages)
-func (*StdCovServerImpl) PostConnections(ctx echo.Context) error {
+func (*StdCovServerImpl) PostMessages(ctx echo.Context) error {
 	// Implement me
 	return nil
 }

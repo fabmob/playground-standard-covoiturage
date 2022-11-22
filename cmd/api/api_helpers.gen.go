@@ -68,10 +68,10 @@ const (
 	BookingStatusWAITINGCONFIRMATION        BookingStatus = "WAITING_CONFIRMATION"
 )
 
-// Defines values for PostConnectionsJSONBodyRecipientCarpoolerType.
+// Defines values for PostMessagesJSONBodyRecipientCarpoolerType.
 const (
-	DRIVER    PostConnectionsJSONBodyRecipientCarpoolerType = "DRIVER"
-	PASSENGER PostConnectionsJSONBodyRecipientCarpoolerType = "PASSENGER"
+	DRIVER    PostMessagesJSONBodyRecipientCarpoolerType = "DRIVER"
+	PASSENGER PostMessagesJSONBodyRecipientCarpoolerType = "PASSENGER"
 )
 
 // Booking defines model for Booking.
@@ -563,8 +563,8 @@ type GetDriverRegularTripsParams struct {
 	Count *Count `form:"count,omitempty" json:"count,omitempty"`
 }
 
-// PostConnectionsJSONBody defines parameters for PostConnections.
-type PostConnectionsJSONBody struct {
+// PostMessagesJSONBody defines parameters for PostMessages.
+type PostMessagesJSONBody struct {
 	// BookingId Booking id is common between both operators, and must be created as a [UUID](https://datatracker.ietf.org/doc/html/rfc4122) by whoever initiates the booking.  Usage of a [4 UUID](https://datatracker.ietf.org/doc/html/rfc4122#section-4.4) generation algorithm is advised.
 	BookingId *BookingId `json:"bookingId,omitempty"`
 
@@ -579,12 +579,12 @@ type PostConnectionsJSONBody struct {
 	PassengerJourneyId *string `json:"passengerJourneyId,omitempty"`
 
 	// RecipientCarpoolerType Defines if the recipient of this message is either the driver or the passenger.
-	RecipientCarpoolerType PostConnectionsJSONBodyRecipientCarpoolerType `json:"recipientCarpoolerType"`
-	To                     User                                          `json:"to"`
+	RecipientCarpoolerType PostMessagesJSONBodyRecipientCarpoolerType `json:"recipientCarpoolerType"`
+	To                     User                                       `json:"to"`
 }
 
-// PostConnectionsJSONBodyRecipientCarpoolerType defines parameters for PostConnections.
-type PostConnectionsJSONBodyRecipientCarpoolerType string
+// PostMessagesJSONBodyRecipientCarpoolerType defines parameters for PostMessages.
+type PostMessagesJSONBodyRecipientCarpoolerType string
 
 // GetPassengerJourneysParams defines parameters for GetPassengerJourneys.
 type GetPassengerJourneysParams struct {
@@ -661,8 +661,8 @@ type PostBookingEventsJSONRequestBody = CarpoolBookingEvent
 // PostBookingsJSONRequestBody defines body for PostBookings for application/json ContentType.
 type PostBookingsJSONRequestBody = Booking
 
-// PostConnectionsJSONRequestBody defines body for PostConnections for application/json ContentType.
-type PostConnectionsJSONRequestBody PostConnectionsJSONBody
+// PostMessagesJSONRequestBody defines body for PostMessages for application/json ContentType.
+type PostMessagesJSONRequestBody PostMessagesJSONBody
 
 // AsDriverCarpoolBooking returns the union data inside the CarpoolBookingEvent_Data as a DriverCarpoolBooking
 func (t CarpoolBookingEvent_Data) AsDriverCarpoolBooking() (DriverCarpoolBooking, error) {
@@ -821,10 +821,10 @@ type ClientInterface interface {
 	// GetDriverRegularTrips request
 	GetDriverRegularTrips(ctx context.Context, params *GetDriverRegularTripsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostConnections request with any body
-	PostConnectionsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// PostMessages request with any body
+	PostMessagesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	PostConnections(ctx context.Context, body PostConnectionsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostMessages(ctx context.Context, body PostMessagesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetPassengerJourneys request
 	GetPassengerJourneys(ctx context.Context, params *GetPassengerJourneysParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -932,8 +932,8 @@ func (c *Client) GetDriverRegularTrips(ctx context.Context, params *GetDriverReg
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostConnectionsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostConnectionsRequestWithBody(c.Server, contentType, body)
+func (c *Client) PostMessagesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostMessagesRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -944,8 +944,8 @@ func (c *Client) PostConnectionsWithBody(ctx context.Context, contentType string
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostConnections(ctx context.Context, body PostConnectionsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostConnectionsRequest(c.Server, body)
+func (c *Client) PostMessages(ctx context.Context, body PostMessagesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostMessagesRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1530,19 +1530,19 @@ func NewGetDriverRegularTripsRequest(server string, params *GetDriverRegularTrip
 	return req, nil
 }
 
-// NewPostConnectionsRequest calls the generic PostConnections builder with application/json body
-func NewPostConnectionsRequest(server string, body PostConnectionsJSONRequestBody) (*http.Request, error) {
+// NewPostMessagesRequest calls the generic PostMessages builder with application/json body
+func NewPostMessagesRequest(server string, body PostMessagesJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPostConnectionsRequestWithBody(server, "application/json", bodyReader)
+	return NewPostMessagesRequestWithBody(server, "application/json", bodyReader)
 }
 
-// NewPostConnectionsRequestWithBody generates requests for PostConnections with any type of body
-func NewPostConnectionsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+// NewPostMessagesRequestWithBody generates requests for PostMessages with any type of body
+func NewPostMessagesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -2020,10 +2020,10 @@ type ClientWithResponsesInterface interface {
 	// GetDriverRegularTrips request
 	GetDriverRegularTripsWithResponse(ctx context.Context, params *GetDriverRegularTripsParams, reqEditors ...RequestEditorFn) (*GetDriverRegularTripsResponse, error)
 
-	// PostConnections request with any body
-	PostConnectionsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostConnectionsResponse, error)
+	// PostMessages request with any body
+	PostMessagesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostMessagesResponse, error)
 
-	PostConnectionsWithResponse(ctx context.Context, body PostConnectionsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostConnectionsResponse, error)
+	PostMessagesWithResponse(ctx context.Context, body PostMessagesJSONRequestBody, reqEditors ...RequestEditorFn) (*PostMessagesResponse, error)
 
 	// GetPassengerJourneys request
 	GetPassengerJourneysWithResponse(ctx context.Context, params *GetPassengerJourneysParams, reqEditors ...RequestEditorFn) (*GetPassengerJourneysResponse, error)
@@ -2206,7 +2206,7 @@ func (r GetDriverRegularTripsResponse) StatusCode() int {
 	return 0
 }
 
-type PostConnectionsResponse struct {
+type PostMessagesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON400      *struct {
@@ -2216,7 +2216,7 @@ type PostConnectionsResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r PostConnectionsResponse) Status() string {
+func (r PostMessagesResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -2224,7 +2224,7 @@ func (r PostConnectionsResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r PostConnectionsResponse) StatusCode() int {
+func (r PostMessagesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2379,21 +2379,21 @@ func (c *ClientWithResponses) GetDriverRegularTripsWithResponse(ctx context.Cont
 	return ParseGetDriverRegularTripsResponse(rsp)
 }
 
-// PostConnectionsWithBodyWithResponse request with arbitrary body returning *PostConnectionsResponse
-func (c *ClientWithResponses) PostConnectionsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostConnectionsResponse, error) {
-	rsp, err := c.PostConnectionsWithBody(ctx, contentType, body, reqEditors...)
+// PostMessagesWithBodyWithResponse request with arbitrary body returning *PostMessagesResponse
+func (c *ClientWithResponses) PostMessagesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostMessagesResponse, error) {
+	rsp, err := c.PostMessagesWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePostConnectionsResponse(rsp)
+	return ParsePostMessagesResponse(rsp)
 }
 
-func (c *ClientWithResponses) PostConnectionsWithResponse(ctx context.Context, body PostConnectionsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostConnectionsResponse, error) {
-	rsp, err := c.PostConnections(ctx, body, reqEditors...)
+func (c *ClientWithResponses) PostMessagesWithResponse(ctx context.Context, body PostMessagesJSONRequestBody, reqEditors ...RequestEditorFn) (*PostMessagesResponse, error) {
+	rsp, err := c.PostMessages(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePostConnectionsResponse(rsp)
+	return ParsePostMessagesResponse(rsp)
 }
 
 // GetPassengerJourneysWithResponse request returning *GetPassengerJourneysResponse
@@ -2660,15 +2660,15 @@ func ParseGetDriverRegularTripsResponse(rsp *http.Response) (*GetDriverRegularTr
 	return response, nil
 }
 
-// ParsePostConnectionsResponse parses an HTTP response from a PostConnectionsWithResponse call
-func ParsePostConnectionsResponse(rsp *http.Response) (*PostConnectionsResponse, error) {
+// ParsePostMessagesResponse parses an HTTP response from a PostMessagesWithResponse call
+func ParsePostMessagesResponse(rsp *http.Response) (*PostMessagesResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &PostConnectionsResponse{
+	response := &PostMessagesResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -2804,7 +2804,7 @@ type ServerInterface interface {
 	GetDriverRegularTrips(ctx echo.Context, params GetDriverRegularTripsParams) error
 	// Send a message to the owner of a retrieved journey.
 	// (POST /messages)
-	PostConnections(ctx echo.Context) error
+	PostMessages(ctx echo.Context) error
 	// Search for matching punctual planned outward passenger journeys.
 	// (GET /passenger_journeys)
 	GetPassengerJourneys(ctx echo.Context, params GetPassengerJourneysParams) error
@@ -3056,12 +3056,12 @@ func (w *ServerInterfaceWrapper) GetDriverRegularTrips(ctx echo.Context) error {
 	return err
 }
 
-// PostConnections converts echo context to params.
-func (w *ServerInterfaceWrapper) PostConnections(ctx echo.Context) error {
+// PostMessages converts echo context to params.
+func (w *ServerInterfaceWrapper) PostMessages(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.PostConnections(ctx)
+	err = w.Handler.PostMessages(ctx)
 	return err
 }
 
@@ -3277,7 +3277,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.PATCH(baseURL+"/bookings/:bookingId", wrapper.PatchBookings)
 	router.GET(baseURL+"/driver_journeys", wrapper.GetDriverJourneys)
 	router.GET(baseURL+"/driver_regular_trips", wrapper.GetDriverRegularTrips)
-	router.POST(baseURL+"/messages", wrapper.PostConnections)
+	router.POST(baseURL+"/messages", wrapper.PostMessages)
 	router.GET(baseURL+"/passenger_journeys", wrapper.GetPassengerJourneys)
 	router.GET(baseURL+"/passenger_regular_trips", wrapper.GetPassengerRegularTrips)
 	router.GET(baseURL+"/status", wrapper.GetStatus)

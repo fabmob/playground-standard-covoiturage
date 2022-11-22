@@ -223,7 +223,7 @@ paths:
       - Interact
       summary: Send a message to the owner of a retrieved journey.
       description: Route used to allow a user to connect back to the owner of a retrieved journey through a texte message.
-      operationId: postConnections
+      operationId: postMessages
       requestBody:
         content:
           application/json:
