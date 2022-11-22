@@ -34,9 +34,33 @@ func NewDefaultServer() *StdCovServerImpl {
 
 // PostBookingEvents sends booking information of a user connected with a third-party provider back to the provider.
 // (POST /booking_events)
-func (*StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
-	// Implement me
-	return nil
+func (s *StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
+	var newEvent api.CarpoolBookingEvent
+
+	bodyUnmarshallingErr := ctx.Bind(&newEvent)
+	if bodyUnmarshallingErr != nil {
+		return ctx.JSON(http.StatusBadRequest, errorBody(bodyUnmarshallingErr))
+	}
+
+	var booking api.Booking
+
+	if driverCarpoolBooking, err := newEvent.Data.AsDriverCarpoolBooking(); err == nil {
+		booking = *driverCarpoolBooking.ToBooking()
+	} else if passengerCarpoolBooking, err := newEvent.Data.AsPassengerCarpoolBooking(); err == nil {
+		booking = *passengerCarpoolBooking.ToBooking()
+	} else {
+		return ctx.JSON(
+			http.StatusBadRequest,
+			errorBody(errors.New("unmarshaling error")),
+		)
+	}
+
+	alreadyExistsErr := s.mockDB.AddBooking(booking)
+	if alreadyExistsErr != nil {
+		return ctx.JSON(http.StatusBadRequest, errorBody(alreadyExistsErr))
+	}
+
+	return ctx.JSON(http.StatusOK, booking)
 }
 
 // PostBookings creates a punctual outward Booking request.

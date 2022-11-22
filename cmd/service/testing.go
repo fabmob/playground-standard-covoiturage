@@ -149,11 +149,11 @@ func makeBookingWithStatus(bookingID uuid.UUID, status api.BookingStatus) *api.B
 func makeCarpoolBookingEvent(eventID, bookingID uuid.UUID) *api.CarpoolBookingEvent {
 	booking := makeBooking(bookingID)
 
-	carpoolBookingEventData := &api.CarpoolBookingEvent_Data{}
-	carpoolBookingEventData.MergeDriverCarpoolBooking(*booking.ToDriverCarpoolBooking())
+	carpoolBookingEventData := api.CarpoolBookingEvent_Data{}
+	carpoolBookingEventData.FromDriverCarpoolBooking(*booking.ToDriverCarpoolBooking())
 
 	carpoolBookingEvent := &api.CarpoolBookingEvent{
-		Data:    *carpoolBookingEventData,
+		Data:    carpoolBookingEventData,
 		Id:      eventID,
 		IdToken: "",
 	}
