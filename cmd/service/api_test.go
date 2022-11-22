@@ -577,6 +577,24 @@ func TestPostBookingEvents(t *testing.T) {
 			http.StatusOK,
 			api.BookingStatusWAITINGCONFIRMATION,
 		},
+
+		{
+			repUUID(34),
+			makeCarpoolBookingEventWithStatus(repUUID(35), repUUID(34), api.BookingStatusCONFIRMED),
+			NewBookingsByID(makeBookingWithStatus(repUUID(34), api.BookingStatusCONFIRMED)),
+			http.StatusBadRequest,
+			http.StatusOK,
+			api.BookingStatusWAITINGCONFIRMATION,
+		},
+
+		{
+			repUUID(36),
+			makeCarpoolBookingEventWithStatus(repUUID(37), repUUID(36), api.BookingStatusCONFIRMED),
+			NewBookingsByID(makeBookingWithStatus(repUUID(36), api.BookingStatusCANCELLED)),
+			http.StatusBadRequest,
+			http.StatusOK,
+			api.BookingStatusWAITINGCONFIRMATION,
+		},
 	}
 
 	for _, tc := range testCases {
