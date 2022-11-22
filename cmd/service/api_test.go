@@ -560,11 +560,19 @@ func TestPostBookingEvents(t *testing.T) {
 		expectedGetStatusCode  int
 		expectedStatus         api.BookingStatus
 	}{
-
 		{
 			repUUID(31),
 			makeCarpoolBookingEvent(repUUID(30), repUUID(31)),
 			NewBookingsByID(),
+			http.StatusOK,
+			http.StatusOK,
+			api.BookingStatusWAITINGCONFIRMATION,
+		},
+
+		{
+			repUUID(32),
+			makeCarpoolBookingEventWithStatus(repUUID(33), repUUID(32), api.BookingStatusCONFIRMED),
+			NewBookingsByID(makeBooking(repUUID(32))),
 			http.StatusOK,
 			http.StatusOK,
 			api.BookingStatusWAITINGCONFIRMATION,
