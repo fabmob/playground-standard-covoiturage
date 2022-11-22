@@ -552,23 +552,40 @@ func TestPatchBookings(t *testing.T) {
 
 func TestPostBookingEvents(t *testing.T) {
 
-	mockDB := NewMockDB()
-	mockDB.Bookings = NewBookingsByID()
+	testCases := []struct {
+		bookingID              uuid.UUID
+		carpoolBookingEvent    *api.CarpoolBookingEvent
+		existingBookings       BookingsByID
+		expectedPostStatusCode int
+		expectedGetStatusCode  int
+		expectedStatus         api.BookingStatus
+	}{
 
-	eventID := repUUID(30)
-	bookingID := repUUID(31)
-	carpoolBookingEvent := makeCarpoolBookingEvent(eventID, bookingID)
+		{
+			repUUID(31),
+			makeCarpoolBookingEvent(repUUID(30), repUUID(31)),
+			NewBookingsByID(),
+			http.StatusOK,
+			http.StatusOK,
+			api.BookingStatusWAITINGCONFIRMATION,
+		},
+	}
 
-	flagsPost := test.NewFlags()
-	flagsPost.ExpectedStatusCode = http.StatusOK
+	for _, tc := range testCases {
 
-	flagsGet := test.NewFlags()
-	flagsGet.ExpectedStatusCode = http.StatusOK
-	flagsGet.DisallowEmpty = true
+		mockDB := NewMockDB()
+		mockDB.Bookings = tc.existingBookings
 
-	testPostBookingEventsHelper(t, mockDB, carpoolBookingEvent, flagsPost)
+		flagsPost := test.NewFlags()
+		flagsPost.ExpectedStatusCode = tc.expectedPostStatusCode
 
-	testGetBookingsHelper(t, mockDB, bookingID, flagsGet)
+		flagsGet := test.NewFlags()
+		flagsGet.ExpectedStatusCode = tc.expectedGetStatusCode
+
+		testPostBookingEventsHelper(t, mockDB, tc.carpoolBookingEvent, flagsPost)
+
+		testGetBookingsHelper(t, mockDB, tc.bookingID, flagsGet)
+	}
 }
 
 func testPostBookingEventsHelper(t *testing.T, mockDB *MockDB,
