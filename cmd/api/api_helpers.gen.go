@@ -142,7 +142,7 @@ type CarpoolBooking struct {
 	Duration *int `json:"duration,omitempty"`
 
 	// Id Unique identifier of the booking.
-	Id string `json:"id"`
+	Id openapi_types.UUID `json:"id"`
 
 	// PassengerDropAddress String representing the drop-off address.
 	PassengerDropAddress *string `json:"passengerDropAddress,omitempty"`

@@ -794,6 +794,7 @@ components:
         id:
           type: "string"
           description: Unique identifier of the booking.
+          format: uuid
         passengerPickupDate:
           type: integer
           description: Passenger pickup datetime as a UNIX UTC timestamp in seconds.
