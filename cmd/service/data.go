@@ -55,6 +55,14 @@ func (m *MockDB) GetBookings() BookingsByID {
 	return m.Bookings
 }
 
+func (m *MockDB) GetUsers() []api.User {
+	if m.Users == nil {
+		m.Users = []api.User{}
+	}
+
+	return m.Users
+}
+
 func (m *MockDB) GetBooking(bookingID uuid.UUID) (*api.Booking, error) {
 	bookings := m.GetBookings()
 

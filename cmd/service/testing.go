@@ -176,6 +176,19 @@ func makeMessage(from api.User, to api.User) api.PostMessagesJSONBody {
 	}
 }
 
+func makeUser(id, alias string) api.User {
+	defaultOperator := "default.operator.com"
+	return makeUserWithOperator(id, alias, defaultOperator)
+}
+
+func makeUserWithOperator(id, alias, operator string) api.User {
+	return api.User{
+		Id:       id,
+		Alias:    alias,
+		Operator: operator,
+	}
+}
+
 // repUUID creates a reproducible UUID
 func repUUID(seed int64) uuid.UUID {
 	// generate random bytes

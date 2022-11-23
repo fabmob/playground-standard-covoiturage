@@ -53,3 +53,14 @@ func errorBody(err error) api.BadRequest {
 	errStr := err.Error()
 	return api.BadRequest{Error: &errStr}
 }
+
+func userExists(user api.User, users []api.User) bool {
+	for _, existingUser := range users {
+		if existingUser.Id == user.Id &&
+			existingUser.Operator == user.Operator {
+			return true
+		}
+	}
+
+	return false
+}

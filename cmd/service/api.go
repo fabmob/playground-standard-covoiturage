@@ -199,7 +199,20 @@ func (*StdCovServerImpl) GetDriverRegularTrips(
 
 // PostMessages sends a mesage to the owner of a retrieved journey.
 // (POST /messages)
-func (*StdCovServerImpl) PostMessages(ctx echo.Context) error {
+func (s *StdCovServerImpl) PostMessages(ctx echo.Context) error {
+	users := s.mockDB.GetUsers()
+
+	var message api.PostMessagesJSONBody
+
+	bodyUnmarshallingErr := ctx.Bind(&message)
+	if bodyUnmarshallingErr != nil {
+		return ctx.JSON(http.StatusBadRequest, errorBody(bodyUnmarshallingErr))
+	}
+
+	if !userExists(message.To, users) {
+		return ctx.JSON(http.StatusNotFound, errorBody(errors.New("missing_user: recipient")))
+	}
+
 	return ctx.NoContent(http.StatusCreated)
 }
 

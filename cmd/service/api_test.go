@@ -616,8 +616,11 @@ func TestPostBookingEvents(t *testing.T) {
 }
 
 func TestPostMessage(t *testing.T) {
-	bob := api.User{Id: "1", Alias: "bob"}
-	alice := api.User{Id: "2", Alias: "alice"}
+	var (
+		bob   = makeUser("1", "bob")
+		alice = makeUser("2", "alice")
+	)
+
 	testCases := []struct {
 		message            api.PostMessagesJSONBody
 		existingUsers      []api.User
@@ -627,6 +630,12 @@ func TestPostMessage(t *testing.T) {
 			makeMessage(bob, alice),
 			[]api.User{bob, alice},
 			http.StatusCreated,
+		},
+
+		{
+			makeMessage(bob, alice),
+			[]api.User{bob},
+			http.StatusNotFound,
 		},
 	}
 	for _, tc := range testCases {
