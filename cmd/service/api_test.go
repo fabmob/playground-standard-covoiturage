@@ -17,6 +17,8 @@ import (
 var generateTestData bool
 var generatedData = NewMockDB()
 
+// appendDataIfGenerated is used to populate the `generatedData` db if the
+// -generate flag is provided
 func appendDataIfGenerated(mockDB *MockDB) {
 	if generateTestData {
 		appendData(mockDB, generatedData)
