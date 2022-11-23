@@ -637,6 +637,12 @@ func TestPostMessage(t *testing.T) {
 			[]api.User{bob},
 			http.StatusNotFound,
 		},
+
+		{
+			makeMessage(bob, alice),
+			[]api.User{alice},
+			http.StatusCreated,
+		},
 	}
 	for _, tc := range testCases {
 		mockDB := NewMockDB()

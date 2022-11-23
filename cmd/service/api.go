@@ -210,7 +210,7 @@ func (s *StdCovServerImpl) PostMessages(ctx echo.Context) error {
 	}
 
 	if !userExists(message.To, users) {
-		return ctx.JSON(http.StatusNotFound, errorBody(errors.New("missing_user: recipient")))
+		return ctx.JSON(http.StatusNotFound, errorBody(errors.New("missing_user")))
 	}
 
 	return ctx.NoContent(http.StatusCreated)
