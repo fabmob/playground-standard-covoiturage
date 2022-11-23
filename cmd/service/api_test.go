@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -622,7 +623,7 @@ func TestPostMessage(t *testing.T) {
 		{
 			makeMessage(api.User{Id: "1", Alias: "quidam1"}, api.User{Id: "2",
 				Alias: "quidam2"}),
-			http.StatusOK,
+			http.StatusCreated,
 		},
 	}
 	for _, tc := range testCases {
@@ -650,6 +651,7 @@ func testPostMessageHelper(t *testing.T, mockDB *MockDB, message api.PostMessage
 
 	// Test response
 	response := rec.Result()
+	fmt.Println(response)
 
 	assertionResults := test.TestPostMessagesResponse(request, response, flags)
 	checkAssertionResults(t, assertionResults)
