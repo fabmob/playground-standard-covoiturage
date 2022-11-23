@@ -53,7 +53,7 @@ jobs:
         run: go run main.go serve &
 
       - name: check server
-        run: timeout 10s bash -c 'until [ $(curl --output /dev/null --silent --fail --write-out "%{http_code}" "http://localhost:1323") -ne "000" ]; do printf "."; sleep 1; done;'
+        run: timeout 30s bash -c 'until [ $(curl --output /dev/null --silent --fail --write-out "%{http_code}" "http://localhost:1323") -ne "000" ]; do printf "."; sleep 1; done;'
 
       - name: test commands
         run: bash cmd/test/test_commands.sh
