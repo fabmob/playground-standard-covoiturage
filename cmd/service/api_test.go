@@ -644,6 +644,7 @@ func TestPostMessage(t *testing.T) {
 			http.StatusCreated,
 		},
 	}
+
 	for _, tc := range testCases {
 		mockDB := NewMockDB()
 		mockDB.Users = tc.existingUsers

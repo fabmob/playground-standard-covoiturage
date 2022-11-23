@@ -213,6 +213,8 @@ func (s *StdCovServerImpl) PostMessages(ctx echo.Context) error {
 		return ctx.JSON(http.StatusNotFound, errorBody(errors.New("missing_user")))
 	}
 
+	s.mockDB.Messages = append(s.mockDB.Messages, message)
+
 	return ctx.NoContent(http.StatusCreated)
 }
 

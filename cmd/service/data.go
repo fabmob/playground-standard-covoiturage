@@ -15,10 +15,11 @@ import (
 
 // MockDB stores the data of the server in memory
 type MockDB struct {
-	DriverJourneys    []api.DriverJourney    `json:"driverJourneys"`
-	PassengerJourneys []api.PassengerJourney `json:"passengerJourneys"`
-	Bookings          BookingsByID           `json:"bookings"`
-	Users             []api.User             `json:"users"`
+	DriverJourneys    []api.DriverJourney        `json:"driverJourneys"`
+	PassengerJourneys []api.PassengerJourney     `json:"passengerJourneys"`
+	Bookings          BookingsByID               `json:"bookings"`
+	Users             []api.User                 `json:"users"`
+	Messages          []api.PostMessagesJSONBody `json:"messages"`
 }
 
 // NewMockDB initiates a MockDB with no data
