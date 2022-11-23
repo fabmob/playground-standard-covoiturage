@@ -1,6 +1,7 @@
 package service
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 	"testing"
@@ -13,7 +14,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var generateTestData bool
+
+func init() {
+	// test flags do not need to be parsed explicitely, as it is already done in
+	// normal operation
+	flag.BoolVar(&generateTestData, "generate", false, "Should test data be regenerated")
+}
+
 func TestDriverJourneys(t *testing.T) {
+	if generateTestData {
+		fmt.Println("I am generating test data")
+		t.Fail()
+	}
+
 	var (
 		coordsIgnore = util.Coord{Lat: 0, Lon: 0}
 		coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
