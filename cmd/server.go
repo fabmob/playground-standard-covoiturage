@@ -11,10 +11,14 @@ var serveCmd = &cobra.Command{
 	Short: "Serves a test API enforcing the standard covoitrage specification",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		service.Run()
+		service.Run(dataFile)
 	},
 }
 
+var dataFile string
+
 func init() {
+	serveCmd.Flags().StringVar(&dataFile, "data", "", "Path to custom initial data file")
+
 	rootCmd.AddCommand(serveCmd)
 }
