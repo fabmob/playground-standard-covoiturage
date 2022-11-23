@@ -5,11 +5,14 @@ import (
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
+	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
 )
 
 const fakeServer = "http://localhost:1323"
@@ -221,5 +224,17 @@ func NewBookingsByID(bookings ...*api.Booking) BookingsByID {
 func panicIf(err error) {
 	if err != nil {
 		panic(err)
+	}
+}
+
+func checkAssertionResults(t *testing.T, assertionResults []test.AssertionResult) {
+	t.Helper()
+
+	assert.Greater(t, len(assertionResults), 0)
+
+	for _, ar := range assertionResults {
+		if err := ar.Unwrap(); err != nil {
+			t.Error(err)
+		}
 	}
 }

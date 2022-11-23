@@ -1,9 +1,10 @@
 package service
 
 import (
+	"encoding/json"
 	"flag"
-	"fmt"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
@@ -11,10 +12,10 @@ import (
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
 )
 
 var generateTestData bool
+var generatedData = NewMockDB()
 
 func init() {
 	// test flags do not need to be parsed explicitely, as it is already done in
@@ -23,10 +24,6 @@ func init() {
 }
 
 func TestDriverJourneys(t *testing.T) {
-	if generateTestData {
-		fmt.Println("I am generating test data")
-		t.Fail()
-	}
 
 	var (
 		coordsIgnore = util.Coord{Lat: 0, Lon: 0}
@@ -200,6 +197,18 @@ func TestDriverJourneys(t *testing.T) {
 			)
 		})
 	}
+}
+
+func testGetDriverJourneyHelper(
+	t *testing.T,
+	params api.GetJourneysParams,
+	mockDB *MockDB,
+	flags test.Flags,
+) {
+
+	testFunction := test.TestGetDriverJourneysResponse
+
+	testGetJourneysHelper(t, params, mockDB, testFunction, flags)
 }
 
 func TestPassengerJourneys(t *testing.T) {
@@ -377,8 +386,41 @@ func TestPassengerJourneys(t *testing.T) {
 	}
 }
 
-func TestGetBookings(t *testing.T) {
+func testGetPassengerJourneyHelper(
+	t *testing.T,
+	params api.GetJourneysParams,
+	mockDB *MockDB,
+	flags test.Flags,
+) {
 
+	testFunction := test.TestGetPassengerJourneysResponse
+
+	testGetJourneysHelper(t, params, mockDB, testFunction, flags)
+}
+
+func testGetJourneysHelper(t *testing.T, params api.GetJourneysParams, mockDB *MockDB, f test.ResponseTestFun, flags test.Flags) {
+	t.Helper()
+
+	// Build request
+	request, err := params.MakeRequest(fakeServer)
+	panicIf(err)
+	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	// Setup testing server with response recorder
+	handler, ctx, rec := setupTestServer(mockDB, request)
+
+	// Make API Call
+	err = api.GetJourneys(handler, ctx, params)
+	panicIf(err)
+
+	// Check response
+	response := rec.Result()
+	assertionResults := f(request, response, flags)
+
+	checkAssertionResults(t, assertionResults)
+}
+
+func TestGetBookings(t *testing.T) {
 	testCases := []struct {
 		bookings           BookingsByID
 		queryBookingID     uuid.UUID
@@ -425,6 +467,33 @@ func TestGetBookings(t *testing.T) {
 	}
 }
 
+func testGetBookingsHelper(
+	t *testing.T,
+	mockDB *MockDB,
+	bookingID api.BookingId,
+	flags test.Flags,
+) {
+	t.Helper()
+
+	// Make Request
+	request, err := api.NewGetBookingsRequest(fakeServer, bookingID)
+	panicIf(err)
+
+	// Setup testing server with response recorder
+	handler, ctx, rec := setupTestServer(mockDB, request)
+
+	// Make API call
+	err = handler.GetBookings(ctx, bookingID)
+	panicIf(err)
+
+	// Test results
+	response := rec.Result()
+
+	assertionResults := test.TestGetBookingsResponse(request, response, flags)
+
+	checkAssertionResults(t, assertionResults)
+}
+
 func TestPostBookings(t *testing.T) {
 
 	testCases := []struct {
@@ -467,6 +536,30 @@ func TestPostBookings(t *testing.T) {
 
 		testGetBookingsHelper(t, mockDB, bookingID, flagsGet)
 	}
+}
+
+func testPostBookingsHelper(
+	t *testing.T,
+	mockDB *MockDB,
+	booking api.Booking,
+	flags test.Flags,
+) {
+	t.Helper()
+
+	request, err := api.NewPostBookingsRequest(fakeServer, booking)
+	panicIf(err)
+
+	// Setup testing server with response recorder
+	handler, ctx, rec := setupTestServer(mockDB, request)
+
+	// Make API Call
+	err = handler.PostBookings(ctx)
+	panicIf(err)
+
+	response := rec.Result()
+
+	assertionResults := test.TestPostBookingsResponse(request, response, flags)
+	checkAssertionResults(t, assertionResults)
 }
 
 func TestPatchBookings(t *testing.T) {
@@ -565,6 +658,34 @@ func TestPatchBookings(t *testing.T) {
 	}
 }
 
+func testPatchBookingsHelper(
+	t *testing.T,
+	mockDB *MockDB,
+	bookingID api.BookingId,
+	params api.PatchBookingsParams,
+	flags test.Flags,
+) {
+	t.Helper()
+
+	// Make Request
+	request, err := api.NewPatchBookingsRequest(fakeServer, bookingID, &params)
+	panicIf(err)
+
+	// Setup testing server with response recorder
+	handler, ctx, rec := setupTestServer(mockDB, request)
+
+	// Make API call
+	err = handler.PatchBookings(ctx, bookingID, params)
+	panicIf(err)
+
+	// Test results
+	response := rec.Result()
+
+	assertionResults := test.TestPatchBookingsResponse(request, response, flags)
+
+	checkAssertionResults(t, assertionResults)
+}
+
 func TestPostBookingEvents(t *testing.T) {
 
 	testCases := []struct {
@@ -629,6 +750,25 @@ func TestPostBookingEvents(t *testing.T) {
 	}
 }
 
+func testPostBookingEventsHelper(t *testing.T, mockDB *MockDB,
+	carpoolBookingEvent *api.CarpoolBookingEvent, flags test.Flags) {
+
+	request, err := api.NewPostBookingEventsRequest(fakeServer, *carpoolBookingEvent)
+	panicIf(err)
+
+	// Setup testing server with response recorder
+	handler, ctx, rec := setupTestServer(mockDB, request)
+
+	// Make API Call
+	err = handler.PostBookingEvents(ctx)
+	panicIf(err)
+
+	response := rec.Result()
+
+	assertionResults := test.TestPostBookingEventsResponse(request, response, flags)
+	checkAssertionResults(t, assertionResults)
+}
+
 func TestPostMessage(t *testing.T) {
 	var (
 		bob   = makeUser("1", "bob")
@@ -684,164 +824,17 @@ func testPostMessageHelper(t *testing.T, mockDB *MockDB, message api.PostMessage
 
 	// Test response
 	response := rec.Result()
-	fmt.Println(response)
 
 	assertionResults := test.TestPostMessagesResponse(request, response, flags)
 	checkAssertionResults(t, assertionResults)
 }
 
-func testPostBookingEventsHelper(t *testing.T, mockDB *MockDB,
-	carpoolBookingEvent *api.CarpoolBookingEvent, flags test.Flags) {
+func TestGeneration(t *testing.T) {
+	if generateTestData {
+		generatedDataBytes, err := json.MarshalIndent(generatedData, "", "  ")
+		panicIf(err)
 
-	request, err := api.NewPostBookingEventsRequest(fakeServer, *carpoolBookingEvent)
-	panicIf(err)
-
-	// Setup testing server with response recorder
-	handler, ctx, rec := setupTestServer(mockDB, request)
-
-	// Make API Call
-	err = handler.PostBookingEvents(ctx)
-	panicIf(err)
-
-	response := rec.Result()
-
-	assertionResults := test.TestPostBookingEventsResponse(request, response, flags)
-	checkAssertionResults(t, assertionResults)
-}
-
-func testPostBookingsHelper(
-	t *testing.T,
-	mockDB *MockDB,
-	booking api.Booking,
-	flags test.Flags,
-) {
-	t.Helper()
-
-	request, err := api.NewPostBookingsRequest(fakeServer, booking)
-	panicIf(err)
-
-	// Setup testing server with response recorder
-	handler, ctx, rec := setupTestServer(mockDB, request)
-
-	// Make API Call
-	err = handler.PostBookings(ctx)
-	panicIf(err)
-
-	response := rec.Result()
-
-	assertionResults := test.TestPostBookingsResponse(request, response, flags)
-	checkAssertionResults(t, assertionResults)
-}
-
-func testGetBookingsHelper(
-	t *testing.T,
-	mockDB *MockDB,
-	bookingID api.BookingId,
-	flags test.Flags,
-) {
-	t.Helper()
-
-	// Make Request
-	request, err := api.NewGetBookingsRequest(fakeServer, bookingID)
-	panicIf(err)
-
-	// Setup testing server with response recorder
-	handler, ctx, rec := setupTestServer(mockDB, request)
-
-	// Make API call
-	err = handler.GetBookings(ctx, bookingID)
-	panicIf(err)
-
-	// Test results
-	response := rec.Result()
-
-	assertionResults := test.TestGetBookingsResponse(request, response, flags)
-
-	checkAssertionResults(t, assertionResults)
-}
-
-func testPatchBookingsHelper(
-	t *testing.T,
-	mockDB *MockDB,
-	bookingID api.BookingId,
-	params api.PatchBookingsParams,
-	flags test.Flags,
-) {
-	t.Helper()
-
-	// Make Request
-	request, err := api.NewPatchBookingsRequest(fakeServer, bookingID, &params)
-	panicIf(err)
-
-	// Setup testing server with response recorder
-	handler, ctx, rec := setupTestServer(mockDB, request)
-
-	// Make API call
-	err = handler.PatchBookings(ctx, bookingID, params)
-	panicIf(err)
-
-	// Test results
-	response := rec.Result()
-
-	assertionResults := test.TestPatchBookingsResponse(request, response, flags)
-
-	checkAssertionResults(t, assertionResults)
-}
-
-func testGetDriverJourneyHelper(
-	t *testing.T,
-	params api.GetJourneysParams,
-	mockDB *MockDB,
-	flags test.Flags,
-) {
-
-	testFunction := test.TestGetDriverJourneysResponse
-
-	testGetJourneysHelper(t, params, mockDB, testFunction, flags)
-}
-
-func testGetPassengerJourneyHelper(
-	t *testing.T,
-	params api.GetJourneysParams,
-	mockDB *MockDB,
-	flags test.Flags,
-) {
-
-	testFunction := test.TestGetPassengerJourneysResponse
-
-	testGetJourneysHelper(t, params, mockDB, testFunction, flags)
-}
-
-func testGetJourneysHelper(t *testing.T, params api.GetJourneysParams, mockDB *MockDB, f test.ResponseTestFun, flags test.Flags) {
-	t.Helper()
-
-	// Build request
-	request, err := params.MakeRequest(fakeServer)
-	panicIf(err)
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-
-	// Setup testing server with response recorder
-	handler, ctx, rec := setupTestServer(mockDB, request)
-
-	// Make API Call
-	err = api.GetJourneys(handler, ctx, params)
-	panicIf(err)
-
-	// Check response
-	response := rec.Result()
-	assertionResults := f(request, response, flags)
-
-	checkAssertionResults(t, assertionResults)
-}
-
-func checkAssertionResults(t *testing.T, assertionResults []test.AssertionResult) {
-	t.Helper()
-
-	assert.Greater(t, len(assertionResults), 0)
-
-	for _, ar := range assertionResults {
-		if err := ar.Unwrap(); err != nil {
-			t.Error(err)
-		}
+		err = os.WriteFile("./data/testData.gen.json", generatedDataBytes, 0644)
+		panicIf(err)
 	}
 }
