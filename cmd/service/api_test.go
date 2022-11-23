@@ -614,6 +614,47 @@ func TestPostBookingEvents(t *testing.T) {
 	}
 }
 
+func TestPostMessage(t *testing.T) {
+	testCases := []struct {
+		message            api.PostMessagesJSONBody
+		expectedStatusCode int
+	}{
+		{
+			makeMessage(api.User{Id: "1", Alias: "quidam1"}, api.User{Id: "2",
+				Alias: "quidam2"}),
+			http.StatusOK,
+		},
+	}
+	for _, tc := range testCases {
+		mockDB := NewMockDB()
+
+		flags := test.NewFlags()
+		flags.ExpectedStatusCode = tc.expectedStatusCode
+
+		testPostMessageHelper(t, mockDB, tc.message, flags)
+
+	}
+}
+
+func testPostMessageHelper(t *testing.T, mockDB *MockDB, message api.PostMessagesJSONBody, flags test.Flags) {
+	request, err := api.NewPostMessagesRequest(fakeServer,
+		api.PostMessagesJSONRequestBody(message))
+	panicIf(err)
+
+	// Setup testing server with response recorder
+	handler, ctx, rec := setupTestServer(mockDB, request)
+
+	// Make API Call
+	err = handler.PostMessages(ctx)
+	panicIf(err)
+
+	// Test response
+	response := rec.Result()
+
+	assertionResults := test.TestPostMessagesResponse(request, response, flags)
+	checkAssertionResults(t, assertionResults)
+}
+
 func testPostBookingEventsHelper(t *testing.T, mockDB *MockDB,
 	carpoolBookingEvent *api.CarpoolBookingEvent, flags test.Flags) {
 

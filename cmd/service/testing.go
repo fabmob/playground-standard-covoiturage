@@ -167,6 +167,15 @@ func makeCarpoolBookingEventWithStatus(eventID, bookingID uuid.UUID, status api.
 	return carpoolBookingEvent
 }
 
+func makeMessage(from api.User, to api.User) api.PostMessagesJSONBody {
+	return api.PostMessagesJSONBody{
+		From:                   from,
+		To:                     to,
+		Message:                "some message",
+		RecipientCarpoolerType: "DRIVER",
+	}
+}
+
 // repUUID creates a reproducible UUID
 func repUUID(seed int64) uuid.UUID {
 	// generate random bytes
