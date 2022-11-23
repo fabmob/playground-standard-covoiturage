@@ -200,8 +200,7 @@ func (*StdCovServerImpl) GetDriverRegularTrips(
 // PostMessages sends a mesage to the owner of a retrieved journey.
 // (POST /messages)
 func (*StdCovServerImpl) PostMessages(ctx echo.Context) error {
-	// Implement me
-	return nil
+	return ctx.NoContent(http.StatusCreated)
 }
 
 // GetPassengerJourneys searches for matching punctual planned outward pasenger journeys.

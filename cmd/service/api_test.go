@@ -633,7 +633,6 @@ func TestPostMessage(t *testing.T) {
 		flags.ExpectedStatusCode = tc.expectedStatusCode
 
 		testPostMessageHelper(t, mockDB, tc.message, flags)
-
 	}
 }
 
