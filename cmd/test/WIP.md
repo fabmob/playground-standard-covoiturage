@@ -5,9 +5,11 @@
 - assertDriverJourneysFormat should not modify the response object in-place
 
 Server:
+
 - Validate request with OapiRequestValidator middleware
 
 Possible assertions driver journeys:
+
 - "the carpooling operator SHOULD return in priority the most relevant 
   results. The measure of relevance is left to the discretion of the 
   carpooling operator."
@@ -16,6 +18,7 @@ Possible assertions driver journeys:
 - long-lat in France ?
 
 Possible assertions booking object:
+
 - 404 if missing, 200 otherwise
 - PAYING = amount required
 - Booking by API = PAYING required
@@ -25,29 +28,22 @@ Possible assertions booking object:
 - Driver and passenger operator formats
 
 Ideas:
+
 - Each unit test data set is on a separate day. It is therefore possible to 
   consolidate unit test data into a single default dataset on which to run the 
   test queries.
 - A flag "--failIfEmpty" which does not accept empty responses
 
-
 Validation:
+
 - Validate response data from file on import ! 
-- Options : do not allow undocumented status code 
-  (options.IncludeResponseStatus)
-  
+
 Issues:
+ 
 - price "type" should be required
-- no error code field while message says "Error code can be among". 
-
-Vocabulary :
-
-- API
-- Endpoint
-- Each endpoint undergoes several **tests**. The collection of tests is called 
-  **test suite**.
-- A test can build on minimal building blocks called `Assertion`s
-- Each test returns a collection of `AssertionResult`s. 
-- The organized set of all `AssertionResults` is called a `Report`
-
-
+- no error code field while message says "Error code can be among".
+- id description for CarpoolBookingEvent is wrong
+- Tags should separate MaaS from operator endpoints in openapi Spec
+- Reuse CarpoolBooking object in Booking object
+- DriverCarpoolBooking / FormatCarpoolBooking id format uuid
+- postConnections as operationId

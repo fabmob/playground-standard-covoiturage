@@ -146,6 +146,27 @@ func makeBookingWithStatus(bookingID uuid.UUID, status api.BookingStatus) *api.B
 	return &api.Booking{Id: bookingID, Status: status}
 }
 
+func makeCarpoolBookingEvent(eventID, bookingID uuid.UUID) *api.CarpoolBookingEvent {
+	return makeCarpoolBookingEventWithStatus(eventID, bookingID,
+		api.BookingStatusWAITINGCONFIRMATION)
+}
+
+func makeCarpoolBookingEventWithStatus(eventID, bookingID uuid.UUID, status api.BookingStatus) *api.CarpoolBookingEvent {
+	booking := makeBookingWithStatus(bookingID, status)
+
+	carpoolBookingEventData := api.CarpoolBookingEvent_Data{}
+	err := carpoolBookingEventData.FromDriverCarpoolBooking(*booking.ToDriverCarpoolBooking())
+	panicIf(err)
+
+	carpoolBookingEvent := &api.CarpoolBookingEvent{
+		Data:    carpoolBookingEventData,
+		Id:      eventID,
+		IdToken: "",
+	}
+
+	return carpoolBookingEvent
+}
+
 // repUUID creates a reproducible UUID
 func repUUID(seed int64) uuid.UUID {
 	// generate random bytes

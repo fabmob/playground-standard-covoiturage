@@ -34,9 +34,47 @@ func NewDefaultServer() *StdCovServerImpl {
 
 // PostBookingEvents sends booking information of a user connected with a third-party provider back to the provider.
 // (POST /booking_events)
-func (*StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
-	// Implement me
-	return nil
+func (s *StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
+	var newEvent api.CarpoolBookingEvent
+
+	bodyUnmarshallingErr := ctx.Bind(&newEvent)
+	if bodyUnmarshallingErr != nil {
+		return ctx.JSON(http.StatusBadRequest, errorBody(bodyUnmarshallingErr))
+	}
+
+	var newBooking api.Booking
+
+	if driverCarpoolBooking, err := newEvent.Data.AsDriverCarpoolBooking(); err == nil {
+		newBooking = *driverCarpoolBooking.ToBooking()
+	} else if passengerCarpoolBooking, err := newEvent.Data.AsPassengerCarpoolBooking(); err == nil {
+		newBooking = *passengerCarpoolBooking.ToBooking()
+	} else {
+		return ctx.JSON(
+			http.StatusBadRequest,
+			errorBody(errors.New("unmarshaling error")),
+		)
+	}
+
+	// Try to add booking
+	alreadyExistsErr := s.mockDB.AddBooking(newBooking)
+
+	// If booking exists, try to update status
+	if alreadyExistsErr != nil {
+		err := s.mockDB.UpdateBookingStatus(newBooking.Id, newBooking.Status)
+
+		if err != nil {
+			switch err.(type) {
+			case MissingBookingErr:
+				// should not happen
+				return ctx.NoContent(http.StatusInternalServerError)
+
+			default:
+				return ctx.JSON(http.StatusBadRequest, errorBody(err))
+			}
+		}
+	}
+
+	return ctx.NoContent(http.StatusOK)
 }
 
 // PostBookings creates a punctual outward Booking request.
@@ -80,22 +118,21 @@ func (s *StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId
 func (s *StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.BookingId,
 	params api.PatchBookingsParams) error {
 
-	booking, missingErr := s.mockDB.GetBooking(bookingID)
-	if missingErr != nil {
-		return ctx.JSON(http.StatusNotFound, errorBody(missingErr))
-	}
+	err := s.mockDB.UpdateBookingStatus(bookingID, params.Status)
 
-	statusAfter, err := statusIsAfter(params.Status, booking.Status)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, errorBody(err))
+		switch err.(type) {
+		case MissingBookingErr:
+			return ctx.JSON(http.StatusNotFound, errorBody(err))
+
+		case StatusAlreadySetErr:
+			return ctx.JSON(http.StatusConflict, errorBody(err))
+
+		default:
+			return ctx.JSON(http.StatusBadRequest, errorBody(err))
+		}
 	}
 
-	if !statusAfter {
-		err := errors.New("status_already_set")
-		return ctx.JSON(http.StatusConflict, errorBody(err))
-	}
-
-	booking.Status = params.Status
 	return ctx.NoContent(http.StatusOK)
 }
 
@@ -160,9 +197,9 @@ func (*StdCovServerImpl) GetDriverRegularTrips(
 	return nil
 }
 
-// PostConnections sends a mesage to the owner of a retrieved journey.
+// PostMessages sends a mesage to the owner of a retrieved journey.
 // (POST /messages)
-func (*StdCovServerImpl) PostConnections(ctx echo.Context) error {
+func (*StdCovServerImpl) PostMessages(ctx echo.Context) error {
 	// Implement me
 	return nil
 }

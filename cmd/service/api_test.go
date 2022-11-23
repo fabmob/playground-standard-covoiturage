@@ -550,6 +550,89 @@ func TestPatchBookings(t *testing.T) {
 	}
 }
 
+func TestPostBookingEvents(t *testing.T) {
+
+	testCases := []struct {
+		bookingID              uuid.UUID
+		carpoolBookingEvent    *api.CarpoolBookingEvent
+		existingBookings       BookingsByID
+		expectedPostStatusCode int
+		expectedGetStatusCode  int
+		expectedStatus         api.BookingStatus
+	}{
+		{
+			repUUID(31),
+			makeCarpoolBookingEvent(repUUID(30), repUUID(31)),
+			NewBookingsByID(),
+			http.StatusOK,
+			http.StatusOK,
+			api.BookingStatusWAITINGCONFIRMATION,
+		},
+
+		{
+			repUUID(32),
+			makeCarpoolBookingEventWithStatus(repUUID(33), repUUID(32), api.BookingStatusCONFIRMED),
+			NewBookingsByID(makeBooking(repUUID(32))),
+			http.StatusOK,
+			http.StatusOK,
+			api.BookingStatusWAITINGCONFIRMATION,
+		},
+
+		{
+			repUUID(34),
+			makeCarpoolBookingEventWithStatus(repUUID(35), repUUID(34), api.BookingStatusCONFIRMED),
+			NewBookingsByID(makeBookingWithStatus(repUUID(34), api.BookingStatusCONFIRMED)),
+			http.StatusBadRequest,
+			http.StatusOK,
+			api.BookingStatusWAITINGCONFIRMATION,
+		},
+
+		{
+			repUUID(36),
+			makeCarpoolBookingEventWithStatus(repUUID(37), repUUID(36), api.BookingStatusCONFIRMED),
+			NewBookingsByID(makeBookingWithStatus(repUUID(36), api.BookingStatusCANCELLED)),
+			http.StatusBadRequest,
+			http.StatusOK,
+			api.BookingStatusWAITINGCONFIRMATION,
+		},
+	}
+
+	for _, tc := range testCases {
+
+		mockDB := NewMockDB()
+		mockDB.Bookings = tc.existingBookings
+
+		flagsPost := test.NewFlags()
+		flagsPost.ExpectedStatusCode = tc.expectedPostStatusCode
+
+		flagsGet := test.NewFlags()
+		flagsGet.ExpectedStatusCode = tc.expectedGetStatusCode
+
+		testPostBookingEventsHelper(t, mockDB, tc.carpoolBookingEvent, flagsPost)
+
+		testGetBookingsHelper(t, mockDB, tc.bookingID, flagsGet)
+	}
+}
+
+func testPostBookingEventsHelper(t *testing.T, mockDB *MockDB,
+	carpoolBookingEvent *api.CarpoolBookingEvent, flags test.Flags) {
+
+	request, err := api.NewPostBookingEventsRequest(fakeServer, *carpoolBookingEvent)
+	panicIf(err)
+
+	// Setup testing server with response recorder
+	handler, ctx, rec := setupTestServer(mockDB, request)
+
+	// Make API Call
+	err = handler.PostBookingEvents(ctx)
+	panicIf(err)
+
+	response := rec.Result()
+
+	assertionResults := test.TestPostBookingEventsResponse(request, response, flags)
+	checkAssertionResults(t, assertionResults)
+}
+
 func testPostBookingsHelper(
 	t *testing.T,
 	mockDB *MockDB,

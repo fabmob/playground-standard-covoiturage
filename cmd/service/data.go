@@ -59,7 +59,7 @@ func (m *MockDB) GetBooking(bookingID uuid.UUID) (*api.Booking, error) {
 
 	booking, ok := bookings[bookingID]
 	if !ok {
-		return nil, errors.New("missing_booking")
+		return nil, MissingBookingErr{}
 	}
 
 	return booking, nil
@@ -77,6 +77,41 @@ func (m *MockDB) AddBooking(booking api.Booking) error {
 	bookings[booking.Id] = &booking
 
 	return nil
+}
+
+// UpdateBookingStatus updates the status of a booking. Status can only be
+// updated for a higher ranked status. If this is not the case, or if the
+// booking is not found, returns an error
+func (m *MockDB) UpdateBookingStatus(bookingID uuid.UUID, newStatus api.BookingStatus) error {
+	booking, err := m.GetBooking(bookingID)
+	if err != nil {
+		return err
+	}
+
+	statusAfter, err := statusIsAfter(newStatus, booking.Status)
+	if err != nil {
+		return err
+	}
+
+	if !statusAfter {
+		return StatusAlreadySetErr{}
+	}
+
+	booking.Status = newStatus
+
+	return nil
+}
+
+type MissingBookingErr struct{}
+
+func (err MissingBookingErr) Error() string {
+	return "missing_booking"
+}
+
+type StatusAlreadySetErr struct{}
+
+func (err StatusAlreadySetErr) Error() string {
+	return "status_already_set"
 }
 
 type BookingsByID map[uuid.UUID]*api.Booking
