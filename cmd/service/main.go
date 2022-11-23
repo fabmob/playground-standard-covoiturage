@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/json"
 	"os"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
@@ -18,19 +17,22 @@ func Run(dataFile string) {
 	if dataFile == "" {
 		handler = NewDefaultServer()
 	} else {
+		fileReader, err := os.Open(dataFile)
+		exitIfErr(err, e)
 
-		fileBytes, err := os.ReadFile(dataFile)
-		if err != nil {
-			e.Logger.Fatal(err)
-		}
+		mockDB, err := NewMockDBWithData(fileReader)
+		exitIfErr(err, e)
 
-		var mockDB MockDB
-
-		json.Unmarshal(fileBytes, &mockDB)
-
-		handler = &StdCovServerImpl{&mockDB}
+		handler = NewServerWithDB(mockDB)
 	}
 
 	api.RegisterHandlers(e, handler)
 	e.Logger.Fatal(e.Start(":1323"))
+}
+
+func exitIfErr(err error, e *echo.Echo) {
+	if err != nil {
+		e.Logger.Fatal(err)
+		os.Exit(1)
+	}
 }

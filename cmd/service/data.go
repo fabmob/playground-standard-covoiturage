@@ -131,27 +131,9 @@ func NewMockDBWithDefaultData() *MockDB {
 	return MustReadDefaultData()
 }
 
-// JSONData stores default driver journey json data
-//
-//go:embed data/defaultData.json
-var JSONData []byte
-
-// DriverJourneysData is the in-memory equivalent of the driver journeys
-// stored in a database
-
-// MustReadDefaultData reads default data, and panics if any error occurs
-func MustReadDefaultData() *MockDB {
-	mockDB, err := ReadData(bytes.NewReader(JSONData))
-	if err != nil {
-		panic(err)
-	}
-
-	return mockDB
-}
-
-// ReadData reads journey data from io.Reader with json data.
-// It does not validate data.
-func ReadData(r io.Reader) (*MockDB, error) {
+// NewMockDBWithData reads journey data from io.Reader with json data.
+// It does not validate data against the standard.
+func NewMockDBWithData(r io.Reader) (*MockDB, error) {
 	var data MockDB
 
 	bytes, readErr := io.ReadAll(r)
@@ -162,4 +144,22 @@ func ReadData(r io.Reader) (*MockDB, error) {
 	err := json.Unmarshal(bytes, &data)
 
 	return &data, err
+}
+
+// DefaultData stores default json data
+//
+//go:embed data/defaultData.json
+var DefaultData []byte
+
+// DriverJourneysData is the in-memory equivalent of the driver journeys
+// stored in a database
+
+// MustReadDefaultData reads default data, and panics if any error occurs
+func MustReadDefaultData() *MockDB {
+	mockDB, err := NewMockDBWithData(bytes.NewReader(DefaultData))
+	if err != nil {
+		panic(err)
+	}
+
+	return mockDB
 }
