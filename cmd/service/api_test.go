@@ -17,6 +17,12 @@ import (
 var generateTestData bool
 var generatedData = NewMockDB()
 
+func appendDataIfGenerated(mockDB *MockDB) {
+	if generateTestData {
+		appendData(mockDB, generatedData)
+	}
+}
+
 func init() {
 	// test flags do not need to be parsed explicitely, as it is already done in
 	// normal operation
@@ -185,6 +191,7 @@ func TestDriverJourneys(t *testing.T) {
 
 			mockDB := NewMockDB()
 			mockDB.DriverJourneys = tc.testData
+			appendDataIfGenerated(mockDB)
 
 			flags := test.NewFlags()
 			flags.DisallowEmpty = tc.expectNonEmptyResult
@@ -372,6 +379,7 @@ func TestPassengerJourneys(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			mockDB := NewMockDB()
 			mockDB.PassengerJourneys = tc.testData
+			appendDataIfGenerated(mockDB)
 
 			flags := test.NewFlags()
 			flags.DisallowEmpty = tc.expectNonEmptyResult
@@ -457,6 +465,7 @@ func TestGetBookings(t *testing.T) {
 		t.Run("test case", func(t *testing.T) {
 			mockDB := NewMockDB()
 			mockDB.Bookings = tc.bookings
+			appendDataIfGenerated(mockDB)
 
 			flags := test.NewFlags()
 			flags.DisallowEmpty = tc.disallowEmpty
@@ -524,6 +533,7 @@ func TestPostBookings(t *testing.T) {
 
 		mockDB := NewMockDB()
 		mockDB.Bookings = tc.existingBookings
+		appendDataIfGenerated(mockDB)
 
 		flagsPost := test.NewFlags()
 		flagsPost.ExpectedStatusCode = tc.expectPostStatusCode
@@ -531,7 +541,6 @@ func TestPostBookings(t *testing.T) {
 		flagsGet := test.NewFlags()
 		flagsGet.DisallowEmpty = tc.expectGetNonEmpty
 
-		t.Log(*tc.booking)
 		testPostBookingsHelper(t, mockDB, *tc.booking, flagsPost)
 
 		testGetBookingsHelper(t, mockDB, bookingID, flagsGet)
@@ -737,6 +746,7 @@ func TestPostBookingEvents(t *testing.T) {
 
 		mockDB := NewMockDB()
 		mockDB.Bookings = tc.existingBookings
+		appendDataIfGenerated(mockDB)
 
 		flagsPost := test.NewFlags()
 		flagsPost.ExpectedStatusCode = tc.expectedPostStatusCode
@@ -752,6 +762,7 @@ func TestPostBookingEvents(t *testing.T) {
 
 func testPostBookingEventsHelper(t *testing.T, mockDB *MockDB,
 	carpoolBookingEvent *api.CarpoolBookingEvent, flags test.Flags) {
+	t.Helper()
 
 	request, err := api.NewPostBookingEventsRequest(fakeServer, *carpoolBookingEvent)
 	panicIf(err)
@@ -802,6 +813,7 @@ func TestPostMessage(t *testing.T) {
 	for _, tc := range testCases {
 		mockDB := NewMockDB()
 		mockDB.Users = tc.existingUsers
+		appendDataIfGenerated(mockDB)
 
 		flags := test.NewFlags()
 		flags.ExpectedStatusCode = tc.expectedStatusCode

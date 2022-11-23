@@ -1,0 +1,853 @@
+{
+  "driverJourneys": [
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 46.1613442,
+      "passengerPickupLng": -1.2103736,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 46.1613679,
+      "passengerPickupLng": -1.2086563,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 46.1613442,
+      "passengerPickupLng": -1.2103736,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 46.1649225,
+      "passengerPickupLng": -1.1954497,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 46.1613679,
+      "passengerPickupLng": -1.2086563,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 46.1613442,
+      "passengerPickupLng": -1.2103736,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 46.1613442,
+      "passengerDropLng": -1.2103736,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 46.1613679,
+      "passengerDropLng": -1.2086563,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 46.1649225,
+      "passengerDropLng": -1.1954497,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 46.1613442,
+      "passengerDropLng": -1.2103736,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 46.1613679,
+      "passengerDropLng": -1.2086563,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 46.1613442,
+      "passengerDropLng": -1.2103736,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 5,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 15,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 25,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 15,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    }
+  ],
+  "passengerJourneys": [
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 46.1613442,
+      "passengerPickupLng": -1.2103736,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 46.1613442,
+      "passengerPickupLng": -1.2103736,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 46.1613679,
+      "passengerPickupLng": -1.2086563,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 46.1613442,
+      "passengerPickupLng": -1.2103736,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 46.1649225,
+      "passengerPickupLng": -1.1954497,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 46.1613679,
+      "passengerPickupLng": -1.2086563,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 46.1613442,
+      "passengerDropLng": -1.2103736,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 46.1613679,
+      "passengerDropLng": -1.2086563,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 46.1649225,
+      "passengerDropLng": -1.1954497,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 46.1613442,
+      "passengerDropLng": -1.2103736,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 46.1613679,
+      "passengerDropLng": -1.2086563,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 46.1613442,
+      "passengerDropLng": -1.2103736,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 5,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 15,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 25,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 15,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    },
+    {
+      "duration": 0,
+      "operator": "example.com",
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "driverDepartureDate": 0,
+      "passengerPickupDate": 0,
+      "type": "DYNAMIC"
+    }
+  ],
+  "bookings": {
+    "2f8282cb-e2f9-696f-3144-c0aa4ced56db": {
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "id": "2f8282cb-e2f9-696f-3144-c0aa4ced56db",
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupDate": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "price": {},
+      "status": "WAITING_CONFIRMATION"
+    },
+    "590c1440-9888-b5b0-7d51-a817ee07c3f2": {
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "id": "590c1440-9888-b5b0-7d51-a817ee07c3f2",
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupDate": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "price": {},
+      "status": "WAITING_CONFIRMATION"
+    },
+    "85fbe72b-6064-2890-04a5-31f967898df5": {
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "id": "85fbe72b-6064-2890-04a5-31f967898df5",
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupDate": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "price": {},
+      "status": "WAITING_CONFIRMATION"
+    },
+    "b2892d57-f402-cd4a-2c11-08cc823ae0c5": {
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "id": "b2892d57-f402-cd4a-2c11-08cc823ae0c5",
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupDate": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "price": {},
+      "status": "CANCELLED"
+    },
+    "cc8c67ad-62d4-b3b1-ee30-02a37a51035f": {
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "id": "cc8c67ad-62d4-b3b1-ee30-02a37a51035f",
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupDate": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "price": {},
+      "status": "WAITING_CONFIRMATION"
+    },
+    "e2807d9c-1dce-26af-00ca-81d4fe11c23e": {
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "id": "e2807d9c-1dce-26af-00ca-81d4fe11c23e",
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupDate": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "price": {},
+      "status": "WAITING_CONFIRMATION"
+    },
+    "ffda9299-b1d9-fafa-3d47-844c536f73c2": {
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "id": "ffda9299-b1d9-fafa-3d47-844c536f73c2",
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupDate": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "price": {},
+      "status": "CONFIRMED"
+    }
+  },
+  "users": [
+    {
+      "alias": "bob",
+      "id": "1",
+      "operator": "default.operator.com"
+    },
+    {
+      "alias": "alice",
+      "id": "2",
+      "operator": "default.operator.com"
+    },
+    {
+      "alias": "bob",
+      "id": "1",
+      "operator": "default.operator.com"
+    },
+    {
+      "alias": "alice",
+      "id": "2",
+      "operator": "default.operator.com"
+    }
+  ],
+  "messages": null
+}

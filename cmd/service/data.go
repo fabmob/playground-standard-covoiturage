@@ -2,7 +2,7 @@ package service
 
 import (
 	"bytes"
-	"errors"
+	"fmt"
 
 	// for the go:embed directive
 	_ "embed"
@@ -81,7 +81,7 @@ func (m *MockDB) AddBooking(booking api.Booking) error {
 	bookings := m.GetBookings()
 
 	if _, bookingExists := bookings[booking.Id]; bookingExists {
-		return errors.New("booking already exists")
+		return fmt.Errorf("booking already exists (ID: %s)", booking.Id)
 	}
 
 	bookings[booking.Id] = &booking

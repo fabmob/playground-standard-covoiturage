@@ -238,3 +238,25 @@ func checkAssertionResults(t *testing.T, assertionResults []test.AssertionResult
 		}
 	}
 }
+
+func appendData(from *MockDB, to *MockDB) {
+	to.DriverJourneys = append(
+		to.GetDriverJourneys(),
+		from.GetDriverJourneys()...,
+	)
+
+	to.PassengerJourneys = append(
+		to.GetPassengerJourneys(),
+		from.GetPassengerJourneys()...,
+	)
+
+	to.Users = append(
+		to.GetUsers(),
+		from.GetUsers()...,
+	)
+
+	for _, booking := range from.GetBookings() {
+		err := to.AddBooking(*booking)
+		panicIf(err)
+	}
+}
