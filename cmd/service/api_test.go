@@ -620,15 +620,18 @@ func TestPostMessage(t *testing.T) {
 	alice := api.User{Id: "2", Alias: "alice"}
 	testCases := []struct {
 		message            api.PostMessagesJSONBody
+		existingUsers      []api.User
 		expectedStatusCode int
 	}{
 		{
 			makeMessage(bob, alice),
+			[]api.User{bob, alice},
 			http.StatusCreated,
 		},
 	}
 	for _, tc := range testCases {
 		mockDB := NewMockDB()
+		mockDB.Users = tc.existingUsers
 
 		flags := test.NewFlags()
 		flags.ExpectedStatusCode = tc.expectedStatusCode

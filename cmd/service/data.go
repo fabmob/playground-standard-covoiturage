@@ -18,6 +18,7 @@ type MockDB struct {
 	DriverJourneys    []api.DriverJourney    `json:"driverJourneys"`
 	PassengerJourneys []api.PassengerJourney `json:"passengerJourneys"`
 	Bookings          BookingsByID           `json:"bookings"`
+	Users             []api.User             `json:"users"`
 }
 
 // NewMockDB initiates a MockDB with no data
