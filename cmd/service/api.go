@@ -199,9 +199,23 @@ func (*StdCovServerImpl) GetDriverRegularTrips(
 
 // PostMessages sends a mesage to the owner of a retrieved journey.
 // (POST /messages)
-func (*StdCovServerImpl) PostMessages(ctx echo.Context) error {
-	// Implement me
-	return nil
+func (s *StdCovServerImpl) PostMessages(ctx echo.Context) error {
+	users := s.mockDB.GetUsers()
+
+	var message api.PostMessagesJSONBody
+
+	bodyUnmarshallingErr := ctx.Bind(&message)
+	if bodyUnmarshallingErr != nil {
+		return ctx.JSON(http.StatusBadRequest, errorBody(bodyUnmarshallingErr))
+	}
+
+	if !userExists(message.To, users) {
+		return ctx.JSON(http.StatusNotFound, errorBody(errors.New("missing_user")))
+	}
+
+	s.mockDB.Messages = append(s.mockDB.Messages, message)
+
+	return ctx.NoContent(http.StatusCreated)
 }
 
 // GetPassengerJourneys searches for matching punctual planned outward pasenger journeys.

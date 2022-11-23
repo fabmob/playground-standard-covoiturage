@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -612,6 +613,67 @@ func TestPostBookingEvents(t *testing.T) {
 
 		testGetBookingsHelper(t, mockDB, tc.bookingID, flagsGet)
 	}
+}
+
+func TestPostMessage(t *testing.T) {
+	var (
+		bob   = makeUser("1", "bob")
+		alice = makeUser("2", "alice")
+	)
+
+	testCases := []struct {
+		message            api.PostMessagesJSONBody
+		existingUsers      []api.User
+		expectedStatusCode int
+	}{
+		{
+			makeMessage(bob, alice),
+			[]api.User{bob, alice},
+			http.StatusCreated,
+		},
+
+		{
+			makeMessage(bob, alice),
+			[]api.User{bob},
+			http.StatusNotFound,
+		},
+
+		{
+			makeMessage(bob, alice),
+			[]api.User{alice},
+			http.StatusCreated,
+		},
+	}
+
+	for _, tc := range testCases {
+		mockDB := NewMockDB()
+		mockDB.Users = tc.existingUsers
+
+		flags := test.NewFlags()
+		flags.ExpectedStatusCode = tc.expectedStatusCode
+
+		testPostMessageHelper(t, mockDB, tc.message, flags)
+	}
+}
+
+func testPostMessageHelper(t *testing.T, mockDB *MockDB, message api.PostMessagesJSONBody, flags test.Flags) {
+	request, err := api.NewPostMessagesRequest(fakeServer,
+		api.PostMessagesJSONRequestBody(message))
+	panicIf(err)
+
+	// Setup testing server with response recorder
+	handler, ctx, rec := setupTestServer(mockDB, request)
+
+	// Make API Call
+	err = handler.PostMessages(ctx)
+	panicIf(err)
+
+	// Test response
+	response := rec.Result()
+	fmt.Println(response)
+
+	assertionResults := test.TestPostMessagesResponse(request, response, flags)
+	checkAssertionResults(t, assertionResults)
 }
 
 func testPostBookingEventsHelper(t *testing.T, mockDB *MockDB,
