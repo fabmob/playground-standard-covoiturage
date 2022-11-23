@@ -616,13 +616,14 @@ func TestPostBookingEvents(t *testing.T) {
 }
 
 func TestPostMessage(t *testing.T) {
+	bob := api.User{Id: "1", Alias: "bob"}
+	alice := api.User{Id: "2", Alias: "alice"}
 	testCases := []struct {
 		message            api.PostMessagesJSONBody
 		expectedStatusCode int
 	}{
 		{
-			makeMessage(api.User{Id: "1", Alias: "quidam1"}, api.User{Id: "2",
-				Alias: "quidam2"}),
+			makeMessage(bob, alice),
 			http.StatusCreated,
 		},
 	}
