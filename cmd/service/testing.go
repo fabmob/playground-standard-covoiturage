@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
@@ -259,4 +260,16 @@ func appendData(from *MockDB, to *MockDB) {
 		err := to.AddBooking(*booking)
 		panicIf(err)
 	}
+}
+
+func generateCommandStr(t *testing.T, request *http.Request, flags test.Flags) string {
+	var cmd string
+
+	cmd += fmt.Sprintf("# %s\n", t.Name())
+	cmd += fmt.Sprintf(
+		"go run main.go test \\\n  --url=%s \\\n  --expectStatus=%d\n\n",
+		request.URL,
+		flags.ExpectedStatusCode,
+	)
+	return cmd
 }

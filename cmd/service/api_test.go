@@ -499,12 +499,9 @@ func testGetBookingsHelper(
 	// Setup testing server with response recorder
 	handler, ctx, rec := setupTestServer(mockDB, request)
 
-	fmt.Fprintf(&commands, "# %s\n", t.Name())
-	fmt.Fprintf(
+	fmt.Fprint(
 		&commands,
-		"go run main.go test \\\n  --url=%s \\\n  --expectStatus=%d\n\n",
-		request.URL,
-		flags.ExpectedStatusCode,
+		generateCommandStr(t, request, flags),
 	)
 
 	// Make API call
