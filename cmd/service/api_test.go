@@ -459,18 +459,21 @@ func testGetJourneysHelper(t *testing.T, params api.GetJourneysParams, mockDB *M
 
 func TestGetBookings(t *testing.T) {
 	testCases := []struct {
+		name               string
 		bookings           BookingsByID
 		queryBookingID     uuid.UUID
 		disallowEmpty      bool
 		expectedStatusCode int
 	}{
 		{
+			"getting a non-existing booking returns code 404",
 			NewBookingsByID(),
 			repUUID(1),
 			false,
 			http.StatusNotFound,
 		},
 		{
+			"getting an existing booking returns it with code 200 #1",
 			NewBookingsByID(
 				makeBooking(repUUID(2)),
 			),
@@ -479,6 +482,7 @@ func TestGetBookings(t *testing.T) {
 			http.StatusOK,
 		},
 		{
+			"getting an existing booking returns it with code 200 #2",
 			NewBookingsByID(
 				makeBooking(repUUID(3)),
 				makeBooking(repUUID(4)),
@@ -491,7 +495,7 @@ func TestGetBookings(t *testing.T) {
 
 	for _, tc := range testCases {
 
-		t.Run("test case", func(t *testing.T) {
+		t.Run(tc.name, func(t *testing.T) {
 			mockDB := NewMockDB()
 			mockDB.Bookings = tc.bookings
 			appendDataIfGenerated(mockDB)
@@ -536,12 +540,14 @@ func testGetBookingsHelper(
 func TestPostBookings(t *testing.T) {
 
 	testCases := []struct {
+		name                 string
 		booking              *api.Booking
 		existingBookings     BookingsByID
 		expectPostStatusCode int
 		expectGetNonEmpty    bool
 	}{
 		{
+			"Posting a new booking succeeds with code 201",
 			makeBooking(repUUID(10)),
 			NewBookingsByID(),
 			http.StatusCreated,
@@ -549,6 +555,7 @@ func TestPostBookings(t *testing.T) {
 		},
 
 		{
+			"Posting a booking with colliding ID fails with code 400",
 			makeBooking(repUUID(11)),
 			NewBookingsByID(
 				makeBooking(repUUID(11)),
@@ -559,21 +566,23 @@ func TestPostBookings(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		bookingID := tc.booking.Id
+		t.Run(tc.name, func(t *testing.T) {
+			bookingID := tc.booking.Id
 
-		mockDB := NewMockDB()
-		mockDB.Bookings = tc.existingBookings
-		appendDataIfGenerated(mockDB)
+			mockDB := NewMockDB()
+			mockDB.Bookings = tc.existingBookings
+			appendDataIfGenerated(mockDB)
 
-		flagsPost := test.NewFlags()
-		flagsPost.ExpectedStatusCode = tc.expectPostStatusCode
+			flagsPost := test.NewFlags()
+			flagsPost.ExpectedStatusCode = tc.expectPostStatusCode
 
-		flagsGet := test.NewFlags()
-		flagsGet.DisallowEmpty = tc.expectGetNonEmpty
+			flagsGet := test.NewFlags()
+			flagsGet.DisallowEmpty = tc.expectGetNonEmpty
 
-		testPostBookingsHelper(t, mockDB, *tc.booking, flagsPost)
+			testPostBookingsHelper(t, mockDB, *tc.booking, flagsPost)
 
-		testGetBookingsHelper(t, mockDB, bookingID, flagsGet)
+			testGetBookingsHelper(t, mockDB, bookingID, flagsGet)
+		})
 	}
 }
 
@@ -605,6 +614,7 @@ func testPostBookingsHelper(
 func TestPatchBookings(t *testing.T) {
 
 	testCases := []struct {
+		name                    string
 		bookingID               uuid.UUID
 		newStatus               api.BookingStatus
 		existingBookings        BookingsByID
@@ -613,89 +623,97 @@ func TestPatchBookings(t *testing.T) {
 		expectedStatus          api.BookingStatus
 	}{
 		{
+			"patching VALIDATED over WAITING_CONFIRMATION succeeds",
 			repUUID(20),
 			api.BookingStatusVALIDATED,
 			NewBookingsByID(
 				makeBooking(repUUID(20)),
 			),
-			200,
-			200,
+			http.StatusOK,
+			http.StatusOK,
 			api.BookingStatusVALIDATED,
 		},
 
 		{
+			"patching COMPLETED_PENDING_VALIDATION over WAITING_CONFIRMATION succeeds",
 			repUUID(21),
 			api.BookingStatusCOMPLETEDPENDINGVALIDATION,
 			NewBookingsByID(
 				makeBooking(repUUID(21)),
 			),
-			200,
-			200,
+			http.StatusOK,
+			http.StatusOK,
 			api.BookingStatusCOMPLETEDPENDINGVALIDATION,
 		},
 
 		{
+			"patching a non-existing booking returns code 404",
 			repUUID(22),
 			api.BookingStatusCANCELLED,
 			NewBookingsByID(),
-			404,
-			404,
+			http.StatusNotFound,
+			http.StatusNotFound,
 			"",
 		},
 
 		{
+			"patching VALIDATED other VALIDATED fails with code 409",
 			repUUID(23),
 			api.BookingStatusVALIDATED,
 			NewBookingsByID(
 				makeBookingWithStatus(repUUID(23), api.BookingStatusVALIDATED),
 			),
-			409,
-			200,
+			http.StatusConflict,
+			http.StatusOK,
 			api.BookingStatusVALIDATED,
 		},
 
 		{
+			"patching VALIDATED other CANCELLED fails with code 409",
 			repUUID(24),
 			api.BookingStatusVALIDATED,
 			NewBookingsByID(
 				makeBookingWithStatus(repUUID(24),
 					api.BookingStatusCANCELLED),
 			),
-			409,
-			200,
+			http.StatusConflict,
+			http.StatusOK,
 			api.BookingStatusCANCELLED,
 		},
 
 		{
+			"patching INVALID_STATUS fails with code 400",
 			repUUID(25),
 			"INVALID_STATUS",
 			NewBookingsByID(
 				makeBooking(repUUID(25)),
 			),
-			400,
-			200,
+			http.StatusBadRequest,
+			http.StatusOK,
 			api.BookingStatusWAITINGCONFIRMATION,
 		},
 	}
 
 	for _, tc := range testCases {
 
-		mockDB := NewMockDB()
-		mockDB.Bookings = tc.existingBookings
-		appendDataIfGenerated(mockDB)
+		t.Run(tc.name, func(t *testing.T) {
+			mockDB := NewMockDB()
+			mockDB.Bookings = tc.existingBookings
+			appendDataIfGenerated(mockDB)
 
-		params := api.PatchBookingsParams{Status: tc.newStatus}
+			params := api.PatchBookingsParams{Status: tc.newStatus}
 
-		flagsPatch := test.NewFlags()
-		flagsPatch.ExpectedStatusCode = tc.expectedPatchStatusCode
+			flagsPatch := test.NewFlags()
+			flagsPatch.ExpectedStatusCode = tc.expectedPatchStatusCode
 
-		flagsGet := test.NewFlags()
-		flagsGet.ExpectedStatusCode = tc.expectedGetStatusCode
-		flagsGet.ExpectedBookingStatus = tc.expectedStatus
+			flagsGet := test.NewFlags()
+			flagsGet.ExpectedStatusCode = tc.expectedGetStatusCode
+			flagsGet.ExpectedBookingStatus = tc.expectedStatus
 
-		testPatchBookingsHelper(t, mockDB, tc.bookingID, params, flagsPatch)
+			testPatchBookingsHelper(t, mockDB, tc.bookingID, params, flagsPatch)
 
-		testGetBookingsHelper(t, mockDB, tc.bookingID, flagsGet)
+			testGetBookingsHelper(t, mockDB, tc.bookingID, flagsGet)
+		})
 	}
 }
 
@@ -731,14 +749,16 @@ func testPatchBookingsHelper(
 func TestPostBookingEvents(t *testing.T) {
 
 	testCases := []struct {
+		name                   string
 		bookingID              uuid.UUID
 		carpoolBookingEvent    *api.CarpoolBookingEvent
 		existingBookings       BookingsByID
 		expectedPostStatusCode int
 		expectedGetStatusCode  int
-		expectedStatus         api.BookingStatus
+		expectedBookingStatus  api.BookingStatus
 	}{
 		{
+			"posting a new bookingEvent with status WAITING_CONFIRMATION succeeds",
 			repUUID(31),
 			makeCarpoolBookingEvent(repUUID(30), repUUID(31)),
 			NewBookingsByID(),
@@ -748,48 +768,54 @@ func TestPostBookingEvents(t *testing.T) {
 		},
 
 		{
+			"posting a bookingEvent on existing booking (status CONFIRMED over WAITING_CONFIRMATION) changes its status",
 			repUUID(32),
 			makeCarpoolBookingEventWithStatus(repUUID(33), repUUID(32), api.BookingStatusCONFIRMED),
 			NewBookingsByID(makeBooking(repUUID(32))),
 			http.StatusOK,
 			http.StatusOK,
-			api.BookingStatusWAITINGCONFIRMATION,
+			api.BookingStatusCONFIRMED,
 		},
 
 		{
+			"posting a bookingEvent on existing booking (status CONFIRMED over CONFIRMED) fails with code 400",
 			repUUID(34),
 			makeCarpoolBookingEventWithStatus(repUUID(35), repUUID(34), api.BookingStatusCONFIRMED),
 			NewBookingsByID(makeBookingWithStatus(repUUID(34), api.BookingStatusCONFIRMED)),
 			http.StatusBadRequest,
 			http.StatusOK,
-			api.BookingStatusWAITINGCONFIRMATION,
+			api.BookingStatusCONFIRMED,
 		},
 
 		{
+			"posting a bookingEvent on existing booking (status CONFIRMED over CANCELLED) fails with code 400",
 			repUUID(36),
 			makeCarpoolBookingEventWithStatus(repUUID(37), repUUID(36), api.BookingStatusCONFIRMED),
 			NewBookingsByID(makeBookingWithStatus(repUUID(36), api.BookingStatusCANCELLED)),
 			http.StatusBadRequest,
 			http.StatusOK,
-			api.BookingStatusWAITINGCONFIRMATION,
+			api.BookingStatusCANCELLED,
 		},
 	}
 
 	for _, tc := range testCases {
 
-		mockDB := NewMockDB()
-		mockDB.Bookings = tc.existingBookings
-		appendDataIfGenerated(mockDB)
+		t.Run(tc.name, func(t *testing.T) {
+			mockDB := NewMockDB()
+			mockDB.Bookings = tc.existingBookings
+			appendDataIfGenerated(mockDB)
 
-		flagsPost := test.NewFlags()
-		flagsPost.ExpectedStatusCode = tc.expectedPostStatusCode
+			flagsPost := test.NewFlags()
+			flagsPost.ExpectedStatusCode = tc.expectedPostStatusCode
 
-		flagsGet := test.NewFlags()
-		flagsGet.ExpectedStatusCode = tc.expectedGetStatusCode
+			flagsGet := test.NewFlags()
+			flagsGet.ExpectedStatusCode = tc.expectedGetStatusCode
+			flagsGet.ExpectedBookingStatus = tc.expectedBookingStatus
 
-		testPostBookingEventsHelper(t, mockDB, tc.carpoolBookingEvent, flagsPost)
+			testPostBookingEventsHelper(t, mockDB, tc.carpoolBookingEvent, flagsPost)
 
-		testGetBookingsHelper(t, mockDB, tc.bookingID, flagsGet)
+			testGetBookingsHelper(t, mockDB, tc.bookingID, flagsGet)
+		})
 	}
 }
 
@@ -825,23 +851,27 @@ func TestPostMessage(t *testing.T) {
 	)
 
 	testCases := []struct {
+		name               string
 		message            api.PostMessagesJSONBody
 		existingUsers      []api.User
 		expectedStatusCode int
 	}{
 		{
+			"Posting message with both user known succeeds with code 201",
 			makeMessage(alice, bob),
 			[]api.User{alice, bob},
 			http.StatusCreated,
 		},
 
 		{
+			"Posting message with recipient unknown fails with code 404",
 			makeMessage(carole, david),
 			[]api.User{carole},
 			http.StatusNotFound,
 		},
 
 		{
+			"Posting message with sender unknown succeeds with code 201",
 			makeMessage(eve, fanny),
 			[]api.User{fanny},
 			http.StatusCreated,
@@ -849,14 +879,16 @@ func TestPostMessage(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		mockDB := NewMockDB()
-		mockDB.Users = tc.existingUsers
-		appendDataIfGenerated(mockDB)
+		t.Run(tc.name, func(t *testing.T) {
+			mockDB := NewMockDB()
+			mockDB.Users = tc.existingUsers
+			appendDataIfGenerated(mockDB)
 
-		flags := test.NewFlags()
-		flags.ExpectedStatusCode = tc.expectedStatusCode
+			flags := test.NewFlags()
+			flags.ExpectedStatusCode = tc.expectedStatusCode
 
-		testPostMessageHelper(t, mockDB, tc.message, flags)
+			testPostMessageHelper(t, mockDB, tc.message, flags)
+		})
 	}
 }
 
