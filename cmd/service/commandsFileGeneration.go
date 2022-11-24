@@ -9,6 +9,8 @@ import (
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 )
 
+//go:generate bash -c "go test -generate 2&>1 /dev/null"
+
 var generateTestData bool
 var generatedData = NewMockDB()
 var commandsFile = strings.Builder{}

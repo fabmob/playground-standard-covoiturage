@@ -15,8 +15,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-//go:generate go test -generate
-
 func init() {
 	// test flags do not need to be parsed explicitely, as it is already done in
 	// normal `go test` operation
