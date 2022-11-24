@@ -815,8 +815,12 @@ func testPostBookingEventsHelper(t *testing.T, mockDB *MockDB,
 
 func TestPostMessage(t *testing.T) {
 	var (
-		bob   = makeUser("1", "bob")
-		alice = makeUser("2", "alice")
+		bob    = makeUser("1", "bob")
+		alice  = makeUser("2", "alice")
+		carole = makeUser("3", "carole")
+		david  = makeUser("4", "david")
+		eve    = makeUser("5", "eve")
+		fanny  = makeUser("6", "fanny")
 	)
 
 	testCases := []struct {
@@ -825,20 +829,20 @@ func TestPostMessage(t *testing.T) {
 		expectedStatusCode int
 	}{
 		{
-			makeMessage(bob, alice),
-			[]api.User{bob, alice},
+			makeMessage(alice, bob),
+			[]api.User{alice, bob},
 			http.StatusCreated,
 		},
 
 		{
-			makeMessage(bob, alice),
-			[]api.User{bob},
+			makeMessage(carole, david),
+			[]api.User{carole},
 			http.StatusNotFound,
 		},
 
 		{
-			makeMessage(bob, alice),
-			[]api.User{alice},
+			makeMessage(eve, fanny),
+			[]api.User{fanny},
 			http.StatusCreated,
 		},
 	}
@@ -866,6 +870,13 @@ func testPostMessageHelper(t *testing.T, mockDB *MockDB, message api.PostMessage
 	// Make API Call
 	err = handler.PostMessages(ctx)
 	panicIf(err)
+
+	body, err := json.Marshal(message)
+	panicIf(err)
+	fmt.Fprint(
+		&commands,
+		GenerateCommandStr(t, request, flags, body),
+	)
 
 	// Test response
 	response := rec.Result()

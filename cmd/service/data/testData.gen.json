@@ -929,11 +929,6 @@
   },
   "users": [
     {
-      "alias": "bob",
-      "id": "1",
-      "operator": "default.operator.com"
-    },
-    {
       "alias": "alice",
       "id": "2",
       "operator": "default.operator.com"
@@ -944,8 +939,13 @@
       "operator": "default.operator.com"
     },
     {
-      "alias": "alice",
-      "id": "2",
+      "alias": "carole",
+      "id": "3",
+      "operator": "default.operator.com"
+    },
+    {
+      "alias": "fanny",
+      "id": "6",
       "operator": "default.operator.com"
     }
   ],

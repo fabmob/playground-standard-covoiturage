@@ -168,3 +168,24 @@ go run main.go test \
   --url=http://localhost:1323/bookings/b2892d57-f402-cd4a-2c11-08cc823ae0c5 \
   --expectStatus=200
 
+echo "TestPostMessage"
+go run main.go test \
+  --method=POST \
+  --url=http://localhost:1323/messages \
+  --expectStatus=201 \
+  <<< '{"from":{"alias":"alice","id":"2","operator":"default.operator.com"},"message":"some message","recipientCarpoolerType":"DRIVER","to":{"alias":"bob","id":"1","operator":"default.operator.com"}}'
+
+echo "TestPostMessage"
+go run main.go test \
+  --method=POST \
+  --url=http://localhost:1323/messages \
+  --expectStatus=404 \
+  <<< '{"from":{"alias":"carole","id":"3","operator":"default.operator.com"},"message":"some message","recipientCarpoolerType":"DRIVER","to":{"alias":"david","id":"4","operator":"default.operator.com"}}'
+
+echo "TestPostMessage"
+go run main.go test \
+  --method=POST \
+  --url=http://localhost:1323/messages \
+  --expectStatus=201 \
+  <<< '{"from":{"alias":"eve","id":"5","operator":"default.operator.com"},"message":"some message","recipientCarpoolerType":"DRIVER","to":{"alias":"fanny","id":"6","operator":"default.operator.com"}}'
+
