@@ -262,14 +262,21 @@ func appendData(from *MockDB, to *MockDB) {
 	}
 }
 
-func generateCommandStr(t *testing.T, request *http.Request, flags test.Flags) string {
+func GenerateCommandStr(t *testing.T, request *http.Request, flags test.Flags, body []byte) string {
 	var cmd string
 
-	cmd += fmt.Sprintf("# %s\n", t.Name())
-	cmd += fmt.Sprintf(
-		"go run main.go test \\\n  --url=%s \\\n  --expectStatus=%d\n\n",
-		request.URL,
-		flags.ExpectedStatusCode,
-	)
+	cmdContinuation := " \\\n  "
+
+	cmd += fmt.Sprintf("echo \"%s\n\"", t.Name())
+	cmd += "go run main.go test" + cmdContinuation +
+		fmt.Sprintf("--method=%s", request.Method) + cmdContinuation +
+		fmt.Sprintf("--url=%s", request.URL) + cmdContinuation +
+		fmt.Sprintf("--expectStatus=%d", flags.ExpectedStatusCode)
+
+	if body != nil {
+		cmd += cmdContinuation + fmt.Sprintf("<<< '%s'", body)
+	}
+
+	cmd += "\n\n"
 	return cmd
 }

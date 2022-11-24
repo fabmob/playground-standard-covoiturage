@@ -501,7 +501,7 @@ func testGetBookingsHelper(
 
 	fmt.Fprint(
 		&commands,
-		generateCommandStr(t, request, flags),
+		GenerateCommandStr(t, request, flags, nil),
 	)
 
 	// Make API call
@@ -577,6 +577,13 @@ func testPostBookingsHelper(
 	// Make API Call
 	err = handler.PostBookings(ctx)
 	panicIf(err)
+
+	body, err := json.Marshal(booking)
+	panicIf(err)
+	fmt.Fprint(
+		&commands,
+		GenerateCommandStr(t, request, flags, body),
+	)
 
 	response := rec.Result()
 
