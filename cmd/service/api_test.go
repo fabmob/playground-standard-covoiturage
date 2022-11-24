@@ -30,6 +30,27 @@ func appendDataIfGenerated(mockDB *MockDB) {
 	}
 }
 
+// appendCmdIfGenerated is used to populate the `commands` string, if
+// -generate flag is provided
+func appendCmdIfGenerated(t *testing.T, request *http.Request, flags test.Flags, body interface{}) {
+	if generateTestData {
+		var (
+			bodyBytes []byte
+			err       error
+		)
+
+		if body != nil {
+			bodyBytes, err = json.Marshal(body)
+			panicIf(err)
+		}
+
+		fmt.Fprint(
+			&commands,
+			GenerateCommandStr(t, request, flags, bodyBytes),
+		)
+	}
+}
+
 func init() {
 	// test flags do not need to be parsed explicitely, as it is already done in
 	// normal operation
@@ -499,14 +520,10 @@ func testGetBookingsHelper(
 	// Setup testing server with response recorder
 	handler, ctx, rec := setupTestServer(mockDB, request)
 
-	fmt.Fprint(
-		&commands,
-		GenerateCommandStr(t, request, flags, nil),
-	)
-
 	// Make API call
 	err = handler.GetBookings(ctx, bookingID)
 	panicIf(err)
+	appendCmdIfGenerated(t, request, flags, nil)
 
 	// Test results
 	response := rec.Result()
@@ -577,13 +594,7 @@ func testPostBookingsHelper(
 	// Make API Call
 	err = handler.PostBookings(ctx)
 	panicIf(err)
-
-	body, err := json.Marshal(booking)
-	panicIf(err)
-	fmt.Fprint(
-		&commands,
-		GenerateCommandStr(t, request, flags, body),
-	)
+	appendCmdIfGenerated(t, request, flags, booking)
 
 	response := rec.Result()
 
@@ -707,11 +718,7 @@ func testPatchBookingsHelper(
 	// Make API call
 	err = handler.PatchBookings(ctx, bookingID, params)
 	panicIf(err)
-
-	fmt.Fprint(
-		&commands,
-		GenerateCommandStr(t, request, flags, nil),
-	)
+	appendCmdIfGenerated(t, request, flags, nil)
 
 	// Test results
 	response := rec.Result()
@@ -799,13 +806,7 @@ func testPostBookingEventsHelper(t *testing.T, mockDB *MockDB,
 	// Make API Call
 	err = handler.PostBookingEvents(ctx)
 	panicIf(err)
-
-	body, err := json.Marshal(carpoolBookingEvent)
-	panicIf(err)
-	fmt.Fprint(
-		&commands,
-		GenerateCommandStr(t, request, flags, body),
-	)
+	appendCmdIfGenerated(t, request, flags, carpoolBookingEvent)
 
 	response := rec.Result()
 
@@ -870,13 +871,7 @@ func testPostMessageHelper(t *testing.T, mockDB *MockDB, message api.PostMessage
 	// Make API Call
 	err = handler.PostMessages(ctx)
 	panicIf(err)
-
-	body, err := json.Marshal(message)
-	panicIf(err)
-	fmt.Fprint(
-		&commands,
-		GenerateCommandStr(t, request, flags, body),
-	)
+	appendCmdIfGenerated(t, request, flags, message)
 
 	// Test response
 	response := rec.Result()

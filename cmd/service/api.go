@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"math"
 	"net/http"
 
@@ -207,7 +206,6 @@ func (s *StdCovServerImpl) PostMessages(ctx echo.Context) error {
 	var message api.PostMessagesJSONBody
 
 	bodyUnmarshallingErr := ctx.Bind(&message)
-	fmt.Println(message)
 
 	if bodyUnmarshallingErr != nil {
 		return ctx.JSON(http.StatusBadRequest, errorBody(bodyUnmarshallingErr))
