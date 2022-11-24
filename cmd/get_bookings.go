@@ -8,7 +8,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var getBookingID string
+var (
+	getBookingID        string
+	expectBookingStatus string
+)
 
 var getBookingsCmd = makeEndpointCommand(test.GetBookingsEndpoint)
 
@@ -25,6 +28,9 @@ func init() {
 
 	getBookingsCmd.Flags().StringVar(
 		&getBookingID, "bookingId", "", "bookingId path parameter",
+	)
+	getBookingsCmd.Flags().StringVar(
+		&expectBookingStatus, "expectBookingStatus", "", "Expected booking status, checked on response",
 	)
 
 	getCmd.AddCommand(getBookingsCmd)

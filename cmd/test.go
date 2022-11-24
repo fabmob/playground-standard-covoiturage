@@ -27,13 +27,13 @@ var testCmd = &cobra.Command{
 }
 
 var (
-	apiKey        string
-	URL           string
-	verbose       bool
-	query         test.Query
-	disallowEmpty bool
-	expectStatus  int
-	method        string
+	apiKey             string
+	URL                string
+	verbose            bool
+	query              test.Query
+	disallowEmpty      bool
+	expectResponseCode int
+	method             string
 )
 
 func init() {
@@ -48,12 +48,15 @@ func init() {
 	)
 	testCmd.PersistentFlags().StringVar(&apiKey, "auth", "", "API key sent in the \"X-API-Key\" header of the request")
 	testCmd.PersistentFlags().IntVar(
-		&expectStatus,
-		"expectStatus",
+		&expectResponseCode,
+		"expectResponseCode",
 		0,
 		"Expected status code. Defaults to success, 2xx, status code - exact default depends on endpoint",
 	)
 
+	testCmd.Flags().StringVar(
+		&expectBookingStatus, "expectBookingStatus", "", "Expected booking status, checked on response (only for GET /bookings)",
+	)
 	testCmd.Flags().StringVar(&method, "method", http.MethodGet, "HTTP method, either GET (default), POST or PATCH")
 	testCmd.Flags().StringVarP(&URL, "url", "u", "", "API call URL")
 	testCmd.Flags().VarP(&query, "query", "q", "Query parameters in the form name=value")
@@ -62,10 +65,10 @@ func init() {
 func flagsWithDefault(defaultStatus int) test.Flags {
 	flags := test.NewFlags()
 	flags.DisallowEmpty = disallowEmpty
-	if expectStatus == 0 { //not set
+	if expectResponseCode == 0 { //not set
 		flags.ExpectedStatusCode = defaultStatus
 	} else {
-		flags.ExpectedStatusCode = expectStatus
+		flags.ExpectedStatusCode = expectResponseCode
 	}
 	return flags
 }

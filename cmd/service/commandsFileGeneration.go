@@ -74,7 +74,11 @@ func GenerateCommandStr(t *testing.T, request *http.Request, flags test.Flags, b
 	cmd += "go run main.go test" + cmdContinuation +
 		fmt.Sprintf("--method=%s", request.Method) + cmdContinuation +
 		fmt.Sprintf("--url=%s", request.URL) + cmdContinuation +
-		fmt.Sprintf("--expectStatus=%d", flags.ExpectedStatusCode)
+		fmt.Sprintf("--expectResponseCode=%d", flags.ExpectedStatusCode)
+
+	if flags.ExpectedBookingStatus != "" {
+		cmd += cmdContinuation + fmt.Sprintf("--expectBookingStatus=%s", flags.ExpectedBookingStatus)
+	}
 
 	if body != nil {
 		cmd += cmdContinuation + fmt.Sprintf("<<< '%s'", body)
