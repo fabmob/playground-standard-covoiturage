@@ -22,7 +22,7 @@ func init() {
 	// normal `go test` operation
 	flag.BoolVar(&generateTestData, "generate", false, "Should test data be regenerated")
 
-	fmt.Fprint(&commands, "# Generated programmatically - DO NOT EDIT\n\n")
+	fmt.Fprint(&commandsFile, "# Generated programmatically - DO NOT EDIT\n\n")
 }
 
 func TestDriverJourneys(t *testing.T) {
@@ -759,7 +759,7 @@ func TestGeneration(t *testing.T) {
 		err = os.WriteFile("./data/testData.gen.json", generatedDataBytes, 0644)
 		panicIf(err)
 
-		err = os.WriteFile("./data/testCommands.gen.sh", []byte(commands.String()), 0644)
+		err = os.WriteFile("./data/testCommands.gen.sh", []byte(commandsFile.String()), 0644)
 		panicIf(err)
 	}
 }

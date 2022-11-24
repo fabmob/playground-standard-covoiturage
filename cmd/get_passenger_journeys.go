@@ -18,7 +18,7 @@ func init() {
 			timeDelta, departureRadius, arrivalRadius, count,
 		)
 		URL, _ := url.JoinPath(server, "/passenger_journeys")
-		err := test.RunTest(http.MethodGet, URL, verbose, query, nil, apiKey, flags(http.StatusOK))
+		err := test.RunTest(http.MethodGet, URL, verbose, query, nil, apiKey, flagsWithDefault(http.StatusOK))
 		exitWithError(err)
 	}
 

@@ -21,7 +21,7 @@ var testCmd = &cobra.Command{
 			body = nil
 		}
 
-		err = test.RunTest(method, URL, verbose, query, body, apiKey, flags(http.StatusOK))
+		err = test.RunTest(method, URL, verbose, query, body, apiKey, flagsWithDefault(http.StatusOK))
 		exitWithError(err)
 	},
 }
@@ -59,7 +59,7 @@ func init() {
 	testCmd.Flags().VarP(&query, "query", "q", "Query parameters in the form name=value")
 }
 
-func flags(defaultStatus int) test.Flags {
+func flagsWithDefault(defaultStatus int) test.Flags {
 	flags := test.NewFlags()
 	flags.DisallowEmpty = disallowEmpty
 	if expectStatus == 0 { //not set

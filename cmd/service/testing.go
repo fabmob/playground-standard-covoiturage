@@ -22,7 +22,7 @@ const fakeServer = "http://localhost:1323"
 
 var generateTestData bool
 var generatedData = NewMockDB()
-var commands = strings.Builder{}
+var commandsFile = strings.Builder{}
 
 // appendDataIfGenerated is used to populate the `generatedData` db if the
 // -generate flag is provided
@@ -37,7 +37,7 @@ func appendDataIfGenerated(mockDB *MockDB) {
 func appendCmdIfGenerated(t *testing.T, request *http.Request, flags test.Flags, body []byte) {
 	if generateTestData {
 		fmt.Fprint(
-			&commands,
+			&commandsFile,
 			GenerateCommandStr(t, request, flags, body),
 		)
 	}

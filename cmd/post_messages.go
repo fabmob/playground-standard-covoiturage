@@ -43,6 +43,6 @@ func getMessagesRun(runner test.TestRunner, server string, body []byte) error {
 		test.NewQuery(),
 		body,
 		apiKey,
-		flags(http.StatusCreated),
+		flagsWithDefault(http.StatusCreated),
 	)
 }
