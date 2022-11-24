@@ -14,10 +14,15 @@ import (
 var generateTestData bool
 var generatedData = NewMockDB()
 var commandsFile = strings.Builder{}
+var serverEnvVar = "SERVER"
+var authEnvVar = "API_TOKEN"
 
 func init() {
 	fmt.Fprintln(&commandsFile, "#!/usr/bin/env bash")
 	fmt.Fprint(&commandsFile, "# Generated programmatically - DO NOT EDIT\n\n")
+	fmt.Fprintf(&commandsFile, "export %s=\"%s\"\n", serverEnvVar, localServer)
+	fmt.Fprintf(&commandsFile, "export %s=\"\"\n\n", authEnvVar)
+
 }
 
 // Data needs to be appended once for each test, so we keep track if data has
@@ -73,13 +78,18 @@ func appendData(from *MockDB, to *MockDB) {
 func GenerateCommandStr(t *testing.T, request *http.Request, flags test.Flags, body []byte) string {
 	var cmd string
 
+	urlWithEnvVar := fmt.Sprintf("$%s%s", serverEnvVar,
+		strings.TrimPrefix(request.URL.String(), localServer))
+
 	cmdContinuation := " \\\n  "
 
 	cmd += fmt.Sprintf("echo \"%s\"\n", t.Name())
 	cmd += "go run main.go test" + cmdContinuation +
 		fmt.Sprintf("--method=%s", request.Method) + cmdContinuation +
-		fmt.Sprintf("--url=%s", request.URL) + cmdContinuation +
-		fmt.Sprintf("--expectResponseCode=%d", flags.ExpectedStatusCode)
+		fmt.Sprintf("--url=\"%s\"", urlWithEnvVar) + cmdContinuation +
+		fmt.Sprintf("--expectResponseCode=%d", flags.ExpectedStatusCode) +
+		cmdContinuation +
+		fmt.Sprintf("--auth=\"$%s\"", authEnvVar)
 
 	if flags.ExpectedBookingStatus != "" {
 		cmd += cmdContinuation + fmt.Sprintf("--expectBookingStatus=%s", flags.ExpectedBookingStatus)

@@ -12,7 +12,7 @@ func TestUndocumentedStatusCode(t *testing.T) {
 	var (
 		invalidStatus = http.StatusLoopDetected
 	)
-	request, err := api.NewGetDriverJourneysRequest(fakeServer, &api.GetDriverJourneysParams{})
+	request, err := api.NewGetDriverJourneysRequest(localServer, &api.GetDriverJourneysParams{})
 	panicIf(err)
 
 	response := mockResponse(invalidStatus, "[]", nil)

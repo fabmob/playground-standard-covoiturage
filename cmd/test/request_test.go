@@ -12,7 +12,7 @@ import (
 func TestMakeRequestHeader(t *testing.T) {
 	var (
 		method        = http.MethodGet
-		URL           = fakeServer
+		URL           = localServer
 		body   []byte = nil
 	)
 
@@ -36,7 +36,7 @@ func TestMakeRequestBody(t *testing.T) {
 	bodyStr := "test body"
 	bodyBytes := []byte(bodyStr)
 
-	req, err := makeRequest(http.MethodGet, fakeServer, bodyBytes, "")
+	req, err := makeRequest(http.MethodGet, localServer, bodyBytes, "")
 	panicIf(err)
 
 	if req.Body == nil {
@@ -54,7 +54,7 @@ func TestMakeRequestHeader2(t *testing.T) {
 	bodyStr := "test body"
 	bodyBytes := []byte(bodyStr)
 
-	req, err := makeRequest(http.MethodGet, fakeServer, bodyBytes, "")
+	req, err := makeRequest(http.MethodGet, localServer, bodyBytes, "")
 	panicIf(err)
 
 	if !strings.HasPrefix(req.Header.Get(echo.HeaderContentType), echo.MIMEApplicationJSON) {

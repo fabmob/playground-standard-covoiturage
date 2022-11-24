@@ -398,7 +398,7 @@ func testGetJourneysHelper(t *testing.T, params api.GetJourneysParams, mockDB *M
 	appendDataIfGenerated(t, mockDB)
 
 	// Build request
-	request, err := params.MakeRequest(fakeServer)
+	request, err := params.MakeRequest(localServer)
 	panicIf(err)
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 

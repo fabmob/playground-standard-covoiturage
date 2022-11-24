@@ -13,7 +13,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const fakeServer = "https://localhost:1323"
+const localServer = "http://localhost:1323"
 
 // MockClient is an HTTP client that returns always the same response or
 // error, and stores the requests that are made.
@@ -264,7 +264,7 @@ func NewMockRunner() *MockRunner {
 
 // emptyRequest returns an empty *http.Request to the endpoint
 func emptyRequest(e Endpoint) *http.Request {
-	request, _ := http.NewRequest(e.Method, fakeServer+e.Path, nil)
+	request, _ := http.NewRequest(e.Method, localServer+e.Path, nil)
 	return request
 }
 

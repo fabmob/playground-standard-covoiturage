@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const fakeServer = "http://localhost:1323"
+const localServer = "http://localhost:1323"
 
 func setupTestServer(
 	db *MockDB,
@@ -287,7 +287,7 @@ type postBookingsTestHelper struct {
 }
 
 func (h postBookingsTestHelper) makeRequest() (*http.Request, error) {
-	return api.NewPostBookingsRequest(fakeServer, h.booking)
+	return api.NewPostBookingsRequest(localServer, h.booking)
 }
 
 func (h postBookingsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
@@ -314,7 +314,7 @@ type postMessagesTestHelper struct {
 }
 
 func (h postMessagesTestHelper) makeRequest() (*http.Request, error) {
-	return api.NewPostMessagesRequest(fakeServer, api.PostMessagesJSONRequestBody(h.message))
+	return api.NewPostMessagesRequest(localServer, api.PostMessagesJSONRequestBody(h.message))
 }
 
 func (h postMessagesTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
@@ -341,7 +341,7 @@ type postBookingEventsTestHelper struct {
 }
 
 func (h postBookingEventsTestHelper) makeRequest() (*http.Request, error) {
-	return api.NewPostBookingEventsRequest(fakeServer, h.bookingEvent)
+	return api.NewPostBookingEventsRequest(localServer, h.bookingEvent)
 }
 
 func (h postBookingEventsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
@@ -368,7 +368,7 @@ type getBookingsTestHelper struct {
 }
 
 func (h getBookingsTestHelper) makeRequest() (*http.Request, error) {
-	return api.NewGetBookingsRequest(fakeServer, h.bookingID)
+	return api.NewGetBookingsRequest(localServer, h.bookingID)
 }
 
 func (h getBookingsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
@@ -397,7 +397,7 @@ type patchBookingsTestHelper struct {
 
 func (h patchBookingsTestHelper) makeRequest() (*http.Request, error) {
 	params := &api.PatchBookingsParams{Status: h.status}
-	return api.NewPatchBookingsRequest(fakeServer, h.bookingID, params)
+	return api.NewPatchBookingsRequest(localServer, h.bookingID, params)
 }
 
 func (h patchBookingsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
