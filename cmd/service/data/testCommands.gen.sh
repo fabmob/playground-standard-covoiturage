@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Generated programmatically - DO NOT EDIT
 
 echo "TestGetBookings/getting_a_non-existing_booking_returns_code_404"

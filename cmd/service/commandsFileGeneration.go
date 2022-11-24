@@ -15,6 +15,11 @@ var generateTestData bool
 var generatedData = NewMockDB()
 var commandsFile = strings.Builder{}
 
+func init() {
+	fmt.Fprintln(&commandsFile, "#!/usr/bin/env bash")
+	fmt.Fprint(&commandsFile, "# Generated programmatically - DO NOT EDIT\n\n")
+}
+
 // Data needs to be appended once for each test, so we keep track if data has
 // already been appended for a given test (with test.Name() as key)
 var hasAlreadyAppended = map[string]bool{}

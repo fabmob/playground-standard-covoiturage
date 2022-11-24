@@ -3,7 +3,6 @@ package service
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"net/http"
 	"os"
 	"testing"
@@ -19,8 +18,6 @@ func init() {
 	// test flags do not need to be parsed explicitely, as it is already done in
 	// normal `go test` operation
 	flag.BoolVar(&generateTestData, "generate", false, "Should test data be regenerated")
-
-	fmt.Fprint(&commandsFile, "# Generated programmatically - DO NOT EDIT\n\n")
 }
 
 func TestDriverJourneys(t *testing.T) {
