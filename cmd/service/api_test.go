@@ -19,7 +19,7 @@ import (
 
 func init() {
 	// test flags do not need to be parsed explicitely, as it is already done in
-	// normal operation
+	// normal `go test` operation
 	flag.BoolVar(&generateTestData, "generate", false, "Should test data be regenerated")
 
 	fmt.Fprint(&commands, "# Generated programmatically - DO NOT EDIT\n\n")

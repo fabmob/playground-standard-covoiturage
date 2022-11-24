@@ -151,9 +151,6 @@ func NewMockDBWithData(r io.Reader) (*MockDB, error) {
 //go:embed data/defaultData.json
 var DefaultData []byte
 
-// DriverJourneysData is the in-memory equivalent of the driver journeys
-// stored in a database
-
 // MustReadDefaultData reads default data, and panics if any error occurs
 func MustReadDefaultData() *MockDB {
 	mockDB, err := NewMockDBWithData(bytes.NewReader(DefaultData))
