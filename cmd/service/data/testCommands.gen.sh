@@ -120,8 +120,7 @@ echo "TestPostBookingEvents/posting_a_new_bookingEvent_with_status_WAITING_CONFI
 go run main.go test \
   --method=POST \
   --url=http://localhost:1323/booking_events \
-  --expectStatus=200 \
-  <<< '{"data":{"id":"6fcf3150-b452-f79a-d30f-524750dbbef4","passengerDropLat":0,"passengerDropLng":0,"passengerPickupDate":0,"passengerPickupLat":0,"passengerPickupLng":0,"status":"WAITING_CONFIRMATION","webUrl":"","driver":{"alias":"","id":"","operator":""},"price":{}},"id":"91523cf5-6600-8472-204b-21603d4a076b","idToken":""}'
+  --expectStatus=200
 
 echo "TestPostBookingEvents/posting_a_new_bookingEvent_with_status_WAITING_CONFIRMATION_succeeds"
 go run main.go test \
@@ -133,8 +132,7 @@ echo "TestPostBookingEvents/posting_a_bookingEvent_on_existing_booking_(status_C
 go run main.go test \
   --method=POST \
   --url=http://localhost:1323/booking_events \
-  --expectStatus=200 \
-  <<< '{"data":{"id":"cc8c67ad-62d4-b3b1-ee30-02a37a51035f","passengerDropLat":0,"passengerDropLng":0,"passengerPickupDate":0,"passengerPickupLat":0,"passengerPickupLng":0,"status":"CONFIRMED","webUrl":"","driver":{"alias":"","id":"","operator":""},"price":{}},"id":"22128d01-f093-3aca-4106-05310cdc3bb8","idToken":""}'
+  --expectStatus=200
 
 echo "TestPostBookingEvents/posting_a_bookingEvent_on_existing_booking_(status_CONFIRMED_over_WAITING_CONFIRMATION)_changes_its_status"
 go run main.go test \
@@ -146,8 +144,7 @@ echo "TestPostBookingEvents/posting_a_bookingEvent_on_existing_booking_(status_C
 go run main.go test \
   --method=POST \
   --url=http://localhost:1323/booking_events \
-  --expectStatus=400 \
-  <<< '{"data":{"id":"ffda9299-b1d9-fafa-3d47-844c536f73c2","passengerDropLat":0,"passengerDropLng":0,"passengerPickupDate":0,"passengerPickupLat":0,"passengerPickupLng":0,"status":"CONFIRMED","webUrl":"","driver":{"alias":"","id":"","operator":""},"price":{}},"id":"d50fb8fd-a25c-8f1b-114a-976408f9a71b","idToken":""}'
+  --expectStatus=400
 
 echo "TestPostBookingEvents/posting_a_bookingEvent_on_existing_booking_(status_CONFIRMED_over_CONFIRMED)_fails_with_code_400"
 go run main.go test \
@@ -159,8 +156,7 @@ echo "TestPostBookingEvents/posting_a_bookingEvent_on_existing_booking_(status_C
 go run main.go test \
   --method=POST \
   --url=http://localhost:1323/booking_events \
-  --expectStatus=400 \
-  <<< '{"data":{"id":"b2892d57-f402-cd4a-2c11-08cc823ae0c5","passengerDropLat":0,"passengerDropLng":0,"passengerPickupDate":0,"passengerPickupLat":0,"passengerPickupLng":0,"status":"CONFIRMED","webUrl":"","driver":{"alias":"","id":"","operator":""},"price":{}},"id":"90cec22a-723f-cc72-5fb2-462733c2880f","idToken":""}'
+  --expectStatus=400
 
 echo "TestPostBookingEvents/posting_a_bookingEvent_on_existing_booking_(status_CONFIRMED_over_CANCELLED)_fails_with_code_400"
 go run main.go test \
@@ -172,20 +168,17 @@ echo "TestPostMessage/Posting_message_with_both_user_known_succeeds_with_code_20
 go run main.go test \
   --method=POST \
   --url=http://localhost:1323/messages \
-  --expectStatus=201 \
-  <<< '{"from":{"alias":"alice","id":"2","operator":"default.operator.com"},"message":"some message","recipientCarpoolerType":"DRIVER","to":{"alias":"bob","id":"1","operator":"default.operator.com"}}'
+  --expectStatus=201
 
 echo "TestPostMessage/Posting_message_with_recipient_unknown_fails_with_code_404"
 go run main.go test \
   --method=POST \
   --url=http://localhost:1323/messages \
-  --expectStatus=404 \
-  <<< '{"from":{"alias":"carole","id":"3","operator":"default.operator.com"},"message":"some message","recipientCarpoolerType":"DRIVER","to":{"alias":"david","id":"4","operator":"default.operator.com"}}'
+  --expectStatus=404
 
 echo "TestPostMessage/Posting_message_with_sender_unknown_succeeds_with_code_201"
 go run main.go test \
   --method=POST \
   --url=http://localhost:1323/messages \
-  --expectStatus=201 \
-  <<< '{"from":{"alias":"eve","id":"5","operator":"default.operator.com"},"message":"some message","recipientCarpoolerType":"DRIVER","to":{"alias":"fanny","id":"6","operator":"default.operator.com"}}'
+  --expectStatus=201
 

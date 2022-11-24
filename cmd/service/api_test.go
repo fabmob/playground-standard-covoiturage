@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
@@ -17,39 +16,6 @@ import (
 )
 
 //go:generate go test -generate
-
-var generateTestData bool
-var generatedData = NewMockDB()
-var commands = strings.Builder{}
-
-// appendDataIfGenerated is used to populate the `generatedData` db if the
-// -generate flag is provided
-func appendDataIfGenerated(mockDB *MockDB) {
-	if generateTestData {
-		appendData(mockDB, generatedData)
-	}
-}
-
-// appendCmdIfGenerated is used to populate the `commands` string, if
-// -generate flag is provided
-func appendCmdIfGenerated(t *testing.T, request *http.Request, flags test.Flags, body interface{}) {
-	if generateTestData {
-		var (
-			bodyBytes []byte
-			err       error
-		)
-
-		if body != nil {
-			bodyBytes, err = json.Marshal(body)
-			panicIf(err)
-		}
-
-		fmt.Fprint(
-			&commands,
-			GenerateCommandStr(t, request, flags, bodyBytes),
-		)
-	}
-}
 
 func init() {
 	// test flags do not need to be parsed explicitely, as it is already done in
@@ -579,36 +545,11 @@ func TestPostBookings(t *testing.T) {
 			flagsGet := test.NewFlags()
 			flagsGet.DisallowEmpty = tc.expectGetNonEmpty
 
-			testPostBookingsHelper(t, mockDB, *tc.booking, flagsPost)
+			TestPostBookingsHelper(t, mockDB, *tc.booking, flagsPost)
 
 			testGetBookingsHelper(t, mockDB, bookingID, flagsGet)
 		})
 	}
-}
-
-func testPostBookingsHelper(
-	t *testing.T,
-	mockDB *MockDB,
-	booking api.Booking,
-	flags test.Flags,
-) {
-	t.Helper()
-
-	request, err := api.NewPostBookingsRequest(fakeServer, booking)
-	panicIf(err)
-
-	// Setup testing server with response recorder
-	handler, ctx, rec := setupTestServer(mockDB, request)
-
-	// Make API Call
-	err = handler.PostBookings(ctx)
-	panicIf(err)
-	appendCmdIfGenerated(t, request, flags, booking)
-
-	response := rec.Result()
-
-	assertionResults := test.TestPostBookingsResponse(request, response, flags)
-	checkAssertionResults(t, assertionResults)
 }
 
 func TestPatchBookings(t *testing.T) {
@@ -832,7 +773,8 @@ func testPostBookingEventsHelper(t *testing.T, mockDB *MockDB,
 	// Make API Call
 	err = handler.PostBookingEvents(ctx)
 	panicIf(err)
-	appendCmdIfGenerated(t, request, flags, carpoolBookingEvent)
+	/* appendCmdIfGenerated(t, request, flags, carpoolBookingEvent) */
+	appendCmdIfGenerated(t, request, flags, nil)
 
 	response := rec.Result()
 
@@ -903,7 +845,8 @@ func testPostMessageHelper(t *testing.T, mockDB *MockDB, message api.PostMessage
 	// Make API Call
 	err = handler.PostMessages(ctx)
 	panicIf(err)
-	appendCmdIfGenerated(t, request, flags, message)
+	appendCmdIfGenerated(t, request, flags, nil)
+	/* appendCmdIfGenerated(t, request, flags, message) */
 
 	// Test response
 	response := rec.Result()
