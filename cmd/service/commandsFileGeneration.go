@@ -15,10 +15,15 @@ var generateTestData bool
 var generatedData = NewMockDB()
 var commandsFile = strings.Builder{}
 
+// Data needs to be appended once for each test, so we keep track if data has
+// already been appended for a given test (with test.Name() as key)
+var hasAlreadyAppended = map[string]bool{}
+
 // appendDataIfGenerated is used to populate the `generatedData` db if the
 // -generate flag is provided
-func appendDataIfGenerated(mockDB *MockDB) {
-	if generateTestData {
+func appendDataIfGenerated(t *testing.T, mockDB *MockDB) {
+	if _, ok := hasAlreadyAppended[t.Name()]; generateTestData && !ok {
+		hasAlreadyAppended[t.Name()] = true
 		appendData(mockDB, generatedData)
 	}
 }

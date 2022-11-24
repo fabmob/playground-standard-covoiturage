@@ -184,7 +184,6 @@ func TestDriverJourneys(t *testing.T) {
 
 			mockDB := NewMockDB()
 			mockDB.DriverJourneys = tc.testData
-			appendDataIfGenerated(mockDB)
 
 			flags := test.NewFlags()
 			flags.DisallowEmpty = tc.expectNonEmptyResult
@@ -371,7 +370,6 @@ func TestPassengerJourneys(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			mockDB := NewMockDB()
 			mockDB.PassengerJourneys = tc.testData
-			appendDataIfGenerated(mockDB)
 
 			flags := test.NewFlags()
 			flags.DisallowEmpty = tc.expectNonEmptyResult
@@ -399,6 +397,8 @@ func testGetPassengerJourneyHelper(
 
 func testGetJourneysHelper(t *testing.T, params api.GetJourneysParams, mockDB *MockDB, f test.ResponseTestFun, flags test.Flags) {
 	t.Helper()
+
+	appendDataIfGenerated(t, mockDB)
 
 	// Build request
 	request, err := params.MakeRequest(fakeServer)
@@ -460,7 +460,6 @@ func TestGetBookings(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			mockDB := NewMockDB()
 			mockDB.Bookings = tc.bookings
-			appendDataIfGenerated(mockDB)
 
 			flags := test.NewFlags()
 			flags.DisallowEmpty = tc.disallowEmpty
@@ -505,7 +504,6 @@ func TestPostBookings(t *testing.T) {
 
 			mockDB := NewMockDB()
 			mockDB.Bookings = tc.existingBookings
-			appendDataIfGenerated(mockDB)
 
 			flagsPost := test.NewFlags()
 			flagsPost.ExpectedStatusCode = tc.expectPostStatusCode
@@ -608,7 +606,6 @@ func TestPatchBookings(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			mockDB := NewMockDB()
 			mockDB.Bookings = tc.existingBookings
-			appendDataIfGenerated(mockDB)
 
 			flagsPatch := test.NewFlags()
 			flagsPatch.ExpectedStatusCode = tc.expectedPatchStatusCode
@@ -681,7 +678,6 @@ func TestPostBookingEvents(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			mockDB := NewMockDB()
 			mockDB.Bookings = tc.existingBookings
-			appendDataIfGenerated(mockDB)
 
 			flagsPost := test.NewFlags()
 			flagsPost.ExpectedStatusCode = tc.expectedPostStatusCode
@@ -739,7 +735,6 @@ func TestPostMessage(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			mockDB := NewMockDB()
 			mockDB.Users = tc.existingUsers
-			appendDataIfGenerated(mockDB)
 
 			flags := test.NewFlags()
 			flags.ExpectedStatusCode = tc.expectedStatusCode

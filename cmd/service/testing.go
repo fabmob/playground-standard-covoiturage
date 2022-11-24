@@ -251,6 +251,8 @@ type apiTestHelper interface {
 func testAPI(t *testing.T, a apiTestHelper, mockDB *MockDB, flags test.Flags) {
 	t.Helper()
 
+	appendDataIfGenerated(t, mockDB)
+
 	request, err := a.makeRequest()
 	panicIf(err)
 
@@ -269,6 +271,7 @@ func testAPI(t *testing.T, a apiTestHelper, mockDB *MockDB, flags test.Flags) {
 	// Make API Call
 	err = a.callAPI(handler, ctx)
 	panicIf(err)
+
 	appendCmdIfGenerated(t, request, flags, body)
 
 	response := rec.Result()
