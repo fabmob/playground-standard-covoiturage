@@ -3,8 +3,10 @@ package service
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
@@ -14,8 +16,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+//go:generate go test -generate
+
 var generateTestData bool
 var generatedData = NewMockDB()
+var commands = strings.Builder{}
 
 // appendDataIfGenerated is used to populate the `generatedData` db if the
 // -generate flag is provided
@@ -29,6 +34,7 @@ func init() {
 	// test flags do not need to be parsed explicitely, as it is already done in
 	// normal operation
 	flag.BoolVar(&generateTestData, "generate", false, "Should test data be regenerated")
+	fmt.Fprint(&commands, "# Generated programmatically - DO NOT EDIT\n\n")
 }
 
 func TestDriverJourneys(t *testing.T) {
@@ -493,6 +499,14 @@ func testGetBookingsHelper(
 	// Setup testing server with response recorder
 	handler, ctx, rec := setupTestServer(mockDB, request)
 
+	fmt.Fprintf(&commands, "# %s\n", t.Name())
+	fmt.Fprintf(
+		&commands,
+		"go run main.go test \\\n  --url=%s \\\n  --expectStatus=%d\n\n",
+		request.URL,
+		flags.ExpectedStatusCode,
+	)
+
 	// Make API call
 	err = handler.GetBookings(ctx, bookingID)
 	panicIf(err)
@@ -849,6 +863,9 @@ func TestGeneration(t *testing.T) {
 		panicIf(err)
 
 		err = os.WriteFile("./data/testData.gen.json", generatedDataBytes, 0644)
+		panicIf(err)
+
+		err = os.WriteFile("./data/testCommands.gen.sh", []byte(commands.String()), 0644)
 		panicIf(err)
 	}
 }
