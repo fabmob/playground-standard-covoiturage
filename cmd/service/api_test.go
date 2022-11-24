@@ -751,7 +751,7 @@ func TestPostMessage(t *testing.T) {
 
 func TestGeneration(t *testing.T) {
 	if generateTestData {
-		generatedDataBytes, err := json.MarshalIndent(generatedData, "", "  ")
+		generatedDataBytes, err := json.MarshalIndent(toOutputData(generatedData), "", "  ")
 		panicIf(err)
 
 		err = os.WriteFile("./data/testData.gen.json", generatedDataBytes, 0644)

@@ -538,7 +538,6 @@ func TestAssertRadius(t *testing.T) {
 				tc.driverOrPassenger,
 			)
 
-			t.Log(response)
 			err := singleAssertionError(
 				t,
 				assertJourneysRadius{request, response, tc.departureOrArrival},

@@ -15,12 +15,14 @@ import (
 
 // MockDB stores the data of the server in memory
 type MockDB struct {
-	DriverJourneys    []api.DriverJourney        `json:"driverJourneys"`
-	PassengerJourneys []api.PassengerJourney     `json:"passengerJourneys"`
-	Bookings          BookingsByID               `json:"bookings"`
-	Users             []api.User                 `json:"users"`
-	Messages          []api.PostMessagesJSONBody `json:"messages"`
+	DriverJourneys    []api.DriverJourney
+	PassengerJourneys []api.PassengerJourney
+	Bookings          BookingsByID
+	Users             []api.User
+	Messages          []api.PostMessagesJSONBody
 }
+
+type BookingsByID map[uuid.UUID]*api.Booking
 
 // NewMockDB initiates a MockDB with no data
 func NewMockDB() *MockDB {
@@ -124,7 +126,50 @@ func (err StatusAlreadySetErr) Error() string {
 	return "status_already_set"
 }
 
-type BookingsByID map[uuid.UUID]*api.Booking
+//////////////////////////////////////////////////////////
+// MockDB from data
+//////////////////////////////////////////////////////////
+
+type mockDBDataInterface struct {
+	DriverJourneys    []api.DriverJourney        `json:"driverJourneys"`
+	PassengerJourneys []api.PassengerJourney     `json:"passengerJourneys"`
+	Bookings          []*api.Booking             `json:"bookings"`
+	Users             []api.User                 `json:"users"`
+	Messages          []api.PostMessagesJSONBody `json:"messages"`
+}
+
+func toOutputData(m *MockDB) mockDBDataInterface {
+	outputData := mockDBDataInterface{}
+
+	outputData.DriverJourneys = m.DriverJourneys
+	outputData.PassengerJourneys = m.PassengerJourneys
+	outputData.Users = m.Users
+	outputData.Messages = m.Messages
+
+	outputData.Bookings = make([]*api.Booking, 0, len(m.Bookings))
+	for _, booking := range m.Bookings {
+		outputData.Bookings = append(outputData.Bookings, booking)
+	}
+
+	return outputData
+}
+
+func fromInputData(inputData mockDBDataInterface) *MockDB {
+	var m = NewMockDB()
+
+	m.DriverJourneys = inputData.DriverJourneys
+	m.PassengerJourneys = inputData.PassengerJourneys
+	m.Users = inputData.Users
+	m.Messages = inputData.Messages
+
+	m.Bookings = make(BookingsByID, len(inputData.Bookings))
+
+	for _, booking := range inputData.Bookings {
+		m.Bookings[booking.Id] = booking
+	}
+
+	return m
+}
 
 // NewMockDBWithDefaultData initiates a MockDB with default data
 func NewMockDBWithDefaultData() *MockDB {
@@ -134,7 +179,7 @@ func NewMockDBWithDefaultData() *MockDB {
 // NewMockDBWithData reads journey data from io.Reader with json data.
 // It does not validate data against the standard.
 func NewMockDBWithData(r io.Reader) (*MockDB, error) {
-	var data MockDB
+	var data mockDBDataInterface
 
 	bytes, readErr := io.ReadAll(r)
 	if readErr != nil {
@@ -143,7 +188,7 @@ func NewMockDBWithData(r io.Reader) (*MockDB, error) {
 
 	err := json.Unmarshal(bytes, &data)
 
-	return &data, err
+	return fromInputData(data), err
 }
 
 // DefaultData stores default json data
