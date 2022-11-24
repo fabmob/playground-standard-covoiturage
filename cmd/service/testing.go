@@ -267,7 +267,7 @@ func GenerateCommandStr(t *testing.T, request *http.Request, flags test.Flags, b
 
 	cmdContinuation := " \\\n  "
 
-	cmd += fmt.Sprintf("echo \"%s\n\"", t.Name())
+	cmd += fmt.Sprintf("echo \"%s\"\n", t.Name())
 	cmd += "go run main.go test" + cmdContinuation +
 		fmt.Sprintf("--method=%s", request.Method) + cmdContinuation +
 		fmt.Sprintf("--url=%s", request.URL) + cmdContinuation +

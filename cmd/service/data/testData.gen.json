@@ -686,6 +686,46 @@
     }
   ],
   "bookings": {
+    "0ad346f9-e692-3ab1-d2f0-91785e9ca0ea": {
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "id": "0ad346f9-e692-3ab1-d2f0-91785e9ca0ea",
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupDate": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "price": {},
+      "status": "WAITING_CONFIRMATION"
+    },
+    "1b06f7b5-67c7-f231-9bf3-9f28aa391537": {
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "id": "1b06f7b5-67c7-f231-9bf3-9f28aa391537",
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupDate": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "price": {},
+      "status": "VALIDATED"
+    },
     "2f8282cb-e2f9-696f-3144-c0aa4ced56db": {
       "driver": {
         "alias": "",
@@ -713,6 +753,26 @@
         "operator": ""
       },
       "id": "590c1440-9888-b5b0-7d51-a817ee07c3f2",
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupDate": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "price": {},
+      "status": "WAITING_CONFIRMATION"
+    },
+    "68087cc0-282c-35d9-ad8b-51bf6a35a933": {
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "id": "68087cc0-282c-35d9-ad8b-51bf6a35a933",
       "passenger": {
         "alias": "",
         "id": "",
@@ -786,6 +846,26 @@
       "price": {},
       "status": "WAITING_CONFIRMATION"
     },
+    "ce140275-2398-b471-e9a9-4ddcec56059b": {
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "id": "ce140275-2398-b471-e9a9-4ddcec56059b",
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupDate": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "price": {},
+      "status": "WAITING_CONFIRMATION"
+    },
     "e2807d9c-1dce-26af-00ca-81d4fe11c23e": {
       "driver": {
         "alias": "",
@@ -805,6 +885,26 @@
       "passengerPickupLng": 0,
       "price": {},
       "status": "WAITING_CONFIRMATION"
+    },
+    "f84f0c93-2990-ae59-ee94-8e4413ce4e81": {
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "id": "f84f0c93-2990-ae59-ee94-8e4413ce4e81",
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupDate": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "price": {},
+      "status": "CANCELLED"
     },
     "ffda9299-b1d9-fafa-3d47-844c536f73c2": {
       "driver": {

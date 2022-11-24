@@ -671,6 +671,7 @@ func TestPatchBookings(t *testing.T) {
 
 		mockDB := NewMockDB()
 		mockDB.Bookings = tc.existingBookings
+		appendDataIfGenerated(mockDB)
 
 		params := api.PatchBookingsParams{Status: tc.newStatus}
 
@@ -706,6 +707,11 @@ func testPatchBookingsHelper(
 	// Make API call
 	err = handler.PatchBookings(ctx, bookingID, params)
 	panicIf(err)
+
+	fmt.Fprint(
+		&commands,
+		GenerateCommandStr(t, request, flags, nil),
+	)
 
 	// Test results
 	response := rec.Result()
@@ -793,6 +799,13 @@ func testPostBookingEventsHelper(t *testing.T, mockDB *MockDB,
 	// Make API Call
 	err = handler.PostBookingEvents(ctx)
 	panicIf(err)
+
+	body, err := json.Marshal(carpoolBookingEvent)
+	panicIf(err)
+	fmt.Fprint(
+		&commands,
+		GenerateCommandStr(t, request, flags, body),
+	)
 
 	response := rec.Result()
 
