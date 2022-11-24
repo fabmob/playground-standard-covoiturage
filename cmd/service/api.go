@@ -84,7 +84,6 @@ func (s *StdCovServerImpl) PostBookings(ctx echo.Context) error {
 
 	// Unmarshal request body into newBooking
 	bodyUnmarshallingErr := ctx.Bind(&newBooking)
-
 	if bodyUnmarshallingErr != nil {
 		return ctx.JSON(http.StatusBadRequest, errorBody(bodyUnmarshallingErr))
 	}
@@ -206,7 +205,6 @@ func (s *StdCovServerImpl) PostMessages(ctx echo.Context) error {
 	var message api.PostMessagesJSONBody
 
 	bodyUnmarshallingErr := ctx.Bind(&message)
-
 	if bodyUnmarshallingErr != nil {
 		return ctx.JSON(http.StatusBadRequest, errorBody(bodyUnmarshallingErr))
 	}

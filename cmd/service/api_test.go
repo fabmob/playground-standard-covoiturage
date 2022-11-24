@@ -21,11 +21,11 @@ func init() {
 	// test flags do not need to be parsed explicitely, as it is already done in
 	// normal operation
 	flag.BoolVar(&generateTestData, "generate", false, "Should test data be regenerated")
+
 	fmt.Fprint(&commands, "# Generated programmatically - DO NOT EDIT\n\n")
 }
 
 func TestDriverJourneys(t *testing.T) {
-
 	var (
 		coordsIgnore = util.Coord{Lat: 0, Lon: 0}
 		coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
@@ -207,7 +207,6 @@ func testGetDriverJourneyHelper(
 	mockDB *MockDB,
 	flags test.Flags,
 ) {
-
 	testFunction := test.TestGetDriverJourneysResponse
 
 	testGetJourneysHelper(t, params, mockDB, testFunction, flags)
@@ -395,7 +394,6 @@ func testGetPassengerJourneyHelper(
 	mockDB *MockDB,
 	flags test.Flags,
 ) {
-
 	testFunction := test.TestGetPassengerJourneysResponse
 
 	testGetJourneysHelper(t, params, mockDB, testFunction, flags)
