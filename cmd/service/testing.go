@@ -369,3 +369,115 @@ func TestPostBookingsHelper(
 ) {
 	testAPI(t, postBookingsTestHelper{booking}, mockDB, flags)
 }
+
+//////////////////////////////////////////////////////////
+
+type postMessagesTestHelper struct {
+	message api.PostMessagesJSONBody
+}
+
+func (h postMessagesTestHelper) makeRequest() (*http.Request, error) {
+	return api.NewPostMessagesRequest(fakeServer, api.PostMessagesJSONRequestBody(h.message))
+}
+
+func (h postMessagesTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	return handler.PostMessages(ctx)
+}
+
+func (h postMessagesTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []test.AssertionResult {
+	return test.TestPostMessagesResponse(request, response, flags)
+}
+
+func TestPostMessagesHelper(
+	t *testing.T,
+	mockDB *MockDB,
+	message api.PostMessagesJSONBody,
+	flags test.Flags,
+) {
+	testAPI(t, postMessagesTestHelper{message}, mockDB, flags)
+}
+
+//////////////////////////////////////////////////////////
+
+type postBookingEventsTestHelper struct {
+	bookingEvent api.CarpoolBookingEvent
+}
+
+func (h postBookingEventsTestHelper) makeRequest() (*http.Request, error) {
+	return api.NewPostBookingEventsRequest(fakeServer, h.bookingEvent)
+}
+
+func (h postBookingEventsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	return handler.PostBookingEvents(ctx)
+}
+
+func (h postBookingEventsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []test.AssertionResult {
+	return test.TestPostBookingEventsResponse(request, response, flags)
+}
+
+func TestPostBookingEventsHelper(
+	t *testing.T,
+	mockDB *MockDB,
+	bookingEvent api.CarpoolBookingEvent,
+	flags test.Flags,
+) {
+	testAPI(t, postBookingEventsTestHelper{bookingEvent}, mockDB, flags)
+}
+
+//////////////////////////////////////////////////////////
+
+type getBookingsTestHelper struct {
+	bookingID api.BookingId
+}
+
+func (h getBookingsTestHelper) makeRequest() (*http.Request, error) {
+	return api.NewGetBookingsRequest(fakeServer, h.bookingID)
+}
+
+func (h getBookingsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	return handler.GetBookings(ctx, h.bookingID)
+}
+
+func (h getBookingsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []test.AssertionResult {
+	return test.TestGetBookingsResponse(request, response, flags)
+}
+
+func TestGetBookingsHelper(
+	t *testing.T,
+	mockDB *MockDB,
+	bookingID api.BookingId,
+	flags test.Flags,
+) {
+	testAPI(t, getBookingsTestHelper{bookingID}, mockDB, flags)
+}
+
+//////////////////////////////////////////////////////////
+
+type patchBookingsTestHelper struct {
+	bookingID api.BookingId
+	status    api.BookingStatus
+}
+
+func (h patchBookingsTestHelper) makeRequest() (*http.Request, error) {
+	params := &api.PatchBookingsParams{Status: h.status}
+	return api.NewPatchBookingsRequest(fakeServer, h.bookingID, params)
+}
+
+func (h patchBookingsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	params := api.PatchBookingsParams{Status: h.status}
+	return handler.PatchBookings(ctx, h.bookingID, params)
+}
+
+func (h patchBookingsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []test.AssertionResult {
+	return test.TestPatchBookingsResponse(request, response, flags)
+}
+
+func TestPatchBookingsHelper(
+	t *testing.T,
+	mockDB *MockDB,
+	bookingID api.BookingId,
+	status api.BookingStatus,
+	flags test.Flags,
+) {
+	testAPI(t, patchBookingsTestHelper{bookingID, status}, mockDB, flags)
+}

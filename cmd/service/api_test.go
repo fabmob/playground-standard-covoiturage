@@ -470,37 +470,9 @@ func TestGetBookings(t *testing.T) {
 			flags.DisallowEmpty = tc.disallowEmpty
 			flags.ExpectedStatusCode = tc.expectedStatusCode
 
-			testGetBookingsHelper(t, mockDB, tc.queryBookingID, flags)
+			TestGetBookingsHelper(t, mockDB, tc.queryBookingID, flags)
 		})
 	}
-}
-
-func testGetBookingsHelper(
-	t *testing.T,
-	mockDB *MockDB,
-	bookingID api.BookingId,
-	flags test.Flags,
-) {
-	t.Helper()
-
-	// Make Request
-	request, err := api.NewGetBookingsRequest(fakeServer, bookingID)
-	panicIf(err)
-
-	// Setup testing server with response recorder
-	handler, ctx, rec := setupTestServer(mockDB, request)
-
-	// Make API call
-	err = handler.GetBookings(ctx, bookingID)
-	panicIf(err)
-	appendCmdIfGenerated(t, request, flags, nil)
-
-	// Test results
-	response := rec.Result()
-
-	assertionResults := test.TestGetBookingsResponse(request, response, flags)
-
-	checkAssertionResults(t, assertionResults)
 }
 
 func TestPostBookings(t *testing.T) {
@@ -547,7 +519,7 @@ func TestPostBookings(t *testing.T) {
 
 			TestPostBookingsHelper(t, mockDB, *tc.booking, flagsPost)
 
-			testGetBookingsHelper(t, mockDB, bookingID, flagsGet)
+			TestGetBookingsHelper(t, mockDB, bookingID, flagsGet)
 		})
 	}
 }
@@ -642,8 +614,6 @@ func TestPatchBookings(t *testing.T) {
 			mockDB.Bookings = tc.existingBookings
 			appendDataIfGenerated(mockDB)
 
-			params := api.PatchBookingsParams{Status: tc.newStatus}
-
 			flagsPatch := test.NewFlags()
 			flagsPatch.ExpectedStatusCode = tc.expectedPatchStatusCode
 
@@ -651,40 +621,11 @@ func TestPatchBookings(t *testing.T) {
 			flagsGet.ExpectedStatusCode = tc.expectedGetStatusCode
 			flagsGet.ExpectedBookingStatus = tc.expectedStatus
 
-			testPatchBookingsHelper(t, mockDB, tc.bookingID, params, flagsPatch)
+			TestPatchBookingsHelper(t, mockDB, tc.bookingID, tc.newStatus, flagsPatch)
 
-			testGetBookingsHelper(t, mockDB, tc.bookingID, flagsGet)
+			TestGetBookingsHelper(t, mockDB, tc.bookingID, flagsGet)
 		})
 	}
-}
-
-func testPatchBookingsHelper(
-	t *testing.T,
-	mockDB *MockDB,
-	bookingID api.BookingId,
-	params api.PatchBookingsParams,
-	flags test.Flags,
-) {
-	t.Helper()
-
-	// Make Request
-	request, err := api.NewPatchBookingsRequest(fakeServer, bookingID, &params)
-	panicIf(err)
-
-	// Setup testing server with response recorder
-	handler, ctx, rec := setupTestServer(mockDB, request)
-
-	// Make API call
-	err = handler.PatchBookings(ctx, bookingID, params)
-	panicIf(err)
-	appendCmdIfGenerated(t, request, flags, nil)
-
-	// Test results
-	response := rec.Result()
-
-	assertionResults := test.TestPatchBookingsResponse(request, response, flags)
-
-	checkAssertionResults(t, assertionResults)
 }
 
 func TestPostBookingEvents(t *testing.T) {
@@ -753,33 +694,11 @@ func TestPostBookingEvents(t *testing.T) {
 			flagsGet.ExpectedStatusCode = tc.expectedGetStatusCode
 			flagsGet.ExpectedBookingStatus = tc.expectedBookingStatus
 
-			testPostBookingEventsHelper(t, mockDB, tc.carpoolBookingEvent, flagsPost)
+			TestPostBookingEventsHelper(t, mockDB, *tc.carpoolBookingEvent, flagsPost)
 
-			testGetBookingsHelper(t, mockDB, tc.bookingID, flagsGet)
+			TestGetBookingsHelper(t, mockDB, tc.bookingID, flagsGet)
 		})
 	}
-}
-
-func testPostBookingEventsHelper(t *testing.T, mockDB *MockDB,
-	carpoolBookingEvent *api.CarpoolBookingEvent, flags test.Flags) {
-	t.Helper()
-
-	request, err := api.NewPostBookingEventsRequest(fakeServer, *carpoolBookingEvent)
-	panicIf(err)
-
-	// Setup testing server with response recorder
-	handler, ctx, rec := setupTestServer(mockDB, request)
-
-	// Make API Call
-	err = handler.PostBookingEvents(ctx)
-	panicIf(err)
-	/* appendCmdIfGenerated(t, request, flags, carpoolBookingEvent) */
-	appendCmdIfGenerated(t, request, flags, nil)
-
-	response := rec.Result()
-
-	assertionResults := test.TestPostBookingEventsResponse(request, response, flags)
-	checkAssertionResults(t, assertionResults)
 }
 
 func TestPostMessage(t *testing.T) {
@@ -829,30 +748,9 @@ func TestPostMessage(t *testing.T) {
 			flags := test.NewFlags()
 			flags.ExpectedStatusCode = tc.expectedStatusCode
 
-			testPostMessageHelper(t, mockDB, tc.message, flags)
+			TestPostMessagesHelper(t, mockDB, tc.message, flags)
 		})
 	}
-}
-
-func testPostMessageHelper(t *testing.T, mockDB *MockDB, message api.PostMessagesJSONBody, flags test.Flags) {
-	request, err := api.NewPostMessagesRequest(fakeServer,
-		api.PostMessagesJSONRequestBody(message))
-	panicIf(err)
-
-	// Setup testing server with response recorder
-	handler, ctx, rec := setupTestServer(mockDB, request)
-
-	// Make API Call
-	err = handler.PostMessages(ctx)
-	panicIf(err)
-	appendCmdIfGenerated(t, request, flags, nil)
-	/* appendCmdIfGenerated(t, request, flags, message) */
-
-	// Test response
-	response := rec.Result()
-
-	assertionResults := test.TestPostMessagesResponse(request, response, flags)
-	checkAssertionResults(t, assertionResults)
 }
 
 func TestGeneration(t *testing.T) {
