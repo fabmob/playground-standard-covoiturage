@@ -55,9 +55,9 @@ func newTestClient(m *MockClient) *api.Client {
 type MockRunner struct {
 	Method  string
 	URL     string
-	Verbose bool
 	Query   Query
 	Body    []byte
+	Verbose bool
 	APIKey  string
 	Flags   Flags
 }
@@ -66,9 +66,9 @@ type MockRunner struct {
 func (mr *MockRunner) Run(
 	method,
 	URL string,
-	verbose bool,
 	query Query,
 	body []byte,
+	verbose bool,
 	apiKey string,
 	flags Flags,
 ) error {

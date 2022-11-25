@@ -19,7 +19,7 @@ import (
 )
 
 type TestRunner interface {
-	Run(method, URL string, verbose bool, query Query, body []byte, apiKey string, flags Flags) error
+	Run(method, URL string, query Query, body []byte, verbose bool, apiKey string, flags Flags) error
 }
 
 type DefaultRunner struct{}
@@ -29,7 +29,7 @@ func NewDefaultRunner() *DefaultRunner {
 }
 
 // Run runs the cli validation and returns an exit code
-func (*DefaultRunner) Run(method, URL string, verbose bool, query Query, body []byte, apiKey string, flags Flags) error {
+func (*DefaultRunner) Run(method, URL string, query Query, body []byte, verbose bool, apiKey string, flags Flags) error {
 
 	req, err := makeRequestWithContext(method, URL, body, apiKey)
 	if err != nil {
@@ -55,5 +55,5 @@ func (*DefaultRunner) Run(method, URL string, verbose bool, query Query, body []
 
 func RunTest(method, URL string, verbose bool, query Query, body []byte, apiKey string, flags Flags) error {
 	runner := DefaultRunner{}
-	return runner.Run(method, URL, verbose, query, body, apiKey, flags)
+	return runner.Run(method, URL, query, body, verbose, apiKey, flags)
 }
