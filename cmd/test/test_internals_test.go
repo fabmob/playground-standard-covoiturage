@@ -102,14 +102,3 @@ func cmpRequests(t *testing.T, req1, req2 *http.Request) bool {
 		cmp.Equal(req1.Header, req2.Header) &&
 		bodyString[0] == bodyString[1]
 }
-
-/* func TestNoEmpty(t *testing.T) { */
-/* 	a := assert.NewAccumulator() */
-/* 	testGetDriverJourneys(nil, assert.MockOKStatusResponse(), a, Flags{ExpectNonEmpty: true}) */
-
-/* 	for _, assertion := range a.queuedAssertions { */
-/* 		if _, ok := assertion.(assertArrayNotEmpty); ok { */
-/* 			t.Error("DisallowEmpty flag is not taken into account properly") */
-/* 		} */
-/* 	} */
-/* } */
