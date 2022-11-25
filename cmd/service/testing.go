@@ -13,6 +13,7 @@ import (
 	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
+	testassert "github.com/fabmob/playground-standard-covoiturage/cmd/test/assert"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -225,7 +226,7 @@ func NewBookingsByID(bookings ...*api.Booking) db.BookingsByID {
 	return bookingsByID
 }
 
-func checkAssertionResults(t *testing.T, assertionResults []test.AssertionResult) {
+func checkAssertionResults(t *testing.T, assertionResults []testassert.Result) {
 	t.Helper()
 
 	assert.Greater(t, len(assertionResults), 0)
@@ -242,7 +243,7 @@ func checkAssertionResults(t *testing.T, assertionResults []test.AssertionResult
 type apiTestHelper interface {
 	makeRequest() (*http.Request, error)
 	callAPI(*StdCovServerImpl, echo.Context) error
-	testResponse(*http.Request, *http.Response, test.Flags) []test.AssertionResult
+	testResponse(*http.Request, *http.Response, test.Flags) []testassert.Result
 }
 
 func testAPI(t *testing.T, a apiTestHelper, mockDB *db.Mock, flags test.Flags) {
@@ -298,7 +299,7 @@ func (h postBookingsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Cont
 	return handler.PostBookings(ctx)
 }
 
-func (h postBookingsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []test.AssertionResult {
+func (h postBookingsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []testassert.Result {
 	return test.TestPostBookingsResponse(request, response, flags)
 }
 
@@ -325,7 +326,7 @@ func (h postMessagesTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Cont
 	return handler.PostMessages(ctx)
 }
 
-func (h postMessagesTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []test.AssertionResult {
+func (h postMessagesTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []testassert.Result {
 	return test.TestPostMessagesResponse(request, response, flags)
 }
 
@@ -352,7 +353,7 @@ func (h postBookingEventsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo
 	return handler.PostBookingEvents(ctx)
 }
 
-func (h postBookingEventsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []test.AssertionResult {
+func (h postBookingEventsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []testassert.Result {
 	return test.TestPostBookingEventsResponse(request, response, flags)
 }
 
@@ -379,7 +380,7 @@ func (h getBookingsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Conte
 	return handler.GetBookings(ctx, h.bookingID)
 }
 
-func (h getBookingsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []test.AssertionResult {
+func (h getBookingsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []testassert.Result {
 	return test.TestGetBookingsResponse(request, response, flags)
 }
 
@@ -409,7 +410,7 @@ func (h patchBookingsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Con
 	return handler.PatchBookings(ctx, h.bookingID, params)
 }
 
-func (h patchBookingsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []test.AssertionResult {
+func (h patchBookingsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []testassert.Result {
 	return test.TestPatchBookingsResponse(request, response, flags)
 }
 

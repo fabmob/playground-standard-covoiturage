@@ -1,4 +1,4 @@
-package test
+package assert
 
 import (
 	"encoding/json"
@@ -255,13 +255,6 @@ func TestAssertAPICallSuccess(t *testing.T) {
 	}
 }
 
-func shouldHaveSingleAssertionResult(t *testing.T, ar []AssertionResult) {
-	t.Helper()
-	if len(ar) != 1 {
-		t.Error("Each assertion should return only one AssertionResult")
-	}
-}
-
 func TestDefaultAssertionAccu_Run(t *testing.T) {
 	testCases := []struct {
 		name                string
@@ -290,7 +283,7 @@ func TestDefaultAssertionAccu_Run(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			a := NewAssertionAccu()
+			a := NewAccumulator()
 			a.Queue(tc.assertions...)
 			a.ExecuteAll()
 			if len(a.storedAssertionResults) != tc.expectedNAssertions {
@@ -313,14 +306,14 @@ func singleAssertionError(
 ) error {
 	t.Helper()
 
-	var a = NewAssertionAccu()
+	var a = NewAccumulator()
 
 	a.Queue(assertion)
 	a.ExecuteAll()
 
-	shouldHaveSingleAssertionResult(t, a.GetAssertionResults())
+	ShouldHaveSingleAssertionResult(t, a.GetAssertionResults())
 
-	return a.storedAssertionResults[0].err
+	return a.storedAssertionResults[0].Err
 }
 
 func TestAssertRadius(t *testing.T) {

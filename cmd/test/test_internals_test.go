@@ -8,11 +8,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/assert"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/google/go-cmp/cmp"
 )
 
-var defaultTestFlags Flags = Flags{DisallowEmpty: false}
+var defaultTestFlags Flags = Flags{ExpectNonEmpty: false}
 
 // testErrorOnRequestIsHandled returns an urlError for every API call and checks:
 // - that only one AssertionError is returned
@@ -29,7 +30,7 @@ func testErrorOnRequestIsHandled(t *testing.T, f requestTestFun) {
 		util.PanicIf(err)
 
 		results := f(m, r, defaultTestFlags)
-		shouldHaveSingleAssertionResult(t, results)
+		assert.ShouldHaveSingleAssertionResult(t, results)
 
 		err = results[0].Unwrap()
 		if err == nil {
@@ -53,11 +54,11 @@ func TestRequests(t *testing.T) {
 
 	for _, url := range testCases {
 		t.Run(url, func(t *testing.T) {
-			m := NewMockClientWithResponse(mockOKStatusResponse())
+			m := NewMockClientWithResponse(assert.MockOKStatusResponse())
 			r, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
 			util.PanicIf(err)
 
-			testNoAssertions := func(*http.Request, *http.Response, Flags) []AssertionResult {
+			testNoAssertions := func(*http.Request, *http.Response, Flags) []assert.Result {
 				return nil
 			}
 			wrapTestResponseFun(testNoAssertions)(m, r, defaultTestFlags)
@@ -100,15 +101,4 @@ func cmpRequests(t *testing.T, req1, req2 *http.Request) bool {
 		req1.URL.String() == req2.URL.String() &&
 		cmp.Equal(req1.Header, req2.Header) &&
 		bodyString[0] == bodyString[1]
-}
-
-func TestNoEmpty(t *testing.T) {
-	a := NewAssertionAccu()
-	testGetDriverJourneys(nil, mockOKStatusResponse(), a, Flags{DisallowEmpty: true})
-
-	for _, assertion := range a.queuedAssertions {
-		if _, ok := assertion.(assertArrayNotEmpty); ok {
-			t.Error("DisallowEmpty flag is not taken into account properly")
-		}
-	}
 }

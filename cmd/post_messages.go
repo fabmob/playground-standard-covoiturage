@@ -40,9 +40,9 @@ func getMessagesRun(runner test.TestRunner, server string, body []byte) error {
 	return runner.Run(
 		http.MethodPost,
 		URL,
-		verbose,
 		test.NewQuery(),
 		body,
+		verbose,
 		apiKey,
 		flagsWithDefault(http.StatusCreated),
 	)

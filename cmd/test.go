@@ -43,7 +43,7 @@ func init() {
 	testCmd.PersistentFlags().BoolVar(
 		&disallowEmpty,
 		"disallowEmpty",
-		test.DefaultDisallowEmptyFlag,
+		test.DefaultFlagExpectNonEmpty,
 		"Should an empty request return an error",
 	)
 	testCmd.PersistentFlags().StringVar(&apiKey, "auth", "", "API key sent in the \"X-API-Key\" header of the request")
@@ -64,11 +64,11 @@ func init() {
 
 func flagsWithDefault(defaultStatus int) test.Flags {
 	flags := test.NewFlags()
-	flags.DisallowEmpty = disallowEmpty
+	flags.ExpectNonEmpty = disallowEmpty
 	if expectResponseCode == 0 { //not set
-		flags.ExpectedStatusCode = defaultStatus
+		flags.ExpectedResponseCode = defaultStatus
 	} else {
-		flags.ExpectedStatusCode = expectResponseCode
+		flags.ExpectedResponseCode = expectResponseCode
 	}
 	return flags
 }
