@@ -26,10 +26,10 @@ func testGetDriverJourneys(
 ) {
 
 	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+	AssertStatusCode(a, response, flags.ExpectedResponseCode)
 	AssertHeaderContains(a, response, echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	if flags.DisallowEmpty {
+	if flags.ExpectNonEmpty {
 		CriticAssertArrayNotEmpty(a, response)
 	}
 
@@ -58,7 +58,7 @@ func testGetDriverRegularTrips(
 	flags Flags,
 ) {
 	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+	AssertStatusCode(a, response, flags.ExpectedResponseCode)
 }
 
 func testGetPassengerRegularTrips(
@@ -68,7 +68,7 @@ func testGetPassengerRegularTrips(
 	flags Flags,
 ) {
 	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+	AssertStatusCode(a, response, flags.ExpectedResponseCode)
 }
 
 //////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ func testPostBookingEvents(
 	flags Flags,
 ) {
 	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+	AssertStatusCode(a, response, flags.ExpectedResponseCode)
 }
 
 //////////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ func testPostMessages(
 	flags Flags,
 ) {
 	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+	AssertStatusCode(a, response, flags.ExpectedResponseCode)
 }
 
 func testPostBookings(
@@ -106,7 +106,7 @@ func testPostBookings(
 	flags Flags,
 ) {
 	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+	AssertStatusCode(a, response, flags.ExpectedResponseCode)
 }
 
 func testPatchBookings(
@@ -116,7 +116,7 @@ func testPatchBookings(
 	flags Flags,
 ) {
 	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+	AssertStatusCode(a, response, flags.ExpectedResponseCode)
 }
 
 // testGetBookings currently assumes that the request returns a 200 response.
@@ -128,7 +128,7 @@ func testGetBookings(
 ) {
 
 	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedStatusCode)
+	AssertStatusCode(a, response, flags.ExpectedResponseCode)
 
 	if flags.ExpectedBookingStatus != "" {
 		AssertBookingStatus(a, response, string(flags.ExpectedBookingStatus))

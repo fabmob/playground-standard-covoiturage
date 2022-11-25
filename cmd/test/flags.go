@@ -9,27 +9,32 @@ import (
 // Flags stores validation options
 type Flags struct {
 	// If true, an Empty response is considered to be an error
-	DisallowEmpty bool
+	ExpectNonEmpty bool
+
+	// It true, the HTTP response code is tested against expectation
+	ExpectedResponseCode int
+
+	// If true, the Booking status retrieved from `Get /bookings` call is tested
+	// against expectation
+	ExpectedBookingStatus api.BookingStatus
 
 	// If true, the API is supposed to support the booking by deep link use case
-	SupportDeepLink bool
-
-	ExpectedStatusCode int
-
-	ExpectedBookingStatus api.BookingStatus
+	ExpectDeepLinkSupport bool
 }
 
 const (
-	DefaultDisallowEmptyFlag   = false
-	DefaultSupportDeepLinkFlag = false
+	DefaultFlagExpectNonEmpty        = false
+	DefaultFlagExpectDeepLinkSupport = false
+	DefaultFlagExpectedResponseCode  = http.StatusOK
+	DefaultFlagExpectedBookingStatus = ""
 )
 
 // NewFlags return a set of default flags
 func NewFlags() Flags {
 	return Flags{
-		DisallowEmpty:         false,
-		SupportDeepLink:       false,
-		ExpectedStatusCode:    http.StatusOK,
-		ExpectedBookingStatus: "",
+		ExpectNonEmpty:        DefaultFlagExpectNonEmpty,
+		ExpectDeepLinkSupport: DefaultFlagExpectDeepLinkSupport,
+		ExpectedResponseCode:  DefaultFlagExpectedResponseCode,
+		ExpectedBookingStatus: DefaultFlagExpectedBookingStatus,
 	}
 }

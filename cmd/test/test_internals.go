@@ -23,18 +23,19 @@ func testRequest(request *http.Request, flags Flags) (*Report, error) {
 		return nil, err
 	}
 
-	selectedTestFun, err := SelectTestFuns(endpoint)
+	selectedTestFun, err := SelectTestFun(endpoint)
 	if err != nil {
 		return nil, err
 	}
 
-	report := executeTestFuns(client, request, selectedTestFun, flags)
+	report := executeTestFun(client, request, selectedTestFun, flags)
+
 	report.endpoint = endpoint
 
 	return report, nil
 }
 
-func executeTestFuns(
+func executeTestFun(
 	client APIClient,
 	request *http.Request,
 	testFun ResponseTestFun,
@@ -50,12 +51,13 @@ func executeTestFuns(
 
 /////////////////////////////////////////////////////////////
 
-// A requestTestFun runs all tests associated with a given Request, and return
-// the correspending `AssertionResult`s
+// A requestTestFun runs all tests associated with a given Request, and
+// returns the correspending `AssertionResult`s
 type requestTestFun func(APIClient, *http.Request, Flags) []AssertionResult
 
-// wrapTestResponseFun wraps an TestResponseFun to a TestRequestFun
+// wrapTestResponseFun wraps a TestResponseFun to a TestRequestFun
 func wrapTestResponseFun(f ResponseTestFun) requestTestFun {
+
 	return func(c APIClient, request *http.Request, flags Flags) []AssertionResult {
 		response, clientErr := c.Client.Do(request)
 		if clientErr != nil {
@@ -76,13 +78,15 @@ type ResponseTestFun func(
 	Flags,
 ) []AssertionResult
 
-func wrapAssertionsFun(f testImplementation) ResponseTestFun {
+func wrapTestImplementation(f testImplementation) ResponseTestFun {
+
 	return func(req *http.Request, resp *http.Response, flags Flags) []AssertionResult {
 		var (
 			err error
 			a   = NewAssertionAccu()
 		)
 
+		// response body may be read several times in assertions
 		resp.Body, err = ReusableReadCloser(resp.Body)
 		if err != nil {
 			return []AssertionResult{NewAssertionResult(err, "failure to read response body")}

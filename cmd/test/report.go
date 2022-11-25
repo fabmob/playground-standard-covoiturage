@@ -6,7 +6,7 @@ import (
 	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 )
 
-// Report stores assertionResults.
+// Report stores and prints `AssertionResult`s
 type Report struct {
 	verbose          bool
 	endpoint         endpoint.Info
@@ -18,6 +18,8 @@ func NewReport(assertionResults ...AssertionResult) Report {
 	return Report{assertionResults: assertionResults}
 }
 
+// String implements stringer interface. It is
+// used to print the report to terminal
 func (report *Report) String() string {
 	str := ""
 
@@ -51,4 +53,28 @@ func format(endpoint endpoint.Info, assertionDescription string) string {
 
 func (report *Report) hasErrors() bool {
 	return report.countErrors() > 0
+}
+
+// ////////////////////////////////////////////////////////////
+// Printing helper functions
+// ////////////////////////////////////////////////////////////
+
+func stringError(msg string) string {
+	return stringWithSymbol("ERROR ❌", msg)
+}
+
+func stringOK(msg string) string {
+	return stringWithSymbol("OK ✅", msg)
+}
+
+func stringDetail(msg string) string {
+	return stringWithSymbol("", msg)
+}
+
+func stringWithSymbol(symbol, msg string) string {
+	return fmt.Sprintf(
+		"%7s %s\n",
+		symbol,
+		msg,
+	)
 }

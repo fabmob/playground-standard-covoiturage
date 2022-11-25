@@ -21,11 +21,11 @@ func Register(f ResponseTestFun, e endpoint.Info) {
 	apiMapping[e] = f
 }
 
-// SelectTestFuns returns the test function related to a given request.
-func SelectTestFuns(endpoint endpoint.Info) (ResponseTestFun, error) {
+// SelectTestFun returns the test function related to a given request.
+func SelectTestFun(endpoint endpoint.Info) (ResponseTestFun, error) {
 	testFun, ok := GetAPIMapping()[endpoint]
 	if !ok {
-		return nil, fmt.Errorf("request to an unknown endpoint: %s", endpoint)
+		return nil, fmt.Errorf("missing test for endpoint: %s", endpoint)
 	}
 
 	return testFun, nil

@@ -95,7 +95,7 @@ func GenerateCommandStr(t *testing.T, request *http.Request, flags test.Flags, b
 	cmd += "go run main.go test" + cmdContinuation +
 		fmt.Sprintf("--method=%s", request.Method) + cmdContinuation +
 		fmt.Sprintf("--url=\"%s\"", urlWithEnvVar) + cmdContinuation +
-		fmt.Sprintf("--expectResponseCode=%d", flags.ExpectedStatusCode) +
+		fmt.Sprintf("--expectResponseCode=%d", flags.ExpectedResponseCode) +
 		cmdContinuation +
 		fmt.Sprintf("--auth=\"$%s\"", authEnvVar)
 

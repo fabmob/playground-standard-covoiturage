@@ -185,7 +185,7 @@ func TestDriverJourneys(t *testing.T) {
 			mockDB.DriverJourneys = tc.testData
 
 			flags := test.NewFlags()
-			flags.DisallowEmpty = tc.expectNonEmptyResult
+			flags.ExpectNonEmpty = tc.expectNonEmptyResult
 
 			testGetDriverJourneyHelper(
 				t,
@@ -371,7 +371,7 @@ func TestPassengerJourneys(t *testing.T) {
 			mockDB.PassengerJourneys = tc.testData
 
 			flags := test.NewFlags()
-			flags.DisallowEmpty = tc.expectNonEmptyResult
+			flags.ExpectNonEmpty = tc.expectNonEmptyResult
 
 			testGetPassengerJourneyHelper(
 				t,
@@ -463,8 +463,8 @@ func TestGetBookings(t *testing.T) {
 			mockDB.Bookings = tc.bookings
 
 			flags := test.NewFlags()
-			flags.DisallowEmpty = tc.disallowEmpty
-			flags.ExpectedStatusCode = tc.expectedStatusCode
+			flags.ExpectNonEmpty = tc.disallowEmpty
+			flags.ExpectedResponseCode = tc.expectedStatusCode
 
 			TestGetBookingsHelper(t, mockDB, tc.queryBookingID, flags)
 		})
@@ -507,10 +507,10 @@ func TestPostBookings(t *testing.T) {
 			mockDB.Bookings = tc.existingBookings
 
 			flagsPost := test.NewFlags()
-			flagsPost.ExpectedStatusCode = tc.expectPostStatusCode
+			flagsPost.ExpectedResponseCode = tc.expectPostStatusCode
 
 			flagsGet := test.NewFlags()
-			flagsGet.DisallowEmpty = tc.expectGetNonEmpty
+			flagsGet.ExpectNonEmpty = tc.expectGetNonEmpty
 
 			TestPostBookingsHelper(t, mockDB, *tc.booking, flagsPost)
 
@@ -609,10 +609,10 @@ func TestPatchBookings(t *testing.T) {
 			mockDB.Bookings = tc.existingBookings
 
 			flagsPatch := test.NewFlags()
-			flagsPatch.ExpectedStatusCode = tc.expectedPatchStatusCode
+			flagsPatch.ExpectedResponseCode = tc.expectedPatchStatusCode
 
 			flagsGet := test.NewFlags()
-			flagsGet.ExpectedStatusCode = tc.expectedGetStatusCode
+			flagsGet.ExpectedResponseCode = tc.expectedGetStatusCode
 			flagsGet.ExpectedBookingStatus = tc.expectedStatus
 
 			TestPatchBookingsHelper(t, mockDB, tc.bookingID, tc.newStatus, flagsPatch)
@@ -681,10 +681,10 @@ func TestPostBookingEvents(t *testing.T) {
 			mockDB.Bookings = tc.existingBookings
 
 			flagsPost := test.NewFlags()
-			flagsPost.ExpectedStatusCode = tc.expectedPostStatusCode
+			flagsPost.ExpectedResponseCode = tc.expectedPostStatusCode
 
 			flagsGet := test.NewFlags()
-			flagsGet.ExpectedStatusCode = tc.expectedGetStatusCode
+			flagsGet.ExpectedResponseCode = tc.expectedGetStatusCode
 			flagsGet.ExpectedBookingStatus = tc.expectedBookingStatus
 
 			TestPostBookingEventsHelper(t, mockDB, *tc.carpoolBookingEvent, flagsPost)
@@ -738,7 +738,7 @@ func TestPostMessage(t *testing.T) {
 			mockDB.Users = tc.existingUsers
 
 			flags := test.NewFlags()
-			flags.ExpectedStatusCode = tc.expectedStatusCode
+			flags.ExpectedResponseCode = tc.expectedStatusCode
 
 			TestPostMessagesHelper(t, mockDB, tc.message, flags)
 		})
@@ -751,7 +751,7 @@ func TestDefaultDriverJourneysValidity(t *testing.T) {
 	testFun := test.TestGetDriverJourneysResponse
 
 	flags := test.NewFlags()
-	flags.DisallowEmpty = true
+	flags.ExpectNonEmpty = true
 
 	testGetJourneysHelper(t, params, mockDB, testFun, flags)
 }
@@ -762,7 +762,7 @@ func TestDefaultPassengerJourneysValidity(t *testing.T) {
 	testFun := test.TestGetPassengerJourneysResponse
 
 	flags := test.NewFlags()
-	flags.DisallowEmpty = true
+	flags.ExpectNonEmpty = true
 
 	testGetJourneysHelper(t, params, mockDB, testFun, flags)
 }

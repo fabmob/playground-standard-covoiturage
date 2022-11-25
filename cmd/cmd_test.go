@@ -200,7 +200,7 @@ func (expected expectedData) testArgs(t *testing.T, mockRunner *test.MockRunner)
 
 	testStringArg(t, mockRunner.URL, expected.url, "URL")
 
-	testIntArg(t, mockRunner.Flags.ExpectedStatusCode,
+	testIntArg(t, mockRunner.Flags.ExpectedResponseCode,
 		expected.defaultStatusCode, "status code")
 
 	nilBodyExpected := expected.body == nil

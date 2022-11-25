@@ -12,7 +12,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-var defaultTestFlags Flags = Flags{DisallowEmpty: false}
+var defaultTestFlags Flags = Flags{ExpectNonEmpty: false}
 
 // testErrorOnRequestIsHandled returns an urlError for every API call and checks:
 // - that only one AssertionError is returned
@@ -104,7 +104,7 @@ func cmpRequests(t *testing.T, req1, req2 *http.Request) bool {
 
 func TestNoEmpty(t *testing.T) {
 	a := NewAssertionAccu()
-	testGetDriverJourneys(nil, mockOKStatusResponse(), a, Flags{DisallowEmpty: true})
+	testGetDriverJourneys(nil, mockOKStatusResponse(), a, Flags{ExpectNonEmpty: true})
 
 	for _, assertion := range a.queuedAssertions {
 		if _, ok := assertion.(assertArrayNotEmpty); ok {

@@ -34,32 +34,32 @@ var (
 	// Tag "Search"
 
 	// TestGetDriverJourneysResponse tests response of GET /driver_journeys
-	TestGetDriverJourneysResponse = wrapAssertionsFun(testGetDriverJourneys)
+	TestGetDriverJourneysResponse = wrapTestImplementation(testGetDriverJourneys)
 	// TestGetPassengerJourneysResponse tests response of GET /passenger_journeys
-	TestGetPassengerJourneysResponse = wrapAssertionsFun(testGetPassengerJourneys)
+	TestGetPassengerJourneysResponse = wrapTestImplementation(testGetPassengerJourneys)
 	// TestGetDriverRegularTripsResponse tests response of GET /driver_regular_trips
-	TestGetDriverRegularTripsResponse = wrapAssertionsFun(testGetDriverRegularTrips)
+	TestGetDriverRegularTripsResponse = wrapTestImplementation(testGetDriverRegularTrips)
 	// TestGetPassengerRegularTripsResponse tests response of GET /passenger_regular_trips
-	TestGetPassengerRegularTripsResponse = wrapAssertionsFun(testGetPassengerRegularTrips)
+	TestGetPassengerRegularTripsResponse = wrapTestImplementation(testGetPassengerRegularTrips)
 
 	// Tag "Webhooks"
 
 	// TestPostBookingsResponse tests response of POST /bookings/{booking_id}
-	TestPostBookingEventsResponse = wrapAssertionsFun(testPostBookingEvents)
+	TestPostBookingEventsResponse = wrapTestImplementation(testPostBookingEvents)
 
 	// Tag "Interact"
 
 	// TestPostMessagesResponse tests response of POST /messages
-	TestPostMessagesResponse = wrapAssertionsFun(testPostMessages)
+	TestPostMessagesResponse = wrapTestImplementation(testPostMessages)
 	// TestPostBookingsResponse tests response of POST /bookings/{booking_id}
-	TestPostBookingsResponse = wrapAssertionsFun(testPostBookings)
+	TestPostBookingsResponse = wrapTestImplementation(testPostBookings)
 	// TestPatchBookingsResponse tests response of PATCH /bookings/{booking_id}
-	TestPatchBookingsResponse = wrapAssertionsFun(testPatchBookings)
+	TestPatchBookingsResponse = wrapTestImplementation(testPatchBookings)
 	// TestGetBookingsResponse tests response of GET /bookings/{booking_id}
-	TestGetBookingsResponse = wrapAssertionsFun(testGetBookings)
+	TestGetBookingsResponse = wrapTestImplementation(testGetBookings)
 
 	// Tag "status"
 
 	// TestGetStatusResponse tests response of GET /status
-	TestGetStatusResponse ResponseTestFun = wrapAssertionsFun(testGetStatus)
+	TestGetStatusResponse ResponseTestFun = wrapTestImplementation(testGetStatus)
 )
