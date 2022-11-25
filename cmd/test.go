@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/spf13/cobra"
@@ -13,18 +14,26 @@ var testCmd = &cobra.Command{
 	Short: "Test an API complying with the standard covoiturage",
 	Long:  "Test an API complying with the standard covoiturage",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := test.RunTest(http.MethodGet, URL, verbose, query, nil, apiKey, flags(http.StatusOK))
+		var timeout = 100 * time.Millisecond
+
+		body, err := readBodyFromStdin(cmd, timeout)
+		if err != nil {
+			body = nil
+		}
+
+		err = test.RunTest(method, URL, verbose, query, body, apiKey, flagsWithDefault(http.StatusOK))
 		exitWithError(err)
 	},
 }
 
 var (
-	apiKey        string
-	URL           string
-	verbose       bool
-	query         test.Query
-	disallowEmpty bool
-	expectStatus  int
+	apiKey             string
+	URL                string
+	verbose            bool
+	query              test.Query
+	disallowEmpty      bool
+	expectResponseCode int
+	method             string
 )
 
 func init() {
@@ -39,23 +48,27 @@ func init() {
 	)
 	testCmd.PersistentFlags().StringVar(&apiKey, "auth", "", "API key sent in the \"X-API-Key\" header of the request")
 	testCmd.PersistentFlags().IntVar(
-		&expectStatus,
-		"expectStatus",
+		&expectResponseCode,
+		"expectResponseCode",
 		0,
 		"Expected status code. Defaults to success, 2xx, status code - exact default depends on endpoint",
 	)
 
+	testCmd.Flags().StringVar(
+		&expectBookingStatus, "expectBookingStatus", "", "Expected booking status, checked on response (only for GET /bookings)",
+	)
+	testCmd.Flags().StringVar(&method, "method", http.MethodGet, "HTTP method, either GET (default), POST or PATCH")
 	testCmd.Flags().StringVarP(&URL, "url", "u", "", "API call URL")
 	testCmd.Flags().VarP(&query, "query", "q", "Query parameters in the form name=value")
 }
 
-func flags(defaultStatus int) test.Flags {
+func flagsWithDefault(defaultStatus int) test.Flags {
 	flags := test.NewFlags()
 	flags.DisallowEmpty = disallowEmpty
-	if expectStatus == 0 { //not set
+	if expectResponseCode == 0 { //not set
 		flags.ExpectedStatusCode = defaultStatus
 	} else {
-		flags.ExpectedStatusCode = expectStatus
+		flags.ExpectedStatusCode = expectResponseCode
 	}
 	return flags
 }

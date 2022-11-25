@@ -38,11 +38,13 @@ The `test` subcommand runs tests on a given request.
 There are several ways to specify the request, the three examples below are 
 equivalent:
 
-- through an url
+- through an url (̀`method` flag is set to GET by default and could be omitted 
+  here)
 
 ```sh
-./pscovoit test --url 
-"http://localhost:1323/driver_journeys?arrivalLat=48.8450234&arrivalLng=2.3997529&departureDate=1665579951&departureLat=47.461737&departureLng=1.061393"
+./pscovoit test \
+--url "http://localhost:1323/driver_journeys?arrivalLat=48.8450234&arrivalLng=2.3997529&departureDate=1665579951&departureLat=47.461737&departureLng=1.061393" \
+--method=GET
 ```
 
 - through an url with (some or all) query parameters as flags
@@ -60,7 +62,7 @@ equivalent:
   
 ```sh
 ./pscovoit test get driverJourneys \
-  --server "http://localhost:1323"
+  --server "http://localhost:1323" \
   --arrivalLat=48.8450234 \
   --arrivalLng=2.3997529 \
   --departureDate=1665579951 \
@@ -101,10 +103,20 @@ This is possible if the binary is in $PATH, see for more information:
 
 ## Tests and assertions
 
-### Test for non-empty response
+### Test Flags
 
-The `--disallowEmpty` flag runs for all endpoints that returns an array an 
-additionnal check that this array is not empty. 
+* `--expectResponseCode`: additional check that the HTTP response code is as 
+  expected
+* `--disallowEmpty` (array responses): additionnal check that this array is 
+  not empty.
+* `--expectBookingStatus` (GET /bookings): additional check that the booking 
+  has the expected booking status. 
+  
+### Example tests
+
+For an example of a thorough test suite for an API, look at [this 
+example](./cmd/service/data/testCommands.gen.sh), that works with [this 
+data](./cmd/service/data/testData.gen.json).
 
 ### GET /driver_journey and GET /passenger_journey
 

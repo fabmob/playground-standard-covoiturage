@@ -19,7 +19,7 @@ func init() {
 		exitWithError(err)
 
 		URL, _ := url.JoinPath(server, "/bookings")
-		err = test.RunTest(http.MethodPost, URL, verbose, test.NewQuery(), body, apiKey, flags(http.StatusCreated))
+		err = test.RunTest(http.MethodPost, URL, verbose, test.NewQuery(), body, apiKey, flagsWithDefault(http.StatusCreated))
 		exitWithError(err)
 	}
 

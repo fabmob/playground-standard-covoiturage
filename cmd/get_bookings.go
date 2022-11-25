@@ -8,7 +8,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var getBookingID string
+var (
+	getBookingID        string
+	expectBookingStatus string
+)
 
 var getBookingsCmd = makeEndpointCommand(test.GetBookingsEndpoint)
 
@@ -19,12 +22,15 @@ func init() {
 	getBookingsCmd.Run = func(cmd *cobra.Command, args []string) {
 		URL, _ := url.JoinPath(server, "/bookings", getBookingID)
 		err := test.RunTest(http.MethodGet, URL, verbose, test.NewQuery(), nil,
-			apiKey, flags(http.StatusOK))
+			apiKey, flagsWithDefault(http.StatusOK))
 		exitWithError(err)
 	}
 
 	getBookingsCmd.Flags().StringVar(
 		&getBookingID, "bookingId", "", "bookingId path parameter",
+	)
+	getBookingsCmd.Flags().StringVar(
+		&expectBookingStatus, "expectBookingStatus", "", "Expected booking status, checked on response",
 	)
 
 	getCmd.AddCommand(getBookingsCmd)

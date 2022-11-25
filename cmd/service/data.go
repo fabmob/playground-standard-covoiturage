@@ -2,7 +2,7 @@ package service
 
 import (
 	"bytes"
-	"errors"
+	"fmt"
 
 	// for the go:embed directive
 	_ "embed"
@@ -15,12 +15,14 @@ import (
 
 // MockDB stores the data of the server in memory
 type MockDB struct {
-	DriverJourneys    []api.DriverJourney        `json:"driverJourneys"`
-	PassengerJourneys []api.PassengerJourney     `json:"passengerJourneys"`
-	Bookings          BookingsByID               `json:"bookings"`
-	Users             []api.User                 `json:"users"`
-	Messages          []api.PostMessagesJSONBody `json:"messages"`
+	DriverJourneys    []api.DriverJourney
+	PassengerJourneys []api.PassengerJourney
+	Bookings          BookingsByID
+	Users             []api.User
+	Messages          []api.PostMessagesJSONBody
 }
+
+type BookingsByID map[uuid.UUID]*api.Booking
 
 // NewMockDB initiates a MockDB with no data
 func NewMockDB() *MockDB {
@@ -81,7 +83,7 @@ func (m *MockDB) AddBooking(booking api.Booking) error {
 	bookings := m.GetBookings()
 
 	if _, bookingExists := bookings[booking.Id]; bookingExists {
-		return errors.New("booking already exists")
+		return fmt.Errorf("booking already exists (ID: %s)", booking.Id)
 	}
 
 	bookings[booking.Id] = &booking
@@ -124,35 +126,60 @@ func (err StatusAlreadySetErr) Error() string {
 	return "status_already_set"
 }
 
-type BookingsByID map[uuid.UUID]*api.Booking
+//////////////////////////////////////////////////////////
+// MockDB from data
+//////////////////////////////////////////////////////////
+
+type mockDBDataInterface struct {
+	DriverJourneys    []api.DriverJourney        `json:"driverJourneys"`
+	PassengerJourneys []api.PassengerJourney     `json:"passengerJourneys"`
+	Bookings          []*api.Booking             `json:"bookings"`
+	Users             []api.User                 `json:"users"`
+	Messages          []api.PostMessagesJSONBody `json:"messages"`
+}
+
+func toOutputData(m *MockDB) mockDBDataInterface {
+	outputData := mockDBDataInterface{}
+
+	outputData.DriverJourneys = m.DriverJourneys
+	outputData.PassengerJourneys = m.PassengerJourneys
+	outputData.Users = m.Users
+	outputData.Messages = m.Messages
+
+	outputData.Bookings = make([]*api.Booking, 0, len(m.Bookings))
+	for _, booking := range m.Bookings {
+		outputData.Bookings = append(outputData.Bookings, booking)
+	}
+
+	return outputData
+}
+
+func fromInputData(inputData mockDBDataInterface) *MockDB {
+	var m = NewMockDB()
+
+	m.DriverJourneys = inputData.DriverJourneys
+	m.PassengerJourneys = inputData.PassengerJourneys
+	m.Users = inputData.Users
+	m.Messages = inputData.Messages
+
+	m.Bookings = make(BookingsByID, len(inputData.Bookings))
+
+	for _, booking := range inputData.Bookings {
+		m.Bookings[booking.Id] = booking
+	}
+
+	return m
+}
 
 // NewMockDBWithDefaultData initiates a MockDB with default data
 func NewMockDBWithDefaultData() *MockDB {
 	return MustReadDefaultData()
 }
 
-// JSONData stores default driver journey json data
-//
-//go:embed data/defaultData.json
-var JSONData []byte
-
-// DriverJourneysData is the in-memory equivalent of the driver journeys
-// stored in a database
-
-// MustReadDefaultData reads default data, and panics if any error occurs
-func MustReadDefaultData() *MockDB {
-	mockDB, err := ReadData(bytes.NewReader(JSONData))
-	if err != nil {
-		panic(err)
-	}
-
-	return mockDB
-}
-
-// ReadData reads journey data from io.Reader with json data.
-// It does not validate data.
-func ReadData(r io.Reader) (*MockDB, error) {
-	var data MockDB
+// NewMockDBWithData reads journey data from io.Reader with json data.
+// It does not validate data against the standard.
+func NewMockDBWithData(r io.Reader) (*MockDB, error) {
+	var data mockDBDataInterface
 
 	bytes, readErr := io.ReadAll(r)
 	if readErr != nil {
@@ -161,5 +188,20 @@ func ReadData(r io.Reader) (*MockDB, error) {
 
 	err := json.Unmarshal(bytes, &data)
 
-	return &data, err
+	return fromInputData(data), err
+}
+
+// DefaultData stores default json data
+//
+//go:embed data/defaultData.json
+var DefaultData []byte
+
+// MustReadDefaultData reads default data, and panics if any error occurs
+func MustReadDefaultData() *MockDB {
+	mockDB, err := NewMockDBWithData(bytes.NewReader(DefaultData))
+	if err != nil {
+		panic(err)
+	}
+
+	return mockDB
 }

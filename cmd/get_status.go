@@ -14,7 +14,7 @@ func init() {
 
 	statusCmd.Run = func(cmd *cobra.Command, args []string) {
 		URL, _ := url.JoinPath(server, "/status")
-		err := test.RunTest(http.MethodGet, URL, verbose, test.NewQuery(), nil, apiKey, flags(http.StatusOK))
+		err := test.RunTest(http.MethodGet, URL, verbose, test.NewQuery(), nil, apiKey, flagsWithDefault(http.StatusOK))
 		exitWithError(err)
 	}
 

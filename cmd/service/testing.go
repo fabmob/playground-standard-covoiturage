@@ -2,17 +2,21 @@ package service
 
 import (
 	"errors"
+	"io"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
+	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
 )
 
-const fakeServer = "http://localhost:1323"
+const localServer = "http://localhost:1323"
 
 func setupTestServer(
 	db *MockDB,
@@ -222,4 +226,195 @@ func panicIf(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func checkAssertionResults(t *testing.T, assertionResults []test.AssertionResult) {
+	t.Helper()
+
+	assert.Greater(t, len(assertionResults), 0)
+
+	for _, ar := range assertionResults {
+		if err := ar.Unwrap(); err != nil {
+			t.Error(err)
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////
+
+type apiTestHelper interface {
+	makeRequest() (*http.Request, error)
+	callAPI(*StdCovServerImpl, echo.Context) error
+	testResponse(*http.Request, *http.Response, test.Flags) []test.AssertionResult
+}
+
+func testAPI(t *testing.T, a apiTestHelper, mockDB *MockDB, flags test.Flags) {
+	t.Helper()
+
+	appendDataIfGenerated(t, mockDB)
+
+	request, err := a.makeRequest()
+	panicIf(err)
+
+	// Setup testing server with response recorder
+	handler, ctx, rec := setupTestServer(mockDB, request)
+
+	// Read body without consuming it
+	var body []byte
+	if request.Body != nil {
+		request.Body, err = test.ReusableReadCloser(ctx.Request().Body)
+		panicIf(err)
+		body, err = io.ReadAll(request.Body)
+		panicIf(err)
+	}
+
+	// Make API Call
+	err = a.callAPI(handler, ctx)
+	panicIf(err)
+
+	appendCmdIfGenerated(t, request, flags, body)
+
+	response := rec.Result()
+
+	assertionResults := a.testResponse(request, response, flags)
+	checkAssertionResults(t, assertionResults)
+}
+
+//////////////////////////////////////////////////////////
+
+type postBookingsTestHelper struct {
+	booking api.Booking
+}
+
+func (h postBookingsTestHelper) makeRequest() (*http.Request, error) {
+	return api.NewPostBookingsRequest(localServer, h.booking)
+}
+
+func (h postBookingsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	return handler.PostBookings(ctx)
+}
+
+func (h postBookingsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []test.AssertionResult {
+	return test.TestPostBookingsResponse(request, response, flags)
+}
+
+func TestPostBookingsHelper(
+	t *testing.T,
+	mockDB *MockDB,
+	booking api.Booking,
+	flags test.Flags,
+) {
+	testAPI(t, postBookingsTestHelper{booking}, mockDB, flags)
+}
+
+//////////////////////////////////////////////////////////
+
+type postMessagesTestHelper struct {
+	message api.PostMessagesJSONBody
+}
+
+func (h postMessagesTestHelper) makeRequest() (*http.Request, error) {
+	return api.NewPostMessagesRequest(localServer, api.PostMessagesJSONRequestBody(h.message))
+}
+
+func (h postMessagesTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	return handler.PostMessages(ctx)
+}
+
+func (h postMessagesTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []test.AssertionResult {
+	return test.TestPostMessagesResponse(request, response, flags)
+}
+
+func TestPostMessagesHelper(
+	t *testing.T,
+	mockDB *MockDB,
+	message api.PostMessagesJSONBody,
+	flags test.Flags,
+) {
+	testAPI(t, postMessagesTestHelper{message}, mockDB, flags)
+}
+
+//////////////////////////////////////////////////////////
+
+type postBookingEventsTestHelper struct {
+	bookingEvent api.CarpoolBookingEvent
+}
+
+func (h postBookingEventsTestHelper) makeRequest() (*http.Request, error) {
+	return api.NewPostBookingEventsRequest(localServer, h.bookingEvent)
+}
+
+func (h postBookingEventsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	return handler.PostBookingEvents(ctx)
+}
+
+func (h postBookingEventsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []test.AssertionResult {
+	return test.TestPostBookingEventsResponse(request, response, flags)
+}
+
+func TestPostBookingEventsHelper(
+	t *testing.T,
+	mockDB *MockDB,
+	bookingEvent api.CarpoolBookingEvent,
+	flags test.Flags,
+) {
+	testAPI(t, postBookingEventsTestHelper{bookingEvent}, mockDB, flags)
+}
+
+//////////////////////////////////////////////////////////
+
+type getBookingsTestHelper struct {
+	bookingID api.BookingId
+}
+
+func (h getBookingsTestHelper) makeRequest() (*http.Request, error) {
+	return api.NewGetBookingsRequest(localServer, h.bookingID)
+}
+
+func (h getBookingsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	return handler.GetBookings(ctx, h.bookingID)
+}
+
+func (h getBookingsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []test.AssertionResult {
+	return test.TestGetBookingsResponse(request, response, flags)
+}
+
+func TestGetBookingsHelper(
+	t *testing.T,
+	mockDB *MockDB,
+	bookingID api.BookingId,
+	flags test.Flags,
+) {
+	testAPI(t, getBookingsTestHelper{bookingID}, mockDB, flags)
+}
+
+//////////////////////////////////////////////////////////
+
+type patchBookingsTestHelper struct {
+	bookingID api.BookingId
+	status    api.BookingStatus
+}
+
+func (h patchBookingsTestHelper) makeRequest() (*http.Request, error) {
+	params := &api.PatchBookingsParams{Status: h.status}
+	return api.NewPatchBookingsRequest(localServer, h.bookingID, params)
+}
+
+func (h patchBookingsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	params := api.PatchBookingsParams{Status: h.status}
+	return handler.PatchBookings(ctx, h.bookingID, params)
+}
+
+func (h patchBookingsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []test.AssertionResult {
+	return test.TestPatchBookingsResponse(request, response, flags)
+}
+
+func TestPatchBookingsHelper(
+	t *testing.T,
+	mockDB *MockDB,
+	bookingID api.BookingId,
+	status api.BookingStatus,
+	flags test.Flags,
+) {
+	testAPI(t, patchBookingsTestHelper{bookingID, status}, mockDB, flags)
 }
