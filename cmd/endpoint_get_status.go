@@ -8,7 +8,7 @@ import (
 
 var statusCmdParameters = parameters{}
 
-var statusCmd = makeEndpointCommand(
+var _ = makeEndpointCommand(
 	endpoint.GetStatus,
 	statusCmdParameters,
 	false,

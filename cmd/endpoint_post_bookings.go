@@ -8,7 +8,7 @@ import (
 
 var postBookingsParameters = []parameter{}
 
-var postBookingsCmd = makeEndpointCommand(
+var _ = makeEndpointCommand(
 	endpoint.PostBookings,
 	postBookingsParameters,
 	true,

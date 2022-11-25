@@ -83,30 +83,6 @@ func makeEndpointCommandWithCustomRunner(runner test.TestRunner, endpoint endpoi
 
 /////////////////////////////////////////////////////
 
-var (
-	checkRequiredBookingID          = checkRequiredString("bookingId")
-	checkRequiredStatus             = checkRequiredString("status")
-	checkRequiredServer             = checkRequiredString("server")
-	checkRequiredDepartureLat       = checkRequiredString("departureLat")
-	checkRequiredDepartureLng       = checkRequiredString("departureLng")
-	checkRequiredArrivalLat         = checkRequiredString("arrivalLat")
-	checkRequiredArrivalLng         = checkRequiredString("arrivalLng")
-	checkRequiredDepartureDate      = checkRequiredString("departureDate")
-	checkRequiredDepartureTimeOfDay = checkRequiredString("departureTimeOfDay")
-)
-
-// checkRequiredString is a partial application that helps creating testing
-// functions for non-empty string flags
-func checkRequiredString(description string) func(string) error {
-	return func(obj string) error {
-		if obj == "" {
-			return fmt.Errorf("missing required --%s information", description)
-		}
-
-		return nil
-	}
-}
-
 func checkRequired(obj *string, description string) error {
 	if *obj == "" {
 		return fmt.Errorf("missing required --%s information", description)
@@ -151,17 +127,6 @@ func readBodyFromStdin(cmd *cobra.Command, timeout time.Duration) ([]byte,
 	case body := <-stdinChannel:
 		return body, nil
 	}
-}
-
-// anyError returns first non-nil error (or nil if none exists)
-func anyError(errs ...error) error {
-	for _, err := range errs {
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 type parameter struct {

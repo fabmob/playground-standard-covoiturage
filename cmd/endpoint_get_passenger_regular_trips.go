@@ -8,7 +8,7 @@ import (
 
 var getPassengerRegularTripsParameters = getDriverRegularTripsParameters
 
-var passengerRegularTripsCmd = makeEndpointCommand(
+var _ = makeEndpointCommand(
 	endpoint.GetPassengerRegularTrips,
 	getPassengerRegularTripsParameters,
 	false,

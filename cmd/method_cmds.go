@@ -49,5 +49,5 @@ func initMethodCmd(cmd *cobra.Command) {
 }
 
 func checkCmdFlags(cmd *cobra.Command, args []string) error {
-	return checkRequiredServer(server)
+	return checkRequired(&server, "server")
 }

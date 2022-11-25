@@ -30,7 +30,7 @@ var getDriverJourneysParameters = parameters{
 	{&count, "count", false, "query"},
 }
 
-var driverJourneysCmd = makeEndpointCommand(
+var _ = makeEndpointCommand(
 	endpoint.GetDriverJourneys,
 	getDriverJourneysParameters,
 	false,

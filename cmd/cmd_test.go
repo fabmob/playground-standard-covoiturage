@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"testing"
-
-	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 )
 
 func TestPatchBookingsCmd(t *testing.T) {
@@ -189,58 +187,58 @@ func TestGetPassengerRegularTripsCmd(t *testing.T) {
 	/* testQueryParam(t, mockRunner.Query, "maxDepartureDate", maxDepartureDate) */
 }
 
-func testStringArg(t *testing.T, got, expected, argumentName string) {
-	t.Helper()
-	if expected != got {
-		t.Logf("Unexpected %s in command.", argumentName)
-		t.Logf("Expected %s", expected)
-		t.Logf("Got %s", got)
-		t.Fail()
-	}
-}
+/* func testStringArg(t *testing.T, got, expected, argumentName string) { */
+/* 	t.Helper() */
+/* 	if expected != got { */
+/* 		t.Logf("Unexpected %s in command.", argumentName) */
+/* 		t.Logf("Expected %s", expected) */
+/* 		t.Logf("Got %s", got) */
+/* 		t.Fail() */
+/* 	} */
+/* } */
 
-func testIntArg(t *testing.T, got, expected int, argumentName string) {
-	t.Helper()
-	if expected != got {
-		t.Logf("Unexpected %s in command.", argumentName)
-		t.Logf("Expected %d", expected)
-		t.Logf("Got %d", got)
-		t.Fail()
-	}
-}
+/* func testIntArg(t *testing.T, got, expected int, argumentName string) { */
+/* 	t.Helper() */
+/* 	if expected != got { */
+/* 		t.Logf("Unexpected %s in command.", argumentName) */
+/* 		t.Logf("Expected %d", expected) */
+/* 		t.Logf("Got %d", got) */
+/* 		t.Fail() */
+/* 	} */
+/* } */
 
-func testQueryParam(t *testing.T, query test.Query, param, value string) {
-	gotValue, ok := query.Params[param]
-	if !ok {
-		t.Errorf("Missing query parameter %s", param)
-	} else {
-		testStringArg(t, gotValue, value, param)
-	}
-}
+/* func testQueryParam(t *testing.T, query test.Query, param, value string) { */
+/* 	gotValue, ok := query.Params[param] */
+/* 	if !ok { */
+/* 		t.Errorf("Missing query parameter %s", param) */
+/* 	} else { */
+/* 		testStringArg(t, gotValue, value, param) */
+/* 	} */
+/* } */
 
-type expectedData struct {
-	method            string
-	url               string
-	defaultStatusCode int
-	body              []byte
-}
+/* type expectedData struct { */
+/* 	method            string */
+/* 	url               string */
+/* 	defaultStatusCode int */
+/* 	body              []byte */
+/* } */
 
-func (expected expectedData) testArgs(t *testing.T, mockRunner *test.MockRunner) {
-	testStringArg(t, mockRunner.Method, expected.method, "method")
+/* func (expected expectedData) testArgs(t *testing.T, mockRunner *test.MockRunner) { */
+/* 	testStringArg(t, mockRunner.Method, expected.method, "method") */
 
-	testStringArg(t, mockRunner.URL, expected.url, "URL")
+/* 	testStringArg(t, mockRunner.URL, expected.url, "URL") */
 
-	testIntArg(t, mockRunner.Flags.ExpectedResponseCode,
-		expected.defaultStatusCode, "status code")
+/* 	testIntArg(t, mockRunner.Flags.ExpectedResponseCode, */
+/* 		expected.defaultStatusCode, "status code") */
 
-	nilBodyExpected := expected.body == nil
-	nilBodyProvided := mockRunner.Body == nil
+/* 	nilBodyExpected := expected.body == nil */
+/* 	nilBodyProvided := mockRunner.Body == nil */
 
-	if nilBodyExpected && !nilBodyProvided {
-		t.Error("Body provided while none expected")
-	} else if !nilBodyExpected && nilBodyProvided {
-		t.Error("Required body is missing")
-	} else if !nilBodyExpected && !nilBodyProvided {
-		testStringArg(t, string(mockRunner.Body), string(expected.body), "body")
-	}
-}
+/* 	if nilBodyExpected && !nilBodyProvided { */
+/* 		t.Error("Body provided while none expected") */
+/* 	} else if !nilBodyExpected && nilBodyProvided { */
+/* 		t.Error("Required body is missing") */
+/* 	} else if !nilBodyExpected && !nilBodyProvided { */
+/* 		testStringArg(t, string(mockRunner.Body), string(expected.body), "body") */
+/* 	} */
+/* } */

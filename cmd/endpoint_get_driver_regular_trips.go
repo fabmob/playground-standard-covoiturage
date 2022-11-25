@@ -28,7 +28,7 @@ var getDriverRegularTripsParameters = parameters{
 	{&departureWeekdaysStr, "departureWeekdays", false, "query"},
 }
 
-var driverRegularTripsCmd = makeEndpointCommand(
+var _ = makeEndpointCommand(
 	endpoint.GetDriverRegularTrips,
 	getDriverRegularTripsParameters,
 	false,

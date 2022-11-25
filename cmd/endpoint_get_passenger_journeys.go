@@ -8,7 +8,7 @@ import (
 
 var getPassengerJourneysParameters = getDriverJourneysParameters
 
-var passengerJourneysCmd = makeEndpointCommand(
+var _ = makeEndpointCommand(
 	endpoint.GetPassengerJourneys,
 	getPassengerJourneysParameters,
 	false,

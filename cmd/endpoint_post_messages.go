@@ -8,7 +8,7 @@ import (
 
 var postMessagesParameters = []parameter{}
 
-var postMessagesCmd = makeEndpointCommand(
+var _ = makeEndpointCommand(
 	endpoint.PostMessages,
 	postMessagesParameters,
 	true,

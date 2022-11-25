@@ -18,7 +18,7 @@ var patchBookingsParameters = []parameter{
 	{&patchBookingID, "bookingId", true, "path"},
 }
 
-var patchBookingsCmd = makeEndpointCommand(
+var _ = makeEndpointCommand(
 	endpoint.PatchBookings,
 	patchBookingsParameters,
 	false,
