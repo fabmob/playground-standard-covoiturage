@@ -16,7 +16,7 @@ import (
 
 // Response validates a Response against the openapi specification.
 func validateResponse(request *http.Request, response *http.Response) error {
-	server, _, err := endpoint.SplitServerEndpoint(request.Method, request.URL.String())
+	server, _, err := endpoint.SplitFromServer(request.Method, request.URL.String())
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func validateResponse(request *http.Request, response *http.Response) error {
 	return validationErr
 }
 
-func findRoute(ctx context.Context, request *http.Request, server string) (route *routers.Route, pathParams map[string]string, err error) {
+func findRoute(ctx context.Context, request *http.Request, server endpoint.Server) (route *routers.Route, pathParams map[string]string, err error) {
 	loader := &openapi3.Loader{Context: ctx, IsExternalRefsAllowed: true}
 
 	doc, loadingErr := loader.LoadFromData(spec.OpenAPISpec)
@@ -61,7 +61,7 @@ func findRoute(ctx context.Context, request *http.Request, server string) (route
 		panic(loadingErr) // Error only if problem with module internals
 	}
 
-	doc.Servers = openapi3.Servers{&openapi3.Server{URL: server}}
+	doc.Servers = openapi3.Servers{&openapi3.Server{URL: string(server)}}
 
 	specValidationErr := doc.Validate(ctx)
 	if specValidationErr != nil {

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 )
 
 func TestUndocumentedStatusCode(t *testing.T) {
@@ -25,8 +26,8 @@ func TestUndocumentedStatusCode(t *testing.T) {
 }
 
 func TestFindRoute(t *testing.T) {
-	server := "https://abc.fr/abc"
-	url := server + "/driver_journeys"
+	server := endpoint.Server("https://abc.fr/abc")
+	url := string(server) + "/driver_journeys"
 
 	request, err := http.NewRequest("GET", url, nil)
 	panicIf(err)

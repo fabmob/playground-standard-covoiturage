@@ -20,9 +20,9 @@ var allEndpoints = []Info{
 	GetStatus,
 }
 
-// SplitServerEndpoint tries to guess the server, and returns server and path in case of
+// SplitFromServer tries to guess the server, and returns server and path in case of
 // success.
-func SplitServerEndpoint(method, URL string) (string, Info, error) {
+func SplitFromServer(method, URL string) (Server, Info, error) {
 	u, err := url.Parse(URL)
 	if err != nil {
 		return "", Info{}, err
@@ -36,11 +36,11 @@ func SplitServerEndpoint(method, URL string) (string, Info, error) {
 
 		if endpoint.Method == method && suffix != "" {
 			server := strings.TrimSuffix(u.String(), suffix)
-			return server, endpoint, nil
+			return Server(server), endpoint, nil
 		}
 	}
 
-	return "", Info{}, fmt.Errorf(
+	return Server(""), Info{}, fmt.Errorf(
 		"did not recognize the endpoint with method %s in %s",
 		method,
 		u,

@@ -12,7 +12,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 		name             string
 		method           string
 		requestURL       string
-		expectedServer   string
+		expectedServer   endpoint.Server
 		expectedEndpoint endpoint.Info
 		expectError      bool
 	}{
@@ -82,7 +82,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			guessedServer, guessedEndpoint, err := endpoint.SplitServerEndpoint(tc.method, tc.requestURL)
+			guessedServer, guessedEndpoint, err := endpoint.SplitFromServer(tc.method, tc.requestURL)
 			if tc.expectError != (err != nil) {
 				t.Fail()
 			}
