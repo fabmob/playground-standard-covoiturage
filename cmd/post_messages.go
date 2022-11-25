@@ -5,11 +5,12 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/spf13/cobra"
 )
 
-var postMessagesCmd = makeEndpointCommand(test.PostMessagesEndpoint)
+var postMessagesCmd = makeEndpointCommand(endpoint.PostMessages)
 
 func init() {
 	postMessagesCmd.PreRunE = checkGetBookingsCmdFlags

@@ -1,11 +1,15 @@
 package test
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
+)
 
 // Report stores assertionResults.
 type Report struct {
 	verbose          bool
-	endpoint         Endpoint
+	endpoint         endpoint.Info
 	assertionResults []AssertionResult
 }
 
@@ -41,7 +45,7 @@ func (report *Report) countErrors() int {
 	return nErr
 }
 
-func format(endpoint Endpoint, assertionDescription string) string {
+func format(endpoint endpoint.Info, assertionDescription string) string {
 	return fmt.Sprintf("%-35s %-35s", endpoint, assertionDescription)
 }
 

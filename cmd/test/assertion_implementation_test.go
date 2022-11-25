@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/labstack/echo/v4"
 )
@@ -134,9 +135,9 @@ func TestExpectDriverJourneysFormat(t *testing.T) {
 	invalidDJ.Type = "Not allowed"
 
 	var (
-		// Test requests
-		driverJourneysRequest    = emptyRequest(GetDriverJourneysEndpoint)
-		passengerJourneysRequest = emptyRequest(GetPassengerJourneysEndpoint)
+		// endpoint requests
+		driverJourneysRequest    = emptyRequest(endpoint.GetDriverJourneys)
+		passengerJourneysRequest = emptyRequest(endpoint.GetPassengerJourneys)
 
 		// Test bodies
 		emptyDriverJourneysBody    = marshalBody([]api.DriverJourney{})

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 	"github.com/labstack/echo/v4"
 )
 
@@ -13,7 +14,10 @@ const (
 	HeaderXAPIKey = "X-API-Key"
 )
 
-func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request, error) {
+// makeRequestWithContext makes a request with right header, and stores server and
+// endpoint information in its context.
+// Assumes URL is pointing towards a valid endpoint of the standard-covoiturage.
+func makeRequestWithContext(method, URL string, body []byte, apiKey string) (*http.Request, error) {
 	req, err := http.NewRequest(method, URL, bytes.NewReader(body))
 	if err != nil {
 		return nil, err
@@ -21,7 +25,21 @@ func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request,
 
 	req.Header.Set(HeaderXAPIKey, apiKey)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	return req, err
+
+	return AddEndpointContext(req)
+}
+
+// AddEndpointContext adds server and endpoint information to the request's
+// context. Use endpoint.FromContext to extract this information.
+func AddEndpointContext(request *http.Request) (*http.Request, error) {
+	server, endpointInfo, err := endpoint.FromRequest(request)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx := endpoint.NewContext(request.Context(), server, endpointInfo)
+
+	return request.WithContext(ctx), nil
 }
 
 // Query implements flag.Value interface to store query parameters

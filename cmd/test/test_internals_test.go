@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -25,7 +26,7 @@ func testErrorOnRequestIsHandled(t *testing.T, f requestTestFun) {
 
 		// specific request is irrelevant as the error client is in any case returning an error
 		r, err := http.NewRequest(http.MethodGet, "/", strings.NewReader(""))
-		panicIf(err)
+		util.PanicIf(err)
 
 		results := f(m, r, defaultTestFlags)
 		shouldHaveSingleAssertionResult(t, results)
@@ -54,7 +55,7 @@ func TestRequests(t *testing.T) {
 		t.Run(url, func(t *testing.T) {
 			m := NewMockClientWithResponse(mockOKStatusResponse())
 			r, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
-			panicIf(err)
+			util.PanicIf(err)
 
 			testNoAssertions := func(*http.Request, *http.Response, Flags) []AssertionResult {
 				return nil
@@ -87,10 +88,10 @@ func cmpRequests(t *testing.T, req1, req2 *http.Request) bool {
 		var err error
 
 		body[i], err = req.GetBody()
-		panicIf(err)
+		util.PanicIf(err)
 
 		bodyBytes, err := io.ReadAll(body[i])
-		panicIf(err)
+		util.PanicIf(err)
 
 		bodyString[i] = string(bodyBytes)
 	}

@@ -5,11 +5,12 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/spf13/cobra"
 )
 
-var postBookingsCmd = makeEndpointCommand(test.PostBookingsEndpoint)
+var postBookingsCmd = makeEndpointCommand(endpoint.PostBookings)
 
 func init() {
 	postBookingsCmd.Run = func(cmd *cobra.Command, args []string) {

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
@@ -90,7 +91,7 @@ func mockOKStatusResponse() *http.Response {
 
 func mockBodyResponse(responseObj interface{}) *http.Response {
 	responseJSON, err := json.Marshal(responseObj)
-	panicIf(err)
+	util.PanicIf(err)
 
 	return mockResponse(200, string(responseJSON), nil)
 }
@@ -106,13 +107,6 @@ func (n NopAssertion) Execute() error {
 // Describe implements Assertion interface
 func (NopAssertion) Describe() string {
 	return "No assertion"
-}
-
-// panicIf panics if err is not nil
-func panicIf(err error) {
-	if err != nil {
-		panic(err)
-	}
 }
 
 // makeJourneyRequestWithRadius is a test helper that creates a request,
@@ -157,11 +151,11 @@ func makeJourneyRequestWithRadius(
 	switch driverOrPassenger {
 	case "driver":
 		request, err = params.MakeRequest("localhost:1323")
-		panicIf(err)
+		util.PanicIf(err)
 	case "passenger":
 		castedParams := api.GetPassengerJourneysParams(params)
 		request, err = castedParams.MakeRequest("localhost:1323")
-		panicIf(err)
+		util.PanicIf(err)
 	case "default":
 		panic(errors.New("wrong value in test: driverOrPassenger"))
 	}
@@ -263,8 +257,13 @@ func NewMockRunner() *MockRunner {
 }
 
 // emptyRequest returns an empty *http.Request to the endpoint
-func emptyRequest(e Endpoint) *http.Request {
-	request, _ := http.NewRequest(e.Method, localServer+e.Path, nil)
+func emptyRequest(e endpoint.Info) *http.Request {
+	request, err := http.NewRequest(e.Method, localServer+e.Path, nil)
+	util.PanicIf(err)
+
+	request, err = AddEndpointContext(request)
+	util.PanicIf(err)
+
 	return request
 }
 

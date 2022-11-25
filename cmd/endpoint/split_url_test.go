@@ -1,17 +1,17 @@
-package test
+package endpoint
 
 import (
 	"net/http"
 	"testing"
 )
 
-func TestSplitServerEndpoint(t *testing.T) {
+func TestSplitURL(t *testing.T) {
 	testCases := []struct {
 		name             string
 		method           string
 		requestURL       string
-		expectedServer   string
-		expectedEndpoint Endpoint
+		expectedServer   Server
+		expectedEndpoint Info
 		expectError      bool
 	}{
 		{
@@ -19,7 +19,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 			http.MethodGet,
 			"https://localhost:1323/passenger_journeys",
 			"https://localhost:1323",
-			GetPassengerJourneysEndpoint,
+			GetPassengerJourneys,
 			false,
 		},
 
@@ -28,7 +28,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 			http.MethodGet,
 			"https://localhost:1323/api/driver_journeys",
 			"https://localhost:1323/api",
-			GetDriverJourneysEndpoint,
+			GetDriverJourneys,
 			false,
 		},
 
@@ -37,7 +37,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 			http.MethodPost,
 			"https://localhost:1323/api/driver_journeys",
 			"",
-			Endpoint{},
+			Info{},
 			true,
 		},
 
@@ -46,7 +46,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 			http.MethodGet,
 			"http://username:password@example.com/a/b/c/driver_journeys",
 			"http://username:password@example.com/a/b/c",
-			GetDriverJourneysEndpoint,
+			GetDriverJourneys,
 			false,
 		},
 
@@ -55,7 +55,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 			http.MethodGet,
 			"http://example.com/a/b/c/driver_journeys?stuff=3",
 			"http://example.com/a/b/c",
-			GetDriverJourneysEndpoint,
+			GetDriverJourneys,
 			false,
 		},
 
@@ -64,7 +64,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 			http.MethodGet,
 			"http://example.com/bookings/1234",
 			"http://example.com",
-			GetBookingsEndpoint,
+			GetBookings,
 			false,
 		},
 
@@ -73,14 +73,14 @@ func TestSplitServerEndpoint(t *testing.T) {
 			http.MethodGet,
 			"https://api-host.preprod-ab.some-domain.fr/api/path/1ab2c34-56d-343e21-f0g/other_stuff/driver_journeys?departureLat=48.8588548&departureLng=2.264463&arrivalLat=47.8733876&arrivalLng=1.8296428&departureDate=1668608335&timeDelta=100000&departureRadius=10&arrivalRadius=10",
 			"https://api-host.preprod-ab.some-domain.fr/api/path/1ab2c34-56d-343e21-f0g/other_stuff",
-			GetDriverJourneysEndpoint,
+			GetDriverJourneys,
 			false,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			guessedServer, guessedEndpoint, err := SplitServerEndpoint(tc.method, tc.requestURL)
+			guessedServer, guessedEndpoint, err := splitURL(tc.method, tc.requestURL)
 			if tc.expectError != (err != nil) {
 				t.Fail()
 			}

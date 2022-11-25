@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/spf13/cobra"
 )
@@ -13,7 +14,7 @@ var (
 	expectBookingStatus string
 )
 
-var getBookingsCmd = makeEndpointCommand(test.GetBookingsEndpoint)
+var getBookingsCmd = makeEndpointCommand(endpoint.GetBookings)
 
 func init() {
 

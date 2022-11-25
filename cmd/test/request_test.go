@@ -6,13 +6,15 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/labstack/echo/v4"
 )
 
-func TestMakeRequestHeader(t *testing.T) {
+var URL = localServer + "/status"
+
+func TestMakeRequestXAPIKey(t *testing.T) {
 	var (
 		method        = http.MethodGet
-		URL           = localServer
 		body   []byte = nil
 	)
 
@@ -22,8 +24,8 @@ func TestMakeRequestHeader(t *testing.T) {
 	}
 
 	for _, apiKey := range testCases {
-		req, err := makeRequest(method, URL, body, apiKey)
-		panicIf(err)
+		req, err := makeRequestWithContext(method, URL, body, apiKey)
+		util.PanicIf(err)
 
 		if req.Header.Get("X-API-Key") != apiKey {
 			t.Error("X-API-Key header is not specified properly")
@@ -36,8 +38,8 @@ func TestMakeRequestBody(t *testing.T) {
 	bodyStr := "test body"
 	bodyBytes := []byte(bodyStr)
 
-	req, err := makeRequest(http.MethodGet, localServer, bodyBytes, "")
-	panicIf(err)
+	req, err := makeRequestWithContext(http.MethodGet, URL, bodyBytes, "")
+	util.PanicIf(err)
 
 	if req.Body == nil {
 		t.Fatal("makeRequest does not initializes the body properly")
@@ -50,12 +52,12 @@ func TestMakeRequestBody(t *testing.T) {
 	}
 }
 
-func TestMakeRequestHeader2(t *testing.T) {
+func TestMakeRequestHeader(t *testing.T) {
 	bodyStr := "test body"
 	bodyBytes := []byte(bodyStr)
 
-	req, err := makeRequest(http.MethodGet, localServer, bodyBytes, "")
-	panicIf(err)
+	req, err := makeRequestWithContext(http.MethodGet, URL, bodyBytes, "")
+	util.PanicIf(err)
 
 	if !strings.HasPrefix(req.Header.Get(echo.HeaderContentType), echo.MIMEApplicationJSON) {
 		t.Fail()
