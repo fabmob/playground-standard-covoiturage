@@ -10,8 +10,8 @@ import (
 // APIClient is a client to the API standard covoiturage
 type APIClient = *api.Client
 
-// Request tests a request
-func Request(request *http.Request, flags Flags) (*Report, error) {
+// testRequest tests a testRequest
+func testRequest(request *http.Request, flags Flags) (*Report, error) {
 
 	server, endpoint, err := endpoint.FromContext(request.Context())
 	if err != nil {

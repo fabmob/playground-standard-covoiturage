@@ -38,7 +38,7 @@ func (*DefaultRunner) Run(method, URL string, verbose bool, query Query, body []
 
 	AddQueryParameters(query, req)
 
-	report, err := Request(req, flags)
+	report, err := testRequest(req, flags)
 	if err != nil {
 		return err
 	}
