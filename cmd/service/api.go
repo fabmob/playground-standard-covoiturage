@@ -13,7 +13,7 @@ import (
 
 // StdCovServerImpl implements server.ServerInterface
 type StdCovServerImpl struct {
-	mockDB *db.Mock
+	db db.DB
 }
 
 func NewServer() *StdCovServerImpl {
@@ -57,11 +57,11 @@ func (s *StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
 	}
 
 	// Try to add booking
-	alreadyExistsErr := s.mockDB.AddBooking(newBooking)
+	alreadyExistsErr := s.db.AddBooking(newBooking)
 
 	// If booking exists, try to update status
 	if alreadyExistsErr != nil {
-		err := UpdateBookingStatus(s.mockDB, newBooking.Id, newBooking.Status)
+		err := UpdateBookingStatus(s.db, newBooking.Id, newBooking.Status)
 
 		if err != nil {
 			var missing db.MissingBookingErr
@@ -91,7 +91,7 @@ func (s *StdCovServerImpl) PostBookings(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, errorBody(bodyUnmarshallingErr))
 	}
 
-	alreadyExistsErr := s.mockDB.AddBooking(newBooking)
+	alreadyExistsErr := s.db.AddBooking(newBooking)
 	if alreadyExistsErr != nil {
 		return ctx.JSON(http.StatusBadRequest, errorBody(alreadyExistsErr))
 	}
@@ -107,7 +107,7 @@ type Error struct {
 // (GET /bookings/{bookingId})
 func (s *StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId) error {
 
-	booking, missingErr := s.mockDB.GetBooking(bookingID)
+	booking, missingErr := s.db.GetBooking(bookingID)
 
 	if missingErr != nil {
 		return ctx.JSON(http.StatusNotFound, errorBody(missingErr))
@@ -121,7 +121,7 @@ func (s *StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId
 func (s *StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.BookingId,
 	params api.PatchBookingsParams) error {
 
-	err := UpdateBookingStatus(s.mockDB, bookingID, params.Status)
+	err := UpdateBookingStatus(s.db, bookingID, params.Status)
 
 	if err != nil {
 		var missing db.MissingBookingErr
@@ -150,7 +150,7 @@ func (s *StdCovServerImpl) GetDriverJourneys(
 ) error {
 	response := []api.DriverJourney{}
 
-	for _, dj := range s.mockDB.GetDriverJourneys() {
+	for _, dj := range s.db.GetDriverJourneys() {
 		if keepJourney(&params, dj.Trip, dj.JourneySchedule) {
 			response = append(response, dj)
 		}
@@ -206,7 +206,7 @@ func (*StdCovServerImpl) GetDriverRegularTrips(
 // PostMessages sends a mesage to the owner of a retrieved journey.
 // (POST /messages)
 func (s *StdCovServerImpl) PostMessages(ctx echo.Context) error {
-	users := s.mockDB.GetUsers()
+	users := s.db.GetUsers()
 
 	var message api.PostMessagesJSONBody
 
@@ -219,8 +219,6 @@ func (s *StdCovServerImpl) PostMessages(ctx echo.Context) error {
 		return ctx.JSON(http.StatusNotFound, errorBody(errors.New("missing_user")))
 	}
 
-	s.mockDB.Messages = append(s.mockDB.Messages, message)
-
 	return ctx.NoContent(http.StatusCreated)
 }
 
@@ -232,7 +230,7 @@ func (s *StdCovServerImpl) GetPassengerJourneys(
 ) error {
 	response := []api.PassengerJourney{}
 
-	for _, pj := range s.mockDB.GetPassengerJourneys() {
+	for _, pj := range s.db.GetPassengerJourneys() {
 		if keepJourney(&params, pj.Trip, pj.JourneySchedule) {
 			response = append(response, pj)
 		}

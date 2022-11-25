@@ -50,7 +50,7 @@ func (err StatusAlreadySetErr) Error() string {
 // UpdateBookingStatus updates the status of a booking. Status can only be
 // updated for a higher ranked status. If this is not the case, or if the
 // booking is not found, returns an error
-func UpdateBookingStatus(m *db.Mock, bookingID uuid.UUID, newStatus api.BookingStatus) error {
+func UpdateBookingStatus(m db.DB, bookingID uuid.UUID, newStatus api.BookingStatus) error {
 	booking, err := m.GetBooking(bookingID)
 	if err != nil {
 		return err

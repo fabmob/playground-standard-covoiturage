@@ -13,16 +13,29 @@ import (
 	"github.com/google/uuid"
 )
 
+type DB interface {
+	GetDriverJourneys() []api.DriverJourney
+	GetPassengerJourneys() []api.PassengerJourney
+	GetUsers() []api.User
+	GetBookings() BookingsByID
+
+	// GetBooking should return a MissingBookingErr if not found
+	GetBooking(api.BookingId) (*api.Booking, error)
+
+	// AddBooking adds a booking to the db, but fails if a booking with same ID
+	// already exists
+	AddBooking(api.Booking) error
+}
+
 // Mock stores the data of the server in memory
 type Mock struct {
 	DriverJourneys    []api.DriverJourney
 	PassengerJourneys []api.PassengerJourney
 	Bookings          BookingsByID
 	Users             []api.User
-	Messages          []api.PostMessagesJSONBody
 }
 
-type BookingsByID map[uuid.UUID]*api.Booking
+type BookingsByID map[api.BookingId]*api.Booking
 
 // NewMockDB initiates a MockDB with no data
 func NewMockDB() *Mock {
@@ -115,7 +128,6 @@ func ToOutputData(m *Mock) mockDBDataInterface {
 	outputData.DriverJourneys = m.DriverJourneys
 	outputData.PassengerJourneys = m.PassengerJourneys
 	outputData.Users = m.Users
-	outputData.Messages = m.Messages
 
 	outputData.Bookings = make([]*api.Booking, 0, len(m.Bookings))
 	for _, booking := range m.Bookings {
@@ -131,7 +143,6 @@ func fromInputData(inputData mockDBDataInterface) *Mock {
 	m.DriverJourneys = inputData.DriverJourneys
 	m.PassengerJourneys = inputData.PassengerJourneys
 	m.Users = inputData.Users
-	m.Messages = inputData.Messages
 
 	m.Bookings = make(BookingsByID, len(inputData.Bookings))
 
