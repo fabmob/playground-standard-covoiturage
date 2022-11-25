@@ -2,10 +2,12 @@ package test
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 	"github.com/labstack/echo/v4"
 )
 
@@ -13,6 +15,9 @@ const (
 	HeaderXAPIKey = "X-API-Key"
 )
 
+// makeRequest makes a request with right header, and stores server and
+// endpoint information in its context.
+// Assumes URL is pointing towards a valid endpoint of the standard-covoiturage.
 func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request, error) {
 	req, err := http.NewRequest(method, URL, bytes.NewReader(body))
 	if err != nil {
@@ -21,7 +26,15 @@ func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request,
 
 	req.Header.Set(HeaderXAPIKey, apiKey)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	return req, err
+
+	server, endpointInfo, err := endpoint.FromRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx := endpoint.NewContext(context.Background(), server, endpointInfo)
+
+	return req.WithContext(ctx), err
 }
 
 // Query implements flag.Value interface to store query parameters

@@ -9,10 +9,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func TestMakeRequestHeader(t *testing.T) {
+var URL = localServer + "/status"
+
+func TestMakeRequestXAPIKey(t *testing.T) {
 	var (
 		method        = http.MethodGet
-		URL           = localServer
 		body   []byte = nil
 	)
 
@@ -36,7 +37,7 @@ func TestMakeRequestBody(t *testing.T) {
 	bodyStr := "test body"
 	bodyBytes := []byte(bodyStr)
 
-	req, err := makeRequest(http.MethodGet, localServer, bodyBytes, "")
+	req, err := makeRequest(http.MethodGet, URL, bodyBytes, "")
 	panicIf(err)
 
 	if req.Body == nil {
@@ -50,11 +51,11 @@ func TestMakeRequestBody(t *testing.T) {
 	}
 }
 
-func TestMakeRequestHeader2(t *testing.T) {
+func TestMakeRequestHeader(t *testing.T) {
 	bodyStr := "test body"
 	bodyBytes := []byte(bodyStr)
 
-	req, err := makeRequest(http.MethodGet, localServer, bodyBytes, "")
+	req, err := makeRequest(http.MethodGet, URL, bodyBytes, "")
 	panicIf(err)
 
 	if !strings.HasPrefix(req.Header.Get(echo.HeaderContentType), echo.MIMEApplicationJSON) {
