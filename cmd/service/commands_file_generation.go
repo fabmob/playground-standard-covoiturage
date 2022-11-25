@@ -12,11 +12,17 @@ import (
 
 //go:generate bash -c "go test -generate > /dev/null"
 
-var generateTestData bool
-var generatedData = db.NewMockDB()
-var commandsFile = strings.Builder{}
-var serverEnvVar = "SERVER"
-var authEnvVar = "API_TOKEN"
+var (
+	generateTestData bool
+	generatedData    = db.NewMockDB()
+	commandsFile     = strings.Builder{}
+
+	generatedTestDataFile     = "./db/data/testData.gen.json"
+	generatedTestCommandsFile = "../test/commands/testCommands.gen.sh"
+
+	serverEnvVar = "SERVER"
+	authEnvVar   = "API_TOKEN"
+)
 
 func init() {
 	fmt.Fprintln(&commandsFile, "#!/usr/bin/env bash")

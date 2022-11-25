@@ -50,14 +50,14 @@ jobs:
           go-version: 1.19
 
       - name: run server
-        run: go run main.go serve --data cmd/service/data/testData.gen.json &
+        run: go run main.go serve --data cmd/service/db/data/testData.gen.json &
 
       - name: check server
         run: timeout 30s bash -c 'until [ $(curl --output /dev/null --silent --fail --write-out "%{http_code}" "http://localhost:1323") -ne "000" ]; do printf "."; sleep 1; done;'
 
       - name: test commands 1
-        run: bash cmd/service/data/testCommands.gen.sh
+        run: bash cmd/test/commands/testCommands.gen.sh
 
       - name: test commands 2
-        run: bash cmd/service/data/testDifferentSyntaxes.sh
+        run: bash cmd/test/commands/testDifferentSyntaxes.sh
 

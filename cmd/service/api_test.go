@@ -776,10 +776,10 @@ func TestGeneration(t *testing.T) {
 		bytes, err := io.ReadAll(&b)
 		panicIf(err)
 
-		err = os.WriteFile("./data/testData.gen.json", bytes, 0644)
+		err = os.WriteFile(generatedTestDataFile, bytes, 0644)
 		panicIf(err)
 
-		err = os.WriteFile("./data/testCommands.gen.sh", []byte(commandsFile.String()), 0644)
+		err = os.WriteFile(generatedTestCommandsFile, []byte(commandsFile.String()), 0644)
 		panicIf(err)
 	}
 }
