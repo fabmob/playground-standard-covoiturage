@@ -6,6 +6,8 @@ import (
 	"io"
 	"testing"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -64,22 +66,33 @@ func isValidJSON(input []byte) bool {
 	return json.Unmarshal(input, &js) == nil
 }
 
-/* func TestFromInputData(t *testing.T) { */
-/* 	inputData := mockDBDataInterface{ */
-/* 		DriverJourneys:    makeNDriverJourneys(3), */
-/* 		PassengerJourneys: makeNPassengerJourneys(4), */
-/* 		Users:             []api.User{makeUser("1", "alice"), makeUser("2", "bob")}, */
-/* 		Bookings: []*api.Booking{ */
-/* 			makeBooking(repUUID(0)), */
-/* 			makeBooking(repUUID(1)), */
-/* 		}, */
-/* 	} */
+func TestNewMockDBWithData(t *testing.T) {
 
-/* 	mockDB := fromInputData(inputData) */
+	var (
+		b bytes.Buffer
 
-/* 	assert.Equal(t, inputData.DriverJourneys, mockDB.DriverJourneys) */
-/* 	assert.Equal(t, inputData.PassengerJourneys, mockDB.PassengerJourneys) */
-/* 	assert.Equal(t, inputData.Users, mockDB.Users) */
-/* 	assert.Equal(t, inputData.Bookings[0], mockDB.Bookings[repUUID(0)]) */
-/* 	assert.Equal(t, inputData.Bookings[1], mockDB.Bookings[repUUID(1)]) */
-/* } */
+		data = mockDBDataInterface{}
+
+		id      = uuid.New()
+		booking = api.Booking{Id: id}
+	)
+
+	data.Bookings = []*api.Booking{&booking}
+
+	bookingBytes, err := json.Marshal(data)
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = b.Write(bookingBytes)
+	if err != nil {
+		panic(err)
+	}
+
+	mockDB, err := NewMockDBWithData(&b)
+
+	assert.Nil(t, err)
+
+	_, ok := mockDB.Bookings[id]
+	assert.True(t, ok)
+}
