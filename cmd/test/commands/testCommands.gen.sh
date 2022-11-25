@@ -9,14 +9,16 @@ go run main.go test \
   --method=GET \
   --url="$SERVER/bookings/52fdfc07-2182-654f-163f-5f0f9a621d72" \
   --expectResponseCode=404 \
-  --auth="$API_TOKEN"
+  --auth="$API_TOKEN" \
+  -v
 
 echo "TestGetBookings/getting_an_existing_booking_returns_it_with_code_200_#1"
 go run main.go test \
   --method=GET \
   --url="$SERVER/bookings/2f8282cb-e2f9-696f-3144-c0aa4ced56db" \
   --expectResponseCode=200 \
-  --auth="$API_TOKEN"
+  --auth="$API_TOKEN" \
+  -v
 
 echo "TestGetBookings/getting_an_existing_booking_returns_it_with_code_200_#2"
 go run main.go test \

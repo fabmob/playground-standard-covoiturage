@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test/assert"
@@ -11,12 +12,13 @@ import (
 type Report struct {
 	verbose          bool
 	endpoint         endpoint.Info
+	request          *http.Request
 	assertionResults []assert.Result
 }
 
 // NewReport creates a new report with given assertion results
-func NewReport(assertionResults ...assert.Result) Report {
-	return Report{assertionResults: assertionResults}
+func NewReport(request *http.Request, assertionResults ...assert.Result) Report {
+	return Report{request: request, assertionResults: assertionResults}
 }
 
 // String implements stringer interface. It is
@@ -31,6 +33,13 @@ func (report *Report) String() string {
 			str += stringError(format(report.endpoint, ar.AssertionDescription))
 			str += stringDetail(err.Error())
 		}
+	}
+
+	if report.verbose {
+		str += "\n"
+		str += stringDetail("Additional details:")
+		str += stringDetail("  request Method: " + report.request.Method)
+		str += stringDetail("  request URL: " + report.request.URL.String())
 	}
 
 	return str
