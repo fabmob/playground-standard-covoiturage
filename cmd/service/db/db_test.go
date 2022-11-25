@@ -1,7 +1,12 @@
 package db
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMustReadDefaultData(t *testing.T) {
@@ -34,6 +39,29 @@ func TestMockDB_GetBookings(t *testing.T) {
 			t.Error("GetBookings should have as side effect to initialize `Bookings` property")
 		}
 	})
+}
+
+func TestWriteData(t *testing.T) {
+	mockDB := NewMockDB()
+
+	var b bytes.Buffer
+
+	err := WriteData(mockDB, &b)
+	if err != nil {
+		panic(err)
+	}
+
+	writtenData, err := io.ReadAll(&b)
+	if err != nil {
+		panic(err)
+	}
+	assert.NotEmpty(t, writtenData)
+	assert.True(t, isValidJSON(writtenData))
+}
+
+func isValidJSON(input []byte) bool {
+	var js json.RawMessage
+	return json.Unmarshal(input, &js) == nil
 }
 
 /* func TestFromInputData(t *testing.T) { */

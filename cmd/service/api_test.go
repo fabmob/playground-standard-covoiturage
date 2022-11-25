@@ -1,8 +1,9 @@
 package service
 
 import (
-	"encoding/json"
+	"bytes"
 	"flag"
+	"io"
 	"net/http"
 	"os"
 	"testing"
@@ -767,10 +768,15 @@ func TestDefaultPassengerJourneysValidity(t *testing.T) {
 // Should be kept at the end as it relies on order of execution of tests.
 func TestGeneration(t *testing.T) {
 	if generateTestData {
-		generatedDataBytes, err := json.MarshalIndent(db.ToOutputData(generatedData), "", "  ")
+
+		var b bytes.Buffer
+
+		db.WriteData(generatedData, &b)
+
+		bytes, err := io.ReadAll(&b)
 		panicIf(err)
 
-		err = os.WriteFile("./data/testData.gen.json", generatedDataBytes, 0644)
+		err = os.WriteFile("./data/testData.gen.json", bytes, 0644)
 		panicIf(err)
 
 		err = os.WriteFile("./data/testCommands.gen.sh", []byte(commandsFile.String()), 0644)

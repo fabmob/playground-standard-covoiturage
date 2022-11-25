@@ -14,6 +14,7 @@ import (
 )
 
 type DB interface {
+	// Getters should never return nil.
 	GetDriverJourneys() []api.DriverJourney
 	GetPassengerJourneys() []api.PassengerJourney
 	GetUsers() []api.User
@@ -43,6 +44,7 @@ func NewMockDB() *Mock {
 	m.DriverJourneys = []api.DriverJourney{}
 	m.PassengerJourneys = []api.PassengerJourney{}
 	m.Bookings = BookingsByID{}
+	m.Users = []api.User{}
 
 	return &m
 }
@@ -122,7 +124,7 @@ type mockDBDataInterface struct {
 	Messages          []api.PostMessagesJSONBody `json:"messages"`
 }
 
-func ToOutputData(m *Mock) mockDBDataInterface {
+func toOutputData(m *Mock) mockDBDataInterface {
 	outputData := mockDBDataInterface{}
 
 	outputData.DriverJourneys = m.DriverJourneys
@@ -135,6 +137,24 @@ func ToOutputData(m *Mock) mockDBDataInterface {
 	}
 
 	return outputData
+}
+
+func WriteData(m *Mock, w io.Writer) error {
+	outputData := toOutputData(m)
+
+	jsonData, err := json.MarshalIndent(outputData, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(jsonData))
+
+	_, err = w.Write(jsonData)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func fromInputData(inputData mockDBDataInterface) *Mock {
