@@ -53,7 +53,7 @@ func (*DefaultRunner) Run(method, URL string, query Query, body []byte, verbose 
 	return nil
 }
 
-func RunTest(method, URL string, verbose bool, query Query, body []byte, apiKey string, flags Flags) error {
+func RunTest(method, URL string, query Query, body []byte, verbose bool, apiKey string, flags Flags) error {
 	runner := DefaultRunner{}
 	return runner.Run(method, URL, query, body, verbose, apiKey, flags)
 }

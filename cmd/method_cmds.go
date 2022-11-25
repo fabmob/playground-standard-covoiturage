@@ -44,10 +44,10 @@ func methodCmdHelper(method string) *cobra.Command {
 }
 
 func initMethodCmd(cmd *cobra.Command) {
-	cmd.PersistentFlags().StringVar(&server, "server", "", "Server on which torun the query")
+	cmd.PersistentFlags().StringVar(&server, "server", "", "(required) Server on which torun the query")
 	testCmd.AddCommand(cmd)
 }
 
 func checkCmdFlags(cmd *cobra.Command, args []string) error {
-	return checkRequiredServer(server)
+	return checkRequired(&server, "server")
 }
