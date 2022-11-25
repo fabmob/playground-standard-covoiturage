@@ -31,7 +31,7 @@ var (
 	URL                string
 	verbose            bool
 	query              test.Query
-	disallowEmpty      bool
+	expectNonEmpty     bool
 	expectResponseCode int
 	method             string
 )
@@ -41,8 +41,8 @@ func init() {
 
 	testCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Make the operation more talkative")
 	testCmd.PersistentFlags().BoolVar(
-		&disallowEmpty,
-		"disallowEmpty",
+		&expectNonEmpty,
+		"expectNonEmpty",
 		test.DefaultFlagExpectNonEmpty,
 		"Should an empty request return an error",
 	)
@@ -64,7 +64,7 @@ func init() {
 
 func flagsWithDefault(defaultStatus int) test.Flags {
 	flags := test.NewFlags()
-	flags.ExpectNonEmpty = disallowEmpty
+	flags.ExpectNonEmpty = expectNonEmpty
 	if expectResponseCode == 0 { //not set
 		flags.ExpectedResponseCode = defaultStatus
 	} else {

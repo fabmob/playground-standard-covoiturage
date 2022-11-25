@@ -11,27 +11,22 @@ import (
 
 var passengerJourneysCmd = makeEndpointCommand(endpoint.GetPassengerJourneys)
 
+var getPassengerJourneysQueryParameters = getDriverJourneysParameters
+
 func init() {
-	passengerJourneysCmd.PreRunE = checkGetJourneysCmdFlags
-	passengerJourneysCmd.Run = func(cmd *cobra.Command, args []string) {
-		query := makeJourneyQuery(
-			departureLat, departureLng, arrivalLat, arrivalLng, departureDate,
-			timeDelta, departureRadius, arrivalRadius, count,
-		)
+	cmd := passengerJourneysCmd
+	cmd.PreRunE = checkGetJourneysCmdFlags
+
+	cmd.Run = func(cmd *cobra.Command, args []string) {
+		query := makeQuery(getPassengerJourneysQueryParameters)
 		URL, _ := url.JoinPath(server, "/passenger_journeys")
 		err := test.RunTest(http.MethodGet, URL, verbose, query, nil, apiKey, flagsWithDefault(http.StatusOK))
 		exitWithError(err)
 	}
 
-	passengerJourneysCmd.Flags().StringVar(&departureLat, "departureLat", "", "DepartureLat parameters in the form name = value")
-	passengerJourneysCmd.Flags().StringVar(&departureLng, "departureLng", "", "DepartureLng parameters in the form name = value")
-	passengerJourneysCmd.Flags().StringVar(&arrivalLat, "arrivalLat", "", "ArrivalLat parameters in the form name = value")
-	passengerJourneysCmd.Flags().StringVar(&arrivalLng, "arrivalLng", "", "ArrivalLng parameters in the form name = value")
-	passengerJourneysCmd.Flags().StringVar(&departureDate, "departureDate", "", "DepartureDate parameters in the form name = value")
-	passengerJourneysCmd.Flags().StringVar(&timeDelta, "timeDelta", "", "TimeDelta parameters in the form name = value")
-	passengerJourneysCmd.Flags().StringVar(&departureRadius, "departureRadius", "", "DepartureRadius parameters in the form name = value")
-	passengerJourneysCmd.Flags().StringVar(&arrivalRadius, "arrivalRadius", "", "ArrivalRadius parameters in the form name = value")
-	passengerJourneysCmd.Flags().StringVar(&count, "count", "", "Count parameters in the form name = value")
+	for _, q := range getDriverJourneysParameters {
+		parameterFlag(cmd.Flags(), q.where, q.variable, q.name, q.required)
+	}
 
-	getCmd.AddCommand(passengerJourneysCmd)
+	getCmd.AddCommand(cmd)
 }

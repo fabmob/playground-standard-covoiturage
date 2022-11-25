@@ -8,8 +8,11 @@ import (
 	"time"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/spf13/cobra"
 	"github.com/stoewer/go-strcase"
+
+	flag "github.com/spf13/pflag"
 )
 
 // makeEndpointCommand creates a cobra command skeletton for a given endpoint
@@ -46,6 +49,14 @@ func checkRequiredString(description string) func(string) error {
 
 		return nil
 	}
+}
+
+func checkRequired(obj *string, description string) error {
+	if *obj == "" {
+		return fmt.Errorf("missing required --%s information", description)
+	}
+
+	return nil
 }
 
 // A short command description for a given endpoint
@@ -95,4 +106,36 @@ func anyError(errs ...error) error {
 	}
 
 	return nil
+}
+
+type parameter struct {
+	variable *string
+	name     string
+	required bool
+	where    string // query or path
+}
+
+func parameterFlag(flags *flag.FlagSet, where string, variable *string, variableName string, required bool) {
+	description := fmt.Sprintf("%s %s parameter", where, variableName)
+	if required {
+		description = "(required) " + description
+	}
+	flags.StringVar(variable, variableName, "", description)
+
+}
+
+func makeQuery(queryParameters []parameter) test.Query {
+	var query = test.NewQuery()
+
+	for _, q := range queryParameters {
+		if q.where == "query" {
+			if q.required {
+				query.SetParam(q.name, *q.variable)
+			} else {
+				query.SetOptionalParam(q.name, *q.variable)
+			}
+		}
+	}
+
+	return query
 }

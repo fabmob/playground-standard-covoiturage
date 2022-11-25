@@ -23,8 +23,13 @@ func TestPatchBookingsCmd(t *testing.T) {
 		}
 	)
 
+	queryParameters := []parameter{
+		{&status, "status", true, "query"},
+		{&message, "message", false, "query"},
+	}
+
 	mockRunner := test.NewMockRunner()
-	err := patchBookingsRun(mockRunner, server, bookingID, status, message)
+	err := patchBookingsRun(mockRunner, server, bookingID, queryParameters)
 	util.PanicIf(err)
 
 	// Test Assertions
@@ -94,13 +99,27 @@ func TestGetDriverRegularTripsCmd(t *testing.T) {
 			body:              nil,
 		}
 	)
+	var queryParameters = []parameter{
+		{&departureLat, "departureLat", true, "query"},
+		{&departureLng, "departureLng", true, "query"},
+		{&arrivalLat, "arrivalLat", true, "query"},
+		{&arrivalLng, "arrivalLng", true, "query"},
+		{&departureTimeOfDay, "departureTimeOfDay", true, "query"},
+		{&timeDelta, "timeDelta", false, "query"},
+		{&departureRadius, "departureRadius", false, "query"},
+		{&arrivalRadius, "arrivalRadius", false, "query"},
+		{&minDepartureDate, "minDepartureDate", false, "query"},
+		{&maxDepartureDate, "maxDepartureDate", false, "query"},
+		{&count, "count", false, "query"},
+	}
 
 	mockRunner := test.NewMockRunner()
-	err := getDriverRegularTripsRun(
+	err := getRegularTripsRun(
 		mockRunner,
 		server,
-		departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
-		timeDelta, departureRadius, arrivalRadius, count,
+		queryParameters,
+		[]string{},
+		"/driver_regular_trips",
 	)
 	util.PanicIf(err)
 
@@ -131,14 +150,27 @@ func TestGetPassengerRegularTripsCmd(t *testing.T) {
 		}
 	)
 
+	var queryParameters = []parameter{
+		{&departureLat, "departureLat", true, "query"},
+		{&departureLng, "departureLng", true, "query"},
+		{&arrivalLat, "arrivalLat", true, "query"},
+		{&arrivalLng, "arrivalLng", true, "query"},
+		{&departureTimeOfDay, "departureTimeOfDay", true, "query"},
+		{&timeDelta, "timeDelta", false, "query"},
+		{&departureRadius, "departureRadius", false, "query"},
+		{&arrivalRadius, "arrivalRadius", false, "query"},
+		{&minDepartureDate, "minDepartureDate", false, "query"},
+		{&maxDepartureDate, "maxDepartureDate", false, "query"},
+		{&count, "count", false, "query"},
+	}
+
 	mockRunner := test.NewMockRunner()
-	err := getPassengerRegularTripsRun(
+	err := getRegularTripsRun(
 		mockRunner,
 		server,
-		departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
+		queryParameters,
 		departureWeekdays,
-		timeDelta, departureRadius, arrivalRadius, count,
-		minDepartureDate, maxDepartureDate,
+		"/passenger_regular_trips",
 	)
 	util.PanicIf(err)
 

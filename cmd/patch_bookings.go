@@ -17,39 +17,35 @@ var (
 
 var patchBookingsCmd = makeEndpointCommand(endpoint.PatchBookings)
 
-func init() {
-	patchBookingsCmd.PreRunE = checkPatchBookingsCmdFlags
+var patchBookingParameters = []parameter{
+	{&status, "status", true, "query"},
+	{&message, "message", false, "query"},
+	{&patchBookingID, "bookingId", true, "path"},
+}
 
-	patchBookingsCmd.Run = func(cmd *cobra.Command, args []string) {
+func init() {
+	cmd := patchBookingsCmd
+	cmd.PreRunE = checkPatchBookingsCmdFlags
+
+	cmd.Run = func(cmd *cobra.Command, args []string) {
 		err := patchBookingsRun(
 			test.NewDefaultRunner(),
 			server,
 			patchBookingID,
-			status,
-			message,
+			patchBookingParameters,
 		)
 		exitWithError(err)
 	}
 
-	patchBookingsCmd.Flags().StringVar(
-		&patchBookingID, "bookingId", "", "bookingId path parameter",
-	)
+	for _, q := range patchBookingParameters {
+		parameterFlag(cmd.Flags(), q.where, q.variable, q.name, q.required)
+	}
 
-	patchBookingsCmd.Flags().StringVar(
-		&status, "status", "", "status query parameter",
-	)
-
-	patchBookingsCmd.Flags().StringVar(
-		&message, "message", "", "message query parameter",
-	)
-
-	patchCmd.AddCommand(patchBookingsCmd)
+	patchCmd.AddCommand(cmd)
 }
 
-func patchBookingsRun(runner test.TestRunner, server, bookingID, status, message string) error {
-	query := test.NewQuery()
-	query.Params["status"] = status
-	query.Params["message"] = message
+func patchBookingsRun(runner test.TestRunner, server string, bookingID string, queryParameters []parameter) error {
+	query := makeQuery(queryParameters)
 
 	URL, err := url.JoinPath(server, "/bookings", bookingID)
 	if err != nil {
@@ -60,14 +56,10 @@ func patchBookingsRun(runner test.TestRunner, server, bookingID, status, message
 }
 
 func checkPatchBookingsCmdFlags(cmd *cobra.Command, args []string) error {
-	errRequiredBookingID := checkRequiredBookingID(patchBookingID)
-	if errRequiredBookingID != nil {
-		return errRequiredBookingID
-	}
-
-	errRequiredStatus := checkRequiredStatus(status)
-	if errRequiredStatus != nil {
-		return errRequiredStatus
+	for _, q := range patchBookingParameters {
+		if err := checkRequired(q.variable, q.name); err != nil {
+			return err
+		}
 	}
 
 	return nil

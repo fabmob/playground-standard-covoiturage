@@ -19,97 +19,77 @@ var (
 	maxDepartureDate   string
 )
 
-func init() {
-	driverRegularTripsCmd.PreRunE = checkGetRegularTripsCmdFlags
+// only string parameters. Array parameter departureWeekdays is treated
+// separately.
+var getDriverRegularTripsParameters = []parameter{
+	{&departureLat, "departureLat", true, "query"},
+	{&departureLng, "departureLng", true, "query"},
+	{&arrivalLat, "arrivalLat", true, "query"},
+	{&arrivalLng, "arrivalLng", true, "query"},
+	{&departureTimeOfDay, "departureTimeOfDay", true, "query"},
+	{&timeDelta, "timeDelta", false, "query"},
+	{&departureRadius, "departureRadius", false, "query"},
+	{&arrivalRadius, "arrivalRadius", false, "query"},
+	{&minDepartureDate, "minDepartureDate", false, "query"},
+	{&maxDepartureDate, "maxDepartureDate", false, "query"},
+	{&count, "count", false, "query"},
+}
 
-	driverRegularTripsCmd.Run = func(cmd *cobra.Command, args []string) {
-		err := getDriverRegularTripsRun(
+func init() {
+	cmd := driverRegularTripsCmd
+	cmd.PreRunE = checkGetRegularTripsCmdFlags
+
+	cmd.Run = func(cmd *cobra.Command, args []string) {
+		err := getRegularTripsRun(
 			test.NewDefaultRunner(),
 			server,
-			departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
-			timeDelta, departureRadius, arrivalRadius, count,
+			getDriverRegularTripsParameters,
+			departureWeekdays,
+			"/driver_regular_trips",
 		)
 		exitWithError(err)
 	}
 
-	driverRegularTripsCmd.Flags().StringVar(
-		&departureLat, "departureLat", "", "departureLat query query parameter")
-	driverRegularTripsCmd.Flags().StringVar(
-		&departureLng, "departureLng", "", "departureLng query parameter")
-	driverRegularTripsCmd.Flags().StringVar(
-		&arrivalLat, "arrivalLat", "", "arrivalLat query parameter")
-	driverRegularTripsCmd.Flags().StringVar(
-		&arrivalLng, "arrivalLng", "", "arrivalLng query parameter")
-	driverRegularTripsCmd.Flags().StringVar(
-		&departureTimeOfDay, "departureTimeOfDay", "", "departureTimeOfDay query parameter")
+	for _, q := range getDriverRegularTripsParameters {
+		parameterFlag(cmd.Flags(), q.where, q.variable, q.name, q.required)
+	}
 
-	driverRegularTripsCmd.Flags().StringSliceVar(
+	// additional array query parameter
+	cmd.Flags().StringSliceVar(
 		&departureWeekdays, "departureWeekdays", []string{}, "departureWeekdays query parameter")
-	driverRegularTripsCmd.Flags().StringVar(
-		&timeDelta, "timeDelta", "", "timeDelta query parameter")
-	driverRegularTripsCmd.Flags().StringVar(
-		&departureRadius, "departureRadius", "", "departureRadius query parameter")
-	driverRegularTripsCmd.Flags().StringVar(
-		&arrivalRadius, "arrivalRadius", "", "arrivalRadius query parameter")
-	driverRegularTripsCmd.Flags().StringVar(
-		&minDepartureDate, "minDepartureDate", "", "minDepartureDate query parameter")
-	driverRegularTripsCmd.Flags().StringVar(
-		&maxDepartureDate, "maxDepartureDate", "", "maxDepartureDate query parameter")
-	driverRegularTripsCmd.Flags().StringVar(
-		&count, "count", "", "count query parameter")
 
-	getCmd.AddCommand(driverRegularTripsCmd)
+	getCmd.AddCommand(cmd)
 }
 
-func getDriverRegularTripsRun(
+func getRegularTripsRun(
 	runner test.TestRunner,
 	server string,
-	departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
-	timeDelta, departureRadius, arrivalRadius, count string,
+	queryStringParameters []parameter,
+	departureWeekdays []string,
+	endpointPath string,
 ) error {
-	query := makeRegularTripQuery(
-		departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
-		departureWeekdays, timeDelta, departureRadius, arrivalRadius, count,
-		minDepartureDate, maxDepartureDate,
-	)
-	URL, _ := url.JoinPath(server, "/driver_regular_trips")
+	query := makeQuery(queryStringParameters)
+
+	departureWeekdaysBytes, err := json.Marshal(departureWeekdays)
+	if err != nil {
+		return err
+	}
+	query.SetOptionalParam("departureWeekdays", string(departureWeekdaysBytes))
+
+	URL, err := url.JoinPath(server, endpointPath)
+	if err != nil {
+		return err
+	}
 
 	return runner.Run(http.MethodGet, URL, query, nil, verbose, apiKey, flagsWithDefault(http.StatusOK))
 }
 
-func makeRegularTripQuery(
-	departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay string,
-	departureWeekdays []string,
-	timeDelta, departureRadius, arrivalRadius, count, minDepartureDate,
-	maxDepartureDate string,
-) test.Query {
-
-	var query = test.NewQuery()
-
-	query.SetParam("departureLat", departureLat)
-	query.SetParam("departureLng", departureLng)
-	query.SetParam("arrivalLat", arrivalLat)
-	query.SetParam("arrivalLng", arrivalLng)
-	query.SetParam("departureTimeOfDay", departureTimeOfDay)
-
-	departureWeekdaysBytes, _ := json.Marshal(departureWeekdays)
-	query.SetOptionalParam("departureWeekdays", string(departureWeekdaysBytes))
-	query.SetOptionalParam("timeDelta", timeDelta)
-	query.SetOptionalParam("departureRadius", departureRadius)
-	query.SetOptionalParam("arrivalRadius", arrivalRadius)
-	query.SetOptionalParam("count", count)
-	query.SetOptionalParam("minDepartureDate", minDepartureDate)
-	query.SetOptionalParam("maxDepartureDate", maxDepartureDate)
-
-	return query
-}
-
 func checkGetRegularTripsCmdFlags(cmd *cobra.Command, args []string) error {
-	return anyError(
-		checkRequiredDepartureLat(departureLat),
-		checkRequiredDepartureLng(departureLng),
-		checkRequiredArrivalLat(departureLat),
-		checkRequiredArrivalLng(departureLng),
-		checkRequiredDepartureTimeOfDay(departureTimeOfDay),
-	)
+	for _, q := range getDriverRegularTripsParameters {
+		if err := checkRequired(q.variable, q.name); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -23,62 +23,42 @@ var (
 	count           string
 )
 
+var getDriverJourneysParameters = []parameter{
+	{&departureLat, "departureLat", true, "query"},
+	{&departureLng, "departureLng", true, "query"},
+	{&arrivalLat, "arrivalLat", true, "query"},
+	{&arrivalLng, "arrivalLng", true, "query"},
+	{&departureDate, "departureDate", true, "query"},
+	{&timeDelta, "timeDelta", false, "query"},
+	{&departureRadius, "departureRadius", false, "query"},
+	{&arrivalRadius, "arrivalRadius", false, "query"},
+	{&count, "count", false, "query"},
+}
+
 func init() {
+	cmd := driverJourneysCmd
+	cmd.PreRunE = checkGetJourneysCmdFlags
 
-	driverJourneysCmd.PreRunE = checkGetJourneysCmdFlags
-
-	driverJourneysCmd.Run = func(cmd *cobra.Command, args []string) {
-		query := makeJourneyQuery(departureLat, departureLng, arrivalLat, arrivalLng, departureDate, timeDelta, departureRadius, arrivalRadius, count)
+	cmd.Run = func(cmd *cobra.Command, args []string) {
+		query := makeQuery(getDriverJourneysParameters)
 		URL, _ := url.JoinPath(server, "/driver_journeys")
 		err := test.RunTest(http.MethodGet, URL, verbose, query, nil, apiKey, flagsWithDefault(http.StatusOK))
 		exitWithError(err)
 	}
 
-	driverJourneysCmd.Flags().StringVar(
-		&departureLat, "departureLat", "", "departureLat query query parameter")
-	driverJourneysCmd.Flags().StringVar(
-		&departureLng, "departureLng", "", "departureLng query parameter")
-	driverJourneysCmd.Flags().StringVar(
-		&arrivalLat, "arrivalLat", "", "arrivalLat query parameter")
-	driverJourneysCmd.Flags().StringVar(
-		&arrivalLng, "arrivalLng", "", "arrivalLng query parameter")
-	driverJourneysCmd.Flags().StringVar(
-		&departureDate, "departureDate", "", "departureDate query parameter")
-	driverJourneysCmd.Flags().StringVar(
-		&timeDelta, "timeDelta", "", "timeDelta query parameter")
-	driverJourneysCmd.Flags().StringVar(
-		&departureRadius, "departureRadius", "", "departureRadius query parameter")
-	driverJourneysCmd.Flags().StringVar(
-		&arrivalRadius, "arrivalRadius", "", "arrivalRadius query parameter")
-	driverJourneysCmd.Flags().StringVar(
-		&count, "count", "", "count query parameter")
+	for _, q := range getDriverJourneysParameters {
+		parameterFlag(cmd.Flags(), q.where, q.variable, q.name, q.required)
+	}
 
-	getCmd.AddCommand(driverJourneysCmd)
-}
-
-func makeJourneyQuery(departureLat, departureLng, arrivalLat, arrivalLng, departureDate, timeDelta, departureRadius, arrivalRadius, count string) test.Query {
-	var query = test.NewQuery()
-
-	query.SetParam("departureLat", departureLat)
-	query.SetParam("departureLng", departureLng)
-	query.SetParam("arrivalLat", arrivalLat)
-	query.SetParam("arrivalLng", arrivalLng)
-	query.SetParam("departureDate", departureDate)
-
-	query.SetOptionalParam("timeDelta", timeDelta)
-	query.SetOptionalParam("departureRadius", departureRadius)
-	query.SetOptionalParam("arrivalRadius", arrivalRadius)
-	query.SetOptionalParam("count", count)
-
-	return query
+	getCmd.AddCommand(cmd)
 }
 
 func checkGetJourneysCmdFlags(cmd *cobra.Command, args []string) error {
-	return anyError(
-		checkRequiredDepartureLat(departureLat),
-		checkRequiredDepartureLng(departureLng),
-		checkRequiredArrivalLat(departureLat),
-		checkRequiredArrivalLng(departureLng),
-		checkRequiredDepartureDate(departureDate),
-	)
+	for _, q := range getDriverJourneysParameters {
+		if err := checkRequired(q.variable, q.name); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
