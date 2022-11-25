@@ -45,7 +45,7 @@ func executeTestFun(
 	var all = []assert.Result{}
 
 	all = append(all, wrapTestResponseFun(testFun)(client, request, flags)...)
-	report := NewReport(all...)
+	report := NewReport(request, all...)
 
 	return &report
 }

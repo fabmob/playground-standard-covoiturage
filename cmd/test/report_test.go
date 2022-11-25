@@ -10,13 +10,15 @@ import (
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test/assert"
 )
 
+var request, _ = http.NewRequest(http.MethodGet, "", nil)
+
 func TestReport(t *testing.T) {
 	endpoint := endpoint.New(http.MethodGet, "/endpoint_path")
 	assertStr := "test assertion"
 	errorDescription := "Error description"
 
 	makeReport := func(err error, verbose bool) Report {
-		report := NewReport(assert.NewAssertionResult(err, assertStr))
+		report := NewReport(request, assert.NewAssertionResult(err, assertStr))
 		report.endpoint = endpoint
 		report.verbose = verbose
 		return report
@@ -97,7 +99,7 @@ func TestReportSingle(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ar := assert.NewAssertionResult(tc.err, "")
-			report := NewReport(ar)
+			report := NewReport(request, ar)
 			report.verbose = tc.verbose
 
 			if (report.String() != "") != tc.shouldReport {
@@ -130,7 +132,7 @@ func TestReportCountErrors(t *testing.T) {
 			assertionResults = append(assertionResults, assert.NewAssertionResult(err, ""))
 		}
 
-		report := NewReport(assertionResults...)
+		report := NewReport(request, assertionResults...)
 
 		if report.countErrors() != tc.expectedNErr {
 			t.Error("Wrong number of errors")
