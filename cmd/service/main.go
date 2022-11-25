@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
 	"github.com/labstack/echo/v4"
 )
 
@@ -20,7 +21,7 @@ func Run(dataFile string) {
 		fileReader, err := os.Open(dataFile)
 		exitIfErr(err, e)
 
-		mockDB, err := NewMockDBWithData(fileReader)
+		mockDB, err := db.NewMockDBWithData(fileReader)
 		exitIfErr(err, e)
 
 		handler = NewServerWithDB(mockDB)

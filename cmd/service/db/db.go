@@ -1,4 +1,4 @@
-package service
+package db
 
 import (
 	"bytes"
@@ -13,28 +13,43 @@ import (
 	"github.com/google/uuid"
 )
 
-// MockDB stores the data of the server in memory
-type MockDB struct {
+type DB interface {
+	// Getters should never return nil.
+	GetDriverJourneys() []api.DriverJourney
+	GetPassengerJourneys() []api.PassengerJourney
+	GetUsers() []api.User
+	GetBookings() BookingsByID
+
+	// GetBooking should return a MissingBookingErr if not found
+	GetBooking(api.BookingId) (*api.Booking, error)
+
+	// AddBooking adds a booking to the db, but fails if a booking with same ID
+	// already exists
+	AddBooking(api.Booking) error
+}
+
+// Mock stores the data of the server in memory
+type Mock struct {
 	DriverJourneys    []api.DriverJourney
 	PassengerJourneys []api.PassengerJourney
 	Bookings          BookingsByID
 	Users             []api.User
-	Messages          []api.PostMessagesJSONBody
 }
 
-type BookingsByID map[uuid.UUID]*api.Booking
+type BookingsByID map[api.BookingId]*api.Booking
 
 // NewMockDB initiates a MockDB with no data
-func NewMockDB() *MockDB {
-	m := MockDB{}
+func NewMockDB() *Mock {
+	m := Mock{}
 	m.DriverJourneys = []api.DriverJourney{}
 	m.PassengerJourneys = []api.PassengerJourney{}
 	m.Bookings = BookingsByID{}
+	m.Users = []api.User{}
 
 	return &m
 }
 
-func (m *MockDB) GetDriverJourneys() []api.DriverJourney {
+func (m *Mock) GetDriverJourneys() []api.DriverJourney {
 	if m.DriverJourneys == nil {
 		m.DriverJourneys = []api.DriverJourney{}
 	}
@@ -42,7 +57,7 @@ func (m *MockDB) GetDriverJourneys() []api.DriverJourney {
 	return m.DriverJourneys
 }
 
-func (m *MockDB) GetPassengerJourneys() []api.PassengerJourney {
+func (m *Mock) GetPassengerJourneys() []api.PassengerJourney {
 	if m.PassengerJourneys == nil {
 		m.PassengerJourneys = []api.PassengerJourney{}
 	}
@@ -50,7 +65,7 @@ func (m *MockDB) GetPassengerJourneys() []api.PassengerJourney {
 	return m.PassengerJourneys
 }
 
-func (m *MockDB) GetBookings() BookingsByID {
+func (m *Mock) GetBookings() BookingsByID {
 	if m.Bookings == nil {
 		m.Bookings = BookingsByID{}
 	}
@@ -58,7 +73,7 @@ func (m *MockDB) GetBookings() BookingsByID {
 	return m.Bookings
 }
 
-func (m *MockDB) GetUsers() []api.User {
+func (m *Mock) GetUsers() []api.User {
 	if m.Users == nil {
 		m.Users = []api.User{}
 	}
@@ -66,7 +81,7 @@ func (m *MockDB) GetUsers() []api.User {
 	return m.Users
 }
 
-func (m *MockDB) GetBooking(bookingID uuid.UUID) (*api.Booking, error) {
+func (m *Mock) GetBooking(bookingID uuid.UUID) (*api.Booking, error) {
 	bookings := m.GetBookings()
 
 	booking, ok := bookings[bookingID]
@@ -79,7 +94,7 @@ func (m *MockDB) GetBooking(bookingID uuid.UUID) (*api.Booking, error) {
 
 // AddBooking adds a new booking to the data. Returns an error if a booking
 // with same ID already exists
-func (m *MockDB) AddBooking(booking api.Booking) error {
+func (m *Mock) AddBooking(booking api.Booking) error {
 	bookings := m.GetBookings()
 
 	if _, bookingExists := bookings[booking.Id]; bookingExists {
@@ -91,39 +106,10 @@ func (m *MockDB) AddBooking(booking api.Booking) error {
 	return nil
 }
 
-// UpdateBookingStatus updates the status of a booking. Status can only be
-// updated for a higher ranked status. If this is not the case, or if the
-// booking is not found, returns an error
-func (m *MockDB) UpdateBookingStatus(bookingID uuid.UUID, newStatus api.BookingStatus) error {
-	booking, err := m.GetBooking(bookingID)
-	if err != nil {
-		return err
-	}
-
-	statusAfter, err := statusIsAfter(newStatus, booking.Status)
-	if err != nil {
-		return err
-	}
-
-	if !statusAfter {
-		return StatusAlreadySetErr{}
-	}
-
-	booking.Status = newStatus
-
-	return nil
-}
-
 type MissingBookingErr struct{}
 
 func (err MissingBookingErr) Error() string {
 	return "missing_booking"
-}
-
-type StatusAlreadySetErr struct{}
-
-func (err StatusAlreadySetErr) Error() string {
-	return "status_already_set"
 }
 
 //////////////////////////////////////////////////////////
@@ -138,13 +124,12 @@ type mockDBDataInterface struct {
 	Messages          []api.PostMessagesJSONBody `json:"messages"`
 }
 
-func toOutputData(m *MockDB) mockDBDataInterface {
+func toOutputData(m *Mock) mockDBDataInterface {
 	outputData := mockDBDataInterface{}
 
 	outputData.DriverJourneys = m.DriverJourneys
 	outputData.PassengerJourneys = m.PassengerJourneys
 	outputData.Users = m.Users
-	outputData.Messages = m.Messages
 
 	outputData.Bookings = make([]*api.Booking, 0, len(m.Bookings))
 	for _, booking := range m.Bookings {
@@ -154,13 +139,30 @@ func toOutputData(m *MockDB) mockDBDataInterface {
 	return outputData
 }
 
-func fromInputData(inputData mockDBDataInterface) *MockDB {
+func WriteData(m *Mock, w io.Writer) error {
+	outputData := toOutputData(m)
+
+	jsonData, err := json.MarshalIndent(outputData, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(jsonData))
+
+	_, err = w.Write(jsonData)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func fromInputData(inputData mockDBDataInterface) *Mock {
 	var m = NewMockDB()
 
 	m.DriverJourneys = inputData.DriverJourneys
 	m.PassengerJourneys = inputData.PassengerJourneys
 	m.Users = inputData.Users
-	m.Messages = inputData.Messages
 
 	m.Bookings = make(BookingsByID, len(inputData.Bookings))
 
@@ -172,13 +174,13 @@ func fromInputData(inputData mockDBDataInterface) *MockDB {
 }
 
 // NewMockDBWithDefaultData initiates a MockDB with default data
-func NewMockDBWithDefaultData() *MockDB {
+func NewMockDBWithDefaultData() *Mock {
 	return MustReadDefaultData()
 }
 
 // NewMockDBWithData reads journey data from io.Reader with json data.
 // It does not validate data against the standard.
-func NewMockDBWithData(r io.Reader) (*MockDB, error) {
+func NewMockDBWithData(r io.Reader) (*Mock, error) {
 	var data mockDBDataInterface
 
 	bytes, readErr := io.ReadAll(r)
@@ -197,7 +199,7 @@ func NewMockDBWithData(r io.Reader) (*MockDB, error) {
 var DefaultData []byte
 
 // MustReadDefaultData reads default data, and panics if any error occurs
-func MustReadDefaultData() *MockDB {
+func MustReadDefaultData() *Mock {
 	mockDB, err := NewMockDBWithData(bytes.NewReader(DefaultData))
 	if err != nil {
 		panic(err)

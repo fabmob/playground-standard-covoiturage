@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/google/uuid"
@@ -19,7 +20,7 @@ import (
 const localServer = "http://localhost:1323"
 
 func setupTestServer(
-	db *MockDB,
+	db *db.Mock,
 	request *http.Request,
 ) (*StdCovServerImpl, echo.Context, *httptest.ResponseRecorder) {
 
@@ -208,8 +209,8 @@ func repUUID(seed int64) uuid.UUID {
 
 // NewBookingsByID populates a BookingsByID with given bookings. It does not
 // test if booking is already set.
-func NewBookingsByID(bookings ...*api.Booking) BookingsByID {
-	var bookingsByID = BookingsByID{}
+func NewBookingsByID(bookings ...*api.Booking) db.BookingsByID {
+	var bookingsByID = db.BookingsByID{}
 
 	for _, booking := range bookings {
 		if booking == nil {
@@ -248,7 +249,7 @@ type apiTestHelper interface {
 	testResponse(*http.Request, *http.Response, test.Flags) []test.AssertionResult
 }
 
-func testAPI(t *testing.T, a apiTestHelper, mockDB *MockDB, flags test.Flags) {
+func testAPI(t *testing.T, a apiTestHelper, mockDB *db.Mock, flags test.Flags) {
 	t.Helper()
 
 	appendDataIfGenerated(t, mockDB)
@@ -300,7 +301,7 @@ func (h postBookingsTestHelper) testResponse(request *http.Request, response *ht
 
 func TestPostBookingsHelper(
 	t *testing.T,
-	mockDB *MockDB,
+	mockDB *db.Mock,
 	booking api.Booking,
 	flags test.Flags,
 ) {
@@ -327,7 +328,7 @@ func (h postMessagesTestHelper) testResponse(request *http.Request, response *ht
 
 func TestPostMessagesHelper(
 	t *testing.T,
-	mockDB *MockDB,
+	mockDB *db.Mock,
 	message api.PostMessagesJSONBody,
 	flags test.Flags,
 ) {
@@ -354,7 +355,7 @@ func (h postBookingEventsTestHelper) testResponse(request *http.Request, respons
 
 func TestPostBookingEventsHelper(
 	t *testing.T,
-	mockDB *MockDB,
+	mockDB *db.Mock,
 	bookingEvent api.CarpoolBookingEvent,
 	flags test.Flags,
 ) {
@@ -381,7 +382,7 @@ func (h getBookingsTestHelper) testResponse(request *http.Request, response *htt
 
 func TestGetBookingsHelper(
 	t *testing.T,
-	mockDB *MockDB,
+	mockDB *db.Mock,
 	bookingID api.BookingId,
 	flags test.Flags,
 ) {
@@ -411,10 +412,40 @@ func (h patchBookingsTestHelper) testResponse(request *http.Request, response *h
 
 func TestPatchBookingsHelper(
 	t *testing.T,
-	mockDB *MockDB,
+	mockDB *db.Mock,
 	bookingID api.BookingId,
 	status api.BookingStatus,
 	flags test.Flags,
 ) {
 	testAPI(t, patchBookingsTestHelper{bookingID, status}, mockDB, flags)
+}
+
+func requestAll(t *testing.T, driverOrPassenger string) api.GetJourneysParams {
+	t.Helper()
+
+	var (
+		largeTimeDelta = int(1e10)
+		largeRadius    = float32(1e6)
+	)
+
+	switch driverOrPassenger {
+	case "driver":
+		params := api.GetDriverJourneysParams{}
+		params.TimeDelta = &largeTimeDelta
+		params.DepartureRadius = &largeRadius
+		params.ArrivalRadius = &largeRadius
+
+		return &params
+
+	case "passenger":
+		params := api.GetPassengerJourneysParams{}
+		params.TimeDelta = &largeTimeDelta
+		params.DepartureRadius = &largeRadius
+		params.ArrivalRadius = &largeRadius
+
+		return &params
+
+	default:
+		panic("invalid driverOrPassenger parameter")
+	}
 }

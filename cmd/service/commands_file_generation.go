@@ -6,16 +6,23 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 )
 
 //go:generate bash -c "go test -generate > /dev/null"
 
-var generateTestData bool
-var generatedData = NewMockDB()
-var commandsFile = strings.Builder{}
-var serverEnvVar = "SERVER"
-var authEnvVar = "API_TOKEN"
+var (
+	generateTestData bool
+	generatedData    = db.NewMockDB()
+	commandsFile     = strings.Builder{}
+
+	generatedTestDataFile     = "./db/data/testData.gen.json"
+	generatedTestCommandsFile = "../test/commands/testCommands.gen.sh"
+
+	serverEnvVar = "SERVER"
+	authEnvVar   = "API_TOKEN"
+)
 
 func init() {
 	fmt.Fprintln(&commandsFile, "#!/usr/bin/env bash")
@@ -31,7 +38,7 @@ var hasAlreadyAppended = map[string]bool{}
 
 // appendDataIfGenerated is used to populate the `generatedData` db if the
 // -generate flag is provided
-func appendDataIfGenerated(t *testing.T, mockDB *MockDB) {
+func appendDataIfGenerated(t *testing.T, mockDB *db.Mock) {
 	if _, ok := hasAlreadyAppended[t.Name()]; generateTestData && !ok {
 		hasAlreadyAppended[t.Name()] = true
 		appendData(mockDB, generatedData)
@@ -49,7 +56,7 @@ func appendCmdIfGenerated(t *testing.T, request *http.Request, flags test.Flags,
 	}
 }
 
-func appendData(from *MockDB, to *MockDB) {
+func appendData(from *db.Mock, to *db.Mock) {
 	to.DriverJourneys = append(
 		to.GetDriverJourneys(),
 		from.GetDriverJourneys()...,

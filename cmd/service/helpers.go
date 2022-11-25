@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
+	"github.com/google/uuid"
 )
 
 // keepNFirst keeps n first elements of slice, or returns the slice untouched
@@ -37,6 +39,35 @@ func statusIsAfter(status1, status2 api.BookingStatus) (bool, error) {
 	}
 
 	return status1Rank > status2Rank, nil
+}
+
+type StatusAlreadySetErr struct{}
+
+func (err StatusAlreadySetErr) Error() string {
+	return "status_already_set"
+}
+
+// UpdateBookingStatus updates the status of a booking. Status can only be
+// updated for a higher ranked status. If this is not the case, or if the
+// booking is not found, returns an error
+func UpdateBookingStatus(m db.DB, bookingID uuid.UUID, newStatus api.BookingStatus) error {
+	booking, err := m.GetBooking(bookingID)
+	if err != nil {
+		return err
+	}
+
+	statusAfter, err := statusIsAfter(newStatus, booking.Status)
+	if err != nil {
+		return err
+	}
+
+	if !statusAfter {
+		return StatusAlreadySetErr{}
+	}
+
+	booking.Status = newStatus
+
+	return nil
 }
 
 func statusRank(status api.BookingStatus) (int, error) {

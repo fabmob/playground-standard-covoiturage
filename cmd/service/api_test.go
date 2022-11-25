@@ -1,13 +1,15 @@
 package service
 
 import (
-	"encoding/json"
+	"bytes"
 	"flag"
+	"io"
 	"net/http"
 	"os"
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/google/uuid"
@@ -179,7 +181,7 @@ func TestDriverJourneys(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 
-			mockDB := NewMockDB()
+			mockDB := db.NewMockDB()
 			mockDB.DriverJourneys = tc.testData
 
 			flags := test.NewFlags()
@@ -198,7 +200,7 @@ func TestDriverJourneys(t *testing.T) {
 func testGetDriverJourneyHelper(
 	t *testing.T,
 	params api.GetJourneysParams,
-	mockDB *MockDB,
+	mockDB *db.Mock,
 	flags test.Flags,
 ) {
 	testFunction := test.TestGetDriverJourneysResponse
@@ -365,7 +367,7 @@ func TestPassengerJourneys(t *testing.T) {
 	for _, tc := range testCases {
 
 		t.Run(tc.name, func(t *testing.T) {
-			mockDB := NewMockDB()
+			mockDB := db.NewMockDB()
 			mockDB.PassengerJourneys = tc.testData
 
 			flags := test.NewFlags()
@@ -384,7 +386,7 @@ func TestPassengerJourneys(t *testing.T) {
 func testGetPassengerJourneyHelper(
 	t *testing.T,
 	params api.GetJourneysParams,
-	mockDB *MockDB,
+	mockDB *db.Mock,
 	flags test.Flags,
 ) {
 	testFunction := test.TestGetPassengerJourneysResponse
@@ -392,7 +394,7 @@ func testGetPassengerJourneyHelper(
 	testGetJourneysHelper(t, params, mockDB, testFunction, flags)
 }
 
-func testGetJourneysHelper(t *testing.T, params api.GetJourneysParams, mockDB *MockDB, f test.ResponseTestFun, flags test.Flags) {
+func testGetJourneysHelper(t *testing.T, params api.GetJourneysParams, mockDB *db.Mock, f test.ResponseTestFun, flags test.Flags) {
 	t.Helper()
 
 	appendDataIfGenerated(t, mockDB)
@@ -419,7 +421,7 @@ func testGetJourneysHelper(t *testing.T, params api.GetJourneysParams, mockDB *M
 func TestGetBookings(t *testing.T) {
 	testCases := []struct {
 		name               string
-		bookings           BookingsByID
+		bookings           db.BookingsByID
 		queryBookingID     uuid.UUID
 		disallowEmpty      bool
 		expectedStatusCode int
@@ -455,7 +457,7 @@ func TestGetBookings(t *testing.T) {
 	for _, tc := range testCases {
 
 		t.Run(tc.name, func(t *testing.T) {
-			mockDB := NewMockDB()
+			mockDB := db.NewMockDB()
 			mockDB.Bookings = tc.bookings
 
 			flags := test.NewFlags()
@@ -472,7 +474,7 @@ func TestPostBookings(t *testing.T) {
 	testCases := []struct {
 		name                 string
 		booking              *api.Booking
-		existingBookings     BookingsByID
+		existingBookings     db.BookingsByID
 		expectPostStatusCode int
 		expectGetNonEmpty    bool
 	}{
@@ -499,7 +501,7 @@ func TestPostBookings(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			bookingID := tc.booking.Id
 
-			mockDB := NewMockDB()
+			mockDB := db.NewMockDB()
 			mockDB.Bookings = tc.existingBookings
 
 			flagsPost := test.NewFlags()
@@ -521,7 +523,7 @@ func TestPatchBookings(t *testing.T) {
 		name                    string
 		bookingID               uuid.UUID
 		newStatus               api.BookingStatus
-		existingBookings        BookingsByID
+		existingBookings        db.BookingsByID
 		expectedPatchStatusCode int
 		expectedGetStatusCode   int
 		expectedStatus          api.BookingStatus
@@ -601,7 +603,7 @@ func TestPatchBookings(t *testing.T) {
 	for _, tc := range testCases {
 
 		t.Run(tc.name, func(t *testing.T) {
-			mockDB := NewMockDB()
+			mockDB := db.NewMockDB()
 			mockDB.Bookings = tc.existingBookings
 
 			flagsPatch := test.NewFlags()
@@ -624,7 +626,7 @@ func TestPostBookingEvents(t *testing.T) {
 		name                   string
 		bookingID              uuid.UUID
 		carpoolBookingEvent    *api.CarpoolBookingEvent
-		existingBookings       BookingsByID
+		existingBookings       db.BookingsByID
 		expectedPostStatusCode int
 		expectedGetStatusCode  int
 		expectedBookingStatus  api.BookingStatus
@@ -673,7 +675,7 @@ func TestPostBookingEvents(t *testing.T) {
 	for _, tc := range testCases {
 
 		t.Run(tc.name, func(t *testing.T) {
-			mockDB := NewMockDB()
+			mockDB := db.NewMockDB()
 			mockDB.Bookings = tc.existingBookings
 
 			flagsPost := test.NewFlags()
@@ -730,7 +732,7 @@ func TestPostMessage(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			mockDB := NewMockDB()
+			mockDB := db.NewMockDB()
 			mockDB.Users = tc.existingUsers
 
 			flags := test.NewFlags()
@@ -741,15 +743,44 @@ func TestPostMessage(t *testing.T) {
 	}
 }
 
+func TestDefaultDriverJourneysValidity(t *testing.T) {
+	params := requestAll(t, "driver")
+	mockDB := db.NewMockDBWithDefaultData()
+	testFun := test.TestGetDriverJourneysResponse
+
+	flags := test.NewFlags()
+	flags.DisallowEmpty = true
+
+	testGetJourneysHelper(t, params, mockDB, testFun, flags)
+}
+
+func TestDefaultPassengerJourneysValidity(t *testing.T) {
+	params := requestAll(t, "passenger")
+	mockDB := db.NewMockDBWithDefaultData()
+	testFun := test.TestGetPassengerJourneysResponse
+
+	flags := test.NewFlags()
+	flags.DisallowEmpty = true
+
+	testGetJourneysHelper(t, params, mockDB, testFun, flags)
+}
+
+// Should be kept at the end as it relies on order of execution of tests.
 func TestGeneration(t *testing.T) {
 	if generateTestData {
-		generatedDataBytes, err := json.MarshalIndent(toOutputData(generatedData), "", "  ")
+
+		var b bytes.Buffer
+
+		err := db.WriteData(generatedData, &b)
 		panicIf(err)
 
-		err = os.WriteFile("./data/testData.gen.json", generatedDataBytes, 0644)
+		bytes, err := io.ReadAll(&b)
 		panicIf(err)
 
-		err = os.WriteFile("./data/testCommands.gen.sh", []byte(commandsFile.String()), 0644)
+		err = os.WriteFile(generatedTestDataFile, bytes, 0644)
+		panicIf(err)
+
+		err = os.WriteFile(generatedTestCommandsFile, []byte(commandsFile.String()), 0644)
 		panicIf(err)
 	}
 }
