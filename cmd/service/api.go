@@ -64,8 +64,10 @@ func (s *StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
 		err := UpdateBookingStatus(s.mockDB, newBooking.Id, newBooking.Status)
 
 		if err != nil {
-			switch err.(type) {
-			case db.MissingBookingErr:
+			var missing db.MissingBookingErr
+
+			switch {
+			case errors.As(err, &missing):
 				// should not happen
 				return ctx.NoContent(http.StatusInternalServerError)
 
@@ -122,11 +124,14 @@ func (s *StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.Booking
 	err := UpdateBookingStatus(s.mockDB, bookingID, params.Status)
 
 	if err != nil {
-		switch err.(type) {
-		case db.MissingBookingErr:
+		var missing db.MissingBookingErr
+		var statusAlreadySet StatusAlreadySetErr
+
+		switch {
+		case errors.As(err, &missing):
 			return ctx.JSON(http.StatusNotFound, errorBody(err))
 
-		case StatusAlreadySetErr:
+		case errors.As(err, &statusAlreadySet):
 			return ctx.JSON(http.StatusConflict, errorBody(err))
 
 		default:
