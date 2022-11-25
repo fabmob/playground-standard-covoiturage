@@ -5,10 +5,11 @@ import (
 	"net/url"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 	"github.com/spf13/cobra"
 )
 
-var passengerJourneysCmd = makeEndpointCommand(test.GetPassengerJourneysEndpoint)
+var passengerJourneysCmd = makeEndpointCommand(endpoint.GetPassengerJourneys)
 
 func init() {
 	passengerJourneysCmd.PreRunE = checkGetJourneysCmdFlags

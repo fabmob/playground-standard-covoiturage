@@ -1,33 +1,29 @@
 package test
 
-import (
-	"net/http"
-
-	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
-)
+import "github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 
 func init() {
 	// Tag "Search"
 
-	Register(TestGetDriverJourneysResponse, GetDriverJourneysEndpoint)
-	Register(TestGetPassengerJourneysResponse, GetPassengerJourneysEndpoint)
-	Register(TestGetDriverRegularTripsResponse, GetDriverRegularTripsEndpoint)
-	Register(TestGetPassengerRegularTripsResponse, GetPassengerRegularTripsEndpoint)
+	Register(TestGetDriverJourneysResponse, endpoint.GetDriverJourneys)
+	Register(TestGetPassengerJourneysResponse, endpoint.GetPassengerJourneys)
+	Register(TestGetDriverRegularTripsResponse, endpoint.GetDriverRegularTrips)
+	Register(TestGetPassengerRegularTripsResponse, endpoint.GetPassengerRegularTrips)
 
 	// Tag "Webhooks"
 
-	Register(TestPostBookingEventsResponse, PostBookingEventsEndpoint)
+	Register(TestPostBookingEventsResponse, endpoint.PostBookingEvents)
 
 	// Tag "Interact"
 
-	Register(TestPostMessagesResponse, PostMessagesEndpoint)
-	Register(TestPostBookingsResponse, PostBookingsEndpoint)
-	Register(TestPatchBookingsResponse, PatchBookingsEndpoint)
-	Register(TestGetBookingsResponse, GetBookingsEndpoint)
+	Register(TestPostMessagesResponse, endpoint.PostMessages)
+	Register(TestPostBookingsResponse, endpoint.PostBookings)
+	Register(TestPatchBookingsResponse, endpoint.PatchBookings)
+	Register(TestGetBookingsResponse, endpoint.GetBookings)
 
 	// Tag "status"
 
-	Register(TestGetStatusResponse, GetStatusEndpoint)
+	Register(TestGetStatusResponse, endpoint.GetStatus)
 }
 
 //////////////////////////////////////////////////////////////
@@ -66,42 +62,4 @@ var (
 
 	// TestGetStatusResponse tests response of GET /status
 	TestGetStatusResponse ResponseTestFun = wrapAssertionsFun(testGetStatus)
-)
-
-//////////////////////////////////////////////////////////////
-// Endpoints
-//////////////////////////////////////////////////////////////
-
-var (
-	// Tag "Search"
-
-	// GetDriverJourneysEndpoint is the Endpoint of GET /driver_journeys
-	GetDriverJourneysEndpoint = endpoint.New(http.MethodGet, "/driver_journeys")
-	// GetPassengerJourneysEndpoint is the Endpoint of GET /passenger_journeys
-	GetPassengerJourneysEndpoint = endpoint.New(http.MethodGet, "/passenger_journeys")
-	// GetDriverRegularTripsEndpoint is the Endpoint of GET /driver_regularTrips
-	GetDriverRegularTripsEndpoint = endpoint.New(http.MethodGet, "/driver_regular_trips")
-	// GetPassengerRegularTripsEndpoint is the Endpoint of GET /passenger_regularTrips
-	GetPassengerRegularTripsEndpoint = endpoint.New(http.MethodGet, "/passenger_regular_trips")
-
-	// Tag "Webhooks"
-
-	// PostBookingEventsEndpoint is the Endpoint of POST /passenger_journeys
-	PostBookingEventsEndpoint = endpoint.New(http.MethodPost, "/booking_events")
-
-	// Tag "Interact"
-
-	// PostMessagesEndpoint is the Endpoint of POST /messages
-	PostMessagesEndpoint = endpoint.New(http.MethodPost, "/messages")
-	// PostBookingsEndpoint is the Endpoint of POST /passenger_journeys
-	PostBookingsEndpoint = endpoint.New(http.MethodPost, "/bookings")
-	// PatchBookingsEndpoint is the Endpoint of PATCH /passenger_journeys
-	PatchBookingsEndpoint = endpoint.NewWithParam(http.MethodPatch, "/bookings")
-	// GetBookingsEndpoint is the Endpoint of GET /passenger_journeys
-	GetBookingsEndpoint = endpoint.NewWithParam(http.MethodGet, "/bookings")
-
-	// Tag "status"
-
-	// GetStatusEndpoint is the Endpoint of GET /status
-	GetStatusEndpoint = endpoint.New(http.MethodGet, "/status")
 )

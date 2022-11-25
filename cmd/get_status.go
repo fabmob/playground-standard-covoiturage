@@ -5,10 +5,11 @@ import (
 	"net/url"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 	"github.com/spf13/cobra"
 )
 
-var statusCmd = makeEndpointCommand(test.GetStatusEndpoint)
+var statusCmd = makeEndpointCommand(endpoint.GetStatus)
 
 func init() {
 

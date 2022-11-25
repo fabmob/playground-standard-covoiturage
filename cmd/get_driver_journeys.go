@@ -5,10 +5,11 @@ import (
 	"net/url"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 	"github.com/spf13/cobra"
 )
 
-var driverJourneysCmd = makeEndpointCommand(test.GetDriverJourneysEndpoint)
+var driverJourneysCmd = makeEndpointCommand(endpoint.GetDriverJourneys)
 
 var (
 	departureLat    string

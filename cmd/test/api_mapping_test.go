@@ -21,7 +21,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 			http.MethodGet,
 			"https://localhost:1323/passenger_journeys",
 			"https://localhost:1323",
-			GetPassengerJourneysEndpoint,
+			endpoint.GetPassengerJourneys,
 			false,
 		},
 
@@ -30,7 +30,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 			http.MethodGet,
 			"https://localhost:1323/api/driver_journeys",
 			"https://localhost:1323/api",
-			GetDriverJourneysEndpoint,
+			endpoint.GetDriverJourneys,
 			false,
 		},
 
@@ -48,7 +48,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 			http.MethodGet,
 			"http://username:password@example.com/a/b/c/driver_journeys",
 			"http://username:password@example.com/a/b/c",
-			GetDriverJourneysEndpoint,
+			endpoint.GetDriverJourneys,
 			false,
 		},
 
@@ -57,7 +57,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 			http.MethodGet,
 			"http://example.com/a/b/c/driver_journeys?stuff=3",
 			"http://example.com/a/b/c",
-			GetDriverJourneysEndpoint,
+			endpoint.GetDriverJourneys,
 			false,
 		},
 
@@ -66,7 +66,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 			http.MethodGet,
 			"http://example.com/bookings/1234",
 			"http://example.com",
-			GetBookingsEndpoint,
+			endpoint.GetBookings,
 			false,
 		},
 
@@ -75,7 +75,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 			http.MethodGet,
 			"https://api-host.preprod-ab.some-domain.fr/api/path/1ab2c34-56d-343e21-f0g/other_stuff/driver_journeys?departureLat=48.8588548&departureLng=2.264463&arrivalLat=47.8733876&arrivalLng=1.8296428&departureDate=1668608335&timeDelta=100000&departureRadius=10&arrivalRadius=10",
 			"https://api-host.preprod-ab.some-domain.fr/api/path/1ab2c34-56d-343e21-f0g/other_stuff",
-			GetDriverJourneysEndpoint,
+			endpoint.GetDriverJourneys,
 			false,
 		},
 	}

@@ -6,10 +6,11 @@ import (
 	"net/url"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 	"github.com/spf13/cobra"
 )
 
-var driverRegularTripsCmd = makeEndpointCommand(test.GetDriverRegularTripsEndpoint)
+var driverRegularTripsCmd = makeEndpointCommand(endpoint.GetDriverRegularTrips)
 
 var (
 	departureTimeOfDay string

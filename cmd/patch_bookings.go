@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 	"github.com/spf13/cobra"
 )
 
@@ -14,7 +15,7 @@ var (
 	message        string
 )
 
-var patchBookingsCmd = makeEndpointCommand(test.PatchBookingsEndpoint)
+var patchBookingsCmd = makeEndpointCommand(endpoint.PatchBookings)
 
 func init() {
 	patchBookingsCmd.PreRunE = checkPatchBookingsCmdFlags
