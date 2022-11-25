@@ -1,4 +1,4 @@
-package test
+package assert
 
 import "github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 
@@ -9,26 +9,26 @@ type Assertion interface {
 	Describe() string
 }
 
-// An AssertionResult stores data and metadata about the result of a single assertion
-type AssertionResult struct {
+// An Result stores data and metadata about the result of a single assertion
+type Result struct {
 	// Error, if any
-	err error
+	Err error
 
 	// A string that summarizes the assertion
-	assertionDescription string
+	AssertionDescription string
 }
 
 // NewAssertionResult initializes an AssertionResult
-func NewAssertionResult(err error, summary string) AssertionResult {
-	return AssertionResult{
+func NewAssertionResult(err error, summary string) Result {
+	return Result{
 		err,
 		summary,
 	}
 }
 
 // Unwrap returns AssertionResult underlying error (possibly nil)
-func (ar AssertionResult) Unwrap() error {
-	return ar.err
+func (ar Result) Unwrap() error {
+	return ar.Err
 }
 
 /////////////////////////////////////////////////////////////
@@ -44,9 +44,9 @@ func Critic(a Assertion) CriticAssertion {
 	return CriticAssertion{a}
 }
 
-// An AssertionAccumulator can run assertions, store and retrieve the
+// An Accumulator can run assertions, store and retrieve the
 // corresponding AssertionResults
-type AssertionAccumulator interface {
+type Accumulator interface {
 	// Queue adds assertion to the queue for later execution
 	Queue(...Assertion)
 
@@ -55,33 +55,33 @@ type AssertionAccumulator interface {
 	ExecuteAll()
 
 	// GetAssertionResults returns all results of executed assertions
-	GetAssertionResults() []AssertionResult
+	GetAssertionResults() []Result
 }
 
 /////////////////////////////////////////////////////////////
 
-// DefaultAssertionAccu implements Asserter interface
-type DefaultAssertionAccu struct {
+// DefaultAccumulator implements Asserter interface
+type DefaultAccumulator struct {
 	queuedAssertions       []Assertion
-	storedAssertionResults []AssertionResult
+	storedAssertionResults []Result
 	endpoint               endpoint.Info
 }
 
-// NewAssertionAccu inits a *DefaultAssertionAccu
-func NewAssertionAccu() *DefaultAssertionAccu {
-	return &DefaultAssertionAccu{
-		storedAssertionResults: []AssertionResult{},
+// NewAccumulator inits a *DefaultAssertionAccu
+func NewAccumulator() *DefaultAccumulator {
+	return &DefaultAccumulator{
+		storedAssertionResults: []Result{},
 		endpoint:               endpoint.Info{},
 	}
 }
 
-// Queue implements AssertionAccumulator.Queue.
-func (a *DefaultAssertionAccu) Queue(assertions ...Assertion) {
+// Queue implements Accumulator.Queue.
+func (a *DefaultAccumulator) Queue(assertions ...Assertion) {
 	a.queuedAssertions = append(a.queuedAssertions, assertions...)
 }
 
-// ExecuteAll implements AssertionAccumulator.Run
-func (a *DefaultAssertionAccu) ExecuteAll() {
+// ExecuteAll implements Accumulator.Run
+func (a *DefaultAccumulator) ExecuteAll() {
 	for _, assertion := range a.queuedAssertions {
 		err := assertion.Execute()
 
@@ -89,15 +89,17 @@ func (a *DefaultAssertionAccu) ExecuteAll() {
 			a.storedAssertionResults,
 			NewAssertionResult(err, assertion.Describe()),
 		)
+
 		_, critic := assertion.(CriticAssertion)
 		fatal := (critic && err != nil)
+
 		if fatal {
 			return
 		}
 	}
 }
 
-// GetAssertionResults implements AssertionAccumulator.GetAssertionResults
-func (a *DefaultAssertionAccu) GetAssertionResults() []AssertionResult {
+// GetAssertionResults implements Accumulator.GetAssertionResults
+func (a *DefaultAccumulator) GetAssertionResults() []Result {
 	return a.storedAssertionResults
 }

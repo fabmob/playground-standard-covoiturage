@@ -5,6 +5,7 @@ import (
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/assert"
 )
 
 // APIClient is a client to the API standard covoiturage
@@ -41,7 +42,7 @@ func executeTestFun(
 	testFun ResponseTestFun,
 	flags Flags,
 ) *Report {
-	var all = []AssertionResult{}
+	var all = []assert.Result{}
 
 	all = append(all, wrapTestResponseFun(testFun)(client, request, flags)...)
 	report := NewReport(all...)
@@ -52,16 +53,16 @@ func executeTestFun(
 /////////////////////////////////////////////////////////////
 
 // A requestTestFun runs all tests associated with a given Request, and
-// returns the correspending `AssertionResult`s
-type requestTestFun func(APIClient, *http.Request, Flags) []AssertionResult
+// returns the correspending `assert.Result`s
+type requestTestFun func(APIClient, *http.Request, Flags) []assert.Result
 
 // wrapTestResponseFun wraps a TestResponseFun to a TestRequestFun
 func wrapTestResponseFun(f ResponseTestFun) requestTestFun {
 
-	return func(c APIClient, request *http.Request, flags Flags) []AssertionResult {
+	return func(c APIClient, request *http.Request, flags Flags) []assert.Result {
 		response, clientErr := c.Client.Do(request)
 		if clientErr != nil {
-			return []AssertionResult{CheckAPICallSuccess(clientErr)}
+			return []assert.Result{assert.CheckAPICallSuccess(clientErr)}
 		}
 
 		return f(request, response, flags)
@@ -71,25 +72,25 @@ func wrapTestResponseFun(f ResponseTestFun) requestTestFun {
 //////////////////////////////////////////////////////////////
 
 // A ResponseTestFun runs tests on a given *http.Response (given a
-// *http.Request) and return the correspending `AssertionsResult`s
+// *http.Request) and return the correspending `assert.sResult`s
 type ResponseTestFun func(
 	*http.Request,
 	*http.Response,
 	Flags,
-) []AssertionResult
+) []assert.Result
 
 func wrapTestImplementation(f testImplementation) ResponseTestFun {
 
-	return func(req *http.Request, resp *http.Response, flags Flags) []AssertionResult {
+	return func(req *http.Request, resp *http.Response, flags Flags) []assert.Result {
 		var (
 			err error
-			a   = NewAssertionAccu()
+			a   = assert.NewAccumulator()
 		)
 
 		// response body may be read several times in assertions
 		resp.Body, err = ReusableReadCloser(resp.Body)
 		if err != nil {
-			return []AssertionResult{NewAssertionResult(err, "failure to read response body")}
+			return []assert.Result{assert.NewAssertionResult(err, "failure to read response body")}
 		}
 
 		f(req, resp, a, flags)

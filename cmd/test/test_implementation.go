@@ -3,13 +3,14 @@ package test
 import (
 	"net/http"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/assert"
 	"github.com/labstack/echo/v4"
 )
 
 type testImplementation func(
 	*http.Request,
 	*http.Response,
-	AssertionAccumulator,
+	assert.Accumulator,
 	Flags,
 )
 
@@ -21,30 +22,30 @@ type testImplementation func(
 func testGetDriverJourneys(
 	request *http.Request,
 	response *http.Response,
-	a AssertionAccumulator,
+	a assert.Accumulator,
 	flags Flags,
 ) {
 
-	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedResponseCode)
-	AssertHeaderContains(a, response, echo.HeaderContentType, echo.MIMEApplicationJSON)
+	assert.CriticFormat(a, request, response)
+	assert.StatusCode(a, response, flags.ExpectedResponseCode)
+	assert.HeaderContains(a, response, echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	if flags.ExpectNonEmpty {
-		CriticAssertArrayNotEmpty(a, response)
+		assert.CriticArrayNotEmpty(a, response)
 	}
 
-	AssertJourneysDepartureRadius(a, request, response)
-	AssertJourneysArrivalRadius(a, request, response)
-	AssertJourneysTimeDelta(a, request, response)
-	AssertJourneysCount(a, request, response)
-	AssertUniqueIDs(a, response)
-	AssertOperatorFieldFormat(a, response)
+	assert.JourneysDepartureRadius(a, request, response)
+	assert.JourneysArrivalRadius(a, request, response)
+	assert.JourneysTimeDelta(a, request, response)
+	assert.JourneysCount(a, request, response)
+	assert.UniqueIDs(a, response)
+	assert.OperatorFieldFormat(a, response)
 }
 
 func testGetPassengerJourneys(
 	request *http.Request,
 	response *http.Response,
-	a AssertionAccumulator,
+	a assert.Accumulator,
 	flags Flags,
 ) {
 	// Passenger journeys are very similar to driver journeys.
@@ -54,21 +55,21 @@ func testGetPassengerJourneys(
 func testGetDriverRegularTrips(
 	request *http.Request,
 	response *http.Response,
-	a AssertionAccumulator,
+	a assert.Accumulator,
 	flags Flags,
 ) {
-	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedResponseCode)
+	assert.CriticFormat(a, request, response)
+	assert.StatusCode(a, response, flags.ExpectedResponseCode)
 }
 
 func testGetPassengerRegularTrips(
 	request *http.Request,
 	response *http.Response,
-	a AssertionAccumulator,
+	a assert.Accumulator,
 	flags Flags,
 ) {
-	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedResponseCode)
+	assert.CriticFormat(a, request, response)
+	assert.StatusCode(a, response, flags.ExpectedResponseCode)
 }
 
 //////////////////////////////////////////////////////////////
@@ -78,11 +79,11 @@ func testGetPassengerRegularTrips(
 func testPostBookingEvents(
 	request *http.Request,
 	response *http.Response,
-	a AssertionAccumulator,
+	a assert.Accumulator,
 	flags Flags,
 ) {
-	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedResponseCode)
+	assert.CriticFormat(a, request, response)
+	assert.StatusCode(a, response, flags.ExpectedResponseCode)
 }
 
 //////////////////////////////////////////////////////////////
@@ -92,46 +93,46 @@ func testPostBookingEvents(
 func testPostMessages(
 	request *http.Request,
 	response *http.Response,
-	a AssertionAccumulator,
+	a assert.Accumulator,
 	flags Flags,
 ) {
-	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedResponseCode)
+	assert.CriticFormat(a, request, response)
+	assert.StatusCode(a, response, flags.ExpectedResponseCode)
 }
 
 func testPostBookings(
 	request *http.Request,
 	response *http.Response,
-	a AssertionAccumulator,
+	a assert.Accumulator,
 	flags Flags,
 ) {
-	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedResponseCode)
+	assert.CriticFormat(a, request, response)
+	assert.StatusCode(a, response, flags.ExpectedResponseCode)
 }
 
 func testPatchBookings(
 	request *http.Request,
 	response *http.Response,
-	a AssertionAccumulator,
+	a assert.Accumulator,
 	flags Flags,
 ) {
-	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedResponseCode)
+	assert.CriticFormat(a, request, response)
+	assert.StatusCode(a, response, flags.ExpectedResponseCode)
 }
 
 // testGetBookings currently assumes that the request returns a 200 response.
 func testGetBookings(
 	request *http.Request,
 	response *http.Response,
-	a AssertionAccumulator,
+	a assert.Accumulator,
 	flags Flags,
 ) {
 
-	CriticAssertFormat(a, request, response)
-	AssertStatusCode(a, response, flags.ExpectedResponseCode)
+	assert.CriticFormat(a, request, response)
+	assert.StatusCode(a, response, flags.ExpectedResponseCode)
 
 	if flags.ExpectedBookingStatus != "" {
-		AssertBookingStatus(a, response, string(flags.ExpectedBookingStatus))
+		assert.BookingStatus(a, response, string(flags.ExpectedBookingStatus))
 	}
 }
 
@@ -142,8 +143,8 @@ func testGetBookings(
 func testGetStatus(
 	request *http.Request,
 	response *http.Response,
-	a AssertionAccumulator,
+	a assert.Accumulator,
 	flags Flags,
 ) {
-	AssertStatusCodeOK(a, response)
+	assert.StatusCodeOK(a, response)
 }

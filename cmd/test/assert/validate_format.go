@@ -1,4 +1,4 @@
-package test
+package assert
 
 import (
 	"context"

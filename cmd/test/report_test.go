@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/assert"
 )
 
 func TestReport(t *testing.T) {
@@ -15,7 +16,7 @@ func TestReport(t *testing.T) {
 	errorDescription := "Error description"
 
 	makeReport := func(err error, verbose bool) Report {
-		report := NewReport(NewAssertionResult(err, assertStr))
+		report := NewReport(assert.NewAssertionResult(err, assertStr))
 		report.endpoint = endpoint
 		report.verbose = verbose
 		return report
@@ -95,7 +96,7 @@ func TestReportSingle(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			ar := NewAssertionResult(tc.err, "")
+			ar := assert.NewAssertionResult(tc.err, "")
 			report := NewReport(ar)
 			report.verbose = tc.verbose
 
@@ -123,10 +124,10 @@ func TestReportCountErrors(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		var assertionResults = []AssertionResult{}
+		var assertionResults = []assert.Result{}
 
 		for _, err := range tc.allAssertionErr {
-			assertionResults = append(assertionResults, NewAssertionResult(err, ""))
+			assertionResults = append(assertionResults, assert.NewAssertionResult(err, ""))
 		}
 
 		report := NewReport(assertionResults...)

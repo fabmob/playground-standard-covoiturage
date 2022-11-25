@@ -1,4 +1,5 @@
-package test
+// Package assert defines atomic assertions to be used in tests
+package assert
 
 import (
 	"encoding/json"
@@ -14,103 +15,103 @@ import (
 )
 
 /////////////////////////////////////////////////////////////
-// Helper functions
+// Exported Assertion functions
 /////////////////////////////////////////////////////////////
 
 // CheckAPICallSuccess checks if requesting an endpoint returned an error
-func CheckAPICallSuccess(err error) AssertionResult {
+func CheckAPICallSuccess(err error) Result {
 	assertion := assertAPICallSuccess{err}
 	return NewAssertionResult(assertion.Execute(), assertion.Describe())
 }
 
-// AssertStatusCode checks if a given response has an expected status code
-/* AssertStatusCode(*http.Response, int) */
-func AssertStatusCode(a AssertionAccumulator, resp *http.Response, statusCode int) {
+// StatusCode checks if a given response has an expected status code
+/* StatusCode(*http.Response, int) */
+func StatusCode(a Accumulator, resp *http.Response, statusCode int) {
 	assertion := assertStatusCode{resp, statusCode}
 	a.Queue(assertion)
 }
 
-// AssertStatusCodeOK checks if a given response has status 200 OK
-func AssertStatusCodeOK(a AssertionAccumulator, resp *http.Response) {
-	AssertStatusCode(a, resp, http.StatusOK)
+// StatusCodeOK checks if a given response has status 200 OK
+func StatusCodeOK(a Accumulator, resp *http.Response) {
+	StatusCode(a, resp, http.StatusOK)
 }
 
-// AssertHeaderContains checks if a given key is present in header, with associated
+// HeaderContains checks if a given key is present in header, with associated
 // value
-func AssertHeaderContains(a AssertionAccumulator, resp *http.Response, key, value string) {
+func HeaderContains(a Accumulator, resp *http.Response, key, value string) {
 	assertion := assertHeaderContains{resp, key, value}
 	a.Queue(assertion)
 }
 
-// AssertFormat checks if the response data has the expected format
-func AssertFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
+// Format checks if the response data has the expected format
+func Format(a Accumulator, request *http.Request, response *http.Response) {
 	assertion := assertFormat{request, response}
 	a.Queue(assertion)
 }
 
-// CriticAssertFormat is the same as AssertFormat, but a failure prevents the
+// CriticFormat is the same as Format, but a failure prevents the
 // following assertions to be executed.
-func CriticAssertFormat(a AssertionAccumulator, request *http.Request, response *http.Response) {
+func CriticFormat(a Accumulator, request *http.Request, response *http.Response) {
 	assertion := Critic(assertFormat{request, response})
 	a.Queue(assertion)
 }
 
-// AssertJourneysDepartureRadius checks that the response data respect
+// JourneysDepartureRadius checks that the response data respect
 // the "departureRadius" query parameter
-func AssertJourneysDepartureRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
+func JourneysDepartureRadius(a Accumulator, request *http.Request, response *http.Response) {
 	assertion := assertJourneysRadius{request, response, departure}
 	a.Queue(assertion)
 }
 
-// AssertJourneysArrivalRadius checks that the response data respect
+// JourneysArrivalRadius checks that the response data respect
 // the "arrivalRadius" query parameter
-func AssertJourneysArrivalRadius(a AssertionAccumulator, request *http.Request, response *http.Response) {
+func JourneysArrivalRadius(a Accumulator, request *http.Request, response *http.Response) {
 	assertion := assertJourneysRadius{request, response, arrival}
 	a.Queue(assertion)
 }
 
-// AssertArrayNotEmpty checks that the response is not empty
-func AssertArrayNotEmpty(a AssertionAccumulator, response *http.Response) {
+// ArrayNotEmpty checks that the response is not empty
+func ArrayNotEmpty(a Accumulator, response *http.Response) {
 	assertion := assertArrayNotEmpty{response}
 	a.Queue(assertion)
 }
 
-// CriticAssertArrayNotEmpty checks that the response is not empty. A
+// CriticArrayNotEmpty checks that the response is not empty. A
 // failure prevents the following assertions to be executed.
-func CriticAssertArrayNotEmpty(a AssertionAccumulator, response *http.Response) {
+func CriticArrayNotEmpty(a Accumulator, response *http.Response) {
 	assertion := Critic(assertArrayNotEmpty{response})
 	a.Queue(assertion)
 }
 
-// AssertJourneysTimeDelta checks that the response data respect the
+// JourneysTimeDelta checks that the response data respect the
 // "timeDelta" query parameter
-func AssertJourneysTimeDelta(a AssertionAccumulator, request *http.Request, response *http.Response) {
+func JourneysTimeDelta(a Accumulator, request *http.Request, response *http.Response) {
 	assertion := assertJourneysTimeDelta{request, response}
 	a.Queue(assertion)
 }
 
-// AssertJourneysCount checks that the response data respect the "count"
+// JourneysCount checks that the response data respect the "count"
 // query parameter
-func AssertJourneysCount(a AssertionAccumulator, request *http.Request, response *http.Response) {
+func JourneysCount(a Accumulator, request *http.Request, response *http.Response) {
 	assertion := assertJourneysCount{request, response}
 	a.Queue(assertion)
 }
 
-// AssertUniqueIDs checks that all IDs (property "id"), if they exist, are
+// UniqueIDs checks that all IDs (property "id"), if they exist, are
 // unique.
-func AssertUniqueIDs(a AssertionAccumulator, response *http.Response) {
+func UniqueIDs(a Accumulator, response *http.Response) {
 	assertion := assertUniqueIDs{response}
 	a.Queue(assertion)
 }
 
-// AssertOperatorFieldFormat checks that the response data has well formated
+// OperatorFieldFormat checks that the response data has well formated
 // "operator" field
-func AssertOperatorFieldFormat(a AssertionAccumulator, response *http.Response) {
+func OperatorFieldFormat(a Accumulator, response *http.Response) {
 	assertion := assertOperatorFieldFormat{response}
 	a.Queue(assertion)
 }
 
-func AssertBookingStatus(a AssertionAccumulator, response *http.Response, expectedStatus string) {
+func BookingStatus(a Accumulator, response *http.Response, expectedStatus string) {
 	assertion := assertBookingStatus{response, expectedStatus}
 	a.Queue(assertion)
 }

@@ -4,17 +4,18 @@ import (
 	"fmt"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/assert"
 )
 
-// Report stores and prints `AssertionResult`s
+// Report stores and prints `assert.Result`s
 type Report struct {
 	verbose          bool
 	endpoint         endpoint.Info
-	assertionResults []AssertionResult
+	assertionResults []assert.Result
 }
 
 // NewReport creates a new report with given assertion results
-func NewReport(assertionResults ...AssertionResult) Report {
+func NewReport(assertionResults ...assert.Result) Report {
 	return Report{assertionResults: assertionResults}
 }
 
@@ -25,9 +26,9 @@ func (report *Report) String() string {
 
 	for _, ar := range report.assertionResults {
 		if ar.Unwrap() == nil && report.verbose {
-			str += stringOK(format(report.endpoint, ar.assertionDescription))
+			str += stringOK(format(report.endpoint, ar.AssertionDescription))
 		} else if err := ar.Unwrap(); err != nil {
-			str += stringError(format(report.endpoint, ar.assertionDescription))
+			str += stringError(format(report.endpoint, ar.AssertionDescription))
 			str += stringDetail(err.Error())
 		}
 	}

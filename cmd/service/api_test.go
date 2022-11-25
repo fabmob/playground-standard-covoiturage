@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
@@ -403,7 +404,7 @@ func testGetJourneysHelper(t *testing.T, params api.GetJourneysParams, mockDB *d
 	request, err := params.MakeRequest(localServer)
 	util.PanicIf(err)
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	request, err = test.AddEndpointContext(request)
+	request, err = endpoint.AddEndpointContext(request)
 	util.PanicIf(err)
 
 	// Setup testing server with response recorder

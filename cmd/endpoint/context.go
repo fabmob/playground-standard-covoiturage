@@ -41,3 +41,16 @@ func FromContext(ctx context.Context) (Server, Info, error) {
 
 	return server, endpoint, err
 }
+
+// AddEndpointContext adds server and endpoint information to the request's
+// context. Use endpoint.FromContext to extract this information.
+func AddEndpointContext(request *http.Request) (*http.Request, error) {
+	server, endpointInfo, err := FromRequest(request)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx := NewContext(request.Context(), server, endpointInfo)
+
+	return request.WithContext(ctx), nil
+}
