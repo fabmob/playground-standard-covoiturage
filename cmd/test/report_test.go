@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 )
 
 func TestReport(t *testing.T) {

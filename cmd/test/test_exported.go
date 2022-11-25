@@ -1,6 +1,6 @@
 package test
 
-import "github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
+import "github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 
 func init() {
 	// Tag "Search"

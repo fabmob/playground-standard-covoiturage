@@ -10,9 +10,9 @@ import (
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
-	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"

@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
-	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 )
 
 func TestUndocumentedStatusCode(t *testing.T) {

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 	"github.com/labstack/echo/v4"
 )
 

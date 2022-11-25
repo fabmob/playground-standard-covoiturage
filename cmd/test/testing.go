@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
-	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"

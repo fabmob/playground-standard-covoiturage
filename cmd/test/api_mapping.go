@@ -3,7 +3,7 @@ package test
 import (
 	"fmt"
 
-	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 )
 
 // apiMapping stores api endpoint > test functions data
