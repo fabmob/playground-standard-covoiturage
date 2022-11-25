@@ -69,7 +69,7 @@ func TestNewMockDBWithData(t *testing.T) {
 	var (
 		b bytes.Buffer
 
-		data = mockDBDataInterface{}
+		data = MockDBDataInterface{}
 
 		id      = uuid.New()
 		booking = api.Booking{Id: id}
