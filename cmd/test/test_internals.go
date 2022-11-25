@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 )
 
 // APIClient is a client to the API standard covoiturage
@@ -12,7 +13,7 @@ type APIClient = *api.Client
 // Request tests a request
 func Request(request *http.Request, flags Flags) (*Report, error) {
 
-	server, endpoint, err := SplitServerEndpoint(request.Method, request.URL.String())
+	server, endpoint, err := endpoint.SplitServerEndpoint(request.Method, request.URL.String())
 	if err != nil {
 		return nil, err
 	}

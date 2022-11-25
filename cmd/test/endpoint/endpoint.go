@@ -7,6 +7,8 @@ type Info struct {
 	HasPathParam bool
 }
 
+type Server string
+
 // String implements the Stringer interface for endpoint.Info type
 func (e Info) String() string {
 	return e.Method + " " + e.Path

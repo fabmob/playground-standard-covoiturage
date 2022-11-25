@@ -10,12 +10,13 @@ import (
 	"github.com/getkin/kin-openapi/routers"
 	"github.com/getkin/kin-openapi/routers/gorillamux"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 	"github.com/fabmob/playground-standard-covoiturage/spec"
 )
 
 // Response validates a Response against the openapi specification.
 func validateResponse(request *http.Request, response *http.Response) error {
-	server, _, err := SplitServerEndpoint(request.Method, request.URL.String())
+	server, _, err := endpoint.SplitServerEndpoint(request.Method, request.URL.String())
 	if err != nil {
 		return err
 	}
