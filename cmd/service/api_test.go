@@ -771,7 +771,8 @@ func TestGeneration(t *testing.T) {
 
 		var b bytes.Buffer
 
-		db.WriteData(generatedData, &b)
+		err := db.WriteData(generatedData, &b)
+		panicIf(err)
 
 		bytes, err := io.ReadAll(&b)
 		panicIf(err)
