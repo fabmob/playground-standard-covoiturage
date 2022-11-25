@@ -24,6 +24,7 @@ var getDriverJourneysParameters = parameters{
 	{&arrivalLat, "arrivalLat", true, "query"},
 	{&arrivalLng, "arrivalLng", true, "query"},
 	{&departureDate, "departureDate", true, "query"},
+
 	{&timeDelta, "timeDelta", false, "query"},
 	{&departureRadius, "departureRadius", false, "query"},
 	{&arrivalRadius, "arrivalRadius", false, "query"},

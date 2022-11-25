@@ -186,8 +186,10 @@ func makeQuery(queryParameters []parameter) test.Query {
 func checkRequiredCmdFlags(parameters []parameter) func(*cobra.Command, []string) error {
 	return func(*cobra.Command, []string) error {
 		for _, q := range parameters {
-			if err := checkRequired(q.variable, q.name); err != nil {
-				return err
+			if q.required {
+				if err := checkRequired(q.variable, q.name); err != nil {
+					return err
+				}
 			}
 		}
 
