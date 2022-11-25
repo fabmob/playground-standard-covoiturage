@@ -1,6 +1,10 @@
 package test
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
+)
 
 func init() {
 	// Tag "Search"
@@ -72,32 +76,32 @@ var (
 	// Tag "Search"
 
 	// GetDriverJourneysEndpoint is the Endpoint of GET /driver_journeys
-	GetDriverJourneysEndpoint = NewEndpoint(http.MethodGet, "/driver_journeys")
+	GetDriverJourneysEndpoint = endpoint.New(http.MethodGet, "/driver_journeys")
 	// GetPassengerJourneysEndpoint is the Endpoint of GET /passenger_journeys
-	GetPassengerJourneysEndpoint = NewEndpoint(http.MethodGet, "/passenger_journeys")
+	GetPassengerJourneysEndpoint = endpoint.New(http.MethodGet, "/passenger_journeys")
 	// GetDriverRegularTripsEndpoint is the Endpoint of GET /driver_regularTrips
-	GetDriverRegularTripsEndpoint = NewEndpoint(http.MethodGet, "/driver_regular_trips")
+	GetDriverRegularTripsEndpoint = endpoint.New(http.MethodGet, "/driver_regular_trips")
 	// GetPassengerRegularTripsEndpoint is the Endpoint of GET /passenger_regularTrips
-	GetPassengerRegularTripsEndpoint = NewEndpoint(http.MethodGet, "/passenger_regular_trips")
+	GetPassengerRegularTripsEndpoint = endpoint.New(http.MethodGet, "/passenger_regular_trips")
 
 	// Tag "Webhooks"
 
 	// PostBookingEventsEndpoint is the Endpoint of POST /passenger_journeys
-	PostBookingEventsEndpoint = NewEndpoint(http.MethodPost, "/booking_events")
+	PostBookingEventsEndpoint = endpoint.New(http.MethodPost, "/booking_events")
 
 	// Tag "Interact"
 
 	// PostMessagesEndpoint is the Endpoint of POST /messages
-	PostMessagesEndpoint = NewEndpoint(http.MethodPost, "/messages")
+	PostMessagesEndpoint = endpoint.New(http.MethodPost, "/messages")
 	// PostBookingsEndpoint is the Endpoint of POST /passenger_journeys
-	PostBookingsEndpoint = NewEndpoint(http.MethodPost, "/bookings")
+	PostBookingsEndpoint = endpoint.New(http.MethodPost, "/bookings")
 	// PatchBookingsEndpoint is the Endpoint of PATCH /passenger_journeys
-	PatchBookingsEndpoint = NewEndpointWithParam(http.MethodPatch, "/bookings")
+	PatchBookingsEndpoint = endpoint.NewWithParam(http.MethodPatch, "/bookings")
 	// GetBookingsEndpoint is the Endpoint of GET /passenger_journeys
-	GetBookingsEndpoint = NewEndpointWithParam(http.MethodGet, "/bookings")
+	GetBookingsEndpoint = endpoint.NewWithParam(http.MethodGet, "/bookings")
 
 	// Tag "status"
 
 	// GetStatusEndpoint is the Endpoint of GET /status
-	GetStatusEndpoint = NewEndpoint(http.MethodGet, "/status")
+	GetStatusEndpoint = endpoint.New(http.MethodGet, "/status")
 )

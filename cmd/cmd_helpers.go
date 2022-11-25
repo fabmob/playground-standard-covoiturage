@@ -7,13 +7,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 	"github.com/spf13/cobra"
 	"github.com/stoewer/go-strcase"
 )
 
 // makeEndpointCommand creates a cobra command skeletton for a given endpoint
-func makeEndpointCommand(endpoint test.Endpoint) *cobra.Command {
+func makeEndpointCommand(endpoint endpoint.Info) *cobra.Command {
 	pathNoLeadingSlash := strings.TrimPrefix(endpoint.Path, "/")
 	return &cobra.Command{
 		Use:   strcase.LowerCamelCase(pathNoLeadingSlash),
@@ -49,7 +49,7 @@ func checkRequiredString(description string) func(string) error {
 }
 
 // A short command description for a given endpoint
-func cmdDescription(endpoint test.Endpoint) string {
+func cmdDescription(endpoint endpoint.Info) string {
 	return fmt.Sprintf("Test the %s endpoint", endpoint)
 }
 

@@ -3,6 +3,8 @@ package test
 import (
 	"net/http"
 	"testing"
+
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 )
 
 func TestSplitServerEndpoint(t *testing.T) {
@@ -11,7 +13,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 		method           string
 		requestURL       string
 		expectedServer   string
-		expectedEndpoint Endpoint
+		expectedEndpoint endpoint.Info
 		expectError      bool
 	}{
 		{
@@ -37,7 +39,7 @@ func TestSplitServerEndpoint(t *testing.T) {
 			http.MethodPost,
 			"https://localhost:1323/api/driver_journeys",
 			"",
-			Endpoint{},
+			endpoint.Info{},
 			true,
 		},
 

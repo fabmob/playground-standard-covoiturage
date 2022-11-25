@@ -5,45 +5,27 @@ import (
 	"net/url"
 	"path"
 	"strings"
+
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 )
 
 // apiMapping stores api endpoint > test functions data
-var apiMapping = map[Endpoint]ResponseTestFun{}
+var apiMapping = map[endpoint.Info]ResponseTestFun{}
 
 // GetAPIMapping returns the mapping between endpoint and the associated test
 // function
-func GetAPIMapping() map[Endpoint]ResponseTestFun {
+func GetAPIMapping() map[endpoint.Info]ResponseTestFun {
 	return apiMapping
 }
 
 // Register associates a test function to a given function. If any
 // TestFunction is already associated, it overwrites it.
-func Register(f ResponseTestFun, e Endpoint) {
+func Register(f ResponseTestFun, e endpoint.Info) {
 	apiMapping[e] = f
 }
 
-// Endpoint describes an Endpoint
-type Endpoint struct {
-	Method       string
-	Path         string
-	HasPathParam bool
-}
-
-func NewEndpoint(method, path string) Endpoint {
-	return Endpoint{method, path, false}
-}
-
-func NewEndpointWithParam(method, path string) Endpoint {
-	return Endpoint{method, path, true}
-}
-
-// String implements the Stringer interface for Endpoint type
-func (e Endpoint) String() string {
-	return e.Method + " " + e.Path
-}
-
 // SelectTestFuns returns the test functions related to a given request.
-func SelectTestFuns(endpoint Endpoint) (ResponseTestFun, error) {
+func SelectTestFuns(endpoint endpoint.Info) (ResponseTestFun, error) {
 	testFun, ok := GetAPIMapping()[endpoint]
 	if !ok {
 		return nil, fmt.Errorf("request to an unknown endpoint: %s", endpoint)
@@ -54,10 +36,10 @@ func SelectTestFuns(endpoint Endpoint) (ResponseTestFun, error) {
 
 // SplitServerEndpoint try to guess the server, and returns server and path in case of
 // success.
-func SplitServerEndpoint(method, URL string) (string, Endpoint, error) {
+func SplitServerEndpoint(method, URL string) (string, endpoint.Info, error) {
 	u, err := url.Parse(URL)
 	if err != nil {
-		return "", Endpoint{}, err
+		return "", endpoint.Info{}, err
 	}
 
 	removeQuery(u)
@@ -71,7 +53,7 @@ func SplitServerEndpoint(method, URL string) (string, Endpoint, error) {
 		}
 	}
 
-	return "", Endpoint{}, fmt.Errorf(
+	return "", endpoint.Info{}, fmt.Errorf(
 		"did not recognize the endpoint with method %s in %s",
 		method,
 		u,
@@ -86,7 +68,7 @@ func removeQuery(u *url.URL) {
 // knownEndpointSuffix returns the complete endpoint suffix (including path
 // parameter) if the endpoint path is recognized, an empty string
 // otherwise.
-func knownEndpointSuffix(url string, endpoint Endpoint) string {
+func knownEndpointSuffix(url string, endpoint endpoint.Info) string {
 	var param string
 	if endpoint.HasPathParam {
 		url, param = path.Split(url)

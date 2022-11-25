@@ -1,5 +1,7 @@
 package test
 
+import "github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
+
 // An Assertion is a unit test that can be executed and that can describe
 // itself
 type Assertion interface {
@@ -62,14 +64,14 @@ type AssertionAccumulator interface {
 type DefaultAssertionAccu struct {
 	queuedAssertions       []Assertion
 	storedAssertionResults []AssertionResult
-	endpoint               Endpoint
+	endpoint               endpoint.Info
 }
 
 // NewAssertionAccu inits a *DefaultAssertionAccu
 func NewAssertionAccu() *DefaultAssertionAccu {
 	return &DefaultAssertionAccu{
 		storedAssertionResults: []AssertionResult{},
-		endpoint:               Endpoint{},
+		endpoint:               endpoint.Info{},
 	}
 }
 

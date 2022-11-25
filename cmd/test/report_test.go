@@ -5,10 +5,12 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 )
 
 func TestReport(t *testing.T) {
-	endpoint := NewEndpoint(http.MethodGet, "/endpoint_path")
+	endpoint := endpoint.New(http.MethodGet, "/endpoint_path")
 	assertStr := "test assertion"
 	errorDescription := "Error description"
 

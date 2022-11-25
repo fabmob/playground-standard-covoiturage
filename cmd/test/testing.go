@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/test/endpoint"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
@@ -263,7 +264,7 @@ func NewMockRunner() *MockRunner {
 }
 
 // emptyRequest returns an empty *http.Request to the endpoint
-func emptyRequest(e Endpoint) *http.Request {
+func emptyRequest(e endpoint.Info) *http.Request {
 	request, _ := http.NewRequest(e.Method, localServer+e.Path, nil)
 	return request
 }
