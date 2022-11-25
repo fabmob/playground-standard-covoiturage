@@ -6,21 +6,22 @@ import (
 	"net/http"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/labstack/echo/v4"
 )
 
 // StdCovServerImpl implements server.ServerInterface
 type StdCovServerImpl struct {
-	mockDB *MockDB
+	mockDB *db.Mock
 }
 
 func NewServer() *StdCovServerImpl {
-	server := StdCovServerImpl{NewMockDB()}
+	server := StdCovServerImpl{db.NewMockDB()}
 	return &server
 }
 
-func NewServerWithDB(mockDB *MockDB) *StdCovServerImpl {
+func NewServerWithDB(mockDB *db.Mock) *StdCovServerImpl {
 	server := StdCovServerImpl{mockDB}
 	return &server
 }
@@ -28,7 +29,7 @@ func NewServerWithDB(mockDB *MockDB) *StdCovServerImpl {
 // NewDefaultServer returns a server, and populates the associated DB with
 // default data
 func NewDefaultServer() *StdCovServerImpl {
-	server := StdCovServerImpl{NewMockDBWithDefaultData()}
+	server := StdCovServerImpl{db.NewMockDBWithDefaultData()}
 	return &server
 }
 
@@ -60,11 +61,11 @@ func (s *StdCovServerImpl) PostBookingEvents(ctx echo.Context) error {
 
 	// If booking exists, try to update status
 	if alreadyExistsErr != nil {
-		err := s.mockDB.UpdateBookingStatus(newBooking.Id, newBooking.Status)
+		err := UpdateBookingStatus(s.mockDB, newBooking.Id, newBooking.Status)
 
 		if err != nil {
 			switch err.(type) {
-			case MissingBookingErr:
+			case db.MissingBookingErr:
 				// should not happen
 				return ctx.NoContent(http.StatusInternalServerError)
 
@@ -118,11 +119,11 @@ func (s *StdCovServerImpl) GetBookings(ctx echo.Context, bookingID api.BookingId
 func (s *StdCovServerImpl) PatchBookings(ctx echo.Context, bookingID api.BookingId,
 	params api.PatchBookingsParams) error {
 
-	err := s.mockDB.UpdateBookingStatus(bookingID, params.Status)
+	err := UpdateBookingStatus(s.mockDB, bookingID, params.Status)
 
 	if err != nil {
 		switch err.(type) {
-		case MissingBookingErr:
+		case db.MissingBookingErr:
 			return ctx.JSON(http.StatusNotFound, errorBody(err))
 
 		case StatusAlreadySetErr:
