@@ -1,3 +1,9 @@
+// Package endpoint provide functions and types to manipulate endpoint and
+// server information, to extract this information from a request and to store
+// this information into a request's context.
+//
+// It also stores exported variables for the endpoints of the standard
+// covoiturage.
 package endpoint
 
 // Info describes an Endpoint
