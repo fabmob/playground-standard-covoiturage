@@ -8,6 +8,7 @@ import (
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 )
 
 //go:generate bash -c "go test -generate > /dev/null"
@@ -74,7 +75,7 @@ func appendData(from *db.Mock, to *db.Mock) {
 
 	for _, booking := range from.GetBookings() {
 		err := to.AddBooking(*booking)
-		panicIf(err)
+		util.PanicIf(err)
 	}
 }
 

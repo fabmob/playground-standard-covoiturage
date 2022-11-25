@@ -163,7 +163,7 @@ func makeCarpoolBookingEventWithStatus(eventID, bookingID uuid.UUID, status api.
 
 	carpoolBookingEventData := api.CarpoolBookingEvent_Data{}
 	err := carpoolBookingEventData.FromDriverCarpoolBooking(*booking.ToDriverCarpoolBooking())
-	panicIf(err)
+	util.PanicIf(err)
 
 	carpoolBookingEvent := &api.CarpoolBookingEvent{
 		Data:    carpoolBookingEventData,
@@ -204,7 +204,7 @@ func repUUID(seed int64) uuid.UUID {
 	rand.Read(randBytes)
 
 	uuid, err := uuid.FromBytes(randBytes)
-	panicIf(err)
+	util.PanicIf(err)
 
 	return uuid
 }
@@ -223,12 +223,6 @@ func NewBookingsByID(bookings ...*api.Booking) db.BookingsByID {
 	}
 
 	return bookingsByID
-}
-
-func panicIf(err error) {
-	if err != nil {
-		panic(err)
-	}
 }
 
 func checkAssertionResults(t *testing.T, assertionResults []test.AssertionResult) {
@@ -257,11 +251,11 @@ func testAPI(t *testing.T, a apiTestHelper, mockDB *db.Mock, flags test.Flags) {
 	appendDataIfGenerated(t, mockDB)
 
 	request, err := a.makeRequest()
-	panicIf(err)
+	util.PanicIf(err)
 
 	// Store server and endpoint information in request context
 	server, endpointInfo, err := endpoint.FromRequest(request)
-	panicIf(err)
+	util.PanicIf(err)
 
 	requestCtx := endpoint.NewContext(context.Background(), server, endpointInfo)
 	request = request.WithContext(requestCtx)
@@ -273,14 +267,14 @@ func testAPI(t *testing.T, a apiTestHelper, mockDB *db.Mock, flags test.Flags) {
 	var body []byte
 	if request.Body != nil {
 		request.Body, err = test.ReusableReadCloser(ctx.Request().Body)
-		panicIf(err)
+		util.PanicIf(err)
 		body, err = io.ReadAll(request.Body)
-		panicIf(err)
+		util.PanicIf(err)
 	}
 
 	// Make API Call
 	err = a.callAPI(handler, ctx)
-	panicIf(err)
+	util.PanicIf(err)
 
 	appendCmdIfGenerated(t, request, flags, body)
 

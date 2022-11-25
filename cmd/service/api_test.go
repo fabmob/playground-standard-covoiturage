@@ -401,17 +401,17 @@ func testGetJourneysHelper(t *testing.T, params api.GetJourneysParams, mockDB *d
 
 	// Build request
 	request, err := params.MakeRequest(localServer)
-	panicIf(err)
+	util.PanicIf(err)
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	request, err = test.AddEndpointContext(request)
-	panicIf(err)
+	util.PanicIf(err)
 
 	// Setup testing server with response recorder
 	handler, ctx, rec := setupTestServer(mockDB, request)
 
 	// Make API Call
 	err = api.GetJourneys(handler, ctx, params)
-	panicIf(err)
+	util.PanicIf(err)
 
 	// Check response
 	response := rec.Result()
@@ -774,15 +774,15 @@ func TestGeneration(t *testing.T) {
 		var b bytes.Buffer
 
 		err := db.WriteData(generatedData, &b)
-		panicIf(err)
+		util.PanicIf(err)
 
 		bytes, err := io.ReadAll(&b)
-		panicIf(err)
+		util.PanicIf(err)
 
 		err = os.WriteFile(generatedTestDataFile, bytes, 0644)
-		panicIf(err)
+		util.PanicIf(err)
 
 		err = os.WriteFile(generatedTestCommandsFile, []byte(commandsFile.String()), 0644)
-		panicIf(err)
+		util.PanicIf(err)
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 )
 
 func TestPatchBookingsCmd(t *testing.T) {
@@ -24,7 +25,7 @@ func TestPatchBookingsCmd(t *testing.T) {
 
 	mockRunner := test.NewMockRunner()
 	err := patchBookingsRun(mockRunner, server, bookingID, status, message)
-	panicIf(err)
+	util.PanicIf(err)
 
 	// Test Assertions
 	expected.testArgs(t, mockRunner)
@@ -48,7 +49,7 @@ func TestPostMessagesCmd(t *testing.T) {
 
 	mockRunner := test.NewMockRunner()
 	err := getMessagesRun(mockRunner, server, body)
-	panicIf(err)
+	util.PanicIf(err)
 
 	// Test Assertions
 	expected.testArgs(t, mockRunner)
@@ -69,7 +70,7 @@ func TestPostBookingEventsCmd(t *testing.T) {
 
 	mockRunner := test.NewMockRunner()
 	err := postBookingEventsRun(mockRunner, server, body)
-	panicIf(err)
+	util.PanicIf(err)
 
 	expected.testArgs(t, mockRunner)
 }
@@ -101,7 +102,7 @@ func TestGetDriverRegularTripsCmd(t *testing.T) {
 		departureLat, departureLng, arrivalLat, arrivalLng, departureTimeOfDay,
 		timeDelta, departureRadius, arrivalRadius, count,
 	)
-	panicIf(err)
+	util.PanicIf(err)
 
 	expected.testArgs(t, mockRunner)
 }
@@ -139,7 +140,7 @@ func TestGetPassengerRegularTripsCmd(t *testing.T) {
 		timeDelta, departureRadius, arrivalRadius, count,
 		minDepartureDate, maxDepartureDate,
 	)
-	panicIf(err)
+	util.PanicIf(err)
 
 	expected.testArgs(t, mockRunner)
 
@@ -184,12 +185,6 @@ func testQueryParam(t *testing.T, query test.Query, param, value string) {
 		t.Errorf("Missing query parameter %s", param)
 	} else {
 		testStringArg(t, gotValue, value, param)
-	}
-}
-
-func panicIf(err error) {
-	if err != nil {
-		panic(err)
 	}
 }
 

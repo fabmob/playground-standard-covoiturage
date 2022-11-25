@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -49,14 +50,11 @@ func TestWriteData(t *testing.T) {
 	var b bytes.Buffer
 
 	err := WriteData(mockDB, &b)
-	if err != nil {
-		panic(err)
-	}
+	util.PanicIf(err)
 
 	writtenData, err := io.ReadAll(&b)
-	if err != nil {
-		panic(err)
-	}
+	util.PanicIf(err)
+
 	assert.NotEmpty(t, writtenData)
 	assert.True(t, isValidJSON(writtenData))
 }
@@ -80,14 +78,10 @@ func TestNewMockDBWithData(t *testing.T) {
 	data.Bookings = []*api.Booking{&booking}
 
 	bookingBytes, err := json.Marshal(data)
-	if err != nil {
-		panic(err)
-	}
+	util.PanicIf(err)
 
 	_, err = b.Write(bookingBytes)
-	if err != nil {
-		panic(err)
-	}
+	util.PanicIf(err)
 
 	mockDB, err := NewMockDBWithData(&b)
 

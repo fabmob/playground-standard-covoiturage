@@ -7,6 +7,7 @@ import (
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
+	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 )
 
 func TestUndocumentedStatusCode(t *testing.T) {
@@ -14,7 +15,7 @@ func TestUndocumentedStatusCode(t *testing.T) {
 		invalidStatus = http.StatusLoopDetected
 	)
 	request, err := api.NewGetDriverJourneysRequest(localServer, &api.GetDriverJourneysParams{})
-	panicIf(err)
+	util.PanicIf(err)
 
 	response := mockResponse(invalidStatus, "[]", nil)
 
@@ -30,7 +31,7 @@ func TestFindRoute(t *testing.T) {
 	url := string(server) + "/driver_journeys"
 
 	request, err := http.NewRequest("GET", url, nil)
-	panicIf(err)
+	util.PanicIf(err)
 
 	ctx := context.Background()
 
@@ -39,5 +40,4 @@ func TestFindRoute(t *testing.T) {
 		t.Log(server)
 		t.Error("Format validation with kin-openapi does not find route properly")
 	}
-
 }
