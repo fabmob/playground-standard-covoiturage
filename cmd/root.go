@@ -1,3 +1,4 @@
+// Package cmd defines the user command line interface to the tool.
 package cmd
 
 import (
