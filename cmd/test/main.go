@@ -1,3 +1,17 @@
+// Package test has all utilities to perform a test on an endpoint of
+// Standard-Covoiturage.
+//
+// Function `Run` runs adequate tests against a request to the standard
+// covoiturage, detailed with method,
+// URL, query and body.
+//
+// Test functions specific to a given endpoint are exported as
+// `Test{Method}{Path}Response` functions (all camel case).
+//
+// The expectations of the tests can be refined thanks to the test `Flags`.
+//
+// `Assert*` functions are atomic assertions used in tests that can be extended through the
+// `Assertion` interface.
 package test
 
 import (
