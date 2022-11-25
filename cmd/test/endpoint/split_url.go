@@ -20,9 +20,9 @@ var allEndpoints = []Info{
 	GetStatus,
 }
 
-// SplitFromServer tries to guess the server, and returns server and path in case of
+// SplitURL tries to guess the server, and returns server and path in case of
 // success.
-func SplitFromServer(method, URL string) (Server, Info, error) {
+func SplitURL(method, URL string) (Server, Info, error) {
 	u, err := url.Parse(URL)
 	if err != nil {
 		return "", Info{}, err

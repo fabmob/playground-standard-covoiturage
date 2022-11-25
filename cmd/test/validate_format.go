@@ -16,7 +16,7 @@ import (
 
 // Response validates a Response against the openapi specification.
 func validateResponse(request *http.Request, response *http.Response) error {
-	server, _, err := endpoint.SplitFromServer(request.Method, request.URL.String())
+	server, _, err := endpoint.SplitURL(request.Method, request.URL.String())
 	if err != nil {
 		return err
 	}

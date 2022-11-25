@@ -13,7 +13,7 @@ type APIClient = *api.Client
 // Request tests a request
 func Request(request *http.Request, flags Flags) (*Report, error) {
 
-	server, endpoint, err := endpoint.SplitFromServer(request.Method, request.URL.String())
+	server, endpoint, err := endpoint.SplitURL(request.Method, request.URL.String())
 	if err != nil {
 		return nil, err
 	}
