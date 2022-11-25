@@ -23,7 +23,7 @@ func TestMakeRequestXAPIKey(t *testing.T) {
 	}
 
 	for _, apiKey := range testCases {
-		req, err := makeRequest(method, URL, body, apiKey)
+		req, err := makeRequestWithContext(method, URL, body, apiKey)
 		panicIf(err)
 
 		if req.Header.Get("X-API-Key") != apiKey {
@@ -37,7 +37,7 @@ func TestMakeRequestBody(t *testing.T) {
 	bodyStr := "test body"
 	bodyBytes := []byte(bodyStr)
 
-	req, err := makeRequest(http.MethodGet, URL, bodyBytes, "")
+	req, err := makeRequestWithContext(http.MethodGet, URL, bodyBytes, "")
 	panicIf(err)
 
 	if req.Body == nil {
@@ -55,7 +55,7 @@ func TestMakeRequestHeader(t *testing.T) {
 	bodyStr := "test body"
 	bodyBytes := []byte(bodyStr)
 
-	req, err := makeRequest(http.MethodGet, URL, bodyBytes, "")
+	req, err := makeRequestWithContext(http.MethodGet, URL, bodyBytes, "")
 	panicIf(err)
 
 	if !strings.HasPrefix(req.Header.Get(echo.HeaderContentType), echo.MIMEApplicationJSON) {

@@ -2,7 +2,6 @@ package test
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -15,10 +14,10 @@ const (
 	HeaderXAPIKey = "X-API-Key"
 )
 
-// makeRequest makes a request with right header, and stores server and
+// makeRequestWithContext makes a request with right header, and stores server and
 // endpoint information in its context.
 // Assumes URL is pointing towards a valid endpoint of the standard-covoiturage.
-func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request, error) {
+func makeRequestWithContext(method, URL string, body []byte, apiKey string) (*http.Request, error) {
 	req, err := http.NewRequest(method, URL, bytes.NewReader(body))
 	if err != nil {
 		return nil, err
@@ -27,14 +26,20 @@ func makeRequest(method, URL string, body []byte, apiKey string) (*http.Request,
 	req.Header.Set(HeaderXAPIKey, apiKey)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	server, endpointInfo, err := endpoint.FromRequest(req)
+	return AddEndpointContext(req)
+}
+
+// AddEndpointContext adds server and endpoint information to the request's
+// context. Use endpoint.FromContext to extract this information.
+func AddEndpointContext(request *http.Request) (*http.Request, error) {
+	server, endpointInfo, err := endpoint.FromRequest(request)
 	if err != nil {
 		return nil, err
 	}
 
-	ctx := endpoint.NewContext(context.Background(), server, endpointInfo)
+	ctx := endpoint.NewContext(request.Context(), server, endpointInfo)
 
-	return req.WithContext(ctx), err
+	return request.WithContext(ctx), nil
 }
 
 // Query implements flag.Value interface to store query parameters

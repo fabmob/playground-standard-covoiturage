@@ -265,7 +265,12 @@ func NewMockRunner() *MockRunner {
 
 // emptyRequest returns an empty *http.Request to the endpoint
 func emptyRequest(e endpoint.Info) *http.Request {
-	request, _ := http.NewRequest(e.Method, localServer+e.Path, nil)
+	request, err := http.NewRequest(e.Method, localServer+e.Path, nil)
+	panicIf(err)
+
+	request, err = AddEndpointContext(request)
+	panicIf(err)
+
 	return request
 }
 

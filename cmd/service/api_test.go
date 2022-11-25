@@ -403,6 +403,8 @@ func testGetJourneysHelper(t *testing.T, params api.GetJourneysParams, mockDB *d
 	request, err := params.MakeRequest(localServer)
 	panicIf(err)
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	request, err = test.AddEndpointContext(request)
+	panicIf(err)
 
 	// Setup testing server with response recorder
 	handler, ctx, rec := setupTestServer(mockDB, request)

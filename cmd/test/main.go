@@ -17,7 +17,7 @@ func NewDefaultRunner() *DefaultRunner {
 // Run runs the cli validation and returns an exit code
 func (*DefaultRunner) Run(method, URL string, verbose bool, query Query, body []byte, apiKey string, flags Flags) error {
 
-	req, err := makeRequest(method, URL, body, apiKey)
+	req, err := makeRequestWithContext(method, URL, body, apiKey)
 	if err != nil {
 		return err
 	}
