@@ -1,3 +1,11 @@
+// Package db  handles data storage and manipulation for the API server.
+//
+// It exports type `Mock` used to store data in memory, but it can be replaced
+// with another storage with the interface `DB` (which `Mock` implements).
+//
+// A MockDB can be initialized with data, given the data is in json format as
+// expected by `MockDBDataInterface`. It can also write its data in json
+// format (through the same `MockDBDataInterface`) with the function `WriteData`.
 package db
 
 import (
@@ -116,7 +124,7 @@ func (err MissingBookingErr) Error() string {
 // MockDB from data
 //////////////////////////////////////////////////////////
 
-type mockDBDataInterface struct {
+type MockDBDataInterface struct {
 	DriverJourneys    []api.DriverJourney        `json:"driverJourneys"`
 	PassengerJourneys []api.PassengerJourney     `json:"passengerJourneys"`
 	Bookings          []*api.Booking             `json:"bookings"`
@@ -124,8 +132,8 @@ type mockDBDataInterface struct {
 	Messages          []api.PostMessagesJSONBody `json:"messages"`
 }
 
-func toOutputData(m *Mock) mockDBDataInterface {
-	outputData := mockDBDataInterface{}
+func toOutputData(m *Mock) MockDBDataInterface {
+	outputData := MockDBDataInterface{}
 
 	outputData.DriverJourneys = m.DriverJourneys
 	outputData.PassengerJourneys = m.PassengerJourneys
@@ -157,7 +165,7 @@ func WriteData(m *Mock, w io.Writer) error {
 	return nil
 }
 
-func fromInputData(inputData mockDBDataInterface) *Mock {
+func fromInputData(inputData MockDBDataInterface) *Mock {
 	var m = NewMockDB()
 
 	m.DriverJourneys = inputData.DriverJourneys
@@ -181,7 +189,7 @@ func NewMockDBWithDefaultData() *Mock {
 // NewMockDBWithData reads journey data from io.Reader with json data.
 // It does not validate data against the standard.
 func NewMockDBWithData(r io.Reader) (*Mock, error) {
-	var data mockDBDataInterface
+	var data MockDBDataInterface
 
 	bytes, readErr := io.ReadAll(r)
 	if readErr != nil {

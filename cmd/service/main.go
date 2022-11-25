@@ -1,3 +1,10 @@
+// Package service serves a fake API complying with standard covoiturage
+// specification.
+//
+// The server is launched wih the `Run` function, which optionally accepts the
+// path to a data file (json format). See Package db documentation for more
+// information about the data format. If an empty path is provided, then
+// default data is loaded.
 package service
 
 import (
