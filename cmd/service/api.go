@@ -21,7 +21,7 @@ func NewServer() *StdCovServerImpl {
 	return &server
 }
 
-func NewServerWithDB(mockDB *db.Mock) *StdCovServerImpl {
+func NewServerWithDB(mockDB db.DB) *StdCovServerImpl {
 	server := StdCovServerImpl{mockDB}
 	return &server
 }
