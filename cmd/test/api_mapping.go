@@ -15,13 +15,13 @@ func GetAPIMapping() map[endpoint.Info]ResponseTestFun {
 	return apiMapping
 }
 
-// Register associates a test function to a given function. If any
+// Register associates a test function to a given endpoint. If any
 // TestFunction is already associated, it overwrites it.
 func Register(f ResponseTestFun, e endpoint.Info) {
 	apiMapping[e] = f
 }
 
-// SelectTestFuns returns the test functions related to a given request.
+// SelectTestFuns returns the test function related to a given request.
 func SelectTestFuns(endpoint endpoint.Info) (ResponseTestFun, error) {
 	testFun, ok := GetAPIMapping()[endpoint]
 	if !ok {
