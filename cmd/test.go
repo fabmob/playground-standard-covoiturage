@@ -21,7 +21,7 @@ var testCmd = &cobra.Command{
 			body = nil
 		}
 
-		err = test.RunTest(method, URL, verbose, query, body, apiKey, flagsWithDefault(http.StatusOK))
+		err = test.RunTest(method, URL, query, body, verbose, apiKey, flagsWithDefault(http.StatusOK))
 		exitWithError(err)
 	},
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"strings"
 	"time"
 
@@ -16,13 +17,68 @@ import (
 )
 
 // makeEndpointCommand creates a cobra command skeletton for a given endpoint
-func makeEndpointCommand(endpoint endpoint.Info) *cobra.Command {
+func makeEndpointCommand(endpoint endpoint.Info, ps parameters, requiredBody bool, parentCmd *cobra.Command, defaultResponseCode int) *cobra.Command {
+	return makeEndpointCommandWithCustomRunner(test.NewDefaultRunner(),
+		endpoint, ps, requiredBody, parentCmd, defaultResponseCode)
+}
+
+var bodyInputTimeout = 100 * time.Millisecond
+
+// makeEndpointCommand3 creates a cobra command skeletton for a given endpoint
+func makeEndpointCommandWithCustomRunner(runner test.TestRunner, endpoint endpoint.Info, ps parameters, requiredBody bool, parentCmd *cobra.Command, defaultResponseCode int) *cobra.Command {
 	pathNoLeadingSlash := strings.TrimPrefix(endpoint.Path, "/")
-	return &cobra.Command{
-		Use:   strcase.LowerCamelCase(pathNoLeadingSlash),
-		Short: cmdDescription(endpoint),
-		Long:  cmdDescription(endpoint),
+
+	description := cmdDescription(endpoint)
+	descriptionLong := description
+
+	if requiredBody {
+		descriptionLong += "\n\nThis command requires a body passed to StdIn."
 	}
+
+	cmd := &cobra.Command{
+		Use:   strcase.LowerCamelCase(pathNoLeadingSlash),
+		Short: description,
+		Long:  descriptionLong,
+	}
+
+	cmd.PreRunE = checkRequiredCmdFlags(ps)
+
+	cmd.Run = func(cmd *cobra.Command, args []string) {
+		var query = test.NewQuery()
+
+		if ps.HasQuery() {
+			query = makeQuery(ps)
+		}
+
+		URL, err := url.JoinPath(server, endpoint.Path)
+		exitWithError(err)
+
+		if p, ok := ps.HasPath(); ok {
+			URL, err = url.JoinPath(URL, "/"+*p)
+			exitWithError(err)
+		}
+
+		var body []byte = nil
+
+		if requiredBody {
+			var timeout = bodyInputTimeout
+
+			body, err = readBodyFromStdin(cmd, timeout)
+			exitWithError(err)
+		}
+
+		err = runner.Run(endpoint.Method, URL, query, body, verbose, apiKey,
+			flagsWithDefault(defaultResponseCode))
+		exitWithError(err)
+	}
+
+	for _, q := range ps {
+		parameterFlag(cmd.Flags(), q.where, q.variable, q.name, q.required)
+	}
+
+	parentCmd.AddCommand(cmd)
+
+	return cmd
 }
 
 /////////////////////////////////////////////////////
@@ -113,6 +169,28 @@ type parameter struct {
 	name     string
 	required bool
 	where    string // query or path
+}
+
+type parameters []parameter
+
+func (ps parameters) HasQuery() bool {
+	for _, p := range ps {
+		if p.where == "query" {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (ps parameters) HasPath() (*string, bool) {
+	for _, p := range ps {
+		if p.where == "path" {
+			return p.variable, true
+		}
+	}
+
+	return nil, false
 }
 
 func parameterFlag(flags *flag.FlagSet, where string, variable *string, variableName string, required bool) {
