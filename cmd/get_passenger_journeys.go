@@ -11,14 +11,14 @@ import (
 
 var passengerJourneysCmd = makeEndpointCommand(endpoint.GetPassengerJourneys)
 
-var getPassengerJourneysQueryParameters = getDriverJourneysParameters
+var getPassengerJourneysParameters = getDriverJourneysParameters
 
 func init() {
 	cmd := passengerJourneysCmd
-	cmd.PreRunE = checkGetJourneysCmdFlags
+	cmd.PreRunE = checkRequiredCmdFlags(getPassengerJourneysParameters)
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
-		query := makeQuery(getPassengerJourneysQueryParameters)
+		query := makeQuery(getPassengerJourneysParameters)
 		URL, _ := url.JoinPath(server, "/passenger_journeys")
 		err := test.RunTest(http.MethodGet, URL, verbose, query, nil, apiKey, flagsWithDefault(http.StatusOK))
 		exitWithError(err)

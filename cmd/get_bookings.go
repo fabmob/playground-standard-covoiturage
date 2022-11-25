@@ -10,33 +10,35 @@ import (
 )
 
 var (
-	getBookingID        string
-	expectBookingStatus string
+	getBookingID          string
+	expectedBookingStatus string
 )
+
+var getBookingsParameters = []parameter{
+	{&getBookingID, "bookingId", true, "path"},
+}
 
 var getBookingsCmd = makeEndpointCommand(endpoint.GetBookings)
 
 func init() {
+	cmd := getBookingsCmd
 
-	getBookingsCmd.PreRunE = checkGetBookingsCmdFlags
+	cmd.PreRunE = checkRequiredCmdFlags(getBookingsParameters)
 
-	getBookingsCmd.Run = func(cmd *cobra.Command, args []string) {
+	cmd.Run = func(cmd *cobra.Command, args []string) {
 		URL, _ := url.JoinPath(server, "/bookings", getBookingID)
 		err := test.RunTest(http.MethodGet, URL, verbose, test.NewQuery(), nil,
 			apiKey, flagsWithDefault(http.StatusOK))
 		exitWithError(err)
 	}
 
-	getBookingsCmd.Flags().StringVar(
-		&getBookingID, "bookingId", "", "bookingId path parameter",
-	)
-	getBookingsCmd.Flags().StringVar(
-		&expectBookingStatus, "expectBookingStatus", "", "Expected booking status, checked on response",
+	for _, q := range getBookingsParameters {
+		parameterFlag(cmd.Flags(), q.where, q.variable, q.name, q.required)
+	}
+
+	cmd.Flags().StringVar(
+		&expectedBookingStatus, "expectedBookingStatus", "", "Expected booking status, checked on response",
 	)
 
 	getCmd.AddCommand(getBookingsCmd)
-}
-
-func checkGetBookingsCmdFlags(cmd *cobra.Command, args []string) error {
-	return checkRequiredBookingID(getBookingID)
 }

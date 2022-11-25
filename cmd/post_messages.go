@@ -12,10 +12,13 @@ import (
 
 var postMessagesCmd = makeEndpointCommand(endpoint.PostMessages)
 
-func init() {
-	postMessagesCmd.PreRunE = checkGetBookingsCmdFlags
+var postMessagesParameters = []parameter{}
 
-	postMessagesCmd.Run = func(cmd *cobra.Command, args []string) {
+func init() {
+	cmd := postMessagesCmd
+	cmd.PreRunE = checkRequiredCmdFlags(postMessagesParameters)
+
+	cmd.Run = func(cmd *cobra.Command, args []string) {
 		var timeout = 100 * time.Millisecond
 
 		body, err := readBodyFromStdin(cmd, timeout)
@@ -29,7 +32,7 @@ func init() {
 		exitWithError(err)
 	}
 
-	postCmd.AddCommand(postBookingsCmd)
+	postCmd.AddCommand(cmd)
 }
 
 func getMessagesRun(runner test.TestRunner, server string, body []byte) error {

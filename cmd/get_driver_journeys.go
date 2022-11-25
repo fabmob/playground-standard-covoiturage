@@ -37,7 +37,7 @@ var getDriverJourneysParameters = []parameter{
 
 func init() {
 	cmd := driverJourneysCmd
-	cmd.PreRunE = checkGetJourneysCmdFlags
+	cmd.PreRunE = checkRequiredCmdFlags(getDriverJourneysParameters)
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		query := makeQuery(getDriverJourneysParameters)
@@ -51,14 +51,4 @@ func init() {
 	}
 
 	getCmd.AddCommand(cmd)
-}
-
-func checkGetJourneysCmdFlags(cmd *cobra.Command, args []string) error {
-	for _, q := range getDriverJourneysParameters {
-		if err := checkRequired(q.variable, q.name); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

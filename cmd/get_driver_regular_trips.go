@@ -37,7 +37,7 @@ var getDriverRegularTripsParameters = []parameter{
 
 func init() {
 	cmd := driverRegularTripsCmd
-	cmd.PreRunE = checkGetRegularTripsCmdFlags
+	cmd.PreRunE = checkRequiredCmdFlags(getDriverRegularTripsParameters)
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		err := getRegularTripsRun(
@@ -82,14 +82,4 @@ func getRegularTripsRun(
 	}
 
 	return runner.Run(http.MethodGet, URL, query, nil, verbose, apiKey, flagsWithDefault(http.StatusOK))
-}
-
-func checkGetRegularTripsCmdFlags(cmd *cobra.Command, args []string) error {
-	for _, q := range getDriverRegularTripsParameters {
-		if err := checkRequired(q.variable, q.name); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

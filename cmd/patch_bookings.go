@@ -17,7 +17,7 @@ var (
 
 var patchBookingsCmd = makeEndpointCommand(endpoint.PatchBookings)
 
-var patchBookingParameters = []parameter{
+var patchBookingsParameters = []parameter{
 	{&status, "status", true, "query"},
 	{&message, "message", false, "query"},
 	{&patchBookingID, "bookingId", true, "path"},
@@ -32,12 +32,12 @@ func init() {
 			test.NewDefaultRunner(),
 			server,
 			patchBookingID,
-			patchBookingParameters,
+			patchBookingsParameters,
 		)
 		exitWithError(err)
 	}
 
-	for _, q := range patchBookingParameters {
+	for _, q := range patchBookingsParameters {
 		parameterFlag(cmd.Flags(), q.where, q.variable, q.name, q.required)
 	}
 
@@ -56,7 +56,7 @@ func patchBookingsRun(runner test.TestRunner, server string, bookingID string, q
 }
 
 func checkPatchBookingsCmdFlags(cmd *cobra.Command, args []string) error {
-	for _, q := range patchBookingParameters {
+	for _, q := range patchBookingsParameters {
 		if err := checkRequired(q.variable, q.name); err != nil {
 			return err
 		}

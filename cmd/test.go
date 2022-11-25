@@ -55,7 +55,7 @@ func init() {
 	)
 
 	testCmd.Flags().StringVar(
-		&expectBookingStatus, "expectBookingStatus", "", "Expected booking status, checked on response (only for GET /bookings)",
+		&expectedBookingStatus, "expectBookingStatus", "", "Expected booking status, checked on response (only for GET /bookings)",
 	)
 	testCmd.Flags().StringVar(&method, "method", http.MethodGet, "HTTP method, either GET (default), POST or PATCH")
 	testCmd.Flags().StringVarP(&URL, "url", "u", "", "API call URL")

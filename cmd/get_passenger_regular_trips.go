@@ -12,7 +12,7 @@ var getPassengerRegularTripsParameters = getDriverRegularTripsParameters
 
 func init() {
 	cmd := passengerRegularTripsCmd
-	cmd.PreRunE = checkGetRegularTripsCmdFlags
+	cmd.PreRunE = checkRequiredCmdFlags(getPassengerRegularTripsParameters)
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		err := getRegularTripsRun(
