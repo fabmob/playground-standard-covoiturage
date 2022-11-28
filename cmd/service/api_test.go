@@ -190,7 +190,7 @@ func TestDriverJourneys(t *testing.T) {
 					setJourneyDatesForGeneration(&tc.testData[i].JourneySchedule)
 				}
 
-				setParamDatesForGeneration(tc.testParams.(*api.GetDriverJourneysParams))
+				setParamDatesForGeneration(tc.testParams)
 			}
 
 			mockDB := db.NewMockDB()
@@ -379,7 +379,7 @@ func TestPassengerJourneys(t *testing.T) {
 					setJourneyDatesForGeneration(&tc.testData[i].JourneySchedule)
 				}
 
-				setParamDatesForGeneration(tc.testParams.(*api.GetPassengerJourneysParams))
+				setParamDatesForGeneration(tc.testParams)
 			}
 
 			mockDB := db.NewMockDB()
