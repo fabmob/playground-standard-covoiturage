@@ -12,7 +12,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 1209600,
       "type": "DYNAMIC"
     },
     {
@@ -27,7 +27,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 1209600,
       "type": "DYNAMIC"
     },
     {
@@ -42,7 +42,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 1814400,
       "type": "DYNAMIC"
     },
     {
@@ -57,7 +57,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 1814400,
       "type": "DYNAMIC"
     },
     {
@@ -72,7 +72,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 2419200,
       "type": "DYNAMIC"
     },
     {
@@ -87,7 +87,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 3024000,
       "type": "DYNAMIC"
     },
     {
@@ -102,7 +102,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 3628800,
       "type": "DYNAMIC"
     },
     {
@@ -117,7 +117,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 3628800,
       "type": "DYNAMIC"
     },
     {
@@ -132,7 +132,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 4233600,
       "type": "DYNAMIC"
     },
     {
@@ -147,7 +147,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 4233600,
       "type": "DYNAMIC"
     },
     {
@@ -162,7 +162,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 4838400,
       "type": "DYNAMIC"
     },
     {
@@ -177,7 +177,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 5443200,
       "type": "DYNAMIC"
     },
     {
@@ -192,7 +192,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 5,
+      "passengerPickupDate": 6048005,
       "type": "DYNAMIC"
     },
     {
@@ -207,7 +207,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 15,
+      "passengerPickupDate": 6652815,
       "type": "DYNAMIC"
     },
     {
@@ -222,7 +222,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 25,
+      "passengerPickupDate": 7257625,
       "type": "DYNAMIC"
     },
     {
@@ -237,7 +237,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 15,
+      "passengerPickupDate": 7257615,
       "type": "DYNAMIC"
     },
     {
@@ -252,7 +252,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 7862400,
       "type": "DYNAMIC"
     },
     {
@@ -267,7 +267,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 8467200,
       "type": "DYNAMIC"
     },
     {
@@ -282,7 +282,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 9072000,
       "type": "DYNAMIC"
     },
     {
@@ -297,7 +297,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 9072000,
       "type": "DYNAMIC"
     },
     {
@@ -312,7 +312,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
+      "passengerPickupDate": 9072000,
       "type": "DYNAMIC"
     },
     {
@@ -327,71 +327,7 @@
         "id": "",
         "operator": ""
       },
-      "passengerPickupDate": 0,
-      "type": "DYNAMIC"
-    },
-    {
-      "duration": 3600,
-      "operator": "operator.example.org",
-      "passengerDropLat": 48.8450234,
-      "passengerDropLng": 2.3997529,
-      "passengerPickupLat": 47.461737,
-      "passengerPickupLng": 1.061393,
-      "driver": {
-        "alias": "bob",
-        "id": "1",
-        "operator": ""
-      },
-      "id": "aui",
-      "passengerPickupDate": 1665579951,
-      "type": "DYNAMIC"
-    },
-    {
-      "duration": 3600,
-      "operator": "operator.example.org",
-      "passengerDropLat": 48.8450234,
-      "passengerDropLng": 2.3997529,
-      "passengerPickupLat": 47.461737,
-      "passengerPickupLng": 1.061393,
-      "driver": {
-        "alias": "bob",
-        "id": "1",
-        "operator": ""
-      },
-      "id": "pio",
-      "passengerPickupDate": 1665579951,
-      "type": "DYNAMIC"
-    },
-    {
-      "duration": 3600,
-      "operator": "operator.example.org",
-      "passengerDropLat": 48.8450234,
-      "passengerDropLng": 2.3997529,
-      "passengerPickupLat": 47.461737,
-      "passengerPickupLng": 1.061393,
-      "driver": {
-        "alias": "bob",
-        "id": "1",
-        "operator": ""
-      },
-      "id": "aui",
-      "passengerPickupDate": 1665579951,
-      "type": "DYNAMIC"
-    },
-    {
-      "duration": 3600,
-      "operator": "operator.example.org",
-      "passengerDropLat": 48.8450234,
-      "passengerDropLng": 2.3997529,
-      "passengerPickupLat": 47.461737,
-      "passengerPickupLng": 1.061393,
-      "driver": {
-        "alias": "bob",
-        "id": "1",
-        "operator": ""
-      },
-      "id": "pio",
-      "passengerPickupDate": 1665579951,
+      "passengerPickupDate": 9072000,
       "type": "DYNAMIC"
     }
   ],
@@ -408,8 +344,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 10886400,
+      "passengerPickupDate": 10886400,
       "type": "DYNAMIC"
     },
     {
@@ -424,8 +360,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 11491200,
+      "passengerPickupDate": 11491200,
       "type": "DYNAMIC"
     },
     {
@@ -440,8 +376,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 11491200,
+      "passengerPickupDate": 11491200,
       "type": "DYNAMIC"
     },
     {
@@ -456,8 +392,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 12096000,
+      "passengerPickupDate": 12096000,
       "type": "DYNAMIC"
     },
     {
@@ -472,8 +408,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 12096000,
+      "passengerPickupDate": 12096000,
       "type": "DYNAMIC"
     },
     {
@@ -488,8 +424,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 12700800,
+      "passengerPickupDate": 12700800,
       "type": "DYNAMIC"
     },
     {
@@ -504,8 +440,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 13305600,
+      "passengerPickupDate": 13305600,
       "type": "DYNAMIC"
     },
     {
@@ -520,8 +456,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 13305600,
+      "passengerPickupDate": 13305600,
       "type": "DYNAMIC"
     },
     {
@@ -536,8 +472,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 13910400,
+      "passengerPickupDate": 13910400,
       "type": "DYNAMIC"
     },
     {
@@ -552,8 +488,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 13910400,
+      "passengerPickupDate": 13910400,
       "type": "DYNAMIC"
     },
     {
@@ -568,8 +504,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 14515200,
+      "passengerPickupDate": 14515200,
       "type": "DYNAMIC"
     },
     {
@@ -584,8 +520,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 15120000,
+      "passengerPickupDate": 15120000,
       "type": "DYNAMIC"
     },
     {
@@ -600,8 +536,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 5,
+      "driverDepartureDate": 15724800,
+      "passengerPickupDate": 15724805,
       "type": "DYNAMIC"
     },
     {
@@ -616,8 +552,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 15,
+      "driverDepartureDate": 16329600,
+      "passengerPickupDate": 16329615,
       "type": "DYNAMIC"
     },
     {
@@ -632,8 +568,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 25,
+      "driverDepartureDate": 16934400,
+      "passengerPickupDate": 16934425,
       "type": "DYNAMIC"
     },
     {
@@ -648,8 +584,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 15,
+      "driverDepartureDate": 16934400,
+      "passengerPickupDate": 16934415,
       "type": "DYNAMIC"
     },
     {
@@ -664,8 +600,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 17539200,
+      "passengerPickupDate": 17539200,
       "type": "DYNAMIC"
     },
     {
@@ -680,8 +616,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 18144000,
+      "passengerPickupDate": 18144000,
       "type": "DYNAMIC"
     },
     {
@@ -696,8 +632,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 18748800,
+      "passengerPickupDate": 18748800,
       "type": "DYNAMIC"
     },
     {
@@ -712,8 +648,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 18748800,
+      "passengerPickupDate": 18748800,
       "type": "DYNAMIC"
     },
     {
@@ -728,8 +664,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
+      "driverDepartureDate": 18748800,
+      "passengerPickupDate": 18748800,
       "type": "DYNAMIC"
     },
     {
@@ -744,76 +680,8 @@
         "id": "",
         "operator": ""
       },
-      "driverDepartureDate": 0,
-      "passengerPickupDate": 0,
-      "type": "DYNAMIC"
-    },
-    {
-      "duration": 3600,
-      "operator": "operator.example.org",
-      "passengerDropLat": 48.8450234,
-      "passengerDropLng": 2.3997529,
-      "passengerPickupLat": 47.461737,
-      "passengerPickupLng": 1.061393,
-      "passenger": {
-        "alias": "",
-        "id": "",
-        "operator": ""
-      },
-      "driverDepartureDate": 1665576650,
-      "id": "aui",
-      "passengerPickupDate": 1665579951,
-      "type": "DYNAMIC"
-    },
-    {
-      "duration": 3600,
-      "operator": "operator.example.org",
-      "passengerDropLat": 48.8450234,
-      "passengerDropLng": 2.3997529,
-      "passengerPickupLat": 47.461737,
-      "passengerPickupLng": 1.061393,
-      "passenger": {
-        "alias": "",
-        "id": "",
-        "operator": ""
-      },
-      "driverDepartureDate": 1665576650,
-      "id": "pio",
-      "passengerPickupDate": 1665579951,
-      "type": "DYNAMIC"
-    },
-    {
-      "duration": 3600,
-      "operator": "operator.example.org",
-      "passengerDropLat": 48.8450234,
-      "passengerDropLng": 2.3997529,
-      "passengerPickupLat": 47.461737,
-      "passengerPickupLng": 1.061393,
-      "passenger": {
-        "alias": "",
-        "id": "",
-        "operator": ""
-      },
-      "driverDepartureDate": 1665576650,
-      "id": "aui",
-      "passengerPickupDate": 1665579951,
-      "type": "DYNAMIC"
-    },
-    {
-      "duration": 3600,
-      "operator": "operator.example.org",
-      "passengerDropLat": 48.8450234,
-      "passengerDropLng": 2.3997529,
-      "passengerPickupLat": 47.461737,
-      "passengerPickupLng": 1.061393,
-      "passenger": {
-        "alias": "",
-        "id": "",
-        "operator": ""
-      },
-      "driverDepartureDate": 1665576650,
-      "id": "pio",
-      "passengerPickupDate": 1665579951,
+      "driverDepartureDate": 18748800,
+      "passengerPickupDate": 18748800,
       "type": "DYNAMIC"
     }
   ],
@@ -824,7 +692,7 @@
         "id": "",
         "operator": ""
       },
-      "id": "e2807d9c-1dce-26af-00ca-81d4fe11c23e",
+      "id": "0ad346f9-e692-3ab1-d2f0-91785e9ca0ea",
       "passenger": {
         "alias": "",
         "id": "",
@@ -864,26 +732,6 @@
         "id": "",
         "operator": ""
       },
-      "id": "b2892d57-f402-cd4a-2c11-08cc823ae0c5",
-      "passenger": {
-        "alias": "",
-        "id": "",
-        "operator": ""
-      },
-      "passengerDropLat": 0,
-      "passengerDropLng": 0,
-      "passengerPickupDate": 0,
-      "passengerPickupLat": 0,
-      "passengerPickupLng": 0,
-      "price": {},
-      "status": "CANCELLED"
-    },
-    {
-      "driver": {
-        "alias": "",
-        "id": "",
-        "operator": ""
-      },
       "id": "1b06f7b5-67c7-f231-9bf3-9f28aa391537",
       "passenger": {
         "alias": "",
@@ -897,26 +745,6 @@
       "passengerPickupLng": 0,
       "price": {},
       "status": "VALIDATED"
-    },
-    {
-      "driver": {
-        "alias": "",
-        "id": "",
-        "operator": ""
-      },
-      "id": "f84f0c93-2990-ae59-ee94-8e4413ce4e81",
-      "passenger": {
-        "alias": "",
-        "id": "",
-        "operator": ""
-      },
-      "passengerDropLat": 0,
-      "passengerDropLng": 0,
-      "passengerPickupDate": 0,
-      "passengerPickupLat": 0,
-      "passengerPickupLng": 0,
-      "price": {},
-      "status": "CANCELLED"
     },
     {
       "driver": {
@@ -984,7 +812,7 @@
         "id": "",
         "operator": ""
       },
-      "id": "85fbe72b-6064-2890-04a5-31f967898df5",
+      "id": "e2807d9c-1dce-26af-00ca-81d4fe11c23e",
       "passenger": {
         "alias": "",
         "id": "",
@@ -1024,7 +852,27 @@
         "id": "",
         "operator": ""
       },
-      "id": "0ad346f9-e692-3ab1-d2f0-91785e9ca0ea",
+      "id": "b2892d57-f402-cd4a-2c11-08cc823ae0c5",
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupDate": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "price": {},
+      "status": "CANCELLED"
+    },
+    {
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "id": "85fbe72b-6064-2890-04a5-31f967898df5",
       "passenger": {
         "alias": "",
         "id": "",
@@ -1037,6 +885,26 @@
       "passengerPickupLng": 0,
       "price": {},
       "status": "WAITING_CONFIRMATION"
+    },
+    {
+      "driver": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "id": "f84f0c93-2990-ae59-ee94-8e4413ce4e81",
+      "passenger": {
+        "alias": "",
+        "id": "",
+        "operator": ""
+      },
+      "passengerDropLat": 0,
+      "passengerDropLng": 0,
+      "passengerPickupDate": 0,
+      "passengerPickupLat": 0,
+      "passengerPickupLng": 0,
+      "price": {},
+      "status": "CANCELLED"
     },
     {
       "driver": {

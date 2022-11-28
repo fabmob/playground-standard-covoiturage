@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
@@ -23,6 +24,9 @@ var (
 
 	serverEnvVar = "SERVER"
 	authEnvVar   = "API_TOKEN"
+
+	unixEpochCounter int64 = 0
+	weekInSeconds          = 604800
 )
 
 func init() {
@@ -30,7 +34,6 @@ func init() {
 	fmt.Fprint(&commandsFile, "# Generated programmatically - DO NOT EDIT\n\n")
 	fmt.Fprintf(&commandsFile, "export %s=\"%s\"\n", serverEnvVar, localServer)
 	fmt.Fprintf(&commandsFile, "export %s=\"\"\n\n", authEnvVar)
-
 }
 
 // Data needs to be appended once for each test, so we keep track if data has
@@ -89,24 +92,65 @@ func GenerateCommandStr(t *testing.T, request *http.Request, flags test.Flags, b
 	urlWithEnvVar := fmt.Sprintf("$%s%s", serverEnvVar,
 		strings.TrimPrefix(request.URL.String(), localServer))
 
+	cmd += fmt.Sprintf("echo \"%s\"\n", t.Name())
+
+	multilineCmd := []string{}
 	cmdContinuation := " \\\n  "
 
-	cmd += fmt.Sprintf("echo \"%s\"\n", t.Name())
-	cmd += "go run main.go test" + cmdContinuation +
-		fmt.Sprintf("--method=%s", request.Method) + cmdContinuation +
-		fmt.Sprintf("--url=\"%s\"", urlWithEnvVar) + cmdContinuation +
-		fmt.Sprintf("--expectResponseCode=%d", flags.ExpectedResponseCode) +
-		cmdContinuation +
-		fmt.Sprintf("--auth=\"$%s\"", authEnvVar)
+	multilineCmd = append(multilineCmd,
+		"go run main.go test",
+		fmt.Sprintf("--method=%s", request.Method),
+		fmt.Sprintf("--url=\"%s\"", urlWithEnvVar),
+		fmt.Sprintf("--expectResponseCode=%d", flags.ExpectedResponseCode),
+		fmt.Sprintf("--auth=\"$%s\"", authEnvVar),
+	)
+
+	if flags.ExpectNonEmpty {
+		multilineCmd = append(multilineCmd, "--expectNonEmpty")
+	}
 
 	if flags.ExpectedBookingStatus != "" {
-		cmd += cmdContinuation + fmt.Sprintf("--expectBookingStatus=%s", flags.ExpectedBookingStatus)
+		multilineCmd = append(multilineCmd,
+			fmt.Sprintf("--expectBookingStatus=%s", flags.ExpectedBookingStatus))
 	}
 
 	if body != nil {
-		cmd += cmdContinuation + fmt.Sprintf("<<< '%s'", body)
+		multilineCmd = append(multilineCmd,
+			fmt.Sprintf("<<< '%s'", body))
 	}
 
+	cmd += strings.Join(multilineCmd, cmdContinuation)
 	cmd += "\n\n"
 	return cmd
+}
+
+// shiftToNextWeek acts as a generator, and yields at each call the
+// unix epoch starting at 0.
+//
+// It is used to isolate as good as possible journeys used for GET
+// /driver_journeys, GET /passenger journeys, GET /driver_regular_trip, GET
+// /passenger_regular_trip unit tests.
+func shiftToNextWeek() {
+	unixEpochCounter += int64(weekInSeconds)
+}
+
+// setJourneyDatesForGeneration sets, if `generateTestData` == true, a journey date that falls inside the week
+// yielded by `shiftToOwnSingleWeek`
+func setJourneyDatesForGeneration(schedule *api.JourneySchedule) {
+	if generateTestData {
+		if schedule.DriverDepartureDate != nil {
+			*schedule.DriverDepartureDate += unixEpochCounter
+		}
+		schedule.PassengerPickupDate += unixEpochCounter
+	}
+}
+
+func setParamDatesForGeneration(params api.GetJourneysParams) {
+	switch p := params.(type) {
+	case *api.GetDriverJourneysParams:
+		p.DepartureDate += int(unixEpochCounter)
+
+	case *api.GetPassengerJourneysParams:
+		p.DepartureDate += int(unixEpochCounter)
+	}
 }

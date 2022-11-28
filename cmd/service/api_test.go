@@ -9,12 +9,10 @@ import (
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
-	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 )
 
 func init() {
@@ -182,31 +180,33 @@ func TestDriverJourneys(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 
+			// If data is generated, then the test data and the requests date
+			// properties are shifted, so that there are no two tests falling the
+			// same week. The aim is to isolate the tests.
+			if generateTestData {
+				shiftToNextWeek()
+
+				for i := range tc.testData {
+					setJourneyDatesForGeneration(&tc.testData[i].JourneySchedule)
+				}
+
+				setParamDatesForGeneration(tc.testParams)
+			}
+
 			mockDB := db.NewMockDB()
 			mockDB.DriverJourneys = tc.testData
 
 			flags := test.NewFlags()
 			flags.ExpectNonEmpty = tc.expectNonEmptyResult
 
-			testGetDriverJourneyHelper(
+			TestGetDriverJourneysHelper(
 				t,
-				tc.testParams,
 				mockDB,
+				tc.testParams.(*api.GetDriverJourneysParams),
 				flags,
 			)
 		})
 	}
-}
-
-func testGetDriverJourneyHelper(
-	t *testing.T,
-	params api.GetJourneysParams,
-	mockDB *db.Mock,
-	flags test.Flags,
-) {
-	testFunction := test.TestGetDriverJourneysResponse
-
-	testGetJourneysHelper(t, params, mockDB, testFunction, flags)
 }
 
 func TestPassengerJourneys(t *testing.T) {
@@ -368,57 +368,34 @@ func TestPassengerJourneys(t *testing.T) {
 	for _, tc := range testCases {
 
 		t.Run(tc.name, func(t *testing.T) {
+
+			// If data is generated, then the test data and the requests date
+			// properties are shifted, so that there are no two tests falling the
+			// same week. The aim is to isolate the tests.
+			if generateTestData {
+				shiftToNextWeek()
+
+				for i := range tc.testData {
+					setJourneyDatesForGeneration(&tc.testData[i].JourneySchedule)
+				}
+
+				setParamDatesForGeneration(tc.testParams)
+			}
+
 			mockDB := db.NewMockDB()
 			mockDB.PassengerJourneys = tc.testData
 
 			flags := test.NewFlags()
 			flags.ExpectNonEmpty = tc.expectNonEmptyResult
 
-			testGetPassengerJourneyHelper(
+			TestGetPassengerJourneysHelper(
 				t,
-				tc.testParams,
 				mockDB,
+				tc.testParams.(*api.GetPassengerJourneysParams),
 				flags,
 			)
 		})
 	}
-}
-
-func testGetPassengerJourneyHelper(
-	t *testing.T,
-	params api.GetJourneysParams,
-	mockDB *db.Mock,
-	flags test.Flags,
-) {
-	testFunction := test.TestGetPassengerJourneysResponse
-
-	testGetJourneysHelper(t, params, mockDB, testFunction, flags)
-}
-
-func testGetJourneysHelper(t *testing.T, params api.GetJourneysParams, mockDB *db.Mock, f test.ResponseTestFun, flags test.Flags) {
-	t.Helper()
-
-	appendDataIfGenerated(t, mockDB)
-
-	// Build request
-	request, err := params.MakeRequest(localServer)
-	util.PanicIf(err)
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	request, err = endpoint.AddEndpointContext(request)
-	util.PanicIf(err)
-
-	// Setup testing server with response recorder
-	handler, ctx, rec := setupTestServer(mockDB, request)
-
-	// Make API Call
-	err = api.GetJourneys(handler, ctx, params)
-	util.PanicIf(err)
-
-	// Check response
-	response := rec.Result()
-	assertionResults := f(request, response, flags)
-
-	checkAssertionResults(t, assertionResults)
 }
 
 func TestGetBookings(t *testing.T) {
@@ -426,7 +403,7 @@ func TestGetBookings(t *testing.T) {
 		name               string
 		bookings           db.BookingsByID
 		queryBookingID     uuid.UUID
-		disallowEmpty      bool
+		expectNonEmpty     bool
 		expectedStatusCode int
 	}{
 		{
@@ -464,7 +441,7 @@ func TestGetBookings(t *testing.T) {
 			mockDB.Bookings = tc.bookings
 
 			flags := test.NewFlags()
-			flags.ExpectNonEmpty = tc.disallowEmpty
+			flags.ExpectNonEmpty = tc.expectNonEmpty
 			flags.ExpectedResponseCode = tc.expectedStatusCode
 
 			TestGetBookingsHelper(t, mockDB, tc.queryBookingID, flags)
@@ -746,29 +723,7 @@ func TestPostMessage(t *testing.T) {
 	}
 }
 
-func TestDefaultDriverJourneysValidity(t *testing.T) {
-	params := requestAll(t, "driver")
-	mockDB := db.NewMockDBWithDefaultData()
-	testFun := test.TestGetDriverJourneysResponse
-
-	flags := test.NewFlags()
-	flags.ExpectNonEmpty = true
-
-	testGetJourneysHelper(t, params, mockDB, testFun, flags)
-}
-
-func TestDefaultPassengerJourneysValidity(t *testing.T) {
-	params := requestAll(t, "passenger")
-	mockDB := db.NewMockDBWithDefaultData()
-	testFun := test.TestGetPassengerJourneysResponse
-
-	flags := test.NewFlags()
-	flags.ExpectNonEmpty = true
-
-	testGetJourneysHelper(t, params, mockDB, testFun, flags)
-}
-
-// Should be kept at the end as it relies on order of execution of tests.
+// Should be kept after tests that requires generation as it relies on order of execution of tests.
 func TestGeneration(t *testing.T) {
 	if generateTestData {
 
@@ -786,4 +741,37 @@ func TestGeneration(t *testing.T) {
 		err = os.WriteFile(generatedTestCommandsFile, []byte(commandsFile.String()), 0644)
 		util.PanicIf(err)
 	}
+	generateTestData = false
+}
+
+// after this, no test is generated
+
+func TestDefaultDriverJourneysValidity(t *testing.T) {
+	params := requestAll(t, "driver")
+	mockDB := db.NewMockDBWithDefaultData()
+
+	flags := test.NewFlags()
+	flags.ExpectNonEmpty = true
+
+	TestGetDriverJourneysHelper(
+		t,
+		mockDB,
+		params.(*api.GetDriverJourneysParams),
+		flags,
+	)
+}
+
+func TestDefaultPassengerJourneysValidity(t *testing.T) {
+	params := requestAll(t, "passenger")
+	mockDB := db.NewMockDBWithDefaultData()
+
+	flags := test.NewFlags()
+	flags.ExpectNonEmpty = true
+
+	TestGetPassengerJourneysHelper(
+		t,
+		mockDB,
+		params.(*api.GetPassengerJourneysParams),
+		flags,
+	)
 }

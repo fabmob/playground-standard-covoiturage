@@ -424,6 +424,62 @@ func TestPatchBookingsHelper(
 	testAPI(t, patchBookingsTestHelper{bookingID, status}, mockDB, flags)
 }
 
+//////////////////////////////////////////////////////////
+
+type getDriverJourneysTestHelper struct {
+	params *api.GetDriverJourneysParams
+}
+
+func (h getDriverJourneysTestHelper) makeRequest() (*http.Request, error) {
+	return api.NewGetDriverJourneysRequest(localServer, h.params)
+}
+
+func (h getDriverJourneysTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	return handler.GetDriverJourneys(ctx, *h.params)
+}
+
+func (h getDriverJourneysTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []testassert.Result {
+	return test.TestGetDriverJourneysResponse(request, response, flags)
+}
+
+func TestGetDriverJourneysHelper(
+	t *testing.T,
+	mockDB *db.Mock,
+	params *api.GetDriverJourneysParams,
+	flags test.Flags,
+) {
+	testAPI(t, getDriverJourneysTestHelper{params}, mockDB, flags)
+}
+
+//////////////////////////////////////////////////////////
+
+type getPassengerJourneysTestHelper struct {
+	params *api.GetPassengerJourneysParams
+}
+
+func (h getPassengerJourneysTestHelper) makeRequest() (*http.Request, error) {
+	return api.NewGetPassengerJourneysRequest(localServer, h.params)
+}
+
+func (h getPassengerJourneysTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	return handler.GetPassengerJourneys(ctx, *h.params)
+}
+
+func (h getPassengerJourneysTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []testassert.Result {
+	return test.TestGetPassengerJourneysResponse(request, response, flags)
+}
+
+func TestGetPassengerJourneysHelper(
+	t *testing.T,
+	mockDB *db.Mock,
+	params *api.GetPassengerJourneysParams,
+	flags test.Flags,
+) {
+	testAPI(t, getPassengerJourneysTestHelper{params}, mockDB, flags)
+}
+
+//////////////////////////////////////////////////////////
+
 func requestAll(t *testing.T, driverOrPassenger string) api.GetJourneysParams {
 	t.Helper()
 
