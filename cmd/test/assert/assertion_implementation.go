@@ -267,7 +267,7 @@ func (a assertArrayNotEmpty) Execute() error {
 	}
 
 	if len(array) == 0 {
-		return errors.New("empty response not accepted with \"disallowEmpty\" option")
+		return errors.New("empty response not accepted with \"expectNonEmpty\" option")
 	}
 
 	return nil

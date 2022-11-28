@@ -403,7 +403,7 @@ func TestGetBookings(t *testing.T) {
 		name               string
 		bookings           db.BookingsByID
 		queryBookingID     uuid.UUID
-		disallowEmpty      bool
+		expectNonEmpty     bool
 		expectedStatusCode int
 	}{
 		{
@@ -441,7 +441,7 @@ func TestGetBookings(t *testing.T) {
 			mockDB.Bookings = tc.bookings
 
 			flags := test.NewFlags()
-			flags.ExpectNonEmpty = tc.disallowEmpty
+			flags.ExpectNonEmpty = tc.expectNonEmpty
 			flags.ExpectedResponseCode = tc.expectedStatusCode
 
 			TestGetBookingsHelper(t, mockDB, tc.queryBookingID, flags)
