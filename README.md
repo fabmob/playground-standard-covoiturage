@@ -10,13 +10,9 @@ The tool is currently being developped. More about the aimed functional scope
 
 ## Install
 
-No fancy installation mechanism available yet.
-
-Download the 
-[binary](https://github.com/fabmob/playground-standard-covoiturage/blob/main/pscovoit) 
-for linux (may not be the latest development version), and make it executable, 
-or clone the repo and enter `go build -o pscovoit` in the root folder.
-
+You can find and download the executable for various platforms 
+[here](https://github.com/fabmob/playground-standard-covoiturage/releases), or 
+clone the repo and enter `go build -o pscovoit` in the root folder.
 
 ## Run the fake server
 
@@ -28,8 +24,11 @@ customizable yet):
 ```
 
 The served data can be inspected 
-[here](https://github.com/fabmob/playground-standard-covoiturage/blob/main/cmd/service/data/defaultData.json) 
-and is not yet customizable. 
+[here](https://github.com/fabmob/playground-standard-covoiturage/blob/main/cmd/service/data/defaultData.json), 
+or custom data can be used with the `--data` flag pointing to a valid json 
+data file (check-out [type 
+`MockDBDataInterface`](https://github.com/fabmob/playground-standard-covoiturage/blob/eb4ccb0cb125639921394f851a7e975e07cbc386/cmd/service/db/db.go#L127) 
+for more details on data structure). 
 
 ## Test a request
 
@@ -85,12 +84,8 @@ pscovoit test post bookings <<< "{body}"
 ```
 
 By default, only the failed tests are reported. Use the `--verbose` flag to 
-see all tests. 
+see all tests and additional information.
 
-## Use in CI
-
-The tool returns exit code 1 in case of an assertion failure. Examples to come 
-TODO.
 
 ## Autocompletion
 
@@ -101,29 +96,39 @@ This is possible if the binary is in $PATH, see for more information:
 ./pscovoit completion --help
 ```
 
+## Use in CI
+
+The tool returns exit code 1 in case of an assertion failure. See a simple 
+example of use in github CI 
+[here](https://github.com/fabmob/playground-standard-covoiturage/blob/eb4ccb0cb125639921394f851a7e975e07cbc386/.github/workflows/go_tests_lint.yml#L42) 
+(github workflow) and 
+[here](https://github.com/fabmob/playground-standard-covoiturage/tree/main/cmd/test/commands) 
+(test commands scripts). 
+
 ## Tests and assertions
 
 ### Test Flags
 
 * `--expectResponseCode`: additional check that the HTTP response code is as 
   expected
-* `--disallowEmpty` (array responses): additionnal check that this array is 
+* `--expectNonEmpty` (array responses): additionnal check that this array is 
   not empty.
 * `--expectBookingStatus` (GET /bookings): additional check that the booking 
   has the expected booking status. 
   
 ### Example tests
 
-For an example of a thorough test suite for an API, look at [this 
-example](./cmd/service/data/testCommands.gen.sh), that works with [this 
-data](./cmd/service/data/testData.gen.json).
+For an example of a thorough test suite for an API, look at
+[this example](./cmd/service/data/testCommands.gen.sh),
+that works together with [this data](./cmd/service/data/testData.gen.json).
+
 
 ### GET /driver_journey and GET /passenger_journey
 
 The following assertions are run on these two endpoints :
-- assert response status code 200
-- assert header Content-Type:application/json
 - assert format
+- assert response status code 200 (optional)
+- assert header Content-Type:application/json
 - assert query parameter "departureRadius"
 - assert query parameter "arrivalRadius"
 - assert query parameter "timeDelta"
@@ -131,23 +136,31 @@ The following assertions are run on these two endpoints :
 - assert unique ids
 - assert response property "operator"
 
-See below for assertions reference. 
+### POST /bookings, POST /booking_events, PATCH /bookings, POST /messages
+
+- assert format
+- assert response status code (optional)
+
+### GET /bookings
+ 
+- assert format
+- assert response status code (optional)
+- assert booking status (optional)
 
 ### Assertions reference
 
 In alphabetic order: 
 
-| Assertion code                 | description                                                                             |
-| ------------------------------ | -------------------------------------------------------------                           |
-| assert API call success        | Checks that the response data has been succesfully collected                            |
-| assert format                  | Checks that the format of the response complies to the standard's openAPI specification. |
-| assert header X:Y              | Checks that the response has header X with value Y.                                     |
-| assert query parameter X       | Checks that the response complies to the expectations of the queryparameter X.          |
-| assert response not empty      | Checks that the response is not an empty array.                                         |
-| assert response property X     | Checks that the response property X meets the expectations given by the standard.       |
-| assert response status code X  | Checks that the status code X is returned.                                              |
-| assert unique ids              | Checks that the response objects have no 
-duplicated "id" property.                         |
+| Assertion code                 | description                                                                                                                                            |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| assert API call success        | Checks that the response data has been succesfully collected                                                                                           |
+| assert format                  | Checks that the format of the response complies to the standard's openAPI specification. Especially, the observed status code needs to be documented.  |
+| assert header X:Y              | Checks that the response has header X with value Y.                                                                                                    |
+| assert query parameter X       | Checks that the response complies to the expectations of the queryparameter X.                                                                         |
+| assert response not empty      | Checks that the response is not an empty array.                                                                                                        |
+| assert response property X     | Checks that the response property X meets the expectations given by the standard.                                                                      |
+| assert response status code X  | Checks that the status code X is returned.                                                                                                             |
+| assert unique ids              | Checks that the response objects have no duplicated "id" property.                                                                                     |
 
 
 ## Release
@@ -158,10 +171,12 @@ Releases are made with [goreleaser](https://goreleaser.com/quick-start/).
 
 * [ ] Fix issue #25
 * [ ] Implement server with unit tests
+    * [X] All but regular trips
 * [ ] Export unit test data and generate make unit test commands for reuse
+    * [X] All but search Endpoints
 * [X] Cross platform release with goreleaser
 * [ ] Add new custom assertions to current tests
-* [ ] Update documentation
+* [X] Update documentation
 * [X] Add license
-* [ ] Add Changelog
+* [X] Add Changelog (auto generated with release)
 * [ ] Tag and release in github 
