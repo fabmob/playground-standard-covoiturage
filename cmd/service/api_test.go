@@ -9,12 +9,10 @@ import (
 	"testing"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
-	"github.com/fabmob/playground-standard-covoiturage/cmd/endpoint"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 )
 
 func init() {
@@ -400,43 +398,6 @@ func TestPassengerJourneys(t *testing.T) {
 	}
 }
 
-func testGetPassengerJourneyHelper(
-	t *testing.T,
-	params api.GetJourneysParams,
-	mockDB *db.Mock,
-	flags test.Flags,
-) {
-	testFunction := test.TestGetPassengerJourneysResponse
-
-	testGetJourneysHelper(t, params, mockDB, testFunction, flags)
-}
-
-func testGetJourneysHelper(t *testing.T, params api.GetJourneysParams, mockDB *db.Mock, f test.ResponseTestFun, flags test.Flags) {
-	t.Helper()
-
-	appendDataIfGenerated(t, mockDB)
-
-	// Build request
-	request, err := params.MakeRequest(localServer)
-	util.PanicIf(err)
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	request, err = endpoint.AddEndpointContext(request)
-	util.PanicIf(err)
-
-	// Setup testing server with response recorder
-	handler, ctx, rec := setupTestServer(mockDB, request)
-
-	// Make API Call
-	err = api.GetJourneys(handler, ctx, params)
-	util.PanicIf(err)
-
-	// Check response
-	response := rec.Result()
-	assertionResults := f(request, response, flags)
-
-	checkAssertionResults(t, assertionResults)
-}
-
 func TestGetBookings(t *testing.T) {
 	testCases := []struct {
 		name               string
@@ -765,23 +726,31 @@ func TestPostMessage(t *testing.T) {
 func TestDefaultDriverJourneysValidity(t *testing.T) {
 	params := requestAll(t, "driver")
 	mockDB := db.NewMockDBWithDefaultData()
-	testFun := test.TestGetDriverJourneysResponse
 
 	flags := test.NewFlags()
 	flags.ExpectNonEmpty = true
 
-	testGetJourneysHelper(t, params, mockDB, testFun, flags)
+	TestGetDriverJourneysHelper(
+		t,
+		mockDB,
+		params.(*api.GetDriverJourneysParams),
+		flags,
+	)
 }
 
 func TestDefaultPassengerJourneysValidity(t *testing.T) {
 	params := requestAll(t, "passenger")
 	mockDB := db.NewMockDBWithDefaultData()
-	testFun := test.TestGetPassengerJourneysResponse
 
 	flags := test.NewFlags()
 	flags.ExpectNonEmpty = true
 
-	testGetJourneysHelper(t, params, mockDB, testFun, flags)
+	TestGetPassengerJourneysHelper(
+		t,
+		mockDB,
+		params.(*api.GetPassengerJourneysParams),
+		flags,
+	)
 }
 
 // Should be kept at the end as it relies on order of execution of tests.
