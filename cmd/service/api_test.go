@@ -182,16 +182,29 @@ func TestDriverJourneys(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 
+			// If data is generated, then the test data and the requests date
+			// properties are shifted, so that there are no two tests falling the
+			// same week. The aim is to isolate the tests.
+			if generateTestData {
+				shiftToNextWeek()
+
+				for i := range tc.testData {
+					setDatesForGeneration(&tc.testData[i])
+				}
+
+				setParamDatesForGeneration(tc.testParams.(*api.GetDriverJourneysParams))
+			}
+
 			mockDB := db.NewMockDB()
 			mockDB.DriverJourneys = tc.testData
 
 			flags := test.NewFlags()
 			flags.ExpectNonEmpty = tc.expectNonEmptyResult
 
-			testGetDriverJourneyHelper(
+			TestGetDriverJourneysHelper(
 				t,
-				tc.testParams,
 				mockDB,
+				tc.testParams.(*api.GetDriverJourneysParams),
 				flags,
 			)
 		})

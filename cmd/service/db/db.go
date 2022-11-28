@@ -155,8 +155,6 @@ func WriteData(m *Mock, w io.Writer) error {
 		return err
 	}
 
-	fmt.Println(string(jsonData))
-
 	_, err = w.Write(jsonData)
 	if err != nil {
 		return err

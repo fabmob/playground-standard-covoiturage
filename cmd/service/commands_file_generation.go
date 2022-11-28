@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/test"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
@@ -23,6 +24,9 @@ var (
 
 	serverEnvVar = "SERVER"
 	authEnvVar   = "API_TOKEN"
+
+	unixEpochCounter int64 = 0
+	weekInSeconds          = 604800
 )
 
 func init() {
@@ -30,7 +34,6 @@ func init() {
 	fmt.Fprint(&commandsFile, "# Generated programmatically - DO NOT EDIT\n\n")
 	fmt.Fprintf(&commandsFile, "export %s=\"%s\"\n", serverEnvVar, localServer)
 	fmt.Fprintf(&commandsFile, "export %s=\"\"\n\n", authEnvVar)
-
 }
 
 // Data needs to be appended once for each test, so we keep track if data has
@@ -109,4 +112,31 @@ func GenerateCommandStr(t *testing.T, request *http.Request, flags test.Flags, b
 
 	cmd += "\n\n"
 	return cmd
+}
+
+// shiftToNextWeek acts as a generator, and yields at each call the
+// unix epoch starting at 0.
+//
+// It is used to isolate as good as possible journeys used for GET
+// /driver_journeys, GET /passenger journeys, GET /driver_regular_trip, GET
+// /passenger_regular_trip unit tests.
+func shiftToNextWeek() {
+	unixEpochCounter += int64(weekInSeconds)
+}
+
+// setDateForGeneration sets, if `generateTestData` == true, a journey date that falls inside the week
+// yielded by `shiftToOwnSingleWeek`
+func setDatesForGeneration(journey *api.DriverJourney) {
+	if generateTestData {
+		if journey.DriverDepartureDate != nil {
+			*journey.DriverDepartureDate += unixEpochCounter
+		}
+		journey.PassengerPickupDate += unixEpochCounter
+	}
+}
+
+func setParamDatesForGeneration(params *api.GetDriverJourneysParams) {
+	if generateTestData {
+		params.DepartureDate += int(unixEpochCounter)
+	}
 }
