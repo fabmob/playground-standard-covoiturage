@@ -92,28 +92,34 @@ func GenerateCommandStr(t *testing.T, request *http.Request, flags test.Flags, b
 	urlWithEnvVar := fmt.Sprintf("$%s%s", serverEnvVar,
 		strings.TrimPrefix(request.URL.String(), localServer))
 
+	cmd += fmt.Sprintf("echo \"%s\"\n", t.Name())
+
+	multilineCmd := []string{}
 	cmdContinuation := " \\\n  "
 
-	cmd += fmt.Sprintf("echo \"%s\"\n", t.Name())
-	cmd += "go run main.go test" + cmdContinuation +
-		fmt.Sprintf("--method=%s", request.Method) + cmdContinuation +
-		fmt.Sprintf("--url=\"%s\"", urlWithEnvVar) + cmdContinuation +
-		fmt.Sprintf("--expectResponseCode=%d", flags.ExpectedResponseCode) +
-		cmdContinuation +
-		fmt.Sprintf("--auth=\"$%s\"", authEnvVar)
+	multilineCmd = append(multilineCmd,
+		"go run main.go test",
+		fmt.Sprintf("--method=%s", request.Method),
+		fmt.Sprintf("--url=\"%s\"", urlWithEnvVar),
+		fmt.Sprintf("--expectResponseCode=%d", flags.ExpectedResponseCode),
+		fmt.Sprintf("--auth=\"$%s\"", authEnvVar),
+	)
 
 	if flags.ExpectNonEmpty {
-		cmd += cmdContinuation + "--expectNonEmpty"
+		multilineCmd = append(multilineCmd, "--expectNonEmpty")
 	}
 
 	if flags.ExpectedBookingStatus != "" {
-		cmd += cmdContinuation + fmt.Sprintf("--expectBookingStatus=%s", flags.ExpectedBookingStatus)
+		multilineCmd = append(multilineCmd,
+			fmt.Sprintf("--expectBookingStatus=%s", flags.ExpectedBookingStatus))
 	}
 
 	if body != nil {
-		cmd += cmdContinuation + fmt.Sprintf("<<< '%s'", body)
+		multilineCmd = append(multilineCmd,
+			fmt.Sprintf("<<< '%s'", body))
 	}
 
+	cmd += strings.Join(multilineCmd, cmdContinuation)
 	cmd += "\n\n"
 	return cmd
 }
