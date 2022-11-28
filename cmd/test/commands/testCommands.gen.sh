@@ -9,7 +9,9 @@ go run main.go test \
   --method=GET \
   --url="$SERVER/driver_journeys?arrivalLat=0&arrivalLng=0&departureDate=604800&departureLat=0&departureLng=0" \
   --expectResponseCode=200 \
-  --auth="$API_TOKEN"
+  --expectNonEmpty \
+  --auth="$API_TOKEN" \
+  -v
 
 echo "TestDriverJourneys/Departure_radius_1"
 go run main.go test \
@@ -113,6 +115,118 @@ echo "TestDriverJourneys/Count_4_-_count_>_n_driver_journeys"
 go run main.go test \
   --method=GET \
   --url="$SERVER/driver_journeys?arrivalLat=0&arrivalLng=0&count=1&departureDate=9676800&departureLat=0&departureLng=0" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/No_data"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=0&arrivalLng=0&departureDate=10281600&departureLat=0&departureLng=0" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/Departure_radius_0"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=0&arrivalLng=0&departureDate=10886400&departureLat=46.160454&departureLng=-1.2219607&departureRadius=1" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/Departure_radius_1"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=0&arrivalLng=0&departureDate=11491200&departureLat=46.160454&departureLng=-1.2219607&departureRadius=1" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/Departure_radius_2"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=0&arrivalLng=0&departureDate=12096000&departureLat=46.160454&departureLng=-1.2219607&departureRadius=2" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/Departure_radius_3"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=0&arrivalLng=0&departureDate=12700800&departureLat=46.160454&departureLng=-1.2219607&departureRadius=1" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/Arrival_radius_1"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=46.160454&arrivalLng=-1.2219607&arrivalRadius=1&departureDate=13305600&departureLat=0&departureLng=0" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/Arrival_radius_2"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=46.160454&arrivalLng=-1.2219607&arrivalRadius=2&departureDate=13910400&departureLat=0&departureLng=0" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/Arrival_radius_3"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=46.160454&arrivalLng=-1.2219607&arrivalRadius=1&departureDate=14515200&departureLat=0&departureLng=0" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/Arrival_radius_4"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=46.160454&arrivalLng=-1.2219607&arrivalRadius=1&departureDate=15120000&departureLat=0&departureLng=0" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/TimeDelta_1"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=0&arrivalLng=0&departureDate=15724800&departureLat=0&departureLng=0&timeDelta=10" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/TimeDelta_2"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=0&arrivalLng=0&departureDate=16329600&departureLat=0&departureLng=0&timeDelta=10" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/TimeDelta_3"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=0&arrivalLng=0&departureDate=16934400&departureLat=0&departureLng=0&timeDelta=20" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/Count_1"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=0&arrivalLng=0&count=1&departureDate=17539200&departureLat=0&departureLng=0" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/Count_2"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=0&arrivalLng=0&count=0&departureDate=18144000&departureLat=0&departureLng=0" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/Count_3"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=0&arrivalLng=0&count=2&departureDate=18748800&departureLat=0&departureLng=0" \
+  --expectResponseCode=200 \
+  --auth="$API_TOKEN"
+
+echo "TestPassengerJourneys/Count_4_-_count_>_n_passenger_journeys"
+go run main.go test \
+  --method=GET \
+  --url="$SERVER/passenger_journeys?arrivalLat=0&arrivalLng=0&count=1&departureDate=19353600&departureLat=0&departureLng=0" \
   --expectResponseCode=200 \
   --auth="$API_TOKEN"
 

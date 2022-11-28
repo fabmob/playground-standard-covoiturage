@@ -189,7 +189,7 @@ func TestDriverJourneys(t *testing.T) {
 				shiftToNextWeek()
 
 				for i := range tc.testData {
-					setDatesForGeneration(&tc.testData[i])
+					setJourneyDatesForGeneration(&tc.testData[i].JourneySchedule)
 				}
 
 				setParamDatesForGeneration(tc.testParams.(*api.GetDriverJourneysParams))
@@ -209,17 +209,6 @@ func TestDriverJourneys(t *testing.T) {
 			)
 		})
 	}
-}
-
-func testGetDriverJourneyHelper(
-	t *testing.T,
-	params api.GetJourneysParams,
-	mockDB *db.Mock,
-	flags test.Flags,
-) {
-	testFunction := test.TestGetDriverJourneysResponse
-
-	testGetJourneysHelper(t, params, mockDB, testFunction, flags)
 }
 
 func TestPassengerJourneys(t *testing.T) {
@@ -381,16 +370,30 @@ func TestPassengerJourneys(t *testing.T) {
 	for _, tc := range testCases {
 
 		t.Run(tc.name, func(t *testing.T) {
+
+			// If data is generated, then the test data and the requests date
+			// properties are shifted, so that there are no two tests falling the
+			// same week. The aim is to isolate the tests.
+			if generateTestData {
+				shiftToNextWeek()
+
+				for i := range tc.testData {
+					setJourneyDatesForGeneration(&tc.testData[i].JourneySchedule)
+				}
+
+				setParamDatesForGeneration(tc.testParams.(*api.GetPassengerJourneysParams))
+			}
+
 			mockDB := db.NewMockDB()
 			mockDB.PassengerJourneys = tc.testData
 
 			flags := test.NewFlags()
 			flags.ExpectNonEmpty = tc.expectNonEmptyResult
 
-			testGetPassengerJourneyHelper(
+			TestGetPassengerJourneysHelper(
 				t,
-				tc.testParams,
 				mockDB,
+				tc.testParams.(*api.GetPassengerJourneysParams),
 				flags,
 			)
 		})

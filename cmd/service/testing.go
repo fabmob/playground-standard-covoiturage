@@ -453,6 +453,33 @@ func TestGetDriverJourneysHelper(
 
 //////////////////////////////////////////////////////////
 
+type getPassengerJourneysTestHelper struct {
+	params *api.GetPassengerJourneysParams
+}
+
+func (h getPassengerJourneysTestHelper) makeRequest() (*http.Request, error) {
+	return api.NewGetPassengerJourneysRequest(localServer, h.params)
+}
+
+func (h getPassengerJourneysTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	return handler.GetPassengerJourneys(ctx, *h.params)
+}
+
+func (h getPassengerJourneysTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []testassert.Result {
+	return test.TestGetPassengerJourneysResponse(request, response, flags)
+}
+
+func TestGetPassengerJourneysHelper(
+	t *testing.T,
+	mockDB *db.Mock,
+	params *api.GetPassengerJourneysParams,
+	flags test.Flags,
+) {
+	testAPI(t, getPassengerJourneysTestHelper{params}, mockDB, flags)
+}
+
+//////////////////////////////////////////////////////////
+
 func requestAll(t *testing.T, driverOrPassenger string) api.GetJourneysParams {
 	t.Helper()
 

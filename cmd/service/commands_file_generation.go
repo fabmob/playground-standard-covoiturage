@@ -124,19 +124,23 @@ func shiftToNextWeek() {
 	unixEpochCounter += int64(weekInSeconds)
 }
 
-// setDateForGeneration sets, if `generateTestData` == true, a journey date that falls inside the week
+// setJourneyDatesForGeneration sets, if `generateTestData` == true, a journey date that falls inside the week
 // yielded by `shiftToOwnSingleWeek`
-func setDatesForGeneration(journey *api.DriverJourney) {
+func setJourneyDatesForGeneration(schedule *api.JourneySchedule) {
 	if generateTestData {
-		if journey.DriverDepartureDate != nil {
-			*journey.DriverDepartureDate += unixEpochCounter
+		if schedule.DriverDepartureDate != nil {
+			*schedule.DriverDepartureDate += unixEpochCounter
 		}
-		journey.PassengerPickupDate += unixEpochCounter
+		schedule.PassengerPickupDate += unixEpochCounter
 	}
 }
 
-func setParamDatesForGeneration(params *api.GetDriverJourneysParams) {
-	if generateTestData {
-		params.DepartureDate += int(unixEpochCounter)
+func setParamDatesForGeneration(params api.GetJourneysParams) {
+	switch p := params.(type) {
+	case *api.GetDriverJourneysParams:
+		p.DepartureDate += int(unixEpochCounter)
+
+	case *api.GetPassengerJourneysParams:
+		p.DepartureDate += int(unixEpochCounter)
 	}
 }
