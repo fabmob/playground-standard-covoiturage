@@ -723,6 +723,29 @@ func TestPostMessage(t *testing.T) {
 	}
 }
 
+// Should be kept after tests that requires generation as it relies on order of execution of tests.
+func TestGeneration(t *testing.T) {
+	if generateTestData {
+
+		var b bytes.Buffer
+
+		err := db.WriteData(generatedData, &b)
+		util.PanicIf(err)
+
+		bytes, err := io.ReadAll(&b)
+		util.PanicIf(err)
+
+		err = os.WriteFile(generatedTestDataFile, bytes, 0644)
+		util.PanicIf(err)
+
+		err = os.WriteFile(generatedTestCommandsFile, []byte(commandsFile.String()), 0644)
+		util.PanicIf(err)
+	}
+	generateTestData = false
+}
+
+// after this, no test is generated
+
 func TestDefaultDriverJourneysValidity(t *testing.T) {
 	params := requestAll(t, "driver")
 	mockDB := db.NewMockDBWithDefaultData()
@@ -751,24 +774,4 @@ func TestDefaultPassengerJourneysValidity(t *testing.T) {
 		params.(*api.GetPassengerJourneysParams),
 		flags,
 	)
-}
-
-// Should be kept at the end as it relies on order of execution of tests.
-func TestGeneration(t *testing.T) {
-	if generateTestData {
-
-		var b bytes.Buffer
-
-		err := db.WriteData(generatedData, &b)
-		util.PanicIf(err)
-
-		bytes, err := io.ReadAll(&b)
-		util.PanicIf(err)
-
-		err = os.WriteFile(generatedTestDataFile, bytes, 0644)
-		util.PanicIf(err)
-
-		err = os.WriteFile(generatedTestCommandsFile, []byte(commandsFile.String()), 0644)
-		util.PanicIf(err)
-	}
 }
