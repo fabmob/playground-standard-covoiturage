@@ -102,6 +102,10 @@ func GenerateCommandStr(t *testing.T, request *http.Request, flags test.Flags, b
 		cmdContinuation +
 		fmt.Sprintf("--auth=\"$%s\"", authEnvVar)
 
+	if flags.ExpectNonEmpty {
+		cmd += cmdContinuation + "--expectNonEmpty"
+	}
+
 	if flags.ExpectedBookingStatus != "" {
 		cmd += cmdContinuation + fmt.Sprintf("--expectBookingStatus=%s", flags.ExpectedBookingStatus)
 	}
