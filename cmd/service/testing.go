@@ -428,13 +428,14 @@ func requestAll(t *testing.T, driverOrPassenger string) api.GetJourneysParams {
 	t.Helper()
 
 	var (
-		largeTimeDelta = int(1e10)
+		largeTimeDelta = int(1e9)
 		largeRadius    = float32(1e6)
 	)
 
 	switch driverOrPassenger {
 	case "driver":
 		params := api.GetDriverJourneysParams{}
+		params.DepartureDate = 1e9
 		params.TimeDelta = &largeTimeDelta
 		params.DepartureRadius = &largeRadius
 		params.ArrivalRadius = &largeRadius
@@ -443,6 +444,7 @@ func requestAll(t *testing.T, driverOrPassenger string) api.GetJourneysParams {
 
 	case "passenger":
 		params := api.GetPassengerJourneysParams{}
+		params.DepartureDate = 1e9
 		params.TimeDelta = &largeTimeDelta
 		params.DepartureRadius = &largeRadius
 		params.ArrivalRadius = &largeRadius
