@@ -36,12 +36,39 @@ func TestDriverJourneys(t *testing.T) {
 		testData             []api.DriverJourney
 		expectNonEmptyResult bool
 	}{
-
 		{
 			"No data",
 			&api.GetDriverJourneysParams{},
 			[]api.DriverJourney{},
 			false,
+		},
+
+		{
+			"TimeDelta 1",
+			makeParamsWithTimeDelta(10, "driver"),
+			[]api.DriverJourney{
+				makeDriverJourneyAtDate(5),
+			},
+			true,
+		},
+
+		{
+			"TimeDelta 2",
+			makeParamsWithTimeDelta(10, "driver"),
+			[]api.DriverJourney{
+				makeDriverJourneyAtDate(15),
+			},
+			false,
+		},
+
+		{
+			"TimeDelta 3",
+			makeParamsWithTimeDelta(20, "driver"),
+			[]api.DriverJourney{
+				makeDriverJourneyAtDate(25),
+				makeDriverJourneyAtDate(15),
+			},
+			true,
 		},
 
 		{
@@ -116,34 +143,6 @@ func TestDriverJourneys(t *testing.T) {
 			makeParamsWithArrivalRadius(coordsRef, 1, "driver"),
 			[]api.DriverJourney{
 				makeDriverJourneyAtCoords(coordsIgnore, coords900m),
-			},
-			true,
-		},
-
-		{
-			"TimeDelta 1",
-			makeParamsWithTimeDelta(10, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtDate(5),
-			},
-			true,
-		},
-
-		{
-			"TimeDelta 2",
-			makeParamsWithTimeDelta(10, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtDate(15),
-			},
-			false,
-		},
-
-		{
-			"TimeDelta 3",
-			makeParamsWithTimeDelta(20, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtDate(25),
-				makeDriverJourneyAtDate(15),
 			},
 			true,
 		},
@@ -233,6 +232,34 @@ func TestPassengerJourneys(t *testing.T) {
 		},
 
 		{
+			"TimeDelta 1",
+			makeParamsWithTimeDelta(10, "passenger"),
+			[]api.PassengerJourney{
+				makePassengerJourneyAtDate(5),
+			},
+			true,
+		},
+
+		{
+			"TimeDelta 2",
+			makeParamsWithTimeDelta(10, "passenger"),
+			[]api.PassengerJourney{
+				makePassengerJourneyAtDate(15),
+			},
+			false,
+		},
+
+		{
+			"TimeDelta 3",
+			makeParamsWithTimeDelta(20, "passenger"),
+			[]api.PassengerJourney{
+				makePassengerJourneyAtDate(25),
+				makePassengerJourneyAtDate(15),
+			},
+			true,
+		},
+
+		{
 			"Departure radius 0",
 			makeParamsWithDepartureRadius(coordsRef, 1, "passenger"),
 			[]api.PassengerJourney{
@@ -309,34 +336,6 @@ func TestPassengerJourneys(t *testing.T) {
 		},
 
 		{
-			"TimeDelta 1",
-			makeParamsWithTimeDelta(10, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtDate(5),
-			},
-			true,
-		},
-
-		{
-			"TimeDelta 2",
-			makeParamsWithTimeDelta(10, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtDate(15),
-			},
-			false,
-		},
-
-		{
-			"TimeDelta 3",
-			makeParamsWithTimeDelta(20, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtDate(25),
-				makePassengerJourneyAtDate(15),
-			},
-			true,
-		},
-
-		{
 			"Count 1",
 			makeParamsWithCount(1, "passenger"),
 			makeNPassengerJourneys(1),
@@ -399,6 +398,14 @@ func TestPassengerJourneys(t *testing.T) {
 }
 
 func TestGetDriverRegularTrips(t *testing.T) {
+	var (
+		coordsIgnore = util.Coord{Lat: 0, Lon: 0}
+		coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
+		coords900m   = util.Coord{Lat: 46.1613442, Lon: -1.2103736} // at ~900m from reference
+		coords1100m  = util.Coord{Lat: 46.1613679, Lon: -1.2086563} // at ~1100m from reference
+		coords2100m  = util.Coord{Lat: 46.1649225, Lon: -1.1954497} // at ~2100m from reference
+	)
+
 	testCases := []struct {
 		name                 string
 		testParams           *api.GetDriverRegularTripsParams
@@ -411,6 +418,15 @@ func TestGetDriverRegularTrips(t *testing.T) {
 			[]api.DriverRegularTrip{},
 			false,
 		},
+
+		/* { */
+		/* 	"TimeDelta 1", */
+		/* 	makeParamsWithTimeDelta(10, "passenger"), */
+		/* 	[]api.PassengerJourney{ */
+		/* 		makePassengerJourneyAtDate(5), */
+		/* 	}, */
+		/* 	true, */
+		/* }, */
 	}
 
 	for _, tc := range testCases {
