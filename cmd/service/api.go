@@ -200,7 +200,7 @@ func (*StdCovServerImpl) GetDriverRegularTrips(
 	params api.GetDriverRegularTripsParams,
 ) error {
 	// Implement me
-	return nil
+	return ctx.JSON(http.StatusOK, []api.DriverRegularTrip{})
 }
 
 // PostMessages sends a mesage to the owner of a retrieved journey.
