@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/labstack/echo/v4"
@@ -88,26 +87,6 @@ func GetJourneys(s ServerInterface, ctx echo.Context, params GetJourneysParams) 
 
 ///////////////////////////////////////////////
 
-type RequestParams interface {
-	MakeRequest(server string) (*http.Request, error)
-}
-
-func (p *GetDriverJourneysParams) MakeRequest(server string) (*http.Request, error) {
-	return NewGetDriverJourneysRequest(server, p)
-}
-
-func (p *GetPassengerJourneysParams) MakeRequest(server string) (*http.Request, error) {
-	return NewGetPassengerJourneysRequest(server, p)
-}
-
-func (p *GetDriverRegularTripsParams) MakeRequest(server string) (*http.Request, error) {
-	return NewGetDriverRegularTripsRequest(server, p)
-}
-
-func (p *GetPassengerRegularTripsParams) MakeRequest(server string) (*http.Request, error) {
-	return NewGetPassengerRegularTripsRequest(server, p)
-}
-
 type JourneyOrTripPartialParams interface {
 	GetDepartureLat() float64
 	GetDepartureLng() float64
@@ -120,13 +99,11 @@ type JourneyOrTripPartialParams interface {
 }
 
 type GetJourneysParams interface {
-	RequestParams
 	JourneyOrTripPartialParams
 	GetDepartureDate() int
 }
 
 type GetRegularTripParams interface {
-	RequestParams
 	JourneyOrTripPartialParams
 	GetDepartureTimeOfDay() string
 	GetDepartureWeekDays() []string
