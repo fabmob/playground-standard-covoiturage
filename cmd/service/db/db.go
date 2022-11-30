@@ -9,13 +9,7 @@
 package db
 
 import (
-	"bytes"
 	"fmt"
-
-	// for the go:embed directive
-	_ "embed"
-	"encoding/json"
-	"io"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/google/uuid"
@@ -25,6 +19,9 @@ type DB interface {
 	// Getters should never return nil.
 	GetDriverJourneys() []api.DriverJourney
 	GetPassengerJourneys() []api.PassengerJourney
+	GetDriverRegularTrips() []api.DriverRegularTrip
+	GetPassengerRegularTrips() []api.PassengerRegularTrip
+
 	GetUsers() []api.User
 	GetBookings() BookingsByID
 
@@ -38,10 +35,12 @@ type DB interface {
 
 // Mock stores the data of the server in memory
 type Mock struct {
-	DriverJourneys    []api.DriverJourney
-	PassengerJourneys []api.PassengerJourney
-	Bookings          BookingsByID
-	Users             []api.User
+	DriverJourneys        []api.DriverJourney
+	PassengerJourneys     []api.PassengerJourney
+	DriverRegularTrips    []api.DriverRegularTrip
+	PassengerRegularTrips []api.PassengerRegularTrip
+	Bookings              BookingsByID
+	Users                 []api.User
 }
 
 type BookingsByID map[api.BookingId]*api.Booking
@@ -51,6 +50,8 @@ func NewMockDB() *Mock {
 	m := Mock{}
 	m.DriverJourneys = []api.DriverJourney{}
 	m.PassengerJourneys = []api.PassengerJourney{}
+	m.DriverRegularTrips = []api.DriverRegularTrip{}
+	m.PassengerRegularTrips = []api.PassengerRegularTrip{}
 	m.Bookings = BookingsByID{}
 	m.Users = []api.User{}
 
@@ -71,6 +72,22 @@ func (m *Mock) GetPassengerJourneys() []api.PassengerJourney {
 	}
 
 	return m.PassengerJourneys
+}
+
+func (m *Mock) GetDriverRegularTrips() []api.DriverRegularTrip {
+	if m.DriverRegularTrips == nil {
+		m.DriverRegularTrips = []api.DriverRegularTrip{}
+	}
+
+	return m.DriverRegularTrips
+}
+
+func (m *Mock) GetPassengerRegularTrips() []api.PassengerRegularTrip {
+	if m.PassengerRegularTrips == nil {
+		m.PassengerRegularTrips = []api.PassengerRegularTrip{}
+	}
+
+	return m.PassengerRegularTrips
 }
 
 func (m *Mock) GetBookings() BookingsByID {
@@ -118,98 +135,4 @@ type MissingBookingErr struct{}
 
 func (err MissingBookingErr) Error() string {
 	return "missing_booking"
-}
-
-//////////////////////////////////////////////////////////
-// MockDB from data
-//////////////////////////////////////////////////////////
-
-type MockDBDataInterface struct {
-	DriverJourneys    []api.DriverJourney        `json:"driverJourneys"`
-	PassengerJourneys []api.PassengerJourney     `json:"passengerJourneys"`
-	Bookings          []*api.Booking             `json:"bookings"`
-	Users             []api.User                 `json:"users"`
-	Messages          []api.PostMessagesJSONBody `json:"messages"`
-}
-
-func toOutputData(m *Mock) MockDBDataInterface {
-	outputData := MockDBDataInterface{}
-
-	outputData.DriverJourneys = m.DriverJourneys
-	outputData.PassengerJourneys = m.PassengerJourneys
-	outputData.Users = m.Users
-
-	outputData.Bookings = make([]*api.Booking, 0, len(m.Bookings))
-	for _, booking := range m.Bookings {
-		outputData.Bookings = append(outputData.Bookings, booking)
-	}
-
-	return outputData
-}
-
-func WriteData(m *Mock, w io.Writer) error {
-	outputData := toOutputData(m)
-
-	jsonData, err := json.MarshalIndent(outputData, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	_, err = w.Write(jsonData)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func fromInputData(inputData MockDBDataInterface) *Mock {
-	var m = NewMockDB()
-
-	m.DriverJourneys = inputData.DriverJourneys
-	m.PassengerJourneys = inputData.PassengerJourneys
-	m.Users = inputData.Users
-
-	m.Bookings = make(BookingsByID, len(inputData.Bookings))
-
-	for _, booking := range inputData.Bookings {
-		m.Bookings[booking.Id] = booking
-	}
-
-	return m
-}
-
-// NewMockDBWithDefaultData initiates a MockDB with default data
-func NewMockDBWithDefaultData() *Mock {
-	return MustReadDefaultData()
-}
-
-// NewMockDBWithData reads journey data from io.Reader with json data.
-// It does not validate data against the standard.
-func NewMockDBWithData(r io.Reader) (*Mock, error) {
-	var data MockDBDataInterface
-
-	bytes, readErr := io.ReadAll(r)
-	if readErr != nil {
-		return nil, readErr
-	}
-
-	err := json.Unmarshal(bytes, &data)
-
-	return fromInputData(data), err
-}
-
-// DefaultData stores default json data
-//
-//go:embed data/defaultData.json
-var DefaultData []byte
-
-// MustReadDefaultData reads default data, and panics if any error occurs
-func MustReadDefaultData() *Mock {
-	mockDB, err := NewMockDBWithData(bytes.NewReader(DefaultData))
-	if err != nil {
-		panic(err)
-	}
-
-	return mockDB
 }

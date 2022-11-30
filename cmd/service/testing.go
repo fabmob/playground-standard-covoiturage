@@ -238,6 +238,38 @@ func checkAssertionResults(t *testing.T, assertionResults []testassert.Result) {
 	}
 }
 
+func requestAll(t *testing.T, driverOrPassenger string) api.GetJourneysParams {
+	t.Helper()
+
+	var (
+		largeTimeDelta = int(1e9)
+		largeRadius    = float32(1e6)
+	)
+
+	switch driverOrPassenger {
+	case "driver":
+		params := api.GetDriverJourneysParams{}
+		params.DepartureDate = 1e9
+		params.TimeDelta = &largeTimeDelta
+		params.DepartureRadius = &largeRadius
+		params.ArrivalRadius = &largeRadius
+
+		return &params
+
+	case "passenger":
+		params := api.GetPassengerJourneysParams{}
+		params.DepartureDate = 1e9
+		params.TimeDelta = &largeTimeDelta
+		params.DepartureRadius = &largeRadius
+		params.ArrivalRadius = &largeRadius
+
+		return &params
+
+	default:
+		panic("invalid driverOrPassenger parameter")
+	}
+}
+
 //////////////////////////////////////////////////////////
 
 type apiTestHelper interface {
@@ -480,34 +512,27 @@ func TestGetPassengerJourneysHelper(
 
 //////////////////////////////////////////////////////////
 
-func requestAll(t *testing.T, driverOrPassenger string) api.GetJourneysParams {
-	t.Helper()
+type getDriverRegularTripsTestHelper struct {
+	params *api.GetDriverRegularTripsParams
+}
 
-	var (
-		largeTimeDelta = int(1e9)
-		largeRadius    = float32(1e6)
-	)
+func (h getDriverRegularTripsTestHelper) makeRequest() (*http.Request, error) {
+	return api.NewGetDriverRegularTripsRequest(localServer, h.params)
+}
 
-	switch driverOrPassenger {
-	case "driver":
-		params := api.GetDriverJourneysParams{}
-		params.DepartureDate = 1e9
-		params.TimeDelta = &largeTimeDelta
-		params.DepartureRadius = &largeRadius
-		params.ArrivalRadius = &largeRadius
+func (h getDriverRegularTripsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	return handler.GetDriverRegularTrips(ctx, *h.params)
+}
 
-		return &params
+func (h getDriverRegularTripsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []testassert.Result {
+	return test.TestGetDriverRegularTripsResponse(request, response, flags)
+}
 
-	case "passenger":
-		params := api.GetPassengerJourneysParams{}
-		params.DepartureDate = 1e9
-		params.TimeDelta = &largeTimeDelta
-		params.DepartureRadius = &largeRadius
-		params.ArrivalRadius = &largeRadius
-
-		return &params
-
-	default:
-		panic("invalid driverOrPassenger parameter")
-	}
+func TestGetDriverRegularTripsHelper(
+	t *testing.T,
+	mockDB *db.Mock,
+	params *api.GetDriverRegularTripsParams,
+	flags test.Flags,
+) {
+	testAPI(t, getDriverRegularTripsTestHelper{params}, mockDB, flags)
 }
