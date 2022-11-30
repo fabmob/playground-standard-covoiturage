@@ -195,12 +195,13 @@ func keepJourney(params api.GetJourneysParams, trip api.Trip, schedule api.Journ
 
 // GetDriverRegularTrips searches for matching regular driver trip.
 // (GET /driver_regular_trips)
-func (*StdCovServerImpl) GetDriverRegularTrips(
+func (s *StdCovServerImpl) GetDriverRegularTrips(
 	ctx echo.Context,
 	params api.GetDriverRegularTripsParams,
 ) error {
+	driverRegularTrips := s.db.GetDriverRegularTrips()
 	// Implement me
-	return ctx.JSON(http.StatusOK, []api.DriverRegularTrip{})
+	return ctx.JSON(http.StatusOK, driverRegularTrips)
 }
 
 // PostMessages sends a mesage to the owner of a retrieved journey.
