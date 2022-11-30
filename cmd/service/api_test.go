@@ -454,6 +454,63 @@ func TestGetDriverRegularTrips(t *testing.T) {
 	}
 }
 
+func TestGetPassengerRegularTrips(t *testing.T) {
+
+	testCases := []struct {
+		name                 string
+		testParams           *api.GetPassengerRegularTripsParams
+		testData             []api.PassengerRegularTrip
+		expectNonEmptyResult bool
+	}{
+		{
+			"No data",
+			&api.GetPassengerRegularTripsParams{},
+			[]api.PassengerRegularTrip{},
+			false,
+		},
+
+		{
+			"Valid regular trip",
+			&api.GetPassengerRegularTripsParams{},
+			[]api.PassengerRegularTrip{
+				api.NewPassengerRegularTrip(),
+			},
+			true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+
+			// If data is generated, then the test data and the requests date
+			// properties are shifted, so that there are no two tests falling the
+			// same week. The aim is to isolate the tests.
+			if generateTestData {
+				/* shiftToNextWeek() */
+
+				/* for i := range tc.testData { */
+				/* 	setJourneyDatesForGeneration(&tc.testData[i].JourneySchedule) */
+				/* } */
+
+				/* setParamDatesForGeneration(tc.testParams) */
+			}
+
+			mockDB := db.NewMockDB()
+			mockDB.PassengerRegularTrips = tc.testData
+
+			flags := test.NewFlags()
+			flags.ExpectNonEmpty = tc.expectNonEmptyResult
+
+			TestGetPassengerRegularTripsHelper(
+				t,
+				mockDB,
+				tc.testParams,
+				flags,
+			)
+		})
+	}
+}
+
 func TestGetBookings(t *testing.T) {
 	testCases := []struct {
 		name               string

@@ -543,3 +543,30 @@ func TestGetDriverRegularTripsHelper(
 ) {
 	testAPI(t, getDriverRegularTripsTestHelper{params}, mockDB, flags)
 }
+
+//////////////////////////////////////////////////////////
+
+type getPassengerRegularTripsTestHelper struct {
+	params *api.GetPassengerRegularTripsParams
+}
+
+func (h getPassengerRegularTripsTestHelper) makeRequest() (*http.Request, error) {
+	return api.NewGetPassengerRegularTripsRequest(localServer, h.params)
+}
+
+func (h getPassengerRegularTripsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	return handler.GetPassengerRegularTrips(ctx, *h.params)
+}
+
+func (h getPassengerRegularTripsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []testassert.Result {
+	return test.TestGetPassengerRegularTripsResponse(request, response, flags)
+}
+
+func TestGetPassengerRegularTripsHelper(
+	t *testing.T,
+	mockDB *db.Mock,
+	params *api.GetPassengerRegularTripsParams,
+	flags test.Flags,
+) {
+	testAPI(t, getPassengerRegularTripsTestHelper{params}, mockDB, flags)
+}

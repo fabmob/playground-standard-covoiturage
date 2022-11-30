@@ -59,10 +59,18 @@ func NewPassengerJourney() PassengerJourney {
 	return pj
 }
 
+// NewDriverRegularTrip returns a valid DriverRegularTrip
 func NewDriverRegularTrip() DriverRegularTrip {
 	drt := DriverRegularTrip{}
 
 	return drt
+}
+
+// NewPassengerRegularTrip returns a valid PassengerRegularTrip
+func NewPassengerRegularTrip() PassengerRegularTrip {
+	prt := PassengerRegularTrip{}
+
+	return prt
 }
 
 func GetJourneys(s ServerInterface, ctx echo.Context, params GetJourneysParams) error {
