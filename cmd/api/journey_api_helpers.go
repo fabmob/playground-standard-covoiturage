@@ -38,6 +38,14 @@ func NewGetPassengerJourneysParams(
 	}
 }
 
+// NewTrip returns a valid Trip
+func NewTrip() Trip {
+	t := Trip{}
+	t.Operator = "example.com"
+
+	return t
+}
+
 // NewDriverJourney returns a valid DriverJourney
 func NewDriverJourney() DriverJourney {
 	dj := DriverJourney{}

@@ -21,31 +21,134 @@ func init() {
 	flag.BoolVar(&generateTestData, "generate", false, "Should test data be regenerated")
 }
 
-func TestDriverJourneys(t *testing.T) {
-	var (
-		coordsIgnore = util.Coord{Lat: 0, Lon: 0}
-		coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
-		coords900m   = util.Coord{Lat: 46.1613442, Lon: -1.2103736} // at ~900m from reference
-		coords1100m  = util.Coord{Lat: 46.1613679, Lon: -1.2086563} // at ~1100m from reference
-		coords2100m  = util.Coord{Lat: 46.1649225, Lon: -1.1954497} // at ~2100m from reference
-	)
+var (
+	coordsIgnore = util.Coord{Lat: 0, Lon: 0}
+	coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
+	coords900m   = util.Coord{Lat: 46.1613442, Lon: -1.2103736} // at ~900m from reference
+	coords1100m  = util.Coord{Lat: 46.1613679, Lon: -1.2086563} // at ~1100m from reference
+	coords2100m  = util.Coord{Lat: 46.1649225, Lon: -1.1954497} // at ~2100m from reference
+)
 
-	testCases := []struct {
-		name                 string
-		testParams           api.GetJourneysParams
-		testData             []api.DriverJourney
-		expectNonEmptyResult bool
-	}{
-		{
-			"No data",
-			&api.GetDriverJourneysParams{},
-			[]api.DriverJourney{},
-			false,
+var tripTestCases = []tripTestCase{
+	{
+		"No data",
+		&api.GetDriverJourneysParams{},
+		[]api.Trip{},
+		false,
+	},
+
+	{
+		"Departure radius 1",
+		makeParamsWithDepartureRadius(coordsRef, 1, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coords900m, coordsIgnore),
+			makeTripAtCoords(coords1100m, coordsIgnore),
 		},
+		true,
+	},
 
+	{
+		"Departure radius 2",
+		makeParamsWithDepartureRadius(coordsRef, 2, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coords900m, coordsIgnore),
+			makeTripAtCoords(coords2100m, coordsIgnore),
+		},
+		true,
+	},
+
+	{
+		"Departure radius 3",
+		makeParamsWithDepartureRadius(coordsRef, 1, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coords1100m, coordsIgnore),
+		},
+		false,
+	},
+
+	{
+		"Departure radius 3",
+		makeParamsWithDepartureRadius(coordsRef, 1, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coords900m, coordsIgnore),
+		},
+		true,
+	},
+
+	{
+		"Arrival radius 1",
+		makeParamsWithArrivalRadius(coordsRef, 1, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coordsIgnore, coords900m),
+			makeTripAtCoords(coordsIgnore, coords1100m),
+		},
+		true,
+	},
+
+	{
+		"Arrival radius 2",
+		makeParamsWithArrivalRadius(coordsRef, 2, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coordsIgnore, coords2100m),
+			makeTripAtCoords(coordsIgnore, coords900m),
+		},
+		true,
+	},
+
+	{
+		"Arrival radius 3",
+		makeParamsWithArrivalRadius(coordsRef, 1, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coordsIgnore, coords1100m),
+		},
+		false,
+	},
+
+	{
+		"Arrival radius 4",
+		makeParamsWithArrivalRadius(coordsRef, 1, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coordsIgnore, coords900m),
+		},
+		true,
+	},
+
+	{
+		"Count 1",
+		makeParamsWithCount(1, "driver"),
+		makeNTrips(1),
+		true,
+	},
+
+	{
+		"Count 2",
+		makeParamsWithCount(0, "driver"),
+		makeNTrips(1),
+		false,
+	},
+
+	{
+		"Count 3",
+		makeParamsWithCount(2, "driver"),
+		makeNTrips(4),
+		true,
+	},
+
+	{
+		"Count 4 - count > n driver journeys",
+		makeParamsWithCount(1, "driver"),
+		makeNTrips(0),
+		false,
+	},
+}
+
+func TestDriverJourneys(t *testing.T) {
+
+	driverJourneySpecificTestCases := []driverJourneysTestCase{
 		{
 			"TimeDelta 1",
-			makeParamsWithTimeDelta(10, "driver"),
+			makeParamsWithTimeDelta(10,
+				"driver"),
 			[]api.DriverJourney{
 				makeDriverJourneyAtDate(5),
 			},
@@ -54,7 +157,8 @@ func TestDriverJourneys(t *testing.T) {
 
 		{
 			"TimeDelta 2",
-			makeParamsWithTimeDelta(10, "driver"),
+			makeParamsWithTimeDelta(10,
+				"driver"),
 			[]api.DriverJourney{
 				makeDriverJourneyAtDate(15),
 			},
@@ -63,118 +167,22 @@ func TestDriverJourneys(t *testing.T) {
 
 		{
 			"TimeDelta 3",
-			makeParamsWithTimeDelta(20, "driver"),
+			makeParamsWithTimeDelta(20,
+				"driver"),
 			[]api.DriverJourney{
 				makeDriverJourneyAtDate(25),
 				makeDriverJourneyAtDate(15),
 			},
 			true,
 		},
-
-		{
-			"Departure radius 1",
-			makeParamsWithDepartureRadius(coordsRef, 1, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coords900m, coordsIgnore),
-				makeDriverJourneyAtCoords(coords1100m, coordsIgnore),
-			},
-			true,
-		},
-
-		{
-			"Departure radius 2",
-			makeParamsWithDepartureRadius(coordsRef, 2, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coords900m, coordsIgnore),
-				makeDriverJourneyAtCoords(coords2100m, coordsIgnore),
-			},
-			true,
-		},
-
-		{
-			"Departure radius 3",
-			makeParamsWithDepartureRadius(coordsRef, 1, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coords1100m, coordsIgnore),
-			},
-			false,
-		},
-
-		{
-			"Departure radius 3",
-			makeParamsWithDepartureRadius(coordsRef, 1, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coords900m, coordsIgnore),
-			},
-			true,
-		},
-
-		{
-			"Arrival radius 1",
-			makeParamsWithArrivalRadius(coordsRef, 1, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coordsIgnore, coords900m),
-				makeDriverJourneyAtCoords(coordsIgnore, coords1100m),
-			},
-			true,
-		},
-
-		{
-			"Arrival radius 2",
-			makeParamsWithArrivalRadius(coordsRef, 2, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coordsIgnore, coords2100m),
-				makeDriverJourneyAtCoords(coordsIgnore, coords900m),
-			},
-			true,
-		},
-
-		{
-			"Arrival radius 3",
-			makeParamsWithArrivalRadius(coordsRef, 1, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coordsIgnore, coords1100m),
-			},
-			false,
-		},
-
-		{
-			"Arrival radius 4",
-			makeParamsWithArrivalRadius(coordsRef, 1, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coordsIgnore, coords900m),
-			},
-			true,
-		},
-
-		{
-			"Count 1",
-			makeParamsWithCount(1, "driver"),
-			makeNDriverJourneys(1),
-			true,
-		},
-
-		{
-			"Count 2",
-			makeParamsWithCount(0, "driver"),
-			makeNDriverJourneys(1),
-			false,
-		},
-
-		{
-			"Count 3",
-			makeParamsWithCount(2, "driver"),
-			makeNDriverJourneys(4),
-			true,
-		},
-
-		{
-			"Count 4 - count > n driver journeys",
-			makeParamsWithCount(1, "driver"),
-			makeNDriverJourneys(0),
-			false,
-		},
 	}
+
+	testCases := []driverJourneysTestCase{}
+
+	for _, tc := range tripTestCases {
+		testCases = append(testCases, promoteToDriverJourneysTestCase(t, tc))
+	}
+	testCases = append(testCases, driverJourneySpecificTestCases...)
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {

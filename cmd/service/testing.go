@@ -37,6 +37,16 @@ func setupTestServer(
 	return handler, ctx, rec
 }
 
+func makeNTrips(n int) []api.Trip {
+	trips := make([]api.Trip, 0, n)
+
+	for i := 0; i < n; i++ {
+		trips = append(trips, api.NewTrip())
+	}
+
+	return trips
+}
+
 func makeNDriverJourneys(n int) []api.DriverJourney {
 	driverJourneys := make([]api.DriverJourney, 0, n)
 
@@ -55,6 +65,13 @@ func makeNPassengerJourneys(n int) []api.PassengerJourney {
 	}
 
 	return passengerJourneys
+}
+
+func makeTripAtCoords(coordPickup, coordDrop util.Coord) api.Trip {
+	t := api.NewTrip()
+	updateTripCoords(&t, coordPickup, coordDrop)
+
+	return t
 }
 
 func makeDriverJourneyAtCoords(coordPickup, coordDrop util.Coord) api.DriverJourney {
@@ -569,4 +586,54 @@ func TestGetPassengerRegularTripsHelper(
 	flags test.Flags,
 ) {
 	testAPI(t, getPassengerRegularTripsTestHelper{params}, mockDB, flags)
+}
+
+type driverJourneysTestCase struct {
+	name                 string
+	testParams           api.GetJourneysParams
+	testData             []api.DriverJourney
+	expectNonEmptyResult bool
+}
+
+type tripTestCase struct {
+	name                 string
+	testParams           api.JourneyOrTripPartialParams
+	testData             []api.Trip
+	expectNonEmptyResult bool
+}
+
+func promoteToDriverJourneysTestCase(t *testing.T, tc tripTestCase) driverJourneysTestCase {
+	t.Helper()
+
+	timeDelta := tc.testParams.GetTimeDelta()
+	departureRadius := float32(tc.testParams.GetDepartureRadius())
+	arrivalRadius := float32(tc.testParams.GetArrivalRadius())
+
+	promotedParams := &api.GetDriverJourneysParams{
+		DepartureLat:    float32(tc.testParams.GetDepartureLat()),
+		DepartureLng:    float32(tc.testParams.GetDepartureLng()),
+		ArrivalLat:      float32(tc.testParams.GetArrivalLat()),
+		ArrivalLng:      float32(tc.testParams.GetArrivalLng()),
+		TimeDelta:       &timeDelta,
+		DepartureRadius: &departureRadius,
+		ArrivalRadius:   &arrivalRadius,
+		Count:           tc.testParams.GetCount(),
+		DepartureDate:   0,
+	}
+
+	promotedData := []api.DriverJourney{}
+
+	for _, d := range tc.testData {
+		promotedTrip := api.NewDriverJourney()
+		promotedTrip.Trip = d
+
+		promotedData = append(promotedData, promotedTrip)
+	}
+
+	return driverJourneysTestCase{
+		name:                 tc.name,
+		testParams:           promotedParams,
+		testData:             promotedData,
+		expectNonEmptyResult: tc.expectNonEmptyResult,
+	}
 }
