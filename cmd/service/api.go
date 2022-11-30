@@ -246,12 +246,13 @@ func (s *StdCovServerImpl) GetPassengerJourneys(
 
 // GetPassengerRegularTrips searches for matching pasenger regular trips.
 // (GET /passenger_regular_trips)
-func (*StdCovServerImpl) GetPassengerRegularTrips(
+func (s *StdCovServerImpl) GetPassengerRegularTrips(
 	ctx echo.Context,
 	params api.GetPassengerRegularTripsParams,
 ) error {
+	passengerRegularTrips := s.db.GetPassengerRegularTrips()
 	// Implement me
-	return nil
+	return ctx.JSON(http.StatusOK, passengerRegularTrips)
 }
 
 // GetStatus gives health status of the webservice.
