@@ -59,6 +59,12 @@ func NewPassengerJourney() PassengerJourney {
 	return pj
 }
 
+func NewDriverRegularTrip() DriverRegularTrip {
+	drt := DriverRegularTrip{}
+
+	return drt
+}
+
 func GetJourneys(s ServerInterface, ctx echo.Context, params GetJourneysParams) error {
 	switch v := params.(type) {
 	case *GetPassengerJourneysParams:

@@ -47,3 +47,4 @@ Issues:
 - Reuse CarpoolBooking object in Booking object
 - DriverCarpoolBooking / FormatCarpoolBooking id format uuid
 - postConnections as operationId
+- Schedule object: no required field ? 

@@ -134,6 +134,13 @@ func makeParamsWithTimeDelta(date int, driverOrPassenger string) api.GetJourneys
 	return params
 }
 
+func makeRegularTripParamsWithTimeDelta(date int, driverOrPassenger string) *api.GetDriverRegularTripsParams {
+	params := &api.GetDriverRegularTripsParams{}
+	params.TimeDelta = &date
+
+	return params
+}
+
 func makeParamsWithCount(count int, driverOrPassenger string) api.GetJourneysParams {
 	params := &api.GetDriverJourneysParams{}
 	params.Count = &count

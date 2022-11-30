@@ -60,6 +60,10 @@ func testGetDriverRegularTrips(
 ) {
 	assert.CriticFormat(a, request, response)
 	assert.StatusCode(a, response, flags.ExpectedResponseCode)
+
+	if flags.ExpectNonEmpty {
+		assert.CriticArrayNotEmpty(a, response)
+	}
 }
 
 func testGetPassengerRegularTrips(
@@ -70,6 +74,10 @@ func testGetPassengerRegularTrips(
 ) {
 	assert.CriticFormat(a, request, response)
 	assert.StatusCode(a, response, flags.ExpectedResponseCode)
+
+	if flags.ExpectNonEmpty {
+		assert.CriticArrayNotEmpty(a, response)
+	}
 }
 
 //////////////////////////////////////////////////////////////

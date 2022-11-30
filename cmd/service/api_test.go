@@ -398,13 +398,6 @@ func TestPassengerJourneys(t *testing.T) {
 }
 
 func TestGetDriverRegularTrips(t *testing.T) {
-	var (
-		coordsIgnore = util.Coord{Lat: 0, Lon: 0}
-		coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
-		coords900m   = util.Coord{Lat: 46.1613442, Lon: -1.2103736} // at ~900m from reference
-		coords1100m  = util.Coord{Lat: 46.1613679, Lon: -1.2086563} // at ~1100m from reference
-		coords2100m  = util.Coord{Lat: 46.1649225, Lon: -1.1954497} // at ~2100m from reference
-	)
 
 	testCases := []struct {
 		name                 string
@@ -419,14 +412,14 @@ func TestGetDriverRegularTrips(t *testing.T) {
 			false,
 		},
 
-		/* { */
-		/* 	"TimeDelta 1", */
-		/* 	makeParamsWithTimeDelta(10, "passenger"), */
-		/* 	[]api.PassengerJourney{ */
-		/* 		makePassengerJourneyAtDate(5), */
-		/* 	}, */
-		/* 	true, */
-		/* }, */
+		{
+			"Valid regular trip",
+			&api.GetDriverRegularTripsParams{},
+			[]api.DriverRegularTrip{
+				api.NewDriverRegularTrip(),
+			},
+			true,
+		},
 	}
 
 	for _, tc := range testCases {
