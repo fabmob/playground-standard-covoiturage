@@ -46,6 +46,13 @@ func NewTrip() Trip {
 	return t
 }
 
+func NewJourneySchedule() JourneySchedule {
+	js := JourneySchedule{}
+	js.Type = "DYNAMIC"
+
+	return js
+}
+
 // NewDriverJourney returns a valid DriverJourney
 func NewDriverJourney() DriverJourney {
 	dj := DriverJourney{}

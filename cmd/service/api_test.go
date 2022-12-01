@@ -29,6 +29,8 @@ var (
 	coords2100m  = util.Coord{Lat: 46.1649225, Lon: -1.1954497} // at ~2100m from reference
 )
 
+// tripTestCases are common to GET /driver_journeys, GET /passenger_journeys,
+// GET /driver_regular_trips and GET /passenger_regular_trips
 var tripTestCases = []tripTestCase{
 	{
 		"No data",
@@ -142,47 +144,50 @@ var tripTestCases = []tripTestCase{
 	},
 }
 
+// journeyScheduleTestCases are test cases common to GET /driver_journeys and
+// GET /passenger_journeys
+var journeyScheduleTestCases = []journeyScheduleTestCase{
+	{
+		"TimeDelta 1",
+		makeParamsWithTimeDelta(10,
+			"driver"),
+		[]api.JourneySchedule{
+			makeJourneyScheduleAtDate(5),
+		},
+		true,
+	},
+
+	{
+		"TimeDelta 2",
+		makeParamsWithTimeDelta(10,
+			"driver"),
+		[]api.JourneySchedule{
+			makeJourneyScheduleAtDate(15),
+		},
+		false,
+	},
+
+	{
+		"TimeDelta 3",
+		makeParamsWithTimeDelta(20,
+			"driver"),
+		[]api.JourneySchedule{
+			makeJourneyScheduleAtDate(25),
+			makeJourneyScheduleAtDate(15),
+		},
+		true,
+	},
+}
+
 func TestDriverJourneys(t *testing.T) {
-
-	driverJourneySpecificTestCases := []driverJourneysTestCase{
-		{
-			"TimeDelta 1",
-			makeParamsWithTimeDelta(10,
-				"driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtDate(5),
-			},
-			true,
-		},
-
-		{
-			"TimeDelta 2",
-			makeParamsWithTimeDelta(10,
-				"driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtDate(15),
-			},
-			false,
-		},
-
-		{
-			"TimeDelta 3",
-			makeParamsWithTimeDelta(20,
-				"driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtDate(25),
-				makeDriverJourneyAtDate(15),
-			},
-			true,
-		},
-	}
-
 	testCases := []driverJourneysTestCase{}
 
 	for _, tc := range tripTestCases {
 		testCases = append(testCases, tc.promoteToDriverJourneysTestCase(t))
 	}
-	testCases = append(testCases, driverJourneySpecificTestCases...)
+	for _, tc := range journeyScheduleTestCases {
+		testCases = append(testCases, tc.promoteToDriverJourneysTestCase(t))
+	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -217,44 +222,14 @@ func TestDriverJourneys(t *testing.T) {
 }
 
 func TestPassengerJourneys(t *testing.T) {
-	passengerJourneySpecificTestCases := []passengerJourneysTestCase{
-		{
-			"TimeDelta 1",
-			makeParamsWithTimeDelta(10,
-				"passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtDate(5),
-			},
-			true,
-		},
-
-		{
-			"TimeDelta 2",
-			makeParamsWithTimeDelta(10,
-				"passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtDate(15),
-			},
-			false,
-		},
-
-		{
-			"TimeDelta 3",
-			makeParamsWithTimeDelta(20,
-				"passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtDate(25),
-				makePassengerJourneyAtDate(15),
-			},
-			true,
-		},
-	}
 	testCases := []passengerJourneysTestCase{}
 
 	for _, tc := range tripTestCases {
 		testCases = append(testCases, tc.promoteToPassengerJourneysTestCase(t))
 	}
-	testCases = append(testCases, passengerJourneySpecificTestCases...)
+	for _, tc := range journeyScheduleTestCases {
+		testCases = append(testCases, tc.promoteToPassengerJourneysTestCase(t))
+	}
 
 	for _, tc := range testCases {
 
