@@ -588,13 +588,6 @@ func TestGetPassengerRegularTripsHelper(
 	testAPI(t, getPassengerRegularTripsTestHelper{params}, mockDB, flags)
 }
 
-type driverJourneysTestCase struct {
-	name                 string
-	testParams           api.GetJourneysParams
-	testData             []api.DriverJourney
-	expectNonEmptyResult bool
-}
-
 type tripTestCase struct {
 	name                 string
 	testParams           api.JourneyOrTripPartialParams
@@ -602,7 +595,14 @@ type tripTestCase struct {
 	expectNonEmptyResult bool
 }
 
-func promoteToDriverJourneysTestCase(t *testing.T, tc tripTestCase) driverJourneysTestCase {
+type driverJourneysTestCase struct {
+	name                 string
+	testParams           api.GetJourneysParams
+	testData             []api.DriverJourney
+	expectNonEmptyResult bool
+}
+
+func (tc tripTestCase) promoteToDriverJourneysTestCase(t *testing.T) driverJourneysTestCase {
 	t.Helper()
 
 	timeDelta := tc.testParams.GetTimeDelta()
@@ -631,6 +631,49 @@ func promoteToDriverJourneysTestCase(t *testing.T, tc tripTestCase) driverJourne
 	}
 
 	return driverJourneysTestCase{
+		name:                 tc.name,
+		testParams:           promotedParams,
+		testData:             promotedData,
+		expectNonEmptyResult: tc.expectNonEmptyResult,
+	}
+}
+
+type passengerJourneysTestCase struct {
+	name                 string
+	testParams           api.GetJourneysParams
+	testData             []api.PassengerJourney
+	expectNonEmptyResult bool
+}
+
+func (tc tripTestCase) promoteToPassengerJourneysTestCase(t *testing.T) passengerJourneysTestCase {
+	t.Helper()
+
+	timeDelta := tc.testParams.GetTimeDelta()
+	departureRadius := float32(tc.testParams.GetDepartureRadius())
+	arrivalRadius := float32(tc.testParams.GetArrivalRadius())
+
+	promotedParams := &api.GetPassengerJourneysParams{
+		DepartureLat:    float32(tc.testParams.GetDepartureLat()),
+		DepartureLng:    float32(tc.testParams.GetDepartureLng()),
+		ArrivalLat:      float32(tc.testParams.GetArrivalLat()),
+		ArrivalLng:      float32(tc.testParams.GetArrivalLng()),
+		TimeDelta:       &timeDelta,
+		DepartureRadius: &departureRadius,
+		ArrivalRadius:   &arrivalRadius,
+		Count:           tc.testParams.GetCount(),
+		DepartureDate:   0,
+	}
+
+	promotedData := []api.PassengerJourney{}
+
+	for _, d := range tc.testData {
+		promotedTrip := api.NewPassengerJourney()
+		promotedTrip.Trip = d
+
+		promotedData = append(promotedData, promotedTrip)
+	}
+
+	return passengerJourneysTestCase{
 		name:                 tc.name,
 		testParams:           promotedParams,
 		testData:             promotedData,

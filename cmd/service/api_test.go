@@ -180,7 +180,7 @@ func TestDriverJourneys(t *testing.T) {
 	testCases := []driverJourneysTestCase{}
 
 	for _, tc := range tripTestCases {
-		testCases = append(testCases, promoteToDriverJourneysTestCase(t, tc))
+		testCases = append(testCases, tc.promoteToDriverJourneysTestCase(t))
 	}
 	testCases = append(testCases, driverJourneySpecificTestCases...)
 
@@ -217,31 +217,11 @@ func TestDriverJourneys(t *testing.T) {
 }
 
 func TestPassengerJourneys(t *testing.T) {
-	var (
-		coordsIgnore = util.Coord{Lat: 0, Lon: 0}
-		coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
-		coords900m   = util.Coord{Lat: 46.1613442, Lon: -1.2103736} // at ~900m from reference
-		coords1100m  = util.Coord{Lat: 46.1613679, Lon: -1.2086563} // at ~1100m from reference
-		coords2100m  = util.Coord{Lat: 46.1649225, Lon: -1.1954497} // at ~2100m from reference
-	)
-
-	testCases := []struct {
-		name                 string
-		testParams           api.GetJourneysParams
-		testData             []api.PassengerJourney
-		expectNonEmptyResult bool
-	}{
-
-		{
-			"No data",
-			&api.GetPassengerJourneysParams{},
-			[]api.PassengerJourney{},
-			false,
-		},
-
+	passengerJourneySpecificTestCases := []passengerJourneysTestCase{
 		{
 			"TimeDelta 1",
-			makeParamsWithTimeDelta(10, "passenger"),
+			makeParamsWithTimeDelta(10,
+				"passenger"),
 			[]api.PassengerJourney{
 				makePassengerJourneyAtDate(5),
 			},
@@ -250,7 +230,8 @@ func TestPassengerJourneys(t *testing.T) {
 
 		{
 			"TimeDelta 2",
-			makeParamsWithTimeDelta(10, "passenger"),
+			makeParamsWithTimeDelta(10,
+				"passenger"),
 			[]api.PassengerJourney{
 				makePassengerJourneyAtDate(15),
 			},
@@ -259,118 +240,21 @@ func TestPassengerJourneys(t *testing.T) {
 
 		{
 			"TimeDelta 3",
-			makeParamsWithTimeDelta(20, "passenger"),
+			makeParamsWithTimeDelta(20,
+				"passenger"),
 			[]api.PassengerJourney{
 				makePassengerJourneyAtDate(25),
 				makePassengerJourneyAtDate(15),
 			},
 			true,
 		},
-
-		{
-			"Departure radius 0",
-			makeParamsWithDepartureRadius(coordsRef, 1, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coords900m, coordsIgnore),
-			},
-			true,
-		},
-
-		{
-			"Departure radius 1",
-			makeParamsWithDepartureRadius(coordsRef, 1, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coords900m, coordsIgnore),
-				makePassengerJourneyAtCoords(coords1100m, coordsIgnore),
-			},
-			true,
-		},
-
-		{
-			"Departure radius 2",
-			makeParamsWithDepartureRadius(coordsRef, 2, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coords900m, coordsIgnore),
-				makePassengerJourneyAtCoords(coords2100m, coordsIgnore),
-			},
-			true,
-		},
-
-		{
-			"Departure radius 3",
-			makeParamsWithDepartureRadius(coordsRef, 1, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coords1100m, coordsIgnore),
-			},
-			false,
-		},
-
-		{
-			"Arrival radius 1",
-			makeParamsWithArrivalRadius(coordsRef, 1, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coordsIgnore, coords900m),
-				makePassengerJourneyAtCoords(coordsIgnore, coords1100m),
-			},
-			true,
-		},
-
-		{
-			"Arrival radius 2",
-			makeParamsWithArrivalRadius(coordsRef, 2, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coordsIgnore, coords2100m),
-				makePassengerJourneyAtCoords(coordsIgnore, coords900m),
-			},
-			true,
-		},
-
-		{
-			"Arrival radius 3",
-			makeParamsWithArrivalRadius(coordsRef, 1, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coordsIgnore, coords1100m),
-			},
-			false,
-		},
-
-		{
-			"Arrival radius 4",
-			makeParamsWithArrivalRadius(coordsRef, 1, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coordsIgnore, coords900m),
-			},
-			true,
-		},
-
-		{
-			"Count 1",
-			makeParamsWithCount(1, "passenger"),
-			makeNPassengerJourneys(1),
-			true,
-		},
-
-		{
-			"Count 2",
-			makeParamsWithCount(0, "passenger"),
-			makeNPassengerJourneys(1),
-			false,
-		},
-
-		{
-			"Count 3",
-			makeParamsWithCount(2, "passenger"),
-			makeNPassengerJourneys(4),
-			true,
-		},
-
-		{
-			"Count 4 - count > n passenger journeys",
-			makeParamsWithCount(1, "passenger"),
-			makeNPassengerJourneys(0),
-			false,
-		},
 	}
+	testCases := []passengerJourneysTestCase{}
+
+	for _, tc := range tripTestCases {
+		testCases = append(testCases, tc.promoteToPassengerJourneysTestCase(t))
+	}
+	testCases = append(testCases, passengerJourneySpecificTestCases...)
 
 	for _, tc := range testCases {
 
