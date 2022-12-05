@@ -76,6 +76,7 @@ func NewPassengerJourney() PassengerJourney {
 // NewDriverRegularTrip returns a valid DriverRegularTrip
 func NewDriverRegularTrip() DriverRegularTrip {
 	drt := DriverRegularTrip{}
+	drt.Operator = "example.com"
 
 	return drt
 }

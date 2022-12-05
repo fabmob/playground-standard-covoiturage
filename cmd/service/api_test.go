@@ -265,29 +265,34 @@ func TestPassengerJourneys(t *testing.T) {
 }
 
 func TestGetDriverRegularTrips(t *testing.T) {
+	testCases := []driverRegularTripsTestCase{}
 
-	testCases := []struct {
-		name                 string
-		testParams           *api.GetDriverRegularTripsParams
-		testData             []api.DriverRegularTrip
-		expectNonEmptyResult bool
-	}{
-		{
-			"No data",
-			&api.GetDriverRegularTripsParams{},
-			[]api.DriverRegularTrip{},
-			false,
-		},
-
-		{
-			"Valid regular trip",
-			&api.GetDriverRegularTripsParams{},
-			[]api.DriverRegularTrip{
-				api.NewDriverRegularTrip(),
-			},
-			true,
-		},
+	for _, tc := range tripTestCases {
+		testCases = append(testCases, tc.promoteToDriverRegularTripsTestCase(t))
 	}
+
+	/* testCases := []struct { */
+	/* 	name                 string */
+	/* 	testParams           *api.GetDriverRegularTripsParams */
+	/* 	testData             []api.DriverRegularTrip */
+	/* 	expectNonEmptyResult bool */
+	/* }{ */
+	/* 	{ */
+	/* 		"No data", */
+	/* 		&api.GetDriverRegularTripsParams{}, */
+	/* 		[]api.DriverRegularTrip{}, */
+	/* 		false, */
+	/* 	}, */
+
+	/* 	{ */
+	/* 		"Valid regular trip", */
+	/* 		&api.GetDriverRegularTripsParams{}, */
+	/* 		[]api.DriverRegularTrip{ */
+	/* 			api.NewDriverRegularTrip(), */
+	/* 		}, */
+	/* 		true, */
+	/* 	}, */
+	/* } */
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -314,7 +319,7 @@ func TestGetDriverRegularTrips(t *testing.T) {
 			TestGetDriverRegularTripsHelper(
 				t,
 				mockDB,
-				tc.testParams,
+				tc.testParams.(*api.GetDriverRegularTripsParams),
 				flags,
 			)
 		})
