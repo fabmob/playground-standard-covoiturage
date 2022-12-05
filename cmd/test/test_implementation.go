@@ -64,6 +64,11 @@ func testGetDriverRegularTrips(
 	if flags.ExpectNonEmpty {
 		assert.CriticArrayNotEmpty(a, response)
 	}
+
+	assert.JourneysDepartureRadius(a, request, response)
+	assert.JourneysArrivalRadius(a, request, response)
+	assert.JourneysCount(a, request, response)
+	assert.OperatorFieldFormat(a, response)
 }
 
 func testGetPassengerRegularTrips(
