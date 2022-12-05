@@ -164,6 +164,16 @@ func (s *StdCovServerImpl) GetDriverJourneys(
 }
 
 func keepJourney(params api.GetJourneysParams, trip api.Trip, schedule api.JourneySchedule) bool {
+	tripOK := keepTrip(params, trip)
+
+	timeDeltaOK :=
+		math.Abs(float64(schedule.PassengerPickupDate)-float64(params.GetDepartureDate())) <
+			float64(params.GetTimeDelta())
+
+	return tripOK && timeDeltaOK
+}
+
+func keepTrip(params api.JourneyOrTripPartialParams, trip api.Trip) bool {
 	coordsRequestDeparture := util.Coord{
 		Lat: float64(params.GetDepartureLat()),
 		Lon: float64(params.GetDepartureLng()),
@@ -186,11 +196,7 @@ func keepJourney(params api.GetJourneysParams, trip api.Trip, schedule api.Journ
 	arrivalRadiusOK := util.Distance(coordsRequestArrival, coordsResponseArrival) <=
 		params.GetArrivalRadius()
 
-	timeDeltaOK :=
-		math.Abs(float64(schedule.PassengerPickupDate)-float64(params.GetDepartureDate())) <
-			float64(params.GetTimeDelta())
-
-	return departureRadiusOK && arrivalRadiusOK && timeDeltaOK
+	return arrivalRadiusOK && departureRadiusOK
 }
 
 // GetDriverRegularTrips searches for matching regular driver trip.
@@ -199,9 +205,19 @@ func (s *StdCovServerImpl) GetDriverRegularTrips(
 	ctx echo.Context,
 	params api.GetDriverRegularTripsParams,
 ) error {
-	driverRegularTrips := s.db.GetDriverRegularTrips()
-	// Implement me
-	return ctx.JSON(http.StatusOK, driverRegularTrips)
+	response := []api.DriverRegularTrip{}
+
+	for _, drt := range s.db.GetDriverRegularTrips() {
+		if keepTrip(&params, drt.Trip) {
+			response = append(response, drt)
+		}
+	}
+
+	if params.Count != nil {
+		response = keepNFirst(response, *params.Count)
+	}
+
+	return ctx.JSON(http.StatusOK, response)
 }
 
 // PostMessages sends a mesage to the owner of a retrieved journey.
