@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 )
@@ -72,6 +73,10 @@ func getQueryCount(req *http.Request) (int, error) {
 	return parseQueryIntParamWithDefault(req, "count", -1)
 }
 
+func getQueryDepartureTimeOfDay(req *http.Request) (time.Time, error) {
+	return parseQueryTimeParam(req, "departureTimeOfDay")
+}
+
 func parseQueryFloatParam(request *http.Request, paramName string) (float64, error) {
 	paramStr := request.URL.Query().Get(paramName)
 	return auxParseFloat(paramStr)
@@ -90,6 +95,12 @@ func parseQueryIntParam(request *http.Request, paramName string) (int, error) {
 func parseQueryIntParamWithDefault(request *http.Request, paramName string, defaultValue int) (int, error) {
 	paramStr := request.URL.Query().Get(paramName)
 	return withDefaultInt(auxParseInt)(paramStr, defaultValue)
+}
+
+func parseQueryTimeParam(request *http.Request, paramName string) (time.Time,
+	error) {
+	paramStr := request.URL.Query().Get(paramName)
+	return time.Parse("15:04:05", paramStr)
 }
 
 func auxParseFloat(paramStr string) (float64, error) {
@@ -260,4 +271,19 @@ func getResponseOperator(obj json.RawMessage) (string, error) {
 	}
 
 	return withOperator.Operator, nil
+}
+
+func durationBetweenClocks(t1, t2 time.Time) time.Duration {
+	d1 := clockToDuration(t1)
+	d2 := clockToDuration(t2)
+
+	d := (d1 - d2).Abs()
+
+	return d
+}
+
+func clockToDuration(t time.Time) time.Duration {
+	h, m, s := t.Clock()
+	return time.Duration(h)*time.Hour + time.Duration(m)*time.Minute +
+		time.Duration(s)*time.Second
 }

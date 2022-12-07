@@ -8,6 +8,7 @@ import (
 	"math"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	tld "github.com/jpillora/go-tld"
@@ -316,6 +317,49 @@ func (a assertJourneysTimeDelta) Execute() error {
 }
 
 func (a assertJourneysTimeDelta) Describe() string {
+	return "assert query parameter \"timeDelta\""
+}
+
+/////////////////////////////////////////////////////////////
+
+type assertRegularTripsTimeDelta struct {
+	request  *http.Request
+	response *http.Response
+}
+
+func (a assertRegularTripsTimeDelta) Execute() error {
+	timeDelta, err := getQueryTimeDelta(a.request)
+	if err != nil {
+		return failedParsing("request", err)
+	}
+
+	timeOfDay, err := getQueryDepartureTimeOfDay(a.request)
+	if err != nil {
+		return failedParsing("request", err)
+	}
+
+	objsWithPickUpData, err := parseArrayResponse(a.response)
+	if err != nil {
+		return failedParsing("response", err)
+	}
+
+	for _, objWithTimeDelta := range objsWithPickUpData {
+		pickupDate, err := getResponsePickupDate(objWithTimeDelta)
+		if err != nil {
+			return failedParsing("response", err)
+		}
+
+		pickupDateTime := time.Unix(int64(pickupDate), 0)
+
+		if float64(durationBetweenClocks(pickupDateTime, timeOfDay)) > float64(timeDelta) {
+			return errors.New("a regularTrip does not comply to timeDelta query parameter")
+		}
+	}
+
+	return nil
+}
+
+func (a assertRegularTripsTimeDelta) Describe() string {
 	return "assert query parameter \"timeDelta\""
 }
 

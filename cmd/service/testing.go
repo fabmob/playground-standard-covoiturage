@@ -790,6 +790,13 @@ type driverRegularTripsTestCase struct {
 	expectNonEmptyResult bool
 }
 
+type passengerRegularTripsTestCase struct {
+	name                 string
+	testParams           api.GetRegularTripParams
+	testData             []api.PassengerRegularTrip
+	expectNonEmptyResult bool
+}
+
 func (tc tripTestCase) promoteToDriverRegularTripsTestCase(t *testing.T) driverRegularTripsTestCase {
 	t.Helper()
 
@@ -806,6 +813,29 @@ func (tc tripTestCase) promoteToDriverRegularTripsTestCase(t *testing.T) driverR
 	}
 
 	return driverRegularTripsTestCase{
+		name:                 tc.name,
+		testParams:           promotedParams,
+		testData:             promotedData,
+		expectNonEmptyResult: tc.expectNonEmptyResult,
+	}
+}
+
+func (tc tripTestCase) promoteToPassengerRegularTripsTestCase(t *testing.T) passengerRegularTripsTestCase {
+	t.Helper()
+
+	promotedParams := promotePartialParamsToTripParams(tc.testParams,
+		"passenger").(*api.GetPassengerRegularTripsParams)
+
+	promotedData := []api.PassengerRegularTrip{}
+
+	for _, d := range tc.testData {
+		promotedTrip := api.NewPassengerRegularTrip()
+		promotedTrip.Trip = d
+
+		promotedData = append(promotedData, promotedTrip)
+	}
+
+	return passengerRegularTripsTestCase{
 		name:                 tc.name,
 		testParams:           promotedParams,
 		testData:             promotedData,

@@ -78,12 +78,51 @@ func NewDriverRegularTrip() DriverRegularTrip {
 	drt := DriverRegularTrip{}
 	drt.Operator = "example.com"
 
+	tod := "08:00:00"
+	tue := TUE
+	jschedules := []JourneySchedule{
+		{
+			PassengerPickupDate: 457200,
+			Type:                "DYNAMIC",
+		},
+	}
+
+	schedules := []Schedule{
+		{
+			PassengerPickupTimeOfDay: &tod,
+			PassengerPickupDay:       &tue,
+			JourneySchedules:         &jschedules,
+		},
+	}
+
+	drt.Schedules = &schedules
+
 	return drt
 }
 
 // NewPassengerRegularTrip returns a valid PassengerRegularTrip
 func NewPassengerRegularTrip() PassengerRegularTrip {
 	prt := PassengerRegularTrip{}
+	prt.Operator = "example.com"
+
+	tod := "08:00:00"
+	tue := TUE
+	jschedules := []JourneySchedule{
+		{
+			PassengerPickupDate: 457200,
+			Type:                "DYNAMIC",
+		},
+	}
+
+	schedules := []Schedule{
+		{
+			PassengerPickupTimeOfDay: &tod,
+			PassengerPickupDay:       &tue,
+			JourneySchedules:         &jschedules,
+		},
+	}
+
+	prt.Schedules = &schedules
 
 	return prt
 }
@@ -123,6 +162,8 @@ type GetRegularTripParams interface {
 	JourneyOrTripPartialParams
 	GetDepartureTimeOfDay() string
 	GetDepartureWeekDays() []string
+	GetMinDepartureDate() *int
+	GetMaxDepartureDate() *int
 }
 
 var (
@@ -270,6 +311,14 @@ func (p *GetDriverRegularTripsParams) GetCount() *int {
 	return p.Count
 }
 
+func (p *GetDriverRegularTripsParams) GetMinDepartureDate() *int {
+	return p.MinDepartureDate
+}
+
+func (p *GetDriverRegularTripsParams) GetMaxDepartureDate() *int {
+	return p.MaxDepartureDate
+}
+
 ///////////////////////////////////////////////
 // *GetPassengerRegularTripsParams implements GetRegularTripsParams
 
@@ -317,6 +366,14 @@ func (p *GetPassengerRegularTripsParams) GetTimeDelta() int {
 
 func (p *GetPassengerRegularTripsParams) GetCount() *int {
 	return p.Count
+}
+
+func (p *GetPassengerRegularTripsParams) GetMinDepartureDate() *int {
+	return p.MinDepartureDate
+}
+
+func (p *GetPassengerRegularTripsParams) GetMaxDepartureDate() *int {
+	return p.MaxDepartureDate
 }
 
 ////////////////////////////////////////////////////

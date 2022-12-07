@@ -4,6 +4,7 @@ import (
 	"errors"
 	"math"
 	"net/http"
+	"time"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
@@ -173,6 +174,74 @@ func keepJourney(params api.GetJourneysParams, trip api.Trip, schedule api.Journ
 	return tripOK && timeDeltaOK
 }
 
+// filterSchedules filters schedules for regular trips given query parameters.
+// Expects non-nil "schedules" argument.
+func keepSchedule(params api.GetRegularTripParams, schedule api.Schedule) (bool, error) {
+
+	if schedule.PassengerPickupDay != nil && schedule.PassengerPickupTimeOfDay != nil {
+		passengerPickupDay := *schedule.PassengerPickupDay
+		passengerPickupTimeOfDay := *schedule.PassengerPickupTimeOfDay
+
+		allowedWeekdays := params.GetDepartureWeekDays()
+		validWeekDay := false
+
+		for _, allowedWeekday := range allowedWeekdays {
+			if string(passengerPickupDay) == allowedWeekday {
+				validWeekDay = true
+				break
+			}
+		}
+
+		d, err := durationBetweenTimeOfDays(passengerPickupTimeOfDay, params.GetDepartureTimeOfDay())
+		if err != nil {
+			return false, err
+		}
+		validTimeOfDay := int(d) <= params.GetTimeDelta()
+
+		validPeriod := true
+
+		if schedule.JourneySchedules != nil {
+			validPeriod = false
+			for _, js := range *schedule.JourneySchedules {
+				if params.GetMinDepartureDate() != nil {
+					min := *params.GetMinDepartureDate()
+					if js.PassengerPickupDate < int64(min) {
+						continue
+					}
+				}
+				if params.GetMaxDepartureDate() != nil {
+
+					max := *params.GetMaxDepartureDate()
+					if js.PassengerPickupDate > int64(max) {
+						continue
+					}
+				}
+				validPeriod = true
+				break
+			}
+		}
+
+		if validWeekDay && validTimeOfDay && validPeriod {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func durationBetweenTimeOfDays(t1, t2 string) (float64, error) {
+	time1, err := time.Parse("15:04:05", t1)
+	if err != nil {
+		return 0, err
+	}
+
+	time2, err := time.Parse("15:04:05", t2)
+	if err != nil {
+		return 0, err
+	}
+
+	return time1.Sub(time2).Abs().Seconds(), nil
+}
+
 func keepTrip(params api.JourneyOrTripPartialParams, trip api.Trip) bool {
 	coordsRequestDeparture := util.Coord{
 		Lat: float64(params.GetDepartureLat()),
@@ -209,7 +278,20 @@ func (s *StdCovServerImpl) GetDriverRegularTrips(
 
 	for _, drt := range s.db.GetDriverRegularTrips() {
 		if keepTrip(&params, drt.Trip) {
-			response = append(response, drt)
+
+			if drt.Schedules != nil {
+				for _, sch := range *drt.Schedules {
+					scheduleOK, err := keepSchedule(&params, sch)
+					if err != nil {
+						return ctx.JSON(http.StatusBadRequest, errorBody(err))
+					}
+
+					if scheduleOK {
+						response = append(response, drt)
+						break
+					}
+				}
+			}
 		}
 	}
 
@@ -266,9 +348,32 @@ func (s *StdCovServerImpl) GetPassengerRegularTrips(
 	ctx echo.Context,
 	params api.GetPassengerRegularTripsParams,
 ) error {
-	passengerRegularTrips := s.db.GetPassengerRegularTrips()
-	// Implement me
-	return ctx.JSON(http.StatusOK, passengerRegularTrips)
+	response := []api.PassengerRegularTrip{}
+
+	for _, drt := range s.db.GetPassengerRegularTrips() {
+		if keepTrip(&params, drt.Trip) {
+
+			if drt.Schedules != nil {
+				for _, sch := range *drt.Schedules {
+					scheduleOK, err := keepSchedule(&params, sch)
+					if err != nil {
+						return ctx.JSON(http.StatusBadRequest, errorBody(err))
+					}
+
+					if scheduleOK {
+						response = append(response, drt)
+						break
+					}
+				}
+			}
+		}
+	}
+
+	if params.Count != nil {
+		response = keepNFirst(response, *params.Count)
+	}
+
+	return ctx.JSON(http.StatusOK, response)
 }
 
 // GetStatus gives health status of the webservice.

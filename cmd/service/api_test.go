@@ -286,8 +286,8 @@ func TestGetDriverRegularTrips(t *testing.T) {
 						for _, schedule := range schedules {
 							if schedule.JourneySchedules != nil {
 								jschedules := *schedule.JourneySchedules
-								for _, jschedule := range jschedules {
-									setJourneyDatesForGeneration(&jschedule)
+								for i := range jschedules {
+									setJourneyDatesForGeneration(&jschedules[i])
 								}
 							}
 						}
@@ -314,28 +314,10 @@ func TestGetDriverRegularTrips(t *testing.T) {
 }
 
 func TestGetPassengerRegularTrips(t *testing.T) {
+	testCases := []passengerRegularTripsTestCase{}
 
-	testCases := []struct {
-		name                 string
-		testParams           *api.GetPassengerRegularTripsParams
-		testData             []api.PassengerRegularTrip
-		expectNonEmptyResult bool
-	}{
-		{
-			"No data",
-			&api.GetPassengerRegularTripsParams{},
-			[]api.PassengerRegularTrip{},
-			false,
-		},
-
-		{
-			"Valid regular trip",
-			&api.GetPassengerRegularTripsParams{},
-			[]api.PassengerRegularTrip{
-				api.NewPassengerRegularTrip(),
-			},
-			true,
-		},
+	for _, tc := range tripTestCases {
+		testCases = append(testCases, tc.promoteToPassengerRegularTripsTestCase(t))
 	}
 
 	for _, tc := range testCases {
@@ -345,13 +327,23 @@ func TestGetPassengerRegularTrips(t *testing.T) {
 			// properties are shifted, so that there are no two tests falling the
 			// same week. The aim is to isolate the tests.
 			if generateTestData {
-				/* shiftToNextWeek() */
+				shiftToNextWeek()
 
-				/* for i := range tc.testData { */
-				/* 	setJourneyDatesForGeneration(&tc.testData[i].JourneySchedule) */
-				/* } */
+				for i := range tc.testData {
+					if tc.testData[i].Schedules != nil {
+						schedules := *tc.testData[i].Schedules
+						for _, schedule := range schedules {
+							if schedule.JourneySchedules != nil {
+								jschedules := *schedule.JourneySchedules
+								for i := range jschedules {
+									setJourneyDatesForGeneration(&jschedules[i])
+								}
+							}
+						}
+					}
+				}
 
-				/* setParamDatesForGeneration(tc.testParams) */
+				setParamDatesForGeneration(tc.testParams)
 			}
 
 			mockDB := db.NewMockDB()
@@ -363,7 +355,7 @@ func TestGetPassengerRegularTrips(t *testing.T) {
 			TestGetPassengerRegularTripsHelper(
 				t,
 				mockDB,
-				tc.testParams,
+				tc.testParams.(*api.GetPassengerRegularTripsParams),
 				flags,
 			)
 		})
