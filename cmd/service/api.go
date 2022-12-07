@@ -170,21 +170,16 @@ func (s *StdCovServerImpl) GetDriverRegularTrips(
 	response := []api.DriverRegularTrip{}
 
 	for _, drt := range s.db.GetDriverRegularTrips() {
-		if keepTrip(&params, drt.Trip) {
+		if !keepTrip(&params, drt.Trip) {
+			continue
+		}
 
-			if drt.Schedules != nil {
-				for _, sch := range *drt.Schedules {
-					scheduleOK, err := keepSchedule(&params, sch)
-					if err != nil {
-						return ctx.JSON(http.StatusBadRequest, errorBody(err))
-					}
-
-					if scheduleOK {
-						response = append(response, drt)
-						break
-					}
-				}
-			}
+		schedulesOK, err := anyScheduleOK(drt.Schedules, &params)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, errorBody(err))
+		}
+		if schedulesOK {
+			response = append(response, drt)
 		}
 	}
 
@@ -243,22 +238,17 @@ func (s *StdCovServerImpl) GetPassengerRegularTrips(
 ) error {
 	response := []api.PassengerRegularTrip{}
 
-	for _, drt := range s.db.GetPassengerRegularTrips() {
-		if keepTrip(&params, drt.Trip) {
+	for _, prt := range s.db.GetPassengerRegularTrips() {
+		if !keepTrip(&params, prt.Trip) {
+			continue
+		}
 
-			if drt.Schedules != nil {
-				for _, sch := range *drt.Schedules {
-					scheduleOK, err := keepSchedule(&params, sch)
-					if err != nil {
-						return ctx.JSON(http.StatusBadRequest, errorBody(err))
-					}
-
-					if scheduleOK {
-						response = append(response, drt)
-						break
-					}
-				}
-			}
+		schedulesOK, err := anyScheduleOK(prt.Schedules, &params)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, errorBody(err))
+		}
+		if schedulesOK {
+			response = append(response, prt)
 		}
 	}
 

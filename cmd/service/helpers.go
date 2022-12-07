@@ -145,6 +145,27 @@ func keepSchedule(params api.GetRegularTripParams, schedule api.Schedule) (bool,
 	return validWeekDay && validTimeOfDay && validPeriod, nil
 }
 
+// anyScheduleOK checks that at least one schedule is compliant to the query
+// parameters.
+func anyScheduleOK(schedules *[]api.Schedule, params api.GetRegularTripParams) (bool, error) {
+	if schedules == nil {
+		return false, nil
+	}
+
+	for _, sch := range *schedules {
+		scheduleOK, err := keepSchedule(params, sch)
+		if err != nil {
+			return false, err
+		}
+
+		if scheduleOK {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
 // isAllowedWeekday checks if day is in allowedDays
 func isAllowedWeekday(day api.SchedulePassengerPickupDay, allowedDays []string) bool {
 	validDay := false
