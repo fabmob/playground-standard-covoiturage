@@ -7,6 +7,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+var (
+	ExampleOperator    = "example.com"
+	ExampleJourneyType = DYNAMIC
+)
+
 // NewGetDriverJourneysParams returns query parameters, looking for a trip
 // from "departure" to "arrival" at "departureDate".
 func NewGetDriverJourneysParams(
@@ -41,14 +46,15 @@ func NewGetPassengerJourneysParams(
 // NewTrip returns a valid Trip
 func NewTrip() Trip {
 	t := Trip{}
-	t.Operator = "example.com"
+	t.Operator = ExampleOperator
 
 	return t
 }
 
+// NewJourneySchedule returns a valid JourneySchedule
 func NewJourneySchedule() JourneySchedule {
 	js := JourneySchedule{}
-	js.Type = "DYNAMIC"
+	js.Type = ExampleJourneyType
 
 	return js
 }
@@ -56,8 +62,8 @@ func NewJourneySchedule() JourneySchedule {
 // NewDriverJourney returns a valid DriverJourney
 func NewDriverJourney() DriverJourney {
 	dj := DriverJourney{}
-	dj.Type = "DYNAMIC"
-	dj.Operator = "example.com"
+	dj.JourneySchedule = NewJourneySchedule()
+	dj.Trip = NewTrip()
 
 	return dj
 }
@@ -65,37 +71,40 @@ func NewDriverJourney() DriverJourney {
 // NewPassengerJourney returns a valid PassengerJourney
 func NewPassengerJourney() PassengerJourney {
 	pj := PassengerJourney{}
+	pj.JourneySchedule = NewJourneySchedule()
+	pj.Trip = NewTrip()
+
+	// despite being a pointer, DriverDepartureDate is required
 	departureDate := int64(0)
-	pj.Operator = "example.com"
 	pj.DriverDepartureDate = &departureDate
-	pj.Type = "DYNAMIC"
 
 	return pj
+}
+
+// NewSchedule returns a valid Schedule
+func NewSchedule() Schedule {
+
+	timeOfDay := "08:00:00"
+	day := TUE
+	js := NewJourneySchedule()
+	// Pickup date compliant with above information
+	js.PassengerPickupDate = 457200
+
+	return Schedule{
+		PassengerPickupTimeOfDay: &timeOfDay,
+		PassengerPickupDay:       &day,
+		JourneySchedules:         &[]JourneySchedule{js},
+	}
 }
 
 // NewDriverRegularTrip returns a valid DriverRegularTrip
 func NewDriverRegularTrip() DriverRegularTrip {
 	drt := DriverRegularTrip{}
-	drt.Operator = "example.com"
+	drt.Trip = NewTrip()
 
-	tod := "08:00:00"
-	tue := TUE
-	jschedules := []JourneySchedule{
-		{
-			PassengerPickupDate: 457200,
-			Type:                "DYNAMIC",
-		},
+	drt.Schedules = &[]Schedule{
+		NewSchedule(),
 	}
-
-	schedules := []Schedule{
-		{
-			PassengerPickupTimeOfDay: &tod,
-			PassengerPickupDay:       &tue,
-			JourneySchedules:         &jschedules,
-		},
-	}
-
-	drt.Schedules = &schedules
 
 	return drt
 }
@@ -103,26 +112,11 @@ func NewDriverRegularTrip() DriverRegularTrip {
 // NewPassengerRegularTrip returns a valid PassengerRegularTrip
 func NewPassengerRegularTrip() PassengerRegularTrip {
 	prt := PassengerRegularTrip{}
-	prt.Operator = "example.com"
+	prt.Trip = NewTrip()
 
-	tod := "08:00:00"
-	tue := TUE
-	jschedules := []JourneySchedule{
-		{
-			PassengerPickupDate: 457200,
-			Type:                "DYNAMIC",
-		},
+	prt.Schedules = &[]Schedule{
+		NewSchedule(),
 	}
-
-	schedules := []Schedule{
-		{
-			PassengerPickupTimeOfDay: &tod,
-			PassengerPickupDay:       &tue,
-			JourneySchedules:         &jschedules,
-		},
-	}
-
-	prt.Schedules = &schedules
 
 	return prt
 }
