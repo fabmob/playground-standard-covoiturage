@@ -271,29 +271,6 @@ func TestGetDriverRegularTrips(t *testing.T) {
 		testCases = append(testCases, tc.promoteToDriverRegularTripsTestCase(t))
 	}
 
-	/* testCases := []struct { */
-	/* 	name                 string */
-	/* 	testParams           *api.GetDriverRegularTripsParams */
-	/* 	testData             []api.DriverRegularTrip */
-	/* 	expectNonEmptyResult bool */
-	/* }{ */
-	/* 	{ */
-	/* 		"No data", */
-	/* 		&api.GetDriverRegularTripsParams{}, */
-	/* 		[]api.DriverRegularTrip{}, */
-	/* 		false, */
-	/* 	}, */
-
-	/* 	{ */
-	/* 		"Valid regular trip", */
-	/* 		&api.GetDriverRegularTripsParams{}, */
-	/* 		[]api.DriverRegularTrip{ */
-	/* 			api.NewDriverRegularTrip(), */
-	/* 		}, */
-	/* 		true, */
-	/* 	}, */
-	/* } */
-
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 
@@ -301,13 +278,23 @@ func TestGetDriverRegularTrips(t *testing.T) {
 			// properties are shifted, so that there are no two tests falling the
 			// same week. The aim is to isolate the tests.
 			if generateTestData {
-				/* shiftToNextWeek() */
+				shiftToNextWeek()
 
-				/* for i := range tc.testData { */
-				/* 	setJourneyDatesForGeneration(&tc.testData[i].JourneySchedule) */
-				/* } */
+				for i := range tc.testData {
+					if tc.testData[i].Schedules != nil {
+						schedules := *tc.testData[i].Schedules
+						for _, schedule := range schedules {
+							if schedule.JourneySchedules != nil {
+								jschedules := *schedule.JourneySchedules
+								for _, jschedule := range jschedules {
+									setJourneyDatesForGeneration(&jschedule)
+								}
+							}
+						}
+					}
+				}
 
-				/* setParamDatesForGeneration(tc.testParams) */
+				setParamDatesForGeneration(tc.testParams)
 			}
 
 			mockDB := db.NewMockDB()
