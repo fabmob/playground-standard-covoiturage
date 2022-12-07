@@ -47,26 +47,6 @@ func makeNTrips(n int) []api.Trip {
 	return trips
 }
 
-func makeNDriverJourneys(n int) []api.DriverJourney {
-	driverJourneys := make([]api.DriverJourney, 0, n)
-
-	for i := 0; i < n; i++ {
-		driverJourneys = append(driverJourneys, api.NewDriverJourney())
-	}
-
-	return driverJourneys
-}
-
-func makeNPassengerJourneys(n int) []api.PassengerJourney {
-	passengerJourneys := make([]api.PassengerJourney, 0, n)
-
-	for i := 0; i < n; i++ {
-		passengerJourneys = append(passengerJourneys, api.NewPassengerJourney())
-	}
-
-	return passengerJourneys
-}
-
 func makeTripAtCoords(coordPickup, coordDrop util.Coord) api.Trip {
 	t := api.NewTrip()
 	updateTripCoords(&t, coordPickup, coordDrop)
@@ -74,32 +54,11 @@ func makeTripAtCoords(coordPickup, coordDrop util.Coord) api.Trip {
 	return t
 }
 
-func makeDriverJourneyAtCoords(coordPickup, coordDrop util.Coord) api.DriverJourney {
-	dj := api.NewDriverJourney()
-	updateTripCoords(&dj.Trip, coordPickup, coordDrop)
-
-	return dj
-}
-
-func makePassengerJourneyAtCoords(coordPickup, coordDrop util.Coord) api.PassengerJourney {
-	pj := api.NewPassengerJourney()
-	updateTripCoords(&pj.Trip, coordPickup, coordDrop)
-
-	return pj
-}
-
 func updateTripCoords(t *api.Trip, coordPickup, coordDrop util.Coord) {
 	t.PassengerPickupLat = coordPickup.Lat
 	t.PassengerPickupLng = coordPickup.Lon
 	t.PassengerDropLat = coordDrop.Lat
 	t.PassengerDropLng = coordDrop.Lon
-}
-
-func makeDriverJourneyAtDate(date int64) api.DriverJourney {
-	dj := api.NewDriverJourney()
-	dj.PassengerPickupDate = date
-
-	return dj
 }
 
 func makeJourneyScheduleAtDate(date int64) api.JourneySchedule {
@@ -111,13 +70,6 @@ func makeJourneyScheduleAtDate(date int64) api.JourneySchedule {
 	js.DriverDepartureDate = &dep
 
 	return js
-}
-
-func makePassengerJourneyAtDate(date int64) api.PassengerJourney {
-	pj := api.NewPassengerJourney()
-	pj.PassengerPickupDate = date
-
-	return pj
 }
 
 func castDriverToPassengerJourney(p *api.GetDriverJourneysParams) *api.GetPassengerJourneysParams {
@@ -167,13 +119,6 @@ func makeParamsWithTimeDelta(date int, driverOrPassenger string) api.GetJourneys
 	if driverOrPassenger == "passenger" {
 		return castDriverToPassengerJourney(params)
 	}
-
-	return params
-}
-
-func makeRegularTripParamsWithTimeDelta(date int, driverOrPassenger string) *api.GetDriverRegularTripsParams {
-	params := &api.GetDriverRegularTripsParams{}
-	params.TimeDelta = &date
 
 	return params
 }
