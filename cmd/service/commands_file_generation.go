@@ -76,6 +76,16 @@ func appendData(from *db.Mock, to *db.Mock) {
 		from.GetUsers()...,
 	)
 
+	to.DriverRegularTrips = append(
+		to.GetDriverRegularTrips(),
+		from.GetDriverRegularTrips()...,
+	)
+
+	to.PassengerRegularTrips = append(
+		to.GetPassengerRegularTrips(),
+		from.GetPassengerRegularTrips()...,
+	)
+
 	for _, booking := range from.GetBookings() {
 		err := to.AddBooking(*booking)
 		util.PanicIf(err)
@@ -145,12 +155,42 @@ func setJourneyDatesForGeneration(schedule *api.JourneySchedule) {
 	}
 }
 
-func setParamDatesForGeneration(params api.GetJourneysParams) {
+func setParamDatesForGeneration(params api.JourneyOrTripPartialParams) {
 	switch p := params.(type) {
 	case *api.GetDriverJourneysParams:
 		p.DepartureDate += int(unixEpochCounter)
 
 	case *api.GetPassengerJourneysParams:
 		p.DepartureDate += int(unixEpochCounter)
+
+	case *api.GetDriverRegularTripsParams:
+		if p.MinDepartureDate != nil {
+			*p.MinDepartureDate += int(unixEpochCounter)
+		} else {
+			a := int(unixEpochCounter)
+			p.MinDepartureDate = &a
+		}
+
+		if p.MaxDepartureDate != nil {
+			*p.MaxDepartureDate += int(unixEpochCounter) + weekInSeconds
+		} else {
+			a := int(unixEpochCounter) + weekInSeconds
+			p.MaxDepartureDate = &a
+		}
+
+	case *api.GetPassengerRegularTripsParams:
+		if p.MinDepartureDate != nil {
+			*p.MinDepartureDate += int(unixEpochCounter)
+		} else {
+			a := int(unixEpochCounter)
+			p.MinDepartureDate = &a
+		}
+
+		if p.MaxDepartureDate != nil {
+			*p.MaxDepartureDate += int(unixEpochCounter) + weekInSeconds
+		} else {
+			a := int(unixEpochCounter) + weekInSeconds
+			p.MaxDepartureDate = &a
+		}
 	}
 }

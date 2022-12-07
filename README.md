@@ -123,13 +123,13 @@ For an example of a thorough test suite for an API, look at
 that works together with [this data](./cmd/service/data/testData.gen.json).
 
 
-### GET /driver_journey and GET /passenger_journey
+### GET /driver_journey, GET /passenger_journey, GET /driver_regular_trips, GET/passenger_regular_trips
 
 The following assertions are run on these two endpoints :
 - assert format
 - assert response status code 200 (optional)
 - assert header Content-Type:application/json
-- assert query parameter "departureRadius"
+- assert query parameter "departureRadius" 
 - assert query parameter "arrivalRadius"
 - assert query parameter "timeDelta"
 - assert query parameter "count"

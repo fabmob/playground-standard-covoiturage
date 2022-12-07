@@ -37,38 +37,21 @@ func setupTestServer(
 	return handler, ctx, rec
 }
 
-func makeNDriverJourneys(n int) []api.DriverJourney {
-	driverJourneys := make([]api.DriverJourney, 0, n)
+func makeNTrips(n int) []api.Trip {
+	trips := make([]api.Trip, 0, n)
 
 	for i := 0; i < n; i++ {
-		driverJourneys = append(driverJourneys, api.NewDriverJourney())
+		trips = append(trips, api.NewTrip())
 	}
 
-	return driverJourneys
+	return trips
 }
 
-func makeNPassengerJourneys(n int) []api.PassengerJourney {
-	passengerJourneys := make([]api.PassengerJourney, 0, n)
+func makeTripAtCoords(coordPickup, coordDrop util.Coord) api.Trip {
+	t := api.NewTrip()
+	updateTripCoords(&t, coordPickup, coordDrop)
 
-	for i := 0; i < n; i++ {
-		passengerJourneys = append(passengerJourneys, api.NewPassengerJourney())
-	}
-
-	return passengerJourneys
-}
-
-func makeDriverJourneyAtCoords(coordPickup, coordDrop util.Coord) api.DriverJourney {
-	dj := api.NewDriverJourney()
-	updateTripCoords(&dj.Trip, coordPickup, coordDrop)
-
-	return dj
-}
-
-func makePassengerJourneyAtCoords(coordPickup, coordDrop util.Coord) api.PassengerJourney {
-	pj := api.NewPassengerJourney()
-	updateTripCoords(&pj.Trip, coordPickup, coordDrop)
-
-	return pj
+	return t
 }
 
 func updateTripCoords(t *api.Trip, coordPickup, coordDrop util.Coord) {
@@ -78,21 +61,18 @@ func updateTripCoords(t *api.Trip, coordPickup, coordDrop util.Coord) {
 	t.PassengerDropLng = coordDrop.Lon
 }
 
-func makeDriverJourneyAtDate(date int64) api.DriverJourney {
-	dj := api.NewDriverJourney()
-	dj.PassengerPickupDate = date
+func makeJourneyScheduleAtDate(date int64) api.JourneySchedule {
+	js := api.NewJourneySchedule()
+	js.PassengerPickupDate = date
 
-	return dj
+	// DriverDepartureDate required for passenger journeys
+	dep := int64(0)
+	js.DriverDepartureDate = &dep
+
+	return js
 }
 
-func makePassengerJourneyAtDate(date int64) api.PassengerJourney {
-	pj := api.NewPassengerJourney()
-	pj.PassengerPickupDate = date
-
-	return pj
-}
-
-func castDriverToPassenger(p *api.GetDriverJourneysParams) *api.GetPassengerJourneysParams {
+func castDriverToPassengerJourney(p *api.GetDriverJourneysParams) *api.GetPassengerJourneysParams {
 	if p == nil {
 		return nil
 	}
@@ -101,12 +81,21 @@ func castDriverToPassenger(p *api.GetDriverJourneysParams) *api.GetPassengerJour
 	return &castedP
 }
 
+func castDriverToPassengerTrip(p *api.GetDriverRegularTripsParams) *api.GetPassengerRegularTripsParams {
+	if p == nil {
+		return nil
+	}
+
+	castedP := api.GetPassengerRegularTripsParams(*p)
+	return &castedP
+}
+
 func makeParamsWithDepartureRadius(departureCoord util.Coord, departureRadius float32, driverOrPassenger string) api.GetJourneysParams {
 	params := api.NewGetDriverJourneysParams(departureCoord, util.CoordIgnore, 0)
 	params.DepartureRadius = &departureRadius
 
 	if driverOrPassenger == "passenger" {
-		return castDriverToPassenger(params)
+		return castDriverToPassengerJourney(params)
 	}
 
 	return params
@@ -117,7 +106,7 @@ func makeParamsWithArrivalRadius(arrivalCoord util.Coord, arrivalRadius float32,
 	params.ArrivalRadius = &arrivalRadius
 
 	if driverOrPassenger == "passenger" {
-		return castDriverToPassenger(params)
+		return castDriverToPassengerJourney(params)
 	}
 
 	return params
@@ -128,7 +117,7 @@ func makeParamsWithTimeDelta(date int, driverOrPassenger string) api.GetJourneys
 	params.TimeDelta = &date
 
 	if driverOrPassenger == "passenger" {
-		return castDriverToPassenger(params)
+		return castDriverToPassengerJourney(params)
 	}
 
 	return params
@@ -139,7 +128,7 @@ func makeParamsWithCount(count int, driverOrPassenger string) api.GetJourneysPar
 	params.Count = &count
 
 	if driverOrPassenger == "passenger" {
-		return castDriverToPassenger(params)
+		return castDriverToPassengerJourney(params)
 	}
 
 	return params
@@ -235,6 +224,38 @@ func checkAssertionResults(t *testing.T, assertionResults []testassert.Result) {
 		if err := ar.Unwrap(); err != nil {
 			t.Error(err)
 		}
+	}
+}
+
+func requestAll(t *testing.T, driverOrPassenger string) api.GetJourneysParams {
+	t.Helper()
+
+	var (
+		largeTimeDelta = int(1e9)
+		largeRadius    = float32(1e6)
+	)
+
+	switch driverOrPassenger {
+	case "driver":
+		params := api.GetDriverJourneysParams{}
+		params.DepartureDate = 1e9
+		params.TimeDelta = &largeTimeDelta
+		params.DepartureRadius = &largeRadius
+		params.ArrivalRadius = &largeRadius
+
+		return &params
+
+	case "passenger":
+		params := api.GetPassengerJourneysParams{}
+		params.DepartureDate = 1e9
+		params.TimeDelta = &largeTimeDelta
+		params.DepartureRadius = &largeRadius
+		params.ArrivalRadius = &largeRadius
+
+		return &params
+
+	default:
+		panic("invalid driverOrPassenger parameter")
 	}
 }
 
@@ -480,34 +501,289 @@ func TestGetPassengerJourneysHelper(
 
 //////////////////////////////////////////////////////////
 
-func requestAll(t *testing.T, driverOrPassenger string) api.GetJourneysParams {
+type getDriverRegularTripsTestHelper struct {
+	params *api.GetDriverRegularTripsParams
+}
+
+func (h getDriverRegularTripsTestHelper) makeRequest() (*http.Request, error) {
+	return api.NewGetDriverRegularTripsRequest(localServer, h.params)
+}
+
+func (h getDriverRegularTripsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	return handler.GetDriverRegularTrips(ctx, *h.params)
+}
+
+func (h getDriverRegularTripsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []testassert.Result {
+	return test.TestGetDriverRegularTripsResponse(request, response, flags)
+}
+
+func TestGetDriverRegularTripsHelper(
+	t *testing.T,
+	mockDB *db.Mock,
+	params *api.GetDriverRegularTripsParams,
+	flags test.Flags,
+) {
+	testAPI(t, getDriverRegularTripsTestHelper{params}, mockDB, flags)
+}
+
+//////////////////////////////////////////////////////////
+
+type getPassengerRegularTripsTestHelper struct {
+	params *api.GetPassengerRegularTripsParams
+}
+
+func (h getPassengerRegularTripsTestHelper) makeRequest() (*http.Request, error) {
+	return api.NewGetPassengerRegularTripsRequest(localServer, h.params)
+}
+
+func (h getPassengerRegularTripsTestHelper) callAPI(handler *StdCovServerImpl, ctx echo.Context) error {
+	return handler.GetPassengerRegularTrips(ctx, *h.params)
+}
+
+func (h getPassengerRegularTripsTestHelper) testResponse(request *http.Request, response *http.Response, flags test.Flags) []testassert.Result {
+	return test.TestGetPassengerRegularTripsResponse(request, response, flags)
+}
+
+func TestGetPassengerRegularTripsHelper(
+	t *testing.T,
+	mockDB *db.Mock,
+	params *api.GetPassengerRegularTripsParams,
+	flags test.Flags,
+) {
+	testAPI(t, getPassengerRegularTripsTestHelper{params}, mockDB, flags)
+}
+
+type tripTestCase struct {
+	name                 string
+	testParams           api.JourneyOrTripPartialParams
+	testData             []api.Trip
+	expectNonEmptyResult bool
+}
+
+type journeyScheduleTestCase struct {
+	name                 string
+	testParams           api.GetJourneysParams
+	testData             []api.JourneySchedule
+	expectNonEmptyResult bool
+}
+
+type driverJourneysTestCase struct {
+	name                 string
+	testParams           api.GetJourneysParams
+	testData             []api.DriverJourney
+	expectNonEmptyResult bool
+}
+
+func promotePartialParamsToJourneysParams(testParams api.JourneyOrTripPartialParams, typeStr string) api.GetJourneysParams {
+
+	timeDelta := testParams.GetTimeDelta()
+	departureRadius := float32(testParams.GetDepartureRadius())
+	arrivalRadius := float32(testParams.GetArrivalRadius())
+
+	promotedParams := &api.GetDriverJourneysParams{
+		DepartureLat:    float32(testParams.GetDepartureLat()),
+		DepartureLng:    float32(testParams.GetDepartureLng()),
+		ArrivalLat:      float32(testParams.GetArrivalLat()),
+		ArrivalLng:      float32(testParams.GetArrivalLng()),
+		TimeDelta:       &timeDelta,
+		DepartureRadius: &departureRadius,
+		ArrivalRadius:   &arrivalRadius,
+		Count:           testParams.GetCount(),
+		DepartureDate:   0,
+	}
+
+	if typeStr == "passenger" {
+		return castDriverToPassengerJourney(promotedParams)
+	}
+
+	return promotedParams
+}
+
+func promotePartialParamsToTripParams(testParams api.JourneyOrTripPartialParams, typeStr string) api.GetRegularTripParams {
+
+	timeDelta := testParams.GetTimeDelta()
+	departureRadius := float32(testParams.GetDepartureRadius())
+	arrivalRadius := float32(testParams.GetArrivalRadius())
+
+	promotedParams := &api.GetDriverRegularTripsParams{
+		DepartureLat:       float32(testParams.GetDepartureLat()),
+		DepartureLng:       float32(testParams.GetDepartureLng()),
+		ArrivalLat:         float32(testParams.GetArrivalLat()),
+		ArrivalLng:         float32(testParams.GetArrivalLng()),
+		TimeDelta:          &timeDelta,
+		DepartureRadius:    &departureRadius,
+		ArrivalRadius:      &arrivalRadius,
+		Count:              testParams.GetCount(),
+		MinDepartureDate:   nil,
+		MaxDepartureDate:   nil,
+		DepartureTimeOfDay: "08:00:00",
+		DepartureWeekdays:  nil,
+	}
+
+	if typeStr == "passenger" {
+		return castDriverToPassengerTrip(promotedParams)
+	}
+
+	return promotedParams
+}
+
+func (tc tripTestCase) promoteToDriverJourneysTestCase(t *testing.T) driverJourneysTestCase {
 	t.Helper()
 
-	var (
-		largeTimeDelta = int(1e9)
-		largeRadius    = float32(1e6)
-	)
+	promotedParams := promotePartialParamsToJourneysParams(tc.testParams,
+		"driver").(*api.GetDriverJourneysParams)
 
-	switch driverOrPassenger {
-	case "driver":
-		params := api.GetDriverJourneysParams{}
-		params.DepartureDate = 1e9
-		params.TimeDelta = &largeTimeDelta
-		params.DepartureRadius = &largeRadius
-		params.ArrivalRadius = &largeRadius
+	promotedData := []api.DriverJourney{}
 
-		return &params
+	for _, d := range tc.testData {
+		promotedTrip := api.NewDriverJourney()
+		promotedTrip.Trip = d
 
-	case "passenger":
-		params := api.GetPassengerJourneysParams{}
-		params.DepartureDate = 1e9
-		params.TimeDelta = &largeTimeDelta
-		params.DepartureRadius = &largeRadius
-		params.ArrivalRadius = &largeRadius
+		promotedData = append(promotedData, promotedTrip)
+	}
 
-		return &params
+	return driverJourneysTestCase{
+		name:                 tc.name,
+		testParams:           promotedParams,
+		testData:             promotedData,
+		expectNonEmptyResult: tc.expectNonEmptyResult,
+	}
+}
 
-	default:
-		panic("invalid driverOrPassenger parameter")
+func (tc journeyScheduleTestCase) promoteToDriverJourneysTestCase(t *testing.T) driverJourneysTestCase {
+	t.Helper()
+
+	promotedParams := promotePartialParamsToJourneysParams(tc.testParams,
+		"driver").(*api.GetDriverJourneysParams)
+	promotedParams.DepartureDate = tc.testParams.GetDepartureDate()
+
+	promotedData := []api.DriverJourney{}
+
+	for _, d := range tc.testData {
+		promotedTrip := api.NewDriverJourney()
+		promotedTrip.JourneySchedule = d
+
+		promotedData = append(promotedData, promotedTrip)
+	}
+
+	return driverJourneysTestCase{
+		name:                 tc.name,
+		testParams:           promotedParams,
+		testData:             promotedData,
+		expectNonEmptyResult: tc.expectNonEmptyResult,
+	}
+}
+
+type passengerJourneysTestCase struct {
+	name                 string
+	testParams           api.GetJourneysParams
+	testData             []api.PassengerJourney
+	expectNonEmptyResult bool
+}
+
+func (tc tripTestCase) promoteToPassengerJourneysTestCase(t *testing.T) passengerJourneysTestCase {
+	t.Helper()
+
+	promotedParams := promotePartialParamsToJourneysParams(tc.testParams,
+		"passenger").(*api.GetPassengerJourneysParams)
+
+	promotedData := []api.PassengerJourney{}
+
+	for _, d := range tc.testData {
+		promotedTrip := api.NewPassengerJourney()
+		promotedTrip.Trip = d
+
+		promotedData = append(promotedData, promotedTrip)
+	}
+
+	return passengerJourneysTestCase{
+		name:                 tc.name,
+		testParams:           promotedParams,
+		testData:             promotedData,
+		expectNonEmptyResult: tc.expectNonEmptyResult,
+	}
+}
+
+func (tc journeyScheduleTestCase) promoteToPassengerJourneysTestCase(t *testing.T) passengerJourneysTestCase {
+	t.Helper()
+
+	promotedParams := promotePartialParamsToJourneysParams(tc.testParams,
+		"passenger").(*api.GetPassengerJourneysParams)
+	promotedParams.DepartureDate = tc.testParams.GetDepartureDate()
+
+	promotedData := []api.PassengerJourney{}
+
+	for _, d := range tc.testData {
+		promotedTrip := api.NewPassengerJourney()
+		promotedTrip.JourneySchedule = d
+
+		promotedData = append(promotedData, promotedTrip)
+	}
+
+	return passengerJourneysTestCase{
+		name:                 tc.name,
+		testParams:           promotedParams,
+		testData:             promotedData,
+		expectNonEmptyResult: tc.expectNonEmptyResult,
+	}
+}
+
+type driverRegularTripsTestCase struct {
+	name                 string
+	testParams           api.GetRegularTripParams
+	testData             []api.DriverRegularTrip
+	expectNonEmptyResult bool
+}
+
+type passengerRegularTripsTestCase struct {
+	name                 string
+	testParams           api.GetRegularTripParams
+	testData             []api.PassengerRegularTrip
+	expectNonEmptyResult bool
+}
+
+func (tc tripTestCase) promoteToDriverRegularTripsTestCase(t *testing.T) driverRegularTripsTestCase {
+	t.Helper()
+
+	promotedParams := promotePartialParamsToTripParams(tc.testParams,
+		"driver").(*api.GetDriverRegularTripsParams)
+
+	promotedData := []api.DriverRegularTrip{}
+
+	for _, d := range tc.testData {
+		promotedTrip := api.NewDriverRegularTrip()
+		promotedTrip.Trip = d
+
+		promotedData = append(promotedData, promotedTrip)
+	}
+
+	return driverRegularTripsTestCase{
+		name:                 tc.name,
+		testParams:           promotedParams,
+		testData:             promotedData,
+		expectNonEmptyResult: tc.expectNonEmptyResult,
+	}
+}
+
+func (tc tripTestCase) promoteToPassengerRegularTripsTestCase(t *testing.T) passengerRegularTripsTestCase {
+	t.Helper()
+
+	promotedParams := promotePartialParamsToTripParams(tc.testParams,
+		"passenger").(*api.GetPassengerRegularTripsParams)
+
+	promotedData := []api.PassengerRegularTrip{}
+
+	for _, d := range tc.testData {
+		promotedTrip := api.NewPassengerRegularTrip()
+		promotedTrip.Trip = d
+
+		promotedData = append(promotedData, promotedTrip)
+	}
+
+	return passengerRegularTripsTestCase{
+		name:                 tc.name,
+		testParams:           promotedParams,
+		testData:             promotedData,
+		expectNonEmptyResult: tc.expectNonEmptyResult,
 	}
 }

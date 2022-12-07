@@ -2,12 +2,10 @@ package service
 
 import (
 	"errors"
-	"math"
 	"net/http"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/api"
 	"github.com/fabmob/playground-standard-covoiturage/cmd/service/db"
-	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/labstack/echo/v4"
 )
 
@@ -163,44 +161,33 @@ func (s *StdCovServerImpl) GetDriverJourneys(
 	return ctx.JSON(http.StatusOK, response)
 }
 
-func keepJourney(params api.GetJourneysParams, trip api.Trip, schedule api.JourneySchedule) bool {
-	coordsRequestDeparture := util.Coord{
-		Lat: float64(params.GetDepartureLat()),
-		Lon: float64(params.GetDepartureLng()),
-	}
-	coordsResponseDeparture := util.Coord{
-		Lat: trip.PassengerPickupLat,
-		Lon: trip.PassengerPickupLng,
-	}
-	departureRadiusOK := util.Distance(coordsRequestDeparture, coordsResponseDeparture) <=
-		params.GetDepartureRadius()
-
-	coordsRequestArrival := util.Coord{
-		Lat: float64(params.GetArrivalLat()),
-		Lon: float64(params.GetArrivalLng()),
-	}
-	coordsResponseArrival := util.Coord{
-		Lat: trip.PassengerDropLat,
-		Lon: trip.PassengerDropLng,
-	}
-	arrivalRadiusOK := util.Distance(coordsRequestArrival, coordsResponseArrival) <=
-		params.GetArrivalRadius()
-
-	timeDeltaOK :=
-		math.Abs(float64(schedule.PassengerPickupDate)-float64(params.GetDepartureDate())) <
-			float64(params.GetTimeDelta())
-
-	return departureRadiusOK && arrivalRadiusOK && timeDeltaOK
-}
-
 // GetDriverRegularTrips searches for matching regular driver trip.
 // (GET /driver_regular_trips)
-func (*StdCovServerImpl) GetDriverRegularTrips(
+func (s *StdCovServerImpl) GetDriverRegularTrips(
 	ctx echo.Context,
 	params api.GetDriverRegularTripsParams,
 ) error {
-	// Implement me
-	return nil
+	response := []api.DriverRegularTrip{}
+
+	for _, drt := range s.db.GetDriverRegularTrips() {
+		if !keepTrip(&params, drt.Trip) {
+			continue
+		}
+
+		schedulesOK, err := anyScheduleOK(drt.Schedules, &params)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, errorBody(err))
+		}
+		if schedulesOK {
+			response = append(response, drt)
+		}
+	}
+
+	if params.Count != nil {
+		response = keepNFirst(response, *params.Count)
+	}
+
+	return ctx.JSON(http.StatusOK, response)
 }
 
 // PostMessages sends a mesage to the owner of a retrieved journey.
@@ -245,12 +232,31 @@ func (s *StdCovServerImpl) GetPassengerJourneys(
 
 // GetPassengerRegularTrips searches for matching pasenger regular trips.
 // (GET /passenger_regular_trips)
-func (*StdCovServerImpl) GetPassengerRegularTrips(
+func (s *StdCovServerImpl) GetPassengerRegularTrips(
 	ctx echo.Context,
 	params api.GetPassengerRegularTripsParams,
 ) error {
-	// Implement me
-	return nil
+	response := []api.PassengerRegularTrip{}
+
+	for _, prt := range s.db.GetPassengerRegularTrips() {
+		if !keepTrip(&params, prt.Trip) {
+			continue
+		}
+
+		schedulesOK, err := anyScheduleOK(prt.Schedules, &params)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, errorBody(err))
+		}
+		if schedulesOK {
+			response = append(response, prt)
+		}
+	}
+
+	if params.Count != nil {
+		response = keepNFirst(response, *params.Count)
+	}
+
+	return ctx.JSON(http.StatusOK, response)
 }
 
 // GetStatus gives health status of the webservice.

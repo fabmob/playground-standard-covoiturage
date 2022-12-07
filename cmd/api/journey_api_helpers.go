@@ -2,10 +2,14 @@ package api
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/fabmob/playground-standard-covoiturage/cmd/util"
 	"github.com/labstack/echo/v4"
+)
+
+var (
+	ExampleOperator    = "example.com"
+	ExampleJourneyType = DYNAMIC
 )
 
 // NewGetDriverJourneysParams returns query parameters, looking for a trip
@@ -39,11 +43,27 @@ func NewGetPassengerJourneysParams(
 	}
 }
 
+// NewTrip returns a valid Trip
+func NewTrip() Trip {
+	t := Trip{}
+	t.Operator = ExampleOperator
+
+	return t
+}
+
+// NewJourneySchedule returns a valid JourneySchedule
+func NewJourneySchedule() JourneySchedule {
+	js := JourneySchedule{}
+	js.Type = ExampleJourneyType
+
+	return js
+}
+
 // NewDriverJourney returns a valid DriverJourney
 func NewDriverJourney() DriverJourney {
 	dj := DriverJourney{}
-	dj.Type = "DYNAMIC"
-	dj.Operator = "example.com"
+	dj.JourneySchedule = NewJourneySchedule()
+	dj.Trip = NewTrip()
 
 	return dj
 }
@@ -51,12 +71,54 @@ func NewDriverJourney() DriverJourney {
 // NewPassengerJourney returns a valid PassengerJourney
 func NewPassengerJourney() PassengerJourney {
 	pj := PassengerJourney{}
+	pj.JourneySchedule = NewJourneySchedule()
+	pj.Trip = NewTrip()
+
+	// despite being a pointer, DriverDepartureDate is required
 	departureDate := int64(0)
-	pj.Operator = "example.com"
 	pj.DriverDepartureDate = &departureDate
-	pj.Type = "DYNAMIC"
 
 	return pj
+}
+
+// NewSchedule returns a valid Schedule
+func NewSchedule() Schedule {
+
+	timeOfDay := "08:00:00"
+	day := TUE
+	js := NewJourneySchedule()
+	// Pickup date compliant with above information
+	js.PassengerPickupDate = 457200
+
+	return Schedule{
+		PassengerPickupTimeOfDay: &timeOfDay,
+		PassengerPickupDay:       &day,
+		JourneySchedules:         &[]JourneySchedule{js},
+	}
+}
+
+// NewDriverRegularTrip returns a valid DriverRegularTrip
+func NewDriverRegularTrip() DriverRegularTrip {
+	drt := DriverRegularTrip{}
+	drt.Trip = NewTrip()
+
+	drt.Schedules = &[]Schedule{
+		NewSchedule(),
+	}
+
+	return drt
+}
+
+// NewPassengerRegularTrip returns a valid PassengerRegularTrip
+func NewPassengerRegularTrip() PassengerRegularTrip {
+	prt := PassengerRegularTrip{}
+	prt.Trip = NewTrip()
+
+	prt.Schedules = &[]Schedule{
+		NewSchedule(),
+	}
+
+	return prt
 }
 
 func GetJourneys(s ServerInterface, ctx echo.Context, params GetJourneysParams) error {
@@ -74,24 +136,10 @@ func GetJourneys(s ServerInterface, ctx echo.Context, params GetJourneysParams) 
 
 ///////////////////////////////////////////////
 
-type RequestParams interface {
-	MakeRequest(server string) (*http.Request, error)
-}
-
-func (p *GetDriverJourneysParams) MakeRequest(server string) (*http.Request, error) {
-	return NewGetDriverJourneysRequest(server, p)
-}
-
-func (p *GetPassengerJourneysParams) MakeRequest(server string) (*http.Request, error) {
-	return NewGetPassengerJourneysRequest(server, p)
-}
-
-type GetJourneysParams interface {
-	RequestParams
+type JourneyOrTripPartialParams interface {
 	GetDepartureLat() float64
 	GetDepartureLng() float64
 	GetDepartureRadius() float64
-	GetDepartureDate() int
 	GetArrivalLat() float64
 	GetArrivalLng() float64
 	GetArrivalRadius() float64
@@ -99,10 +147,24 @@ type GetJourneysParams interface {
 	GetCount() *int
 }
 
+type GetJourneysParams interface {
+	JourneyOrTripPartialParams
+	GetDepartureDate() int
+}
+
+type GetRegularTripParams interface {
+	JourneyOrTripPartialParams
+	GetDepartureTimeOfDay() string
+	GetDepartureWeekDays() []string
+	GetMinDepartureDate() *int
+	GetMaxDepartureDate() *int
+}
+
 var (
-	defaultTimeDelta       = 900
-	defaultDepartureRadius = float32(1.)
-	defaultArrivalRadius   = float32(1.)
+	defaultTimeDelta         = 900
+	defaultDepartureRadius   = float32(1.)
+	defaultArrivalRadius     = float32(1.)
+	defaultDepartureWeekdays = []string{"MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"}
 )
 
 // *GetDriverJourneysParams implements GetJourneysParams
@@ -149,6 +211,7 @@ func (p *GetDriverJourneysParams) GetCount() *int {
 	return p.Count
 }
 
+///////////////////////////////////////////////
 // *GetPassengerJourneysParams implements GetJourneysParams
 
 func (p *GetPassengerJourneysParams) GetDepartureLat() float64 {
@@ -193,13 +256,127 @@ func (p *GetPassengerJourneysParams) GetCount() *int {
 	return p.Count
 }
 
+///////////////////////////////////////////////
+// *GetDriverRegularTripsParams implements GetRegularTripsParams
+
+func (p *GetDriverRegularTripsParams) GetDepartureLat() float64 {
+	return float64(p.DepartureLat)
+}
+
+func (p *GetDriverRegularTripsParams) GetDepartureLng() float64 {
+	return float64(p.DepartureLng)
+}
+
+// GetDepartureRadius returns the value of DepartureRadius if any, or its default value
+// otherwise.
+func (p *GetDriverRegularTripsParams) GetDepartureRadius() float64 {
+	return float64(withDefaultValue(p.DepartureRadius, defaultDepartureRadius))
+}
+
+func (p *GetDriverRegularTripsParams) GetDepartureTimeOfDay() string {
+	return p.DepartureTimeOfDay
+}
+
+func (p *GetDriverRegularTripsParams) GetDepartureWeekDays() []string {
+	return withDefaultValue(p.DepartureWeekdays, defaultDepartureWeekdays)
+}
+
+func (p *GetDriverRegularTripsParams) GetArrivalLat() float64 {
+	return float64(p.ArrivalLat)
+}
+
+func (p *GetDriverRegularTripsParams) GetArrivalLng() float64 {
+	return float64(p.ArrivalLng)
+}
+
+// GetArrivalRadius returns the value of ArrivalRadius if any, or its default value
+// otherwise.
+func (p *GetDriverRegularTripsParams) GetArrivalRadius() float64 {
+	return float64(withDefaultValue(p.ArrivalRadius, defaultArrivalRadius))
+}
+
+// GetTimeDelta returns the value of TimeDelta if any, or its default value
+// otherwise. Implements GetJourneyParams.GetTimeDelta().
+func (p *GetDriverRegularTripsParams) GetTimeDelta() int {
+	return withDefaultValue(p.TimeDelta, defaultTimeDelta)
+}
+
+func (p *GetDriverRegularTripsParams) GetCount() *int {
+	return p.Count
+}
+
+func (p *GetDriverRegularTripsParams) GetMinDepartureDate() *int {
+	return p.MinDepartureDate
+}
+
+func (p *GetDriverRegularTripsParams) GetMaxDepartureDate() *int {
+	return p.MaxDepartureDate
+}
+
+///////////////////////////////////////////////
+// *GetPassengerRegularTripsParams implements GetRegularTripsParams
+
+func (p *GetPassengerRegularTripsParams) GetDepartureLat() float64 {
+	return float64(p.DepartureLat)
+}
+
+func (p *GetPassengerRegularTripsParams) GetDepartureLng() float64 {
+	return float64(p.DepartureLng)
+}
+
+// GetDepartureRadius returns the value of DepartureRadius if any, or its default value
+// otherwise.
+func (p *GetPassengerRegularTripsParams) GetDepartureRadius() float64 {
+	return float64(withDefaultValue(p.DepartureRadius, defaultDepartureRadius))
+}
+
+func (p *GetPassengerRegularTripsParams) GetDepartureTimeOfDay() string {
+	return p.DepartureTimeOfDay
+}
+
+func (p *GetPassengerRegularTripsParams) GetDepartureWeekDays() []string {
+	return withDefaultValue(p.DepartureWeekdays, defaultDepartureWeekdays)
+}
+
+func (p *GetPassengerRegularTripsParams) GetArrivalLat() float64 {
+	return float64(p.ArrivalLat)
+}
+
+func (p *GetPassengerRegularTripsParams) GetArrivalLng() float64 {
+	return float64(p.ArrivalLng)
+}
+
+// GetArrivalRadius returns the value of ArrivalRadius if any, or its default value
+// otherwise.
+func (p *GetPassengerRegularTripsParams) GetArrivalRadius() float64 {
+	return float64(withDefaultValue(p.ArrivalRadius, defaultArrivalRadius))
+}
+
+// GetTimeDelta returns the value of TimeDelta if any, or its default value
+// otherwise. Implements GetJourneyParams.GetTimeDelta().
+func (p *GetPassengerRegularTripsParams) GetTimeDelta() int {
+	return withDefaultValue(p.TimeDelta, defaultTimeDelta)
+}
+
+func (p *GetPassengerRegularTripsParams) GetCount() *int {
+	return p.Count
+}
+
+func (p *GetPassengerRegularTripsParams) GetMinDepartureDate() *int {
+	return p.MinDepartureDate
+}
+
+func (p *GetPassengerRegularTripsParams) GetMaxDepartureDate() *int {
+	return p.MaxDepartureDate
+}
+
 ////////////////////////////////////////////////////
 // Helpers
 ////////////////////////////////////////////////////
 
 // withDefaultValue takes a pointer, and returns the value pointed at, or a
 // default value if the pointer is nil
-func withDefaultValue[T int | float32 | float64](t *T, defaultValue T) T {
+func withDefaultValue[T any](t *T, defaultValue T) T {
 	if t == nil {
 		return defaultValue
 	}

@@ -21,160 +21,172 @@ func init() {
 	flag.BoolVar(&generateTestData, "generate", false, "Should test data be regenerated")
 }
 
+var (
+	coordsIgnore = util.Coord{Lat: 0, Lon: 0}
+	coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
+	coords900m   = util.Coord{Lat: 46.1613442, Lon: -1.2103736} // at ~900m from reference
+	coords1100m  = util.Coord{Lat: 46.1613679, Lon: -1.2086563} // at ~1100m from reference
+	coords2100m  = util.Coord{Lat: 46.1649225, Lon: -1.1954497} // at ~2100m from reference
+)
+
+// tripTestCases are common to GET /driver_journeys, GET /passenger_journeys,
+// GET /driver_regular_trips and GET /passenger_regular_trips
+var tripTestCases = []tripTestCase{
+	{
+		"No data",
+		&api.GetDriverJourneysParams{},
+		[]api.Trip{},
+		false,
+	},
+
+	{
+		"Departure radius 1",
+		makeParamsWithDepartureRadius(coordsRef, 1, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coords900m, coordsIgnore),
+			makeTripAtCoords(coords1100m, coordsIgnore),
+		},
+		true,
+	},
+
+	{
+		"Departure radius 2",
+		makeParamsWithDepartureRadius(coordsRef, 2, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coords900m, coordsIgnore),
+			makeTripAtCoords(coords2100m, coordsIgnore),
+		},
+		true,
+	},
+
+	{
+		"Departure radius 3",
+		makeParamsWithDepartureRadius(coordsRef, 1, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coords1100m, coordsIgnore),
+		},
+		false,
+	},
+
+	{
+		"Departure radius 3",
+		makeParamsWithDepartureRadius(coordsRef, 1, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coords900m, coordsIgnore),
+		},
+		true,
+	},
+
+	{
+		"Arrival radius 1",
+		makeParamsWithArrivalRadius(coordsRef, 1, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coordsIgnore, coords900m),
+			makeTripAtCoords(coordsIgnore, coords1100m),
+		},
+		true,
+	},
+
+	{
+		"Arrival radius 2",
+		makeParamsWithArrivalRadius(coordsRef, 2, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coordsIgnore, coords2100m),
+			makeTripAtCoords(coordsIgnore, coords900m),
+		},
+		true,
+	},
+
+	{
+		"Arrival radius 3",
+		makeParamsWithArrivalRadius(coordsRef, 1, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coordsIgnore, coords1100m),
+		},
+		false,
+	},
+
+	{
+		"Arrival radius 4",
+		makeParamsWithArrivalRadius(coordsRef, 1, "driver"),
+		[]api.Trip{
+			makeTripAtCoords(coordsIgnore, coords900m),
+		},
+		true,
+	},
+
+	{
+		"Count 1",
+		makeParamsWithCount(1, "driver"),
+		makeNTrips(1),
+		true,
+	},
+
+	{
+		"Count 2",
+		makeParamsWithCount(0, "driver"),
+		makeNTrips(1),
+		false,
+	},
+
+	{
+		"Count 3",
+		makeParamsWithCount(2, "driver"),
+		makeNTrips(4),
+		true,
+	},
+
+	{
+		"Count 4 - count > n driver journeys",
+		makeParamsWithCount(1, "driver"),
+		makeNTrips(0),
+		false,
+	},
+}
+
+// journeyScheduleTestCases are test cases common to GET /driver_journeys and
+// GET /passenger_journeys
+var journeyScheduleTestCases = []journeyScheduleTestCase{
+	{
+		"TimeDelta 1",
+		makeParamsWithTimeDelta(10,
+			"driver"),
+		[]api.JourneySchedule{
+			makeJourneyScheduleAtDate(5),
+		},
+		true,
+	},
+
+	{
+		"TimeDelta 2",
+		makeParamsWithTimeDelta(10,
+			"driver"),
+		[]api.JourneySchedule{
+			makeJourneyScheduleAtDate(15),
+		},
+		false,
+	},
+
+	{
+		"TimeDelta 3",
+		makeParamsWithTimeDelta(20,
+			"driver"),
+		[]api.JourneySchedule{
+			makeJourneyScheduleAtDate(25),
+			makeJourneyScheduleAtDate(15),
+		},
+		true,
+	},
+}
+
 func TestDriverJourneys(t *testing.T) {
-	var (
-		coordsIgnore = util.Coord{Lat: 0, Lon: 0}
-		coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
-		coords900m   = util.Coord{Lat: 46.1613442, Lon: -1.2103736} // at ~900m from reference
-		coords1100m  = util.Coord{Lat: 46.1613679, Lon: -1.2086563} // at ~1100m from reference
-		coords2100m  = util.Coord{Lat: 46.1649225, Lon: -1.1954497} // at ~2100m from reference
-	)
+	testCases := []driverJourneysTestCase{}
 
-	testCases := []struct {
-		name                 string
-		testParams           api.GetJourneysParams
-		testData             []api.DriverJourney
-		expectNonEmptyResult bool
-	}{
-
-		{
-			"No data",
-			&api.GetDriverJourneysParams{},
-			[]api.DriverJourney{},
-			false,
-		},
-
-		{
-			"Departure radius 1",
-			makeParamsWithDepartureRadius(coordsRef, 1, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coords900m, coordsIgnore),
-				makeDriverJourneyAtCoords(coords1100m, coordsIgnore),
-			},
-			true,
-		},
-
-		{
-			"Departure radius 2",
-			makeParamsWithDepartureRadius(coordsRef, 2, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coords900m, coordsIgnore),
-				makeDriverJourneyAtCoords(coords2100m, coordsIgnore),
-			},
-			true,
-		},
-
-		{
-			"Departure radius 3",
-			makeParamsWithDepartureRadius(coordsRef, 1, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coords1100m, coordsIgnore),
-			},
-			false,
-		},
-
-		{
-			"Departure radius 3",
-			makeParamsWithDepartureRadius(coordsRef, 1, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coords900m, coordsIgnore),
-			},
-			true,
-		},
-
-		{
-			"Arrival radius 1",
-			makeParamsWithArrivalRadius(coordsRef, 1, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coordsIgnore, coords900m),
-				makeDriverJourneyAtCoords(coordsIgnore, coords1100m),
-			},
-			true,
-		},
-
-		{
-			"Arrival radius 2",
-			makeParamsWithArrivalRadius(coordsRef, 2, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coordsIgnore, coords2100m),
-				makeDriverJourneyAtCoords(coordsIgnore, coords900m),
-			},
-			true,
-		},
-
-		{
-			"Arrival radius 3",
-			makeParamsWithArrivalRadius(coordsRef, 1, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coordsIgnore, coords1100m),
-			},
-			false,
-		},
-
-		{
-			"Arrival radius 4",
-			makeParamsWithArrivalRadius(coordsRef, 1, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtCoords(coordsIgnore, coords900m),
-			},
-			true,
-		},
-
-		{
-			"TimeDelta 1",
-			makeParamsWithTimeDelta(10, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtDate(5),
-			},
-			true,
-		},
-
-		{
-			"TimeDelta 2",
-			makeParamsWithTimeDelta(10, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtDate(15),
-			},
-			false,
-		},
-
-		{
-			"TimeDelta 3",
-			makeParamsWithTimeDelta(20, "driver"),
-			[]api.DriverJourney{
-				makeDriverJourneyAtDate(25),
-				makeDriverJourneyAtDate(15),
-			},
-			true,
-		},
-
-		{
-			"Count 1",
-			makeParamsWithCount(1, "driver"),
-			makeNDriverJourneys(1),
-			true,
-		},
-
-		{
-			"Count 2",
-			makeParamsWithCount(0, "driver"),
-			makeNDriverJourneys(1),
-			false,
-		},
-
-		{
-			"Count 3",
-			makeParamsWithCount(2, "driver"),
-			makeNDriverJourneys(4),
-			true,
-		},
-
-		{
-			"Count 4 - count > n driver journeys",
-			makeParamsWithCount(1, "driver"),
-			makeNDriverJourneys(0),
-			false,
-		},
+	for _, tc := range tripTestCases {
+		testCases = append(testCases, tc.promoteToDriverJourneysTestCase(t))
+	}
+	for _, tc := range journeyScheduleTestCases {
+		testCases = append(testCases, tc.promoteToDriverJourneysTestCase(t))
 	}
 
 	for _, tc := range testCases {
@@ -210,159 +222,13 @@ func TestDriverJourneys(t *testing.T) {
 }
 
 func TestPassengerJourneys(t *testing.T) {
-	var (
-		coordsIgnore = util.Coord{Lat: 0, Lon: 0}
-		coordsRef    = util.Coord{Lat: 46.1604531, Lon: -1.2219607} // reference
-		coords900m   = util.Coord{Lat: 46.1613442, Lon: -1.2103736} // at ~900m from reference
-		coords1100m  = util.Coord{Lat: 46.1613679, Lon: -1.2086563} // at ~1100m from reference
-		coords2100m  = util.Coord{Lat: 46.1649225, Lon: -1.1954497} // at ~2100m from reference
-	)
+	testCases := []passengerJourneysTestCase{}
 
-	testCases := []struct {
-		name                 string
-		testParams           api.GetJourneysParams
-		testData             []api.PassengerJourney
-		expectNonEmptyResult bool
-	}{
-
-		{
-			"No data",
-			&api.GetPassengerJourneysParams{},
-			[]api.PassengerJourney{},
-			false,
-		},
-
-		{
-			"Departure radius 0",
-			makeParamsWithDepartureRadius(coordsRef, 1, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coords900m, coordsIgnore),
-			},
-			true,
-		},
-
-		{
-			"Departure radius 1",
-			makeParamsWithDepartureRadius(coordsRef, 1, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coords900m, coordsIgnore),
-				makePassengerJourneyAtCoords(coords1100m, coordsIgnore),
-			},
-			true,
-		},
-
-		{
-			"Departure radius 2",
-			makeParamsWithDepartureRadius(coordsRef, 2, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coords900m, coordsIgnore),
-				makePassengerJourneyAtCoords(coords2100m, coordsIgnore),
-			},
-			true,
-		},
-
-		{
-			"Departure radius 3",
-			makeParamsWithDepartureRadius(coordsRef, 1, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coords1100m, coordsIgnore),
-			},
-			false,
-		},
-
-		{
-			"Arrival radius 1",
-			makeParamsWithArrivalRadius(coordsRef, 1, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coordsIgnore, coords900m),
-				makePassengerJourneyAtCoords(coordsIgnore, coords1100m),
-			},
-			true,
-		},
-
-		{
-			"Arrival radius 2",
-			makeParamsWithArrivalRadius(coordsRef, 2, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coordsIgnore, coords2100m),
-				makePassengerJourneyAtCoords(coordsIgnore, coords900m),
-			},
-			true,
-		},
-
-		{
-			"Arrival radius 3",
-			makeParamsWithArrivalRadius(coordsRef, 1, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coordsIgnore, coords1100m),
-			},
-			false,
-		},
-
-		{
-			"Arrival radius 4",
-			makeParamsWithArrivalRadius(coordsRef, 1, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtCoords(coordsIgnore, coords900m),
-			},
-			true,
-		},
-
-		{
-			"TimeDelta 1",
-			makeParamsWithTimeDelta(10, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtDate(5),
-			},
-			true,
-		},
-
-		{
-			"TimeDelta 2",
-			makeParamsWithTimeDelta(10, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtDate(15),
-			},
-			false,
-		},
-
-		{
-			"TimeDelta 3",
-			makeParamsWithTimeDelta(20, "passenger"),
-			[]api.PassengerJourney{
-				makePassengerJourneyAtDate(25),
-				makePassengerJourneyAtDate(15),
-			},
-			true,
-		},
-
-		{
-			"Count 1",
-			makeParamsWithCount(1, "passenger"),
-			makeNPassengerJourneys(1),
-			true,
-		},
-
-		{
-			"Count 2",
-			makeParamsWithCount(0, "passenger"),
-			makeNPassengerJourneys(1),
-			false,
-		},
-
-		{
-			"Count 3",
-			makeParamsWithCount(2, "passenger"),
-			makeNPassengerJourneys(4),
-			true,
-		},
-
-		{
-			"Count 4 - count > n passenger journeys",
-			makeParamsWithCount(1, "passenger"),
-			makeNPassengerJourneys(0),
-			false,
-		},
+	for _, tc := range tripTestCases {
+		testCases = append(testCases, tc.promoteToPassengerJourneysTestCase(t))
+	}
+	for _, tc := range journeyScheduleTestCases {
+		testCases = append(testCases, tc.promoteToPassengerJourneysTestCase(t))
 	}
 
 	for _, tc := range testCases {
@@ -392,6 +258,104 @@ func TestPassengerJourneys(t *testing.T) {
 				t,
 				mockDB,
 				tc.testParams.(*api.GetPassengerJourneysParams),
+				flags,
+			)
+		})
+	}
+}
+
+func TestGetDriverRegularTrips(t *testing.T) {
+	testCases := []driverRegularTripsTestCase{}
+
+	for _, tc := range tripTestCases {
+		testCases = append(testCases, tc.promoteToDriverRegularTripsTestCase(t))
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+
+			// If data is generated, then the test data and the requests date
+			// properties are shifted, so that there are no two tests falling the
+			// same week. The aim is to isolate the tests.
+			if generateTestData {
+				shiftToNextWeek()
+
+				for i := range tc.testData {
+					if tc.testData[i].Schedules != nil {
+						schedules := *tc.testData[i].Schedules
+						for _, schedule := range schedules {
+							if schedule.JourneySchedules != nil {
+								jschedules := *schedule.JourneySchedules
+								for i := range jschedules {
+									setJourneyDatesForGeneration(&jschedules[i])
+								}
+							}
+						}
+					}
+				}
+
+				setParamDatesForGeneration(tc.testParams)
+			}
+
+			mockDB := db.NewMockDB()
+			mockDB.DriverRegularTrips = tc.testData
+
+			flags := test.NewFlags()
+			flags.ExpectNonEmpty = tc.expectNonEmptyResult
+
+			TestGetDriverRegularTripsHelper(
+				t,
+				mockDB,
+				tc.testParams.(*api.GetDriverRegularTripsParams),
+				flags,
+			)
+		})
+	}
+}
+
+func TestGetPassengerRegularTrips(t *testing.T) {
+	testCases := []passengerRegularTripsTestCase{}
+
+	for _, tc := range tripTestCases {
+		testCases = append(testCases, tc.promoteToPassengerRegularTripsTestCase(t))
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+
+			// If data is generated, then the test data and the requests date
+			// properties are shifted, so that there are no two tests falling the
+			// same week. The aim is to isolate the tests.
+			if generateTestData {
+				shiftToNextWeek()
+
+				for i := range tc.testData {
+					if tc.testData[i].Schedules != nil {
+						schedules := *tc.testData[i].Schedules
+						for _, schedule := range schedules {
+							if schedule.JourneySchedules != nil {
+								jschedules := *schedule.JourneySchedules
+								for i := range jschedules {
+									setJourneyDatesForGeneration(&jschedules[i])
+								}
+							}
+						}
+					}
+				}
+
+				setParamDatesForGeneration(tc.testParams)
+			}
+
+			mockDB := db.NewMockDB()
+			mockDB.PassengerRegularTrips = tc.testData
+
+			flags := test.NewFlags()
+			flags.ExpectNonEmpty = tc.expectNonEmptyResult
+
+			TestGetPassengerRegularTripsHelper(
+				t,
+				mockDB,
+				tc.testParams.(*api.GetPassengerRegularTripsParams),
 				flags,
 			)
 		})
